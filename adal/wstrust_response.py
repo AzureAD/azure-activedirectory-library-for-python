@@ -1,0 +1,174 @@
+#-------------------------------------------------------------------------
+#
+# Copyright Microsoft Open Technologies, Inc.
+#
+# All Rights Reserved
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+# http: *www.apache.org/licenses/LICENSE-2.0
+#
+# THIS CODE IS PROVIDED *AS IS* BASIS, WITHOUT WARRANTIES OR CONDITIONS
+# OF ANY KIND, EITHER EXPRESS OR IMPLIED, INCLUDING WITHOUT LIMITATION
+# ANY IMPLIED WARRANTIES OR CONDITIONS OF TITLE, FITNESS FOR A
+# PARTICULAR PURPOSE, MERCHANTABILITY OR NON-INFRINGEMENT.
+#
+# See the Apache License, Version 2.0 for the specific language
+# governing permissions and limitations under the License.
+#
+#--------------------------------------------------------------------------
+
+from xml.etree import ElementTree
+
+from . import xmlutil
+from . import log
+
+class WSTrustResponse(object):
+    
+    def __init__(self, call_context, response):
+
+        self._log = log.Logger("WSTrustResponse", call_context['log_context'])
+        self._call_context = call_context
+        self._response = response
+        self._dom = None
+        self._parents = None
+        self._error_code = None
+        self._fault_message = None
+        self._tokne_type = None
+        self._token = None
+
+        self._log.debug("RSTR Response: {0}".format(self._response))
+
+    @property
+    def error_code(self):
+        return self._error_code
+
+    @property
+    def fault_message(self):
+        return self._fault_message
+
+    @property
+    def token_type(self):
+        return self.token_type
+
+    @property
+    def token(self):
+        return self._token
+
+    # Sample error message
+    #<s:Envelope xmlns:s="http://www.w3.org/2003/05/soap-envelope" xmlns:a="http://www.w3.org/2005/08/addressing" xmlns:u="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd">
+    #   <s:Header>
+    #    <a:Action s:mustUnderstand="1">http://www.w3.org/2005/08/addressing/soap/fault</a:Action>
+    #  - <o:Security s:mustUnderstand="1" xmlns:o="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd">
+    #      <u:Timestamp u:Id="_0">
+    #      <u:Created>2013-07-30T00:32:21.989Z</u:Created>
+    #      <u:Expires>2013-07-30T00:37:21.989Z</u:Expires>
+    #      </u:Timestamp>
+    #    </o:Security>
+    #    </s:Header>
+    #  <s:Body>
+    #    <s:Fault>
+    #      <s:Code>
+    #        <s:Value>s:Sender</s:Value>
+    #        <s:Subcode>
+    #        <s:Value xmlns:a="http://docs.oasis-open.org/ws-sx/ws-trust/200512">a:RequestFailed</s:Value>
+    #        </s:Subcode>
+    #      </s:Code>
+    #      <s:Reason>
+    #      <s:Text xml:lang="en-US">MSIS3127: The specified request failed.</s:Text>
+    #      </s:Reason>
+    #    </s:Fault>
+    # </s:Body>
+    #</s:Envelope>
+
+    def _parse_error(self):
+
+        error_found = False
+
+        fault_node = xmlutil.xpath_find(self._dom, '//s:Envelope/s:Body/s:Fault/s:Reason')
+        if fault_node:
+            self._fault_message = xmlutil.serialize_node_children(fault_node[0])
+
+            if self._fault_message:
+                error_found = True
+        
+        # Subcode has minoccurs=0 and maxoccurs=1(default) according to the http://www.w3.org/2003/05/soap-envelope
+        # Subcode may have another subcode as well. This is only targetting at top level subcode.
+        # Subcode value may have different messages not always uses http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd.
+        # text inside the value is not possible to select without prefix, so substring is necessary
+        subnode = xmlutil.xpath_find(self._dom, '//s:Envelope/s:Body/s:Fault/s:Code/s:Subcode/s:Value')
+        if len(subnode) > 1:
+            raise self._log.create_error("Found too many fault code values: {0}".format(len(subnode)))
+
+        if subnode:
+            error_code = subnode[0][0].text #TODO: check syntax
+            self._error_code = error_code.split(':')[1]
+
+        return error_found
+
+    def _parse_token(self):
+
+        token_type_nodes = xmlutil.xpath_find(self._dom, '//s:Envelope/s:Body/wst:RequestSecurityTokenResponseCollection/wst:RequestSecurityTokenResponse/wst:TokenType')
+        if not token_type_nodes:
+            raise self._log.create_error("No TokenType nodes found in RSTR")
+
+        for node in token_type_nodes:
+            if self._token:
+                self._log.warn("Found more than one returned token. Using the first.")
+                break
+
+            token_type = xmlutil.find_element_text(node)
+            if not token_type:
+                self._log.warn("Could not find token type in RSTR token.")
+
+            requested_token_node = xmlutil.xpath_find(self._parents[node], 'wst:RequestedSecurityToken')
+            if len(requested_token_node) > 1:
+                raise self._log.create_error("Found too many RequestedSecurityToken nodes for token type: {0}".format(token_type))
+
+            if not requested_token_node:
+                self._log.warn("Unable to find RequestsSecurityToken element associated with TokenType element: {0}".format(token_type))
+                continue
+
+            token = xmlutil.serialize_node_children(requested_token_node[0])
+            if not token:
+                self._log.warn("Unable to find token associated with TokenType element: {0}".format(token_type))
+                continue
+
+            self._token = token
+            self._token_type = token_type
+
+            self._log.info("Found token of type: {0}".format(self._token_type))
+
+        if not self._token:
+            raise self._log.create_error("Unable to find any tokens in RSTR.")
+
+    def parse(self):
+
+        if not self._response:
+            raise self._log.create_error("Received empty RSTR response body.")
+
+        try:
+            try:
+                self._dom = ElementTree.fromstring(self._response)
+                self._parents = {c:p for p in self._dom.iter() for c in p}
+
+            except Exception as exp:
+                raise self._log.create_error("Failed to parse RSTR in to DOM", exp)
+
+            error_found = self._parse_error()
+
+            if error_found:
+                str_error_code = self._error_code if self._error_code else 'NONE'
+                str_fault_message = self._fault_message if self._fault_message else 'NONE'
+                raise self._log.create_error('Server returned error in RSTR - ErrorCode: {0} : FaultMessage: {1}'.format(str_error_code, str_fault_message))
+
+            self._parse_token()
+
+        except Exception as exp:
+
+            self._dom = None
+            self._parents = None
+            raise exp
+

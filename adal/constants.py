@@ -19,6 +19,11 @@
 # governing permissions and limitations under the License.
 #
 #--------------------------------------------------------------------------
+class Errors:
+    # Constants
+    ERROR_VALUE_NONE = '{0} should not be None.'
+    ERROR_VALUE_EMPTY_STRING = '{0} should not be "".'
+    ERROR_RESPONSE_MALFORMED_XML = 'The provided response string is not well formed XML.'
 
 class OAuth2Parameters(object):
 
@@ -144,18 +149,22 @@ class Saml(object):
 
 
 class XmlNamespaces(object):
+    namespaces = {
+        'wsdl'   :'http://schemas.xmlsoap.org/wsdl/',
+        'sp'     :'http://docs.oasis-open.org/ws-sx/ws-securitypolicy/200702',
+        'sp2005' :'http://schemas.xmlsoap.org/ws/2005/07/securitypolicy',
+        'wsu'    :'http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd',
+        'wsa10'  :'http://www.w3.org/2005/08/addressing',
+        'http'   :'http://schemas.microsoft.com/ws/06/2004/policy/http',
+        'soap12' :'http://schemas.xmlsoap.org/wsdl/soap12/',
+        'wsp'    :'http://schemas.xmlsoap.org/ws/2004/09/policy',
+        's'      :'http://www.w3.org/2003/05/soap-envelope',
+        'wsa'    :'http://www.w3.org/2005/08/addressing',
+        'wst'    :'http://docs.oasis-open.org/ws-sx/ws-trust/200512',
+        'trust' : "http://docs.oasis-open.org/ws-sx/ws-trust/200512",
+        'saml' : "urn:oasis:names:tc:SAML:1.0:assertion",
 
-    wsdl   = 'http://schemas.xmlsoap.org/wsdl/'
-    sp     = 'http://docs.oasis-open.org/ws-sx/ws-securitypolicy/200702'
-    sp2005 = 'http://schemas.xmlsoap.org/ws/2005/07/securitypolicy'
-    wsu    = 'http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd'
-    wsa10  = 'http://www.w3.org/2005/08/addressing'
-    http   = 'http://schemas.microsoft.com/ws/06/2004/policy/http'
-    soap12 = 'http://schemas.xmlsoap.org/wsdl/soap12/'
-    wsp    = 'http://schemas.xmlsoap.org/ws/2004/09/policy'
-    s      = 'http://www.w3.org/2003/05/soap-envelope'
-    wsa    = 'http://www.w3.org/2005/08/addressing'
-    wst    = 'http://docs.oasis-open.org/ws-sx/ws-trust/200512'
+    }
 
 
 class Cache(object):

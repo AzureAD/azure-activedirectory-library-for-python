@@ -120,8 +120,8 @@ class Authority(object):
                 if not util.is_http_success(resp.status_code):
                     return_error_string = "{0} request returned http error: {1}".format(operation, resp.status_code)
                     error_response = ""
-                    if resp.body:
-                        return_error_string += " and server response: {0}".format(resp.body)
+                    if resp.text:
+                        return_error_string += " and server response: {0}".format(resp.text)
                         try:
                             error_response = resp.json()
                         except:

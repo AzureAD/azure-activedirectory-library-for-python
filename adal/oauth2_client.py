@@ -229,8 +229,8 @@ class OAuth2Client(object):
             if not util.is_http_success(resp.status_code):
                 return_error_string = "{0} request returned http error: {1}".format(operation, resp.status_code)
                 error_response = ""
-                if resp.body:
-                    return_error_string += " and server response: {0}".format(resp.body)
+                if resp.text:
+                    return_error_string += " and server response: {0}".format(resp.text)
                     try:
                         error_response = resp.json()
                     except:
@@ -240,7 +240,7 @@ class OAuth2Client(object):
                 return
 
             else:
-                self._handle_get_token_response(resp, resp.body, callback)
+                self._handle_get_token_response(resp, resp.text, callback)
 
         except Exception as exp:
             self._log.error("{0} request failed".format(operation), exp)

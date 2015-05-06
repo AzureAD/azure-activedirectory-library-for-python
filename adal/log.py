@@ -105,7 +105,7 @@ class Logger(object):
         message = self.log_message(3, message, error)
         self._logging.debug(message)
 
-    def create_error(self, message):
+    def create_error(self, message, error=None):
         err = Exception(message)
-        self.error(err)
+        self.error(err, error)
         return err

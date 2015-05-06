@@ -36,7 +36,7 @@ except ImportError:
 import adal
 from tests import util
 
-from tests.util import parameters as p
+from tests.util import parameters as cp
 
 
 class TestAuthenticationParameters(unittest.TestCase):
@@ -84,17 +84,17 @@ class TestAuthenticationParameters(unittest.TestCase):
             }
           ],
           [
-            'Bearer authorization_uri="' + p['authorityTenant'] + '", resource="' + p['resource'] + '"',
+            'Bearer authorization_uri="' + cp['authorityTenant'] + '", resource="' + cp['resource'] + '"',
             {
-              'authorizationUri' : p['authorityTenant'],
-              'resource' : p['resource'],
+              'authorizationUri' : cp['authorityTenant'],
+              'resource' : cp['resource'],
             }
           ],
           [
-            'Bearer authorization_uri="' + p['authorizeUrl'] + '", resource="' + p['resource'] + '"',
+            'Bearer authorization_uri="' + cp['authorizeUrl'] + '", resource="' + cp['resource'] + '"',
             {
-              'authorizationUri' : p['authorizeUrl'],
-              'resource' : p['resource'],
+              'authorizationUri' : cp['authorizeUrl'],
+              'resource' : cp['resource'],
             }
           ],
           # Add second = sign on first pair.
@@ -233,7 +233,7 @@ class TestAuthenticationParameters(unittest.TestCase):
         mock_get.return_value = mock.create_autospec(requests.Response)
         mock_get.return_value.status_code = 401
         mock_get.return_value.headers = { 'www-authenticate' : 'Bearer authorization_uri="foobar,lkfj,;l,", fruitcake="f",resource="clark, &^()- q32,shark" , f="foo"' }
-        mock_get.return_value.body = "foo"
+        mock_get.return_value.text = "foo"
 
         def _callback(err, parameters):
             if not err:
@@ -246,3 +246,6 @@ class TestAuthenticationParameters(unittest.TestCase):
                 self.assertEqual(parameters.resource, test_params['resource'],
                                  'Parsed resource  did not match expected value.: {0}'.format(parameters.resource))
         adal.authentication_parameters.create_authentication_parameters_from_url(testUrl, _callback, None)
+
+if __name__ == '__main__':
+    unittest.main()

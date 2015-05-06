@@ -6,7 +6,7 @@
     <ProjectGuid>a3fd1cd9-55d1-4dc7-a7e3-124dcfd9c010</ProjectGuid>
     <ProjectHome>
     </ProjectHome>
-    <StartupFile>adal\test\__init__.py</StartupFile>
+    <StartupFile>tests\__init__.py</StartupFile>
     <SearchPath>
     </SearchPath>
     <WorkingDirectory>.</WorkingDirectory>

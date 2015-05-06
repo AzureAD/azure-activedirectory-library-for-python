@@ -40,3 +40,8 @@ $RECYCLE.BIN/
 src/build
 *.iml
 /doc/_build
+
+# Virtual Environments
+/env/
+/env27/
+/env34/

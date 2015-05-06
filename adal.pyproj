@@ -6,7 +6,7 @@
     <ProjectGuid>a3fd1cd9-55d1-4dc7-a7e3-124dcfd9c010</ProjectGuid>
     <ProjectHome>
     </ProjectHome>
-    <StartupFile>adal\test\__init__.py</StartupFile>
+    <StartupFile>tests\__init__.py</StartupFile>
     <SearchPath>
     </SearchPath>
     <WorkingDirectory>.</WorkingDirectory>
@@ -23,6 +23,7 @@
     <EnableUnmanagedDebugging>false</EnableUnmanagedDebugging>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="adal\adal.py" />
     <Compile Include="adal\argument.py">
       <SubType>Code</SubType>
     </Compile>
@@ -56,15 +57,6 @@
     <Compile Include="adal\self_signed_jwt.py">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="adal\test\unittest_authentication_parameters.py">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="adal\test\util.py">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="adal\test\__init__.py">
-      <SubType>Code</SubType>
-    </Compile>
     <Compile Include="adal\token_request.py">
       <SubType>Code</SubType>
     </Compile>
@@ -86,34 +78,45 @@
     <Compile Include="adal\__init__.py">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="tests\test_acquire_token_with_user_pass.py" />
+    <Compile Include="tests\test_mex.py" />
+    <Compile Include="tests\test_wstrust_request.py" />
+    <Compile Include="tests\test_wstrust_response.py" />
+    <Compile Include="tests\unittest_authentication_parameters.py" />
+    <Compile Include="tests\util.py" />
+    <Compile Include="tests\__init__.py" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="adal\" />
-    <Folder Include="adal\test\" />
-    <Folder Include="adal\test\mex\" />
-    <Folder Include="adal\test\data\" />
-    <Folder Include="adal\test\wstrust\" />
+    <Folder Include="tests\" />
+    <Folder Include="tests\data\" />
+    <Folder Include="tests\mex\" />
+    <Folder Include="tests\wstrust\" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="adal\test\mex\address.insecure.xml" />
-    <Content Include="adal\test\mex\archan.us.mex.xml" />
-    <Content Include="adal\test\mex\arupela.mex.xml" />
-    <Content Include="adal\test\mex\common.mex.xml" />
-    <Content Include="adal\test\mex\microsoft.mex.xml" />
-    <Content Include="adal\test\mex\noaddress.xml" />
-    <Content Include="adal\test\mex\nobinding.port.xml" />
-    <Content Include="adal\test\mex\noname.binding.xml" />
-    <Content Include="adal\test\mex\nosoapaction.xml" />
-    <Content Include="adal\test\mex\nosoaptransport.xml" />
-    <Content Include="adal\test\mex\nouri.ref.xml" />
-    <Content Include="adal\test\mex\syntax.notrelated.mex.xml" />
-    <Content Include="adal\test\mex\syntax.related.mex.xml" />
-    <Content Include="adal\test\data\cover" />
-    <Content Include="adal\test\data\self-signed-cert.pem" />
-    <Content Include="adal\test\wstrust\common.base64.encoded.assertion.txt" />
-    <Content Include="adal\test\wstrust\common.rstr.xml" />
-    <Content Include="adal\test\wstrust\RST.xml" />
-    <Content Include="adal\test\wstrust\RSTR.xml" />
+    <Content Include=".gitignore" />
+    <Content Include="LICENSE" />
+    <Content Include="README.md" />
+    <Content Include="requirements.txt" />
+    <Content Include="tests\data\cover" />
+    <Content Include="tests\data\self-signed-cert.pem" />
+    <Content Include="tests\mex\address.insecure.xml" />
+    <Content Include="tests\mex\archan.us.mex.xml" />
+    <Content Include="tests\mex\arupela.mex.xml" />
+    <Content Include="tests\mex\common.mex.xml" />
+    <Content Include="tests\mex\microsoft.mex.xml" />
+    <Content Include="tests\mex\noaddress.xml" />
+    <Content Include="tests\mex\nobinding.port.xml" />
+    <Content Include="tests\mex\noname.binding.xml" />
+    <Content Include="tests\mex\nosoapaction.xml" />
+    <Content Include="tests\mex\nosoaptransport.xml" />
+    <Content Include="tests\mex\nouri.ref.xml" />
+    <Content Include="tests\mex\syntax.notrelated.mex.xml" />
+    <Content Include="tests\mex\syntax.related.mex.xml" />
+    <Content Include="tests\wstrust\common.base64.encoded.assertion.txt" />
+    <Content Include="tests\wstrust\common.rstr.xml" />
+    <Content Include="tests\wstrust\RST.xml" />
+    <Content Include="tests\wstrust\RSTR.xml" />
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>

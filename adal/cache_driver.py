@@ -245,7 +245,7 @@ class CacheDriver(object):
             self._refresh_expired_entry(entry, callback)
             return
 
-        elif not is_resource_specific and entry.get['isMRRT'] == True:
+        elif not is_resource_specific and entry.get('isMRRT') == True:
             self._log.info("Acquiring new access token from MRRT token.")
             self._acquire_new_token_from_mrrt(entry, callback)
             return

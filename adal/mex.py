@@ -206,9 +206,9 @@ class Mex(object):
 
             binding_policy = policies.get(bindings.get(binding_id))
             if binding_policy:
-                if binding_policy.get('url', None):
+                if not binding_policy.get('url', None):
                     address_node = node.find(ADDRESS_XPATH, XmlNamespaces.namespaces)
-                    if not address_node:
+                    if address_node is None:
                         raise self._log.create_error("No address nodes on port")
 
                     address = xmlutil.find_element_text(address_node)
@@ -224,7 +224,7 @@ class Mex(object):
             self._log.warn("No policies found with a url.")
             return
 
-        matching_policies = random.shuffle(matching_policies)
+        random.shuffle(matching_policies)
         self._user_pass_url = matching_policies[0]['url']
 
     def _parse(self, callback):

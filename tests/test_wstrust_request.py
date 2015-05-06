@@ -17,7 +17,10 @@ from adal.wstrust_request import WSTrustRequest
 from adal.wstrust_response import WSTrustResponse
 import httpretty
 import os
-import unittest.mock
+try:
+    from unittest import mock
+except ImportError:
+    import mock
 
 TEST_CORRELATION_ID = 'test-correlation-id-123456789'
 wstrustEndpoint = 'https://test.wstrust.endpoint/'
@@ -47,7 +50,7 @@ class Test_wstrust_request(unittest.TestCase):
         httpretty.enable()
         httpretty.register_uri(method=httpretty.POST, uri=wstrustEndpoint, status=200, body='')
         
-        request._handle_rstr =unittest.mock.MagicMock()
+        request._handle_rstr =mock.MagicMock()
 
         def callback():
             pass

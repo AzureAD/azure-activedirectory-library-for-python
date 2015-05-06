@@ -132,7 +132,7 @@ class WSTrustResponse(object):
                 continue
 
             token = requested_token_node[0] # xmlutil.serialize_node_children(requested_token_node[0])
-            if not token:
+            if token is None:
                 self._log.warn("Unable to find token associated with TokenType element: {0}".format(token_type))
                 continue
 
@@ -141,7 +141,7 @@ class WSTrustResponse(object):
 
             self._log.info("Found token of type: {0}".format(self._token_type))
 
-        if not self._token:
+        if self._token is None:
             raise self._log.create_error("Unable to find any tokens in RSTR.")
 
     def parse(self):

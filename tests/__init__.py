@@ -29,9 +29,9 @@ if sys.version_info[:2] < (2, 7, ):
         from unittest2 import TestLoader, TextTestRunner
 
     except ImportError:
-        raise ImportError("The BatchApps Python Client test suite requires "
-                          "the unittest2 package to run on Python 2.6 and "
-                          "below.\nPlease install this package to continue.")
+        raise ImportError("The ADAL test suite requires the unittest2 "
+                          "package to run on Python 2.6 and below.\n"
+                          "Please install this package to continue.")
 else:
     import unittest
     from unittest import TestLoader, TextTestRunner
@@ -43,8 +43,8 @@ else:
         import mock
 
     except ImportError:
-        raise ImportError("The BatchApps Python Client test suite requires "
-                          "the mock package to run on Python 3.2 and below.\n"
+        raise ImportError("The ADAL test suite requires the mock "
+                          "package to run on Python 3.2 and below.\n"
                           "Please install this package to continue.")
 
 
@@ -56,6 +56,6 @@ if __name__ == '__main__':
     top_dir = os.path.dirname(os.path.dirname(test_dir))
     test_loader = TestLoader()
     suite = test_loader.discover(test_dir,
-                                 pattern="unittest_*.py",
+                                 pattern="test_*.py",
                                  top_level_dir=top_dir)
     runner.run(suite)

@@ -77,7 +77,8 @@ def create_request_options(self, *options):
     merged_options = {}
 
     if options:
-        merged_options.update(options.pop())
+        for i in options:
+            merged_options.update(i)
 
     if self._call_context.get('options') and self._call_context['options'].get('http'):
         merged_options.update(self._call_context['options']['http'])

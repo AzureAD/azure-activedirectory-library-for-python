@@ -96,12 +96,12 @@ class WSTrustRequest(object):
 
     def _handle_rstr(self, body, callback):
 
-        wstrust_response = wstrust_response.WSTrustResponse(self._call_context, body)
+        wstrust_resp = wstrust_response.WSTrustResponse(self._call_context, body)
         try:
-            wstrust_response.parse()
+            wstrust_resp.parse()
+            callback(None, wstrust_resp)
         except Exception as exp:
-            callback(exp, wstrust_response)
-        callback(None, wstrust_response)
+            callback(exp, wstrust_resp)
 
     def acquire_token(self, username, password, callback):
 
@@ -120,8 +120,8 @@ class WSTrustRequest(object):
             if not util.is_http_success(resp.status_code):
                 return_error_string = "{0} request returned http error: {1}".format(operation, resp.status_code)
                 error_response = ""
-                if resp.body:
-                    return_error_string += " and server response: {0}".format(resp.body)
+                if resp.text:
+                    return_error_string += " and server response: {0}".format(resp.text)
                     try:
                         error_response = resp.json()
                     except:
@@ -131,7 +131,7 @@ class WSTrustRequest(object):
                 return
 
             else:
-                self._handle_rstr(resp.body, callback)
+                self._handle_rstr(resp.text, callback)
 
         except Exception as exp:
             self._log.error("{0} request failed".format(operation), exp)

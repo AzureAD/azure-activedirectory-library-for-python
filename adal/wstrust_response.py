@@ -36,7 +36,7 @@ class WSTrustResponse(object):
         self._parents = None
         self._error_code = None
         self._fault_message = None
-        self._tokne_type = None
+        self._token_type = None
         self._token = None
 
         self._log.debug("RSTR Response: {0}".format(self._response))
@@ -51,7 +51,7 @@ class WSTrustResponse(object):
 
     @property
     def token_type(self):
-        return self.token_type
+        return self._token_type
 
     @property
     def token(self):
@@ -87,9 +87,9 @@ class WSTrustResponse(object):
 
         error_found = False
 
-        fault_node = xmlutil.xpath_find(self._dom, '//s:Envelope/s:Body/s:Fault/s:Reason')
+        fault_node = xmlutil.xpath_find(self._dom, 's:Body/s:Fault/s:Reason/s:Text')
         if fault_node:
-            self._fault_message = xmlutil.serialize_node_children(fault_node[0])
+            self._fault_message = fault_node[0].text
 
             if self._fault_message:
                 error_found = True
@@ -98,19 +98,19 @@ class WSTrustResponse(object):
         # Subcode may have another subcode as well. This is only targetting at top level subcode.
         # Subcode value may have different messages not always uses http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd.
         # text inside the value is not possible to select without prefix, so substring is necessary
-        subnode = xmlutil.xpath_find(self._dom, '//s:Envelope/s:Body/s:Fault/s:Code/s:Subcode/s:Value')
+        subnode = xmlutil.xpath_find(self._dom, 's:Body/s:Fault/s:Code/s:Subcode/s:Value')
         if len(subnode) > 1:
             raise self._log.create_error("Found too many fault code values: {0}".format(len(subnode)))
 
         if subnode:
-            error_code = subnode[0][0].text #TODO: check syntax
+            error_code = subnode[0].text
             self._error_code = error_code.split(':')[1]
 
         return error_found
 
     def _parse_token(self):
 
-        token_type_nodes = xmlutil.xpath_find(self._dom, '//s:Envelope/s:Body/wst:RequestSecurityTokenResponseCollection/wst:RequestSecurityTokenResponse/wst:TokenType')
+        token_type_nodes = xmlutil.xpath_find(self._dom, 's:Body/wst:RequestSecurityTokenResponseCollection/wst:RequestSecurityTokenResponse/wst:TokenType')
         if not token_type_nodes:
             raise self._log.create_error("No TokenType nodes found in RSTR")
 
@@ -131,7 +131,7 @@ class WSTrustResponse(object):
                 self._log.warn("Unable to find RequestsSecurityToken element associated with TokenType element: {0}".format(token_type))
                 continue
 
-            token = xmlutil.serialize_node_children(requested_token_node[0])
+            token = requested_token_node[0] # xmlutil.serialize_node_children(requested_token_node[0])
             if not token:
                 self._log.warn("Unable to find token associated with TokenType element: {0}".format(token_type))
                 continue

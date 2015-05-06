@@ -27,7 +27,7 @@ XPATH_PATH_TEMPLATE = '*[local-name() = \'LOCAL_NAME\' and namespace-uri() = \'N
 
 def expand_Q_names(xpath):
 
-    namespaces = constants.XmlNamespaces
+    namespaces = constants.XmlNamespaces.namespaces
     path_parts = xpath.split('/')
     for index, part in enumerate(path_parts):
         if part.find(":") != -1:
@@ -42,14 +42,15 @@ def expand_Q_names(xpath):
     return '/'.join(path_parts)
 
 def xpath_find(dom, xpath):
-    return dom.findall(xpath, constants.XmlNamespaces)
+    return dom.findall(xpath, constants.XmlNamespaces.namespaces)
 
 def serialize_node_children(node):
 
     doc = ""
     for child in node.iter():
         if is_element_node(child):
-            doc += ElementTree.tostring(child)
+            estring = ElementTree.tostring(child)
+            doc += estring if isinstance(estring, str) else estring.decode()
 
     return doc if doc else None
 

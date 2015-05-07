@@ -68,7 +68,7 @@ class WSTrustRequest(object):
 
     def _build_rst(self, username, password):
 
-        message_id = uuid.uuid4()
+        message_id = str(uuid.uuid4())
         rst = "<s:Envelope xmlns:s=\'http://www.w3.org/2003/05/soap-envelope\' xmlns:wsa=\'http://www.w3.org/2005/08/addressing\' xmlns:wsu=\'http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd\'>\
       <s:Header>\
         <wsa:Action s:mustUnderstand=\'1\'>http://docs.oasis-open.org/ws-sx/ws-trust/200512/RST/Issue</wsa:Action>\

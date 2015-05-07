@@ -22,6 +22,7 @@
 
 import sys
 import requests
+import httpretty
 
 try:
     import unittest2 as unittest
@@ -37,6 +38,12 @@ import adal
 from tests import util
 
 from tests.util import parameters as cp
+
+try:
+    from urllib.parse import urlparse
+
+except ImportError:
+    from urlparse import urlparse
 
 
 class TestAuthenticationParameters(unittest.TestCase):
@@ -223,29 +230,95 @@ class TestAuthenticationParameters(unittest.TestCase):
 
         self.run_data(test_data, adal.authentication_parameters.create_authentication_parameters_from_response)
 
-    @mock.patch.object(adal.authentication_parameters.requests, 'get')
-    def test_create_from_url_happy_string_url(self, mock_get):
+    @httpretty.activate
+    def test_create_from_url_happy_string_url(self):
         testHost = 'https://this.is.my.domain.com'
         testPath = '/path/to/resource'
         testQuery = 'a=query&string=really'
         testUrl = testHost + testPath + '?' + testQuery
 
-        mock_get.return_value = mock.create_autospec(requests.Response)
-        mock_get.return_value.status_code = 401
-        mock_get.return_value.headers = { 'www-authenticate' : 'Bearer authorization_uri="foobar,lkfj,;l,", fruitcake="f",resource="clark, &^()- q32,shark" , f="foo"' }
-        mock_get.return_value.text = "foo"
+        httpretty.register_uri(httpretty.GET, uri=testUrl, body='foo', status=401, **{'www-authenticate':'Bearer authorization_uri="foobar,lkfj,;l,", fruitcake="f",resource="clark, &^()- q32,shark" , f="foo"'})
 
         def _callback(err, parameters):
-            if not err:
-                test_params = {
-                  'authorizationUri' : 'foobar,lkfj,;l,',
-                  'resource' : 'clark, &^()- q32,shark',
-                }
-                self.assertEqual(parameters.authorization_uri, test_params['authorizationUri'],
-                                 'Parsed authorizationUri did not match expected value.: {0}'.format(parameters.authorization_uri))
-                self.assertEqual(parameters.resource, test_params['resource'],
-                                 'Parsed resource  did not match expected value.: {0}'.format(parameters.resource))
+            self.assertIsNone(err, "An error was raised during function {0}".format(err))
+            test_params = {
+                'authorizationUri' : 'foobar,lkfj,;l,',
+                'resource' : 'clark, &^()- q32,shark',
+            }
+            self.assertEqual(parameters.authorization_uri, test_params['authorizationUri'],
+                                'Parsed authorizationUri did not match expected value.: {0}'.format(parameters.authorization_uri))
+            self.assertEqual(parameters.resource, test_params['resource'],
+                                'Parsed resource  did not match expected value.: {0}'.format(parameters.resource))
         adal.authentication_parameters.create_authentication_parameters_from_url(testUrl, _callback, None)
+
+        req = httpretty.last_request()
+        util.match_standard_request_headers(req)
+
+    @httpretty.activate
+    def test_create_from_url_happy_path_url_object(self):
+        testHost = 'https://this.is.my.domain.com'
+        testPath = '/path/to/resource'
+        testQuery = 'a=query&string=really'
+        testUrl = testHost + testPath + '?' + testQuery
+
+        httpretty.register_uri(httpretty.GET, uri=testUrl, body='foo', status=401, **{'www-authenticate':'Bearer authorization_uri="foobar,lkfj,;l,", fruitcake="f",resource="clark, &^()- q32,shark" , f="foo"'})
+
+        url_obj = urlparse(testUrl)
+
+        def _callback(err, parameters):
+            self.assertIsNone(err, "An error was raised during function {0}".format(err))
+            test_params = {
+                'authorizationUri' : 'foobar,lkfj,;l,',
+                'resource' : 'clark, &^()- q32,shark',
+            }
+            self.assertEqual(parameters.authorization_uri, test_params['authorizationUri'],
+                                'Parsed authorizationUri did not match expected value.: {0}'.format(parameters.authorization_uri))
+            self.assertEqual(parameters.resource, test_params['resource'],
+                                'Parsed resource  did not match expected value.: {0}'.format(parameters.resource))
+
+        adal.authentication_parameters.create_authentication_parameters_from_url(url_obj, _callback)
+
+        req = httpretty.last_request()
+        util.match_standard_request_headers(req)
+
+    def test_create_from_url_bad_object(self):
+        
+        def _callback(err, resp):
+            self.assertIsNotNone(err, "Did not receive expected error.")
+
+        adal.authentication_parameters.create_authentication_parameters_from_url({}, _callback)
+
+    def test_create_from_url_not_passed(self):
+
+        def _callback(err, resp):
+            self.assertIsNotNone(err, "Did not receive expected error.")
+
+        adal.authentication_parameters.create_authentication_parameters_from_url(None, _callback)
+
+    @httpretty.activate
+    def test_create_from_url_no_header(self):
+        testHost = 'https://this.is.my.domain.com'
+        testPath = '/path/to/resource'
+        testQuery = 'a=query&string=really'
+        testUrl = testHost + testPath + '?' + testQuery
+
+        httpretty.register_uri(httpretty.GET, uri=testUrl, body='foo', status=401)
+
+        def _callback(err, resp):
+            self.assertIsNotNone(err, "Did not receive expected error.")
+            self.assertTrue(err.message.find('header') >= 0, 'Error did not include message about missing header')
+
+        adal.authentication_parameters.create_authentication_parameters_from_url(testUrl, _callback)
+
+        req = httpretty.last_request()
+        util.match_standard_request_headers(req)
+
+    def test_create_from_url_network_error(self):
+
+        def _callback(err, resp):
+            self.assertIsNotNone(err, "Did not receive expected error.")
+
+        adal.authentication_parameters.create_authentication_parameters_from_url('https://0.0.0.0/foobar', _callback)
 
 if __name__ == '__main__':
     unittest.main()

@@ -123,7 +123,7 @@ def create_authentication_parameters_from_header(challenge):
 
 def create_authentication_parameters_from_response(response):
 
-    if not response:
+    if response is None:
         raise AttributeError('Missing required parameter: response')
 
     if not hasattr(response, 'status_code') or not response.status_code:
@@ -147,7 +147,7 @@ def validate_url_object(url):
     if not url or not hasattr(url, 'geturl'):
         raise AttributeError('Parameter is of wrong type: url')
 
-def create_authentication_parameters_from_url(url, callback, correlation_id):
+def create_authentication_parameters_from_url(url, callback, correlation_id=None):
 
     argument.validate_callback_type(callback)
     try:
@@ -155,7 +155,7 @@ def create_authentication_parameters_from_url(url, callback, correlation_id):
             challenge_url = url
         else:
             validate_url_object(url)
-            challenge_url = url.get_url()
+            challenge_url = url.geturl()
 
         log_context = log.create_log_context(correlation_id)
         logger = log.Logger('AuthenticationParameters', log_context)

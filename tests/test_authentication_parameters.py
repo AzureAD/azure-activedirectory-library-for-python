@@ -300,7 +300,7 @@ class TestAuthenticationParameters(unittest.TestCase):
 
         def _callback(err, resp):
             self.assertIsNotNone(err, "Did not receive expected error.")
-            self.assertTrue(err.message.find('header') >= 0, 'Error did not include message about missing header')
+            self.assertTrue(str(err).find('header') >= 0, 'Error did not include message about missing header')
 
         adal.authentication_parameters.create_authentication_parameters_from_url(self.testUrl, _callback)
 

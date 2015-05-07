@@ -21,14 +21,16 @@
 #--------------------------------------------------------------------------
 
 try:
-    from urllib.parse import quote, unquote, urlencode
-    from urllib.parse import urlparse, urlsplit
+    from urllib.parse import quote, urlencode
+    from urllib.parse import urlparse, urlunparse
 
 except ImportError:
-    from urllib import quote, unquote, urlencode
-    from urlparse import urlparse, urlsplit
+    from urllib import quote, urlencode
+    from urlparse import urlparse, urlunparse
 
+import json
 import requests
+
 from . import constants
 from . import log
 from . import util
@@ -75,17 +77,17 @@ class UserRealm(object):
 
     def _get_user_realm_url(self):
 
-        user_realm_url = util.copy_url(self._authority)
+        user_realm_url = list(util.copy_url(self._authority))
         url_encoded_user = quote(self._user_principle, safe='~()*!.\'')
-        user_realm_url.path  = USER_REALM_PATH_TEMPLATE.replace('<user>', url_encoded_user)
+        user_realm_url[2] += USER_REALM_PATH_TEMPLATE.replace('<user>', url_encoded_user)
 
         user_realm_query = {'api-version':self._api_version}
-        user_realm_url.query = urlencode(user_realm_query)
-        user_realm_url = util.copy_url(user_realm_url)
+        user_realm_url[4] = urlencode(user_realm_query)
+        user_realm_url = util.copy_url(urlunparse(user_realm_url))
 
         return user_realm_url
 
-    def _validate_constant_value(self, constants, value, case_sensitive):
+    def _validate_constant_value(self, constants, value, case_sensitive=False):
 
         if not value:
             return False
@@ -93,7 +95,7 @@ class UserRealm(object):
         if not case_sensitive:
             value = value.lower()
 
-        return value if value in constnats.values() else False
+        return value if value in constants.values() else False
 
     def _validate_account_type(self, type):
         return self._validate_constant_value(AccountType, type)
@@ -148,7 +150,7 @@ class UserRealm(object):
 
         operation = 'User Realm Discovery'
         try:
-            resp = requests.get(user_realm_url, headers=options['headers'])
+            resp = requests.get(user_realm_url.geturl(), headers=options['headers'])
             util.log_return_correlation_id(self._log, operation, resp)
 
             if not util.is_http_success(resp.status_code):
@@ -169,5 +171,5 @@ class UserRealm(object):
 
         except Exception as exp:
             self._log.error("{0} request failed".format(operation), exp)
-            callback(exp, None)
+            callback(exp)
             return

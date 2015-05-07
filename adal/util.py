@@ -118,7 +118,10 @@ def log_return_correlation_id(log, operation_message, response):
 #    return req_handler
 
 def copy_url(url_source):
-    return urlparse(url_source.geturl())
+    if hasattr(url_source, 'geturl'):
+        return urlparse(url_source.geturl())
+    else:
+        return urlparse(url_source)
 
 def convert_urlsafe_to_regular_b64encoded_string(urlsafe):
     return urlsafe.replace('-', '+').replace('_', '/')

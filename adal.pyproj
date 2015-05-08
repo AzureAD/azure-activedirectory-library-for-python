@@ -80,6 +80,7 @@
     </Compile>
     <Compile Include="tests\test_acquire_token_with_user_pass.py" />
     <Compile Include="tests\test_mex.py" />
+    <Compile Include="tests\test_user_realm.py" />
     <Compile Include="tests\test_wstrust_request.py" />
     <Compile Include="tests\test_wstrust_response.py" />
     <Compile Include="tests\test_authentication_parameters.py" />

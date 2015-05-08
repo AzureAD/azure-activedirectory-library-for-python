@@ -119,7 +119,7 @@ class OAuth2Client(object):
             user_id = id_token['subject']
 
         if not user_id:
-            user_id = uuid.uuid4()
+            user_id = str(uuid.uuid4())
 
         user_id_vals = {}
         user_id_vals[IdTokenFields.USER_ID] = user_id

@@ -21,6 +21,7 @@
 #--------------------------------------------------------------------------
 
 import os
+import re
 import adal
 
 from adal import log
@@ -168,7 +169,7 @@ parameters['jwtId'] = '09841beb-a2c2-4777-a347-34ef055238a8'
 parameters['expectedJwt'] = 'eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsIng1dCI6IndWM3FobGF0MzJlLWdESFlYcjNjV3RiRU51RSJ9.eyJhdWQiOiJodHRwczovL2xvZ2luLndpbmRvd3MubmV0L3JyYW5kYWxsYWFkMS5vbm1pY3Jvc29mdC5jb20vb2F1dGgyL3Rva2VuIiwiaXNzIjoiY2xpZW4mJj8_P3RJZCIsInN1YiI6ImNsaWVuJiY_Pz90SWQiLCJuYmYiOjE0MTg0MzM2NDYsImV4cCI6MTQxODQzNDI0NiwianRpIjoiMDk4NDFiZWItYTJjMi00Nzc3LWEzNDctMzRlZjA1NTIzOGE4In0.dgF0TRlcASgTMp_1dlm8vd7tudr6n40VeuOQGFnz566s3n76WR_jJDBBBKlYeqc9gwCPFOzrLVAJehVYZ3N7YPzVdulf47rLoQdAp8R_p4Q4hdBZuIzfgDWwXjnP9x_NlfzezEYE4r8KTS2g5BBzPmx538AfIdNM93hWIxQySZGWY5UAhTkT1qE1ce1Yjo1M2HqzEJhTg5TTyfrnDtNxFxmzYhSyA9B41lB5kBuJTXUWXPrr-6eG8cEUOS-iiH7YB1Tf4J7_9JQloevTiOrfv4pSp6xLLXm2ntNBg3gaKsGKdYd-3tsCG0mHn7BzL0b-QCLalkUr8KtgtLqkxuAiLQ'
 parameters['cert'] = get_self_signed_cert()
 
-correlation_id_regex = "[^\s]+"
+correlation_id_regex = re.compile("[^\s]+")
 
 def set_correlation_id(correlation_id):
     correlation_id_regex = correlation_id if correlation_id else correlation_id_regex
@@ -282,18 +283,13 @@ def val_exists(val):
 
 def match_standard_request_headers(mock_request):
     matches = []
+    request_id = correlation_id_regex.match(mock_request.headers.get('client-request-id'))
 
     matches.append(mock_request.headers.get('x-client-SKU') == 'Python')
     matches.append(mock_request.headers.get('x-client-Ver', "").startswith('0.'))
     matches.append(mock_request.headers.get('x-client-OS') != None)
     matches.append(mock_request.headers.get('x-client-CPU') != None)
-    matches.append(mock_request.headers.get('client-request-id') == correlation_id_regex)
+    matches.append(request_id != None)
 
     if not all(matches):
         raise AssertionError("Not all the standard request headers matched.")
-
-#def setup_expexted_oauth_response(query_parameters, token_path, http_code, return_doc, authority_endpoint):
-#    query = urlencode(query_parameters)
-#    auth_endpoint = get_mock_authority_host(authority_endpoint)
-
-#    token_request = 

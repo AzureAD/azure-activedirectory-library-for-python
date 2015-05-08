@@ -192,4 +192,4 @@ class AdalIdParameters(object):
     VERSION = 'x-client-Ver'
     OS = 'x-client-OS'
     CPU = 'x-client-CPU'
-    PYTHON_SKU = 'Node'
+    PYTHON_SKU = 'Python'

@@ -50,7 +50,7 @@ class SelfSignedJwt(object):
         return datetime.datetime.now()
 
     def _get_new_jwt_id(self):
-        return uuid.uuid4()
+        return str(uuid.uuid4())
 
     def _create_x5t_value(self, thumbprint):
         hex_str = thumbprint.replace(':', '').replace(' ', '')

@@ -43,8 +43,8 @@ class Test_Mex(unittest.TestCase):
     def test_logically_invalid_no_uri_ref(self):
         self._badMexDocTest('nouri.ref.xml')
 
+    @httpretty.activate
     def test_failed_request(self):
-        httpretty.enable()
         httpretty.register_uri(httpretty.GET, uri = cp['adfsMex'], status = 500)
 
         mex = Mex(cp['callContext'], cp['adfsMex'])
@@ -53,12 +53,9 @@ class Test_Mex(unittest.TestCase):
             self.assertEqual(err.args[0], 'Mex Get request returned http error: 500 and server response: HTTPretty :)')
 
         mex.discover(verify)
-        
-        httpretty.disable()
-        httpretty.reset()
-
+    
+    @httpretty.activate
     def _happyPathTest(self, file_name, expectedUrl):
-        httpretty.enable()
         mexDocPath = os.path.join(os.getcwd(), 'tests', 'mex', file_name)
         mexDoc = open(mexDocPath).read()
         httpretty.register_uri(httpretty.GET, uri = cp['adfsMex'], body = mexDoc, status = 200)
@@ -72,11 +69,8 @@ class Test_Mex(unittest.TestCase):
 
         mex.discover(verify)
 
-        httpretty.disable()
-        httpretty.reset()
-
+    @httpretty.activate
     def _badMexDocTest(self, file_name):
-        httpretty.enable()
         mexDocPath = os.path.join(os.getcwd(), 'tests', 'mex', file_name)
         mexDoc = open(mexDocPath).read()
         httpretty.register_uri(httpretty.GET, uri = cp['adfsMex'], body = mexDoc, status = 200)
@@ -88,8 +82,5 @@ class Test_Mex(unittest.TestCase):
 
         mex.discover(verify)
         
-        httpretty.disable()
-        httpretty.reset()
-
 if __name__ == '__main__':
     unittest.main()

@@ -28,7 +28,7 @@ _call_context = { 'log_context' : {'correlation_id': TEST_CORRELATION_ID } }
 
 class Test_wstrust_request(unittest.TestCase):
 
-    #@httpretty.activate
+    @httpretty.activate
     def test_happy_path(self):
         username = 'test_username'
         password = 'test_password'
@@ -45,9 +45,7 @@ class Test_wstrust_request(unittest.TestCase):
 
         # TODO: handle rstr should be mocked out to prevent handling here.
         # TODO: setupUpOutgoingRSTCompare.  Use this to get messageid, created, expires, etc comparisons.
-
-        from httpretty import httpretty
-        httpretty.enable()
+    
         httpretty.register_uri(method=httpretty.POST, uri=wstrustEndpoint, status=200, body='')
         
         request._handle_rstr =mock.MagicMock()
@@ -56,12 +54,8 @@ class Test_wstrust_request(unittest.TestCase):
             pass
 
         request.acquire_token(username, password, callback)
-
-        
-
-        httpretty.disable()
-        httpretty.reset()
-
+    
+    @httpretty.activate
     def test_fail_to_parse_rstr(self):
         username = 'test_username'
         password = 'test_password'
@@ -73,9 +67,6 @@ class Test_wstrust_request(unittest.TestCase):
             .replace('%APPLIES_TO%', appliesTo) \
             .replace('%WSTRUST_ENDPOINT%', wstrustEndpoint)
 
-
-        from httpretty import httpretty
-        httpretty.enable()
         httpretty.register_uri(method=httpretty.POST, uri=wstrustEndpoint, status=200, body='fake response body')
 
         def callback(err, token):
@@ -83,9 +74,6 @@ class Test_wstrust_request(unittest.TestCase):
         
         request = WSTrustRequest(_call_context, wstrustEndpoint, appliesTo)
         request.acquire_token(username, password, callback)
-
-        httpretty.disable()
-        httpretty.reset()
 
 if __name__ == '__main__':
     unittest.main()

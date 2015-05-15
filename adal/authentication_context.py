@@ -39,7 +39,7 @@ def set_ADAL_options(options):
 
 class AuthenticationContext(object):
 
-    def __init__(authority, validate_authority, cache):
+    def __init__(self, authority, validate_authority = None, cache = None):
 
         validate = validate_authority
         if not validate_authority:
@@ -153,7 +153,7 @@ class AuthenticationContext(object):
 
         def token_func(self):
             token_request = TokenRequest(self._call_context, self, client_id, resource, redirect_uri)
-            token_request.get_token_with_authorization_code(authorization_code, client_secret, callback)
+            token_request._get_token_with_authorization_code(authorization_code, client_secret, callback)
 
         self._acquire_token(callback, token_func)
 

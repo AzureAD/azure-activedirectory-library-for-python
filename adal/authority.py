@@ -64,7 +64,7 @@ class Authority(object):
 
     def _validate_authority_url(self):
 
-        if self._url.scheme is not 'https':
+        if self._url.scheme != 'https':
             raise ValueError("The authority url must be an https endpoint.")
 
         if self._url.query:
@@ -87,7 +87,7 @@ class Authority(object):
         self._log.debug("Performing static instance discovery")
 
         try:
-            host_index = AADContants.WELL_KNOWN_AUTHORITY_HOSTS.index(self._url.hostname)
+            host_index = AADConstants.WELL_KNOWN_AUTHORITY_HOSTS.index(self._url.hostname)
         except ValueError:
             return False
 
@@ -141,7 +141,7 @@ class Authority(object):
                 self._log.error("{0} request failed".format(operation), exp)
                 callback(exp, None)
 
-        except EXception as exp:
+        except Exception as exp:
             self._log.error("{0} create_instance_discovery_endpoint_from_template failed".format(operation), exp)
             callback(exp, None)
 
@@ -152,7 +152,7 @@ class Authority(object):
         else:
             self._perform_dynamic_instance_discovery(callback)
 
-    def _get_oauth_endpoints(tenant_discovery_endpoint, callback):
+    def _get_oauth_endpoints(self, tenant_discovery_endpoint, callback):
 
         if self._token_endpoint:
             callback(None)
@@ -163,14 +163,13 @@ class Authority(object):
             callback(None)
             return
 
-    def validate(call_context, callback):
+    def validate(self, call_context, callback):
 
-        self._log = Logger('Authority', call_context['log_context'])
+        self._log = log.Logger('Authority', call_context['log_context'])
         self._call_context = call_context
 
         if not self._validated:
             self._log.debug("Performing instance discovery: {0}".format(self._url.geturl()))
-            self._validate_via_instance_discovery()
 
             def _callback(err, tenant_dicovery_endpoint):
                 if err:

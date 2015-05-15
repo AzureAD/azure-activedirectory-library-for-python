@@ -141,7 +141,7 @@ class TestAuthority(unittest.TestCase):
 
         def callback(err):
             self.assertTrue(err, 'No error was returned when one was expected.')
-            self.assertTrue(err.args[0].find('500') != -1, 'The http error was not returned')
+            self.assertIn('500', err.args[0], 'The http error was not returned')
 
         context.acquire_token_with_client_credentials(cp['resource'], cp['clientId'], cp['clientSecret'], callback)
 
@@ -154,8 +154,8 @@ class TestAuthority(unittest.TestCase):
 
         def callback(err):
             self.assertTrue(err, 'No error was returned when one was expected.')
-            self.assertTrue(err.args[0].find('invalid_instance') != -1, 'The server error was not returned')
-            self.assertTrue(err.args[0].find('instance was invalid') != -1, 'The server error message was not returned')
+            self.assertIn('invalid_instance', err.args[0], 'The server error was not returned')
+            self.assertIn('instance was invalid', err.args[0], 'The server error message was not returned')
 
         context.acquire_token_with_client_credentials(cp['resource'], cp['clientId'], cp['clientSecret'], callback)
 

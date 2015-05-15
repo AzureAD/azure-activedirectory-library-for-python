@@ -41,12 +41,10 @@ global ADAL_VERSION
 def load_adal_version():
     global ADAL_VERSION
 
-    current_file = inspect.getfile(inspect.currentframe())
-    current_dir = os.path.dirname(os.path.abspath(current_file))
-    package_path = os.path.normpath(os.path.join(current_dir, "../package.json"))
-    with open(package_path) as package_json:
-        data = json.loads(package_json.read())
-        ADAL_VERSION = data['version']
+    # TODO: this used to load from package.json, which we obviously won't use
+    # either simplify or change to load from somewhere else
+    # we'll probably want adal.__version__ to be set
+    ADAL_VERSION = '0.1.0'
 
 def adal_init():
     load_adal_version()

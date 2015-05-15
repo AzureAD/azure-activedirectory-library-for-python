@@ -78,6 +78,9 @@
     <Compile Include="adal\__init__.py">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="setup.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="tests\test_acquire_token_with_user_pass.py" />
     <Compile Include="tests\test_mex.py" />
     <Compile Include="tests\test_user_realm.py" />
@@ -99,6 +102,7 @@
     <Content Include="LICENSE" />
     <Content Include="README.md" />
     <Content Include="requirements.txt" />
+    <Content Include="setup.cfg" />
     <Content Include="tests\data\cover" />
     <Content Include="tests\data\self-signed-cert.pem" />
     <Content Include="tests\mex\address.insecure.xml" />

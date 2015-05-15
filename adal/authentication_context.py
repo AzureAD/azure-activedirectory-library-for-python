@@ -98,8 +98,8 @@ class AuthenticationContext(object):
             return
 
         def token_func(self):
-            token_request = TokenRequest(self._call_context, self, client_id, resource)
-            token_request.get_token_from_cache_with_refresh(user_id, callback)
+            self.token_request = TokenRequest(self._call_context, self, client_id, resource)
+            self.token_request.get_token_from_cache_with_refresh(user_id, callback)
 
         self._acquire_token(callback, token_func)
 
@@ -116,8 +116,8 @@ class AuthenticationContext(object):
             return
 
         def token_func(self):
-            token_request = TokenRequest(self._call_context, self, client_id, resource)
-            token_request.get_token_with_username_password(username, password, callback)
+            self.token_request = TokenRequest(self._call_context, self, client_id, resource)
+            self.token_request._get_token_with_username_password(username, password, callback)
 
         self._acquire_token(callback, token_func)
 
@@ -132,9 +132,9 @@ class AuthenticationContext(object):
             callback(exp)
             return
 
-        def token_func(self):
-            token_request = TokenRequest(self._call_context, self, client_id, resource)
-            token_request.get_token_with_client_credentials(client_secret, callback)
+        def token_func(self, extra=None):
+            self.token_request = TokenRequest(self._call_context, self, client_id, resource)
+            self.token_request._get_token_with_client_credentials(client_secret, callback)
 
         self._acquire_token(callback, token_func)
 
@@ -152,8 +152,8 @@ class AuthenticationContext(object):
             return
 
         def token_func(self):
-            token_request = TokenRequest(self._call_context, self, client_id, resource, redirect_uri)
-            token_request._get_token_with_authorization_code(authorization_code, client_secret, callback)
+            self.token_request = TokenRequest(self._call_context, self, client_id, resource, redirect_uri)
+            self.token_request._get_token_with_authorization_code(authorization_code, client_secret, callback)
 
         self._acquire_token(callback, token_func)
 
@@ -176,8 +176,8 @@ class AuthenticationContext(object):
             return
 
         def token_func(self):
-            token_request = TokenRequest(self._call_context, self, client_id, resource)
-            token_request.get_token_with_refresh_token(refresh_token, client_secret, callback)
+            self.token_request = TokenRequest(self._call_context, self, client_id, resource)
+            self.token_request.get_token_with_refresh_token(refresh_token, client_secret, callback)
 
         self._acquire_token(callback, token_func)
 
@@ -193,7 +193,7 @@ class AuthenticationContext(object):
             return
 
         def token_func(self):
-            token_request = TokenRequest(self._call_context, self, client_id, resource)
-            token_request.get_token_with_certificate(certificate, thumbprint, callback)
+            self.token_request = TokenRequest(self._call_context, self, client_id, resource)
+            self.token_request.get_token_with_certificate(certificate, thumbprint, callback)
 
         self._acquire_token(callback, token_func)

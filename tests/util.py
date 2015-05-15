@@ -313,9 +313,24 @@ def setup_expected_instance_discovery_request(http_code, discovery_host, return_
     query_string = urlencode(query)
 
     url = "{}{}{}?{}".format(protocol, host, pathname, query_string)
-    instanceDiscoveryUrl = urlparse(url)
 
-    httpretty.register_uri(httpretty.GET, instanceDiscoveryUrl.geturl(), json.dumps(return_doc), status = http_code, content_type = 'text/json')
+    httpretty.register_uri(httpretty.GET, url, json.dumps(return_doc), status = http_code, content_type = 'text/json')
+
+def setup_expected_oauth_response(queryParameters, tokenPath, httpCode, returnDoc, authorityEndpoint):
+    query = urlencode(queryParameters)
+    url = "{}{}?{}".format(authorityEndpoint, tokenPath, query)
+    httpretty.register_uri(httpretty.POST, url, json.dumps(returnDoc), status = httpCode, content_type = 'text/json')
+
+def setup_expected_client_cred_token_request_response(http_code, return_doc, authority_endpoint):
+    auth_endpoint = authority_endpoint or parameters['authority']
+    query = {
+        'grant_type' : 'client_credentials',
+        'client_id' : parameters['clientId'],
+        'client_secret' : parameters['clientSecret'],
+        'resource' : parameters['resource']
+    }
+
+    setup_expected_oauth_response(query, parameters['tokenPath'], http_code, return_doc, auth_endpoint)
 
 def create_empty_adal_object():
     context = log.create_log_context()

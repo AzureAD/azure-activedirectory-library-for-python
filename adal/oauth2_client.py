@@ -176,14 +176,14 @@ class OAuth2Client(object):
 
         self._parse_optional_ints(wire_response, int_keys)
 
-        if wire_response.get(OAuth2ResponseParameters.EXPIRES_IN):
-            expires_in = wire_response[OAuth2ResponseParameters.EXPIRES_IN]
+        expires_in = wire_response.get(OAuth2ResponseParameters.EXPIRES_IN)
+        if expires_in:
             now = datetime.now()
             soon = timedelta(seconds=expires_in)
             wire_response[OAuth2ResponseParameters.EXPIRES_ON] = str(now + soon)
 
-        if wire_response.get(OAuth2ResponseParameters.CREATED_ON):
-            created_on = wire_response[OAuth2ResponseParameters.CREATED_ON]
+        created_on = wire_response.get(OAuth2ResponseParameters.CREATED_ON)
+        if created_on:
             temp_date = datetime.fromtimestamp(created_on)
             wire_response[OAuth2ResponseParameters.CREATED_ON] = str(temp_date)
 

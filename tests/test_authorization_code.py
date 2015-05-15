@@ -47,17 +47,17 @@ except ImportError:
 
 class TestAuthorizationCode(unittest.TestCase):
 
-    def setupExpectedAuthCodeTokenRequestResponse(self, httpCode, returnDoc, authorityEndpoint=None):
+    def setup_expected_auth_code_token_request_response(self, httpCode, returnDoc, authorityEndpoint=None):
         if authorityEndpoint is None:
            authorityEndpoint = '{}{}?slice=testslice&api-version=1.0'.format(cp['authUrl'], cp['tokenPath']) 
 
         queryParameters = {}
         queryParameters['grant_type'] = 'authorization_code'
-        queryParameters['code'] = self.authorizationCode
+        queryParameters['code'] = self.authorization_code
         queryParameters['client_id'] = cp['clientId']
         queryParameters['client_secret'] = cp['clientSecret']
         queryParameters['resource'] = cp['resource']
-        queryParameters['redirect_uri'] = self.redirectUri
+        queryParameters['redirect_uri'] = self.redirect_uri
 
         query = urlencode(queryParameters)
 
@@ -69,18 +69,18 @@ class TestAuthorizationCode(unittest.TestCase):
         httpretty.register_uri(httpretty.POST, authorityEndpoint, returnDocJson, status = httpCode, content_type = 'text/json')
         
     def setUp(self):
-        self.authorizationCode = '1234870909'
-        self.redirectUri = 'app_bundle:foo.bar.baz'
+        self.authorization_code = '1234870909'
+        self.redirect_uri = 'app_bundle:foo.bar.baz'
 
     @httpretty.activate
     def test_happy_path(self):
         response = util.create_response();
         
-        self.setupExpectedAuthCodeTokenRequestResponse(200, response['wireResponse'])
+        self.setup_expected_auth_code_token_request_response(200, response['wireResponse'])
 
         def callback(err, tokenResponse):
             if not err:
-                self.assertTrue(util.isMatchTokenResponse(response['decodedResponse'], tokenResponse), 'The response did not match what was expected')
+                self.assertTrue(util.is_match_token_response(response['decodedResponse'], tokenResponse), 'The response did not match what was expected')
                 
                 req = httpretty.last_request()
                 util.match_standard_request_headers(req)
@@ -88,7 +88,7 @@ class TestAuthorizationCode(unittest.TestCase):
                 self.fail("Err should have been none")
 
         context = adal.AuthenticationContext(cp['authUrl']);
-        context.acquire_token_with_authorization_code(self.authorizationCode, self.redirectUri, response['resource'], cp['clientId'], cp['clientSecret'], callback)
+        context.acquire_token_with_authorization_code(self.authorization_code, self.redirect_uri, response['resource'], cp['clientId'], cp['clientSecret'], callback)
 
 
     def test_failed_http_request(self):
@@ -97,7 +97,7 @@ class TestAuthorizationCode(unittest.TestCase):
         def callback(err):
             self.assertTrue(err, 'Did not recieve expected error on failed http request.')
 
-        context.acquire_token_with_authorization_code(self.authorizationCode, self.redirectUri, cp['resource'], cp['clientId'], cp['clientSecret'], callback)
+        context.acquire_token_with_authorization_code(self.authorization_code, self.redirect_uri, cp['resource'], cp['clientId'], cp['clientSecret'], callback)
 
     def test_bad_argument(self):
         context = adal.AuthenticationContext(cp['authUrl'])
@@ -105,7 +105,7 @@ class TestAuthorizationCode(unittest.TestCase):
         def callback(err):
             self.assertTrue(err, 'Did not receive expected argument error.')
 
-        context.acquire_token_with_authorization_code(self.authorizationCode, self.redirectUri, None, cp['clientId'], cp['clientSecret'], callback)
+        context.acquire_token_with_authorization_code(self.authorization_code, self.redirect_uri, None, cp['clientId'], cp['clientSecret'], callback)
 
 if __name__ == '__main__':
     unittest.main()

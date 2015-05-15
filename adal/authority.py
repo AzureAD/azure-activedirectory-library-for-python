@@ -27,7 +27,6 @@ from .constants import AADConstants
 from . import constants
 from . import log
 from . import util
-from adal.log import Logger
 
 try:
     from urllib.parse import quote, unquote
@@ -166,7 +165,7 @@ class Authority(object):
 
     def validate(self, call_context, callback):
 
-        self._log = Logger('Authority', call_context['log_context'])
+        self._log = log.Logger('Authority', call_context['log_context'])
         self._call_context = call_context
 
         if not self._validated:

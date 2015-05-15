@@ -242,7 +242,7 @@ def create_response(options = None, iteration = None):
 
     decoded_response = {}
     map_fields(wire_response, decoded_response, TOKEN_RESPONSE_MAP)
-    decoded_response['createdOn'] = str(date_now)
+    decoded_response['createdOn'] = date_now
 
     if not options.get('noIdToken') and options.get('urlSafeUserId') is not None:
         wire_response['id_token'] = options['urlSafeUserId'] if encoded_id_token_url_safe else encoded_id_token
@@ -326,8 +326,8 @@ def create_empty_adal_object():
     return adal_object
 
 
-def isDateWithinTolerance(date, expectedDate = None):
-    expected = expectedDate or datetime.today()
+def is_date_within_tolerance(date, expected_date = None):
+    expected = expected_date or datetime.today()
     fiveBefore = expected - timedelta(0, 5)
     fiveAfter = expected + timedelta(0, 5)
     
@@ -336,30 +336,23 @@ def isDateWithinTolerance(date, expectedDate = None):
 
     return False
 
-def isExpiresWithinTolerance(expiresOn):
+def is_expires_within_tolerance(expires_on):
     # Add the expected expires_in latency.
     expectedExpires = datetime.now() + timedelta(0, 28800)
-    return isDateWithinTolerance(expiresOn, expectedExpires);
+    return is_date_within_tolerance(expires_on, expectedExpires);
 
-def isMatchTokenResponse(expected, received, print=False):
+def is_match_token_response(expected, received):
     expiresOn = received.get('expiresOn', None)
     createdOn = received.get('createdOn', None)
 
-    if print:
-        print('DIFFS');
-        util.findDiffs(expected, received);
-        print('EXPECTED');
-        print(expected);
-        print('RECEIVED');
-        print(received);
     if expiresOn:
         expiresOnTime = dateutil.parser.parse(expiresOn)
-        if not isExpiresWithinTolerance(expiresOnTime):
+        if not is_expires_within_tolerance(expiresOnTime):
             return False
 
     if createdOn:
         createdOnTime = dateutil.parser.parse(createdOn)
-        if not isDateWithinTolerance(createdOnTime):
+        if not is_date_within_tolerance(createdOnTime):
             return False
 
     # Compare the expected and responses without the expires_on field as that was validated above.

@@ -27,7 +27,11 @@ import adal
 from adal import log
 
 from datetime import datetime, timedelta
+import dateutil.parser
 import time
+
+import httpretty
+import json
 
 try:
     from urllib.parse import quote, unquote, urlencode
@@ -137,12 +141,14 @@ parameters['adfsWsTrust'] = parameters['adfsUrlNoPath'] + parameters['adfsWsTrus
 
 parameters['successResponse'] = success_response
 parameters['successResponseWithRefresh'] = success_response_with_refresh
-parameters['authUrl'] = urlparse(parameters['evoEndpoint'] + '/' + parameters['tenant'])
+parameters['authUrlResult'] = urlparse(parameters['evoEndpoint'] + '/' + parameters['tenant'])
+parameters['authUrl'] = parameters['authUrlResult'].geturl()
+
 parameters['tokenPath'] = '/oauth2/token'
-parameters['tokenUrlPath'] = parameters['authUrl'].path + parameters['tokenPath']
+parameters['tokenUrlPath'] = parameters['authUrlResult'].path + parameters['tokenPath']
 parameters['authorizePath'] = '/oauth/authorize'
-parameters['authorizeUrlPath'] = parameters['authUrl'].path + parameters['authorizePath']
-parameters['authorizeUrl'] = parameters['authUrl'].geturl()
+parameters['authorizeUrlPath'] = parameters['authUrlResult'].path + parameters['authorizePath']
+parameters['authorizeUrl'] = parameters['authUrlResult'].geturl()
 parameters['instanceDiscoverySuccessResponse'] = {
   'tenant_discovery_endpoint' : parameters['authority']
 }
@@ -180,6 +186,9 @@ def turn_on_logging(level):
 def reset_logging():
     pass
 
+def clear_static_cache():
+    pass
+
 TOKEN_RESPONSE_MAP = {};
 TOKEN_RESPONSE_MAP['token_type'] = 'tokenType'
 TOKEN_RESPONSE_MAP['access_token'] = 'accessToken'
@@ -197,7 +206,7 @@ def map_fields(in_obj, out_obj, map):
             mapped = map[key]
             out_obj[mapped] = in_obj[key]
 
-def create_response(options, iteration):
+def create_response(options = None, iteration = None):
     options = options if options else {}
 
     authority = options.get('authority', parameters['authorityTenant'])
@@ -233,11 +242,11 @@ def create_response(options, iteration):
 
     decoded_response = {}
     map_fields(wire_response, decoded_response, TOKEN_RESPONSE_MAP)
-    decoded_response['createdOn'] = date_now
+    decoded_response['createdOn'] = str(date_now)
 
-    if not options.get('noIdToken'):
+    if not options.get('noIdToken') and options.get('urlSafeUserId') is not None:
         wire_response['id_token'] = options['urlSafeUserId'] if encoded_id_token_url_safe else encoded_id_token
-        parsed_user_info = options['urlSafeUserId'] if parsed_id_token_url_safe else parsed_id_token
+        parsed_user_info = options.get['urlSafeUserId'] if parsed_id_token_url_safe else parsed_id_token
         decoded_response.update(parsed_user_info)
 
     if options.get('expired'):
@@ -245,7 +254,7 @@ def create_response(options, iteration):
     else:
         expires_on_date = datetime.now() + timedelta(seconds=decoded_response.get('expiresIn',0))
 
-    decoded_response['expiresOn'] = expires_on_date
+    decoded_response['expiresOn'] = str(expires_on_date)
 
     cached_response = dict(decoded_response)
     cached_response['_clientId'] = parameters['clientId']
@@ -256,13 +265,13 @@ def create_response(options, iteration):
         cached_response['isMRRT'] = True
 
     return {
-    'wireResponse' : wireResponse,
-    'decodedResponse' : decodedResponse,
-    'cachedResponse' : cachedResponse,
-    'decodedIdToken' : decodedIdToken,
+    'wireResponse' : wire_response,
+    'decodedResponse' : decoded_response,
+    'cachedResponse' : cached_response,
+    'decodedIdToken' : decoded_id_token,
     'resource' : iterated['resource'],
     'refreshToken' : iterated['refresh_token'],
-    'clientId' : cachedResponse['_clientId'],
+    'clientId' : cached_response['_clientId'],
     'authority' : authority
   }
 
@@ -293,3 +302,80 @@ def match_standard_request_headers(mock_request):
 
     if not all(matches):
         raise AssertionError("Not all the standard request headers matched.")
+
+def setup_expected_instance_discovery_request(http_code, discovery_host, return_doc, authority):
+    protocol = 'https://'
+    host = discovery_host
+    pathname = '/common/discovery/instance'
+    query = {}
+    query['authorization_endpoint'] = authority
+    query['api-version'] = '1.0'
+    query_string = urlencode(query)
+
+    url = "{}{}{}?{}".format(protocol, host, pathname, query_string)
+    instanceDiscoveryUrl = urlparse(url)
+
+    httpretty.register_uri(httpretty.GET, instanceDiscoveryUrl.geturl(), json.dumps(return_doc), status = http_code, content_type = 'text/json')
+
+def create_empty_adal_object():
+    context = log.create_log_context()
+    component = 'TEST'
+    logger = log.Logger(component, context)
+    call_context = {'log_context' : context }
+    adal_object = { 'log' : logger, 'call_context' : call_context }
+    return adal_object
+
+
+def isDateWithinTolerance(date, expectedDate = None):
+    expected = expectedDate or datetime.today()
+    fiveBefore = expected - timedelta(0, 5)
+    fiveAfter = expected + timedelta(0, 5)
+    
+    if date >= fiveBefore and date <= fiveAfter:
+        return True
+
+    return False
+
+def isExpiresWithinTolerance(expiresOn):
+    # Add the expected expires_in latency.
+    expectedExpires = datetime.now() + timedelta(0, 28800)
+    return isDateWithinTolerance(expiresOn, expectedExpires);
+
+def isMatchTokenResponse(expected, received, print=False):
+    expiresOn = received.get('expiresOn', None)
+    createdOn = received.get('createdOn', None)
+
+    if print:
+        print('DIFFS');
+        util.findDiffs(expected, received);
+        print('EXPECTED');
+        print(expected);
+        print('RECEIVED');
+        print(received);
+    if expiresOn:
+        expiresOnTime = dateutil.parser.parse(expiresOn)
+        if not isExpiresWithinTolerance(expiresOnTime):
+            return False
+
+    if createdOn:
+        createdOnTime = dateutil.parser.parse(createdOn)
+        if not isDateWithinTolerance(createdOnTime):
+            return False
+
+    # Compare the expected and responses without the expires_on field as that was validated above.
+    import copy
+    received_copy = copy.deepcopy(received)
+    received_copy.pop('expiresOn', None)
+    received_copy.pop('createdOn', None)
+
+    expected_copy = copy.deepcopy(expected)
+    expected_copy.pop('expiresOn', None)
+    expected_copy.pop('createdOn', None)
+
+    if received_copy.get('clientId', None) and not expected_copy.get('clientId', None):
+        received_copy.pop('clientId', None)
+    
+    # TODO: This should be modified in order to do an actual key to key comparison as dicts don't
+    # guarantee order.
+    isEqual = received_copy == expected_copy
+    return isEqual

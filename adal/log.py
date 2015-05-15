@@ -38,7 +38,7 @@ LEVEL_PY_MAP = {
     }
 
 
-def create_log_context(correlation_id):
+def create_log_context(correlation_id = None):
     id = correlation_id if correlation_id else str(uuid.uuid4())
     return {'correlation_id':id}
 

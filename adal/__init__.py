@@ -37,4 +37,4 @@ from . import util
 util.adal_init()
 
 def create_authentication_context(authority, validate_authority):
-    return AuthenticationContext(authority, validatie_authority)
+    return AuthenticationContext(authority, validate_authority)

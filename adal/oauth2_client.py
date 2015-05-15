@@ -66,27 +66,26 @@ class OAuth2Client(object):
 
     def __init__(self, call_context, authority):
 
-        self._token_endpoint = authortiy.token_endpoint
+        self._token_endpoint = authority.token_endpoint
         self._log = log.Logger("OAuth2Client", call_context['log_context'])
         self._call_context = call_context
 
     def _create_token_url(self):
-
-        token_url = urlparse(self._token_endpoint)
         parameters = {}
         parameters['slice'] = 'testslice'
         parameters[OAuth2Parameters.AAD_API_VERSION] = '1.0'
 
-        token_url.query = urlencode(parameters)
-        return token_url
+        return urlparse('{}?{}'.format(self._token_endpoint, urlencode(parameters)))
 
     def _parse_optional_ints(self, obj, keys):
-
         for key in keys:
             try:
                 obj[key] = int(obj[key])
             except ValueError:
                 raise self._log.create_error("{0} could not be parsed as an int".format(key))
+            except KeyError:
+                # if the key isn't present we can just continue
+                pass
 
     def _crack_jwt(self, jwt_token):
 
@@ -177,16 +176,16 @@ class OAuth2Client(object):
 
         self._parse_optional_ints(wire_response, int_keys)
 
-        if wire_reponse.get(OAuth2ResponseParameters.EXPIRES_IN):
+        if wire_response.get(OAuth2ResponseParameters.EXPIRES_IN):
             expires_in = wire_response[OAuth2ResponseParameters.EXPIRES_IN]
             now = datetime.now()
             soon = timedelta(seconds=expires_in)
-            wire_response[OAuth2ResponseParameters.EXPIRES_IN] = now + soon
+            wire_response[OAuth2ResponseParameters.EXPIRES_ON] = str(now + soon)
 
-        if wire_reponse.get(OAuth2ResponseParameters.CREATED_ON): #TODO: Not sure about this one...
+        if wire_response.get(OAuth2ResponseParameters.CREATED_ON):
             created_on = wire_response[OAuth2ResponseParameters.CREATED_ON]
-            temp_date = datetime.fromtimestamp(create_on) #TODO: Check date format
-            wire_response[OAuth2ResponseParameters.CREATED_ON] = temp_rate
+            temp_date = datetime.fromtimestamp(created_on)
+            wire_response[OAuth2ResponseParameters.CREATED_ON] = str(temp_date)
 
         if not wire_response.get(OAuth2ResponseParameters.TOKEN_TYPE):
             raise self._log.create_error('wire_response is missing token_type')
@@ -219,11 +218,11 @@ class OAuth2Client(object):
         token_url = self._create_token_url()
         url_encoded_token_request = urlencode(oauth_parameters)
 
-        post_options = util.create_request_options(self, {'headers' : 'application/x-www-form-urlencoded'})
+        post_options = util.create_request_options(self, {'headers' : {'content-type': 'application/x-www-form-urlencoded'}})
         operation = "Get Token"
 
         try:
-            resp = requests.post(token_url, data=url_encoded_token_request, headers=post_options['headers'], allow_redirects=False)
+            resp = requests.post(token_url.geturl(), data=url_encoded_token_request, headers=post_options['headers'], allow_redirects=False)
             util.log_return_correlation_id(self._log, operation, resp)
 
             if not util.is_http_success(resp.status_code):

@@ -124,9 +124,6 @@ def copy_url(url_source):
 def convert_urlsafe_to_regular_b64encoded_string(urlsafe):
     return urlsafe.replace('-', '+').replace('_', '/')
 
-def convert_regular_to_urlsafe_b64encoded_string(regular):
-    return regular.replace('+', '-').replace('/', '_').replace('=','')
-
 def base64_decode_string_urlsafe(to_decode):
     b64 = convert_urlsafe_to_regular_b64encoded_string(to_decode)
     return base64.b64decode(b64)

@@ -324,7 +324,7 @@ def setup_expected_oauth_response(queryParameters, tokenPath, httpCode, returnDo
     httpretty.register_uri(httpretty.POST, url, json.dumps(returnDoc), status = httpCode, content_type = 'text/json')
 
 def setup_expected_client_cred_token_request_response(http_code, return_doc=None, authority_endpoint = None):
-    auth_endpoint = authority_endpoint or parameters['authority']
+    auth_endpoint = authority_endpoint or parameters['authUrl']
     query = {
         'grant_type' : 'client_credentials',
         'client_id' : parameters['clientId'],
@@ -359,9 +359,12 @@ def is_expires_within_tolerance(expires_on):
     return is_date_within_tolerance(expires_on, expectedExpires);
 
 def is_match_token_response(expected, received):
+    if not received:
+        raise Exception("Token Response received is None")
+      
     expiresOn = received.get('expiresOn', None)
     createdOn = received.get('createdOn', None)
-
+    
     if expiresOn:
         expiresOnTime = dateutil.parser.parse(expiresOn)
         if not is_expires_within_tolerance(expiresOnTime):

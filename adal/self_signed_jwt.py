@@ -54,8 +54,8 @@ class SelfSignedJwt(object):
 
     def _create_x5t_value(self, thumbprint):
         hex_str = thumbprint.replace(':', '').replace(' ', '')
-        b64_str = base64.b64encode(hex_str)
-        return util.convert_regular_to_urlsafe_b64encoded_string(b64_str)
+        b64_str = base64.urlsafe_b64encode(hex_str.encode())
+        return b64_str.decode()
 
     def _create_header(self, thumbprint):
         x5t = self._create_x5t_value(thumbprint)
@@ -107,7 +107,7 @@ class SelfSignedJwt(object):
         self._raise_on_invalid_thumbprint(canonical)
         return canonical
 
-    def create(certificate, thumbprint):
+    def create(self, certificate, thumbprint):
 
         thumbprint = self._reduce_thumbprint(thumbprint)
         header = self._create_header(thumbprint)

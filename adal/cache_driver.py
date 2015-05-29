@@ -78,11 +78,11 @@ class nopCache(object):
     remove_many = nop
     find = nop
 
-
 def create_token_hash(token):
+    token_encoded = token.encode()
 
     hash_alg = hashlib.sha256()
-    hash_alg.update(token)
+    hash_alg.update(token_encoded)
     return base64.b64encode(hash_alg.digest())
 
 def create_token_id_message(entry):
@@ -292,7 +292,7 @@ class CacheDriver(object):
             return True
         return False
 
-    def _augment_entry_with_cache_metadata(entry):
+    def _augment_entry_with_cache_metadata(self, entry):
 
         if self._entry_has_metadata(entry):
             return
@@ -369,7 +369,7 @@ class CacheDriver(object):
                 callback(err)
                 return
 
-            def _call(err):
+            def _call(err, _):
                 callback(err)
                 return
             self._cache.add([entry], _call)

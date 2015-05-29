@@ -13,6 +13,8 @@
     <OutputPath>.</OutputPath>
     <Name>adal</Name>
     <RootNamespace>adal</RootNamespace>
+    <InterpreterId>{ffb82c48-90d8-4438-b920-50f90148b4d6}</InterpreterId>
+    <InterpreterVersion>3.4</InterpreterVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
     <DebugSymbols>true</DebugSymbols>
@@ -84,12 +86,13 @@
     <Compile Include="tests\test_acquire_token_with_user_pass.py" />
     <Compile Include="tests\test_authority.py" />
     <Compile Include="tests\test_authorization_code.py" />
+    <Compile Include="tests\test_client_credentials.py" />
+    <Compile Include="tests\test_log.py" />
     <Compile Include="tests\test_mex.py" />
     <Compile Include="tests\test_user_realm.py" />
     <Compile Include="tests\test_wstrust_request.py" />
     <Compile Include="tests\test_wstrust_response.py" />
     <Compile Include="tests\test_authentication_parameters.py" />
-    <Compile Include="tests\test_log.py" />
     <Compile Include="tests\util.py" />
     <Compile Include="tests\__init__.py" />
   </ItemGroup>
@@ -125,6 +128,41 @@
     <Content Include="tests\wstrust\common.rstr.xml" />
     <Content Include="tests\wstrust\RST.xml" />
     <Content Include="tests\wstrust\RSTR.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Interpreter Include="env27\">
+      <Id>{6bcc332c-96fb-4cac-83f4-b1d92a0b64cb}</Id>
+      <BaseInterpreter>{2af0f10d-7135-4994-9156-5d01c9c11b7e}</BaseInterpreter>
+      <Version>2.7</Version>
+      <Description>env27 (Python 2.7)</Description>
+      <InterpreterPath>Scripts\python.exe</InterpreterPath>
+      <WindowsInterpreterPath>Scripts\pythonw.exe</WindowsInterpreterPath>
+      <LibraryPath>Lib\</LibraryPath>
+      <PathEnvironmentVariable>PYTHONPATH</PathEnvironmentVariable>
+      <Architecture>X86</Architecture>
+    </Interpreter>
+    <Interpreter Include="env34\">
+      <Id>{ffb82c48-90d8-4438-b920-50f90148b4d6}</Id>
+      <BaseInterpreter>{2af0f10d-7135-4994-9156-5d01c9c11b7e}</BaseInterpreter>
+      <Version>3.4</Version>
+      <Description>env34 (Python 3.4)</Description>
+      <InterpreterPath>Scripts\python.exe</InterpreterPath>
+      <WindowsInterpreterPath>Scripts\pythonw.exe</WindowsInterpreterPath>
+      <LibraryPath>Lib\</LibraryPath>
+      <PathEnvironmentVariable>PYTHONPATH</PathEnvironmentVariable>
+      <Architecture>X86</Architecture>
+    </Interpreter>
+    <Interpreter Include="env35\">
+      <Id>{4e6b690d-870d-4e48-b24e-ba6f9fe36da5}</Id>
+      <BaseInterpreter>{2af0f10d-7135-4994-9156-5d01c9c11b7e}</BaseInterpreter>
+      <Version>3.5</Version>
+      <Description>env35 (Python 3.5)</Description>
+      <InterpreterPath>Scripts\python.exe</InterpreterPath>
+      <WindowsInterpreterPath>Scripts\pythonw.exe</WindowsInterpreterPath>
+      <LibraryPath>Lib\</LibraryPath>
+      <PathEnvironmentVariable>PYTHONPATH</PathEnvironmentVariable>
+      <Architecture>X86</Architecture>
+    </Interpreter>
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>

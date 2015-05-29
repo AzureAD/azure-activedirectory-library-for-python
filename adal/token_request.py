@@ -119,7 +119,7 @@ class TokenRequest(object):
                         return
 
                     self._log.debug("Successfully retrieved token from authority.")
-                    self._cache_driver.add(token_response, lambda: callback(None, token_response))
+                    self._cache_driver.add(token_response, lambda callback: callback(None, token_response))
 
                 get_token_func(_call)
             else:

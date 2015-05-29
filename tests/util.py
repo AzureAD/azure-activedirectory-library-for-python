@@ -180,7 +180,7 @@ correlation_id_regex = re.compile("[^\s]+")
 def set_correlation_id(correlation_id):
     correlation_id_regex = correlation_id if correlation_id else correlation_id_regex
 
-def turn_on_logging(level):
+def turn_on_logging(level=log.LOGGING_LEVEL.DEBUG):
     log.set_logging_options({'level':level})
 
 def reset_logging():
@@ -226,6 +226,8 @@ def create_response(options = None, iteration = None):
             iterated['refresh_token'] = 'AwABAAAAvPM1KaPlrEqdFSBzjqfTGCDeE7YHWD9jkU2WWYKLjxu928QAbkoFyWp&yfPNft8DcbBqOSYVq5Ty_60YICIdFw61SG4-eT1nWHNOPdzsL2ZzloUsp2DpqlIr1s5Z3953oQBi7dOqiHk37NXQqmNEJ7MfmDp6w3EOa29EPARvjGIHFgtICW1-Y82npw1v1g8Ittb02pksNU2XzH2X0E3l3TuSZWsX5lpl-kfPOc8zppU6bwvT-VOPHZVVLQedDIQZyOiFst9HLUjbiIvBgV7tNwbB4H5yF56QQscz49Nrb3g0ibuNDo7efFawLzNoVHzoTrOTcCGSG1pt8Z-npByrEe7vg1o4nNFjspuxlyMGdnYRAnaZfvgzqROP_m7ZqSd6IAA'
         else:
             iterated['refresh_token'] = parameters['refreshToken']
+    else:
+        iterated['refresh_token'] = None
 
     if iteration:
         for key in iterated.keys():
@@ -321,7 +323,7 @@ def setup_expected_oauth_response(queryParameters, tokenPath, httpCode, returnDo
     url = "{}{}?{}".format(authorityEndpoint, tokenPath, query)
     httpretty.register_uri(httpretty.POST, url, json.dumps(returnDoc), status = httpCode, content_type = 'text/json')
 
-def setup_expected_client_cred_token_request_response(http_code, return_doc, authority_endpoint):
+def setup_expected_client_cred_token_request_response(http_code, return_doc=None, authority_endpoint = None):
     auth_endpoint = authority_endpoint or parameters['authority']
     query = {
         'grant_type' : 'client_credentials',

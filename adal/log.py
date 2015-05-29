@@ -30,32 +30,40 @@ LEVEL_STRING_MAP = {
     3: 'DEBUG:'
     }
 
+class LOGGING_LEVEL:
+    ERROR   = 0
+    WARN    = 1
+    INFO    = 2
+    DEBUG   = 3
+  
 LEVEL_PY_MAP = {
-    0: 40,
-    1: 30,
-    2: 20,
-    3: 10
+    LOGGING_LEVEL.ERROR  : 40,
+    LOGGING_LEVEL.WARN   : 30,
+    LOGGING_LEVEL.INFO   : 20,
+    LOGGING_LEVEL.DEBUG  : 10
     }
-
-
 def create_log_context(correlation_id = None):
     id = correlation_id if correlation_id else str(uuid.uuid4())
     return {'correlation_id':id}
 
-def set_logging_options(options):
+def set_logging_options(options={}):
+    logger = logging.getLogger('python_adal')
+
     if options.get('level'):
         level = int(options['level'])
         if level > 3 or level < 0:
             raise ValueError("set_logging_options expects the level key to be in the range 0 to 3 inclusive")
 
-        logger = logging.getLogger('python_adal')
         logger.setLevel(LEVEL_PY_MAP[level])
+    else:
+        logger.setLevel(LEVEL_PY_MAP[LOGGING_LEVEL.ERROR])
+    
 
 def get_logging_options():
 
     logger = logging.getLogger('python_adal')
     level = logger.getEffectiveLevel()
-    for (key, val) in LEVEL_PY_MAP.values():
+    for (key, val) in LEVEL_PY_MAP.items():
         if level == val:
             return {'level':key}
 

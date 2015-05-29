@@ -1,7 +1,7 @@
-import authentication_context as ac
-import authentication_parameters as auth_params
-import log as logging
-import memory_cache as MemoryCache
+from . import authentication_context as ac
+from . import authentication_parameters as auth_params
+from . import log as logging
+from . import memory_cache as MemoryCache
 
 print ("Done!")
 

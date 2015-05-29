@@ -115,7 +115,7 @@ class CacheDriver(object):
         query.update(authority_query)
         self._cache.find(query, callback)
 
-    def _get_potential_entries(query, callback):
+    def _get_potential_entries(self, query, callback):
 
         potential_entries_query = {}
 

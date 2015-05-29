@@ -45,7 +45,7 @@ def add_parameter_if_available(parameters, key, value):
 
 class TokenRequest(object):
     
-    def __init__(self, call_context, authentication_context, client_id, resource, redirect_uri):
+    def __init__(self, call_context, authentication_context, client_id, resource, redirect_uri=None):
 
         self._log = log.Logger("TokenRequest", call_context['log_context'])
         self._call_context = call_context
@@ -112,7 +112,7 @@ class TokenRequest(object):
             if not token:
                 self._log.debug("No appropriate cached token found.")
 
-                def _call(err, token_response):
+                def _call(err, token_response=None):
                     if err:
                         self._log.warn("get_token_func returned with err")
                         callback(err, token_response)
@@ -121,7 +121,7 @@ class TokenRequest(object):
                     self._log.debug("Successfully retrieved token from authority.")
                     self._cache_driver.add(token_response, lambda: callback(None, token_response))
 
-                get_token_func(self, _call)
+                get_token_func(_call)
             else:
                 self._log.info("Returning cached token.")
                 callback(err, token)
@@ -249,7 +249,7 @@ class TokenRequest(object):
         def _callback(get_token_complete_callback):
             self._user_realm = self._create_user_realm_request(username)
 
-            def _call(err):
+            def _call(err, response=None):
                 if err:
                     get_token_complete_callback(err)
                     return

@@ -1,5 +1,8 @@
 # Microsoft Azure Active Directory Authentication Library (ADAL) for Python
 
+[![Code Issues](http://www.quantifiedcode.com/api/v1/project/4b429ad7e2e54d7a8393cc0e49930b10/badge.svg)](http://www.quantifiedcode.com/app/project/4b429ad7e2e54d7a8393cc0e49930b10)
+
+
 <a href="https://pypi.python.org/pypi/adal/"><img src='https://pypip.in/d/adal/badge.svg'></a>
 
 The ADAL for python library makes it easy for python applications to authenticate to AAD in order to access AAD protected web resources.  It supports 3 authentication modes shown in the quickstart code below.

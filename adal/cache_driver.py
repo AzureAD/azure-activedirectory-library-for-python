@@ -251,7 +251,7 @@ class CacheDriver(object):
             return
 
         else:
-            callback(null, entry)
+            callback(None, entry)
 
     def _update_refresh_tokens(self, entry, callback):
 

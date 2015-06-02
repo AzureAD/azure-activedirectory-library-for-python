@@ -157,10 +157,10 @@ parameters['userRealmPathTemplate'] = '/common/UserRealm/<user>'
 
 parameters['userRealmResponseFederated'] = '{\"account_type\":\"federated\",\"federation_protocol\":\"wstrust\",\"federation_metadata_url\":\"'+parameters['adfsMex']+'\",\"federation_active_auth_url\":\"'+parameters['adfsWsTrust']+'\",\"ver\":\"0.8\"}'
 parameters['userRealmResponseManaged'] = '{\"account_type\":\"managed\",\"federation_protocol\":\"wstrust\",\"federation_metadata_url\":\"'+parameters['adfsMex']+'\",\"federation_active_auth_url\":\"'+parameters['adfsWsTrust']+'\",\"ver\":\"0.8\"}'
-parameters['MexFile'] = os.path.join(_dirname, '/mex/common.mex.xml')
+parameters['MexFile'] = os.path.join(_dirname, 'mex/common.mex.xml')
 
-parameters['RSTRFile'] = os.path.join(_dirname, '/wstrust/common.rstr.xml')
-parameters['AssertionFile'] = os.path.join(_dirname, '/wstrust/common.base64.encoded.assertion.txt')
+parameters['RSTRFile'] = os.path.join(_dirname, 'wstrust/common.rstr.xml')
+parameters['AssertionFile'] = os.path.join(_dirname, 'wstrust/common.base64.encoded.assertion.txt')
 parameters['logContext'] = { 'correlation_id' : 'test-correlation-id-123456789' }
 parameters['callContext'] = { 'log_context' : parameters['logContext'] }
 
@@ -177,7 +177,8 @@ parameters['cert'] = get_self_signed_cert()
 
 correlation_id_regex = re.compile("[^\s]+")
 
-def set_correlation_id(correlation_id):
+def set_correlation_id(correlation_id=None):
+    global correlation_id_regex
     correlation_id_regex = correlation_id if correlation_id else correlation_id_regex
 
 def turn_on_logging(level=log.LOGGING_LEVEL.DEBUG):
@@ -333,6 +334,47 @@ def setup_expected_client_cred_token_request_response(http_code, return_doc=None
     }
 
     setup_expected_oauth_response(query, parameters['tokenPath'], http_code, return_doc, auth_endpoint)
+
+def setup_expected_user_realm_response(http_code, return_doc, authority=None):
+    user_realm_authority = authority or parameters['authority']
+    user_realm_authority = urlparse(user_realm_authority)
+    
+    # Get Base URL
+    user_realm_authority = '{}://{}'.format(user_realm_authority.scheme, user_realm_authority.netloc)
+    
+    user_realm_path = parameters['userRealmPathTemplate'].replace('<user>', parameters['username'])
+    query = 'api-version=1.0'
+    url = '{}{}?{}'.format(user_realm_authority, user_realm_path, query)
+
+    httpretty.register_uri(httpretty.GET, url, return_doc)
+
+def setup_expected_user_realm_response_common(federated):
+    if federated:
+        response_doc = parameters['userRealmResponseFederated']
+    else:
+        response_doc = parameters['userRealmResponseManaged']
+
+    return setup_expected_user_realm_response(200, response_doc, parameters['authority'])
+
+def setup_expected_refresh_token_request_response(http_code, return_doc, authority_endpoint, resource=None, client_secret=None):
+    auth_endpoint = authority_endpoint or parameters['authority']
+
+    query_parameters = {}
+    query_parameters['grant_type'] = 'refresh_token'
+    query_parameters['client_id'] = parameters['clientId']
+    if client_secret:
+        query_parameters['client_secret'] = client_secret
+    
+    if resource:
+        query_parameters['resource'] = resource
+    
+    query_parameters['refresh_token'] = parameters['refreshToken']
+
+    return setup_expected_oauth_response(query_parameters, parameters['tokenUrlPath'], http_code, return_doc, auth_endpoint)
+
+def setup_expected_mex_wstrust_request_common():
+    mexDoc = open(parameters['MexFile']).read()
+    httpretty.register_uri(httpretty.GET, parameters['adfsUrlNoPath'] + parameters['adfsMexPath'], mexDoc)
 
 def create_empty_adal_object():
     context = log.create_log_context()

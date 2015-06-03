@@ -79,7 +79,7 @@ class UserRealm(object):
 
         user_realm_url = list(util.copy_url(self._authority))
         url_encoded_user = quote(self._user_principle, safe='~()*!.\'')
-        user_realm_url[2] += USER_REALM_PATH_TEMPLATE.replace('<user>', url_encoded_user)
+        user_realm_url[2] = '/' + USER_REALM_PATH_TEMPLATE.replace('<user>', url_encoded_user)
 
         user_realm_query = {'api-version':self._api_version}
         user_realm_url[4] = urlencode(user_realm_query)

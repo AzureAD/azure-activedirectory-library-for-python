@@ -66,7 +66,7 @@ class OAuth2Client(object):
 
     def __init__(self, call_context, authority):
 
-        self._token_endpoint = authority.token_endpoint
+        self._token_endpoint = authority
         self._log = log.Logger("OAuth2Client", call_context['log_context'])
         self._call_context = call_context
 
@@ -222,7 +222,7 @@ class OAuth2Client(object):
         operation = "Get Token"
 
         try:
-            resp = requests.post(token_url.geturl(), data=url_encoded_token_request, headers=post_options['headers'], allow_redirects=False)
+            resp = requests.post(token_url.geturl(), data=url_encoded_token_request, headers=post_options['headers'])
             util.log_return_correlation_id(self._log, operation, resp)
 
             if not util.is_http_success(resp.status_code):

@@ -77,9 +77,9 @@ class TestClientCredentials(unittest.TestCase):
 
         context.acquire_token_with_client_credentials(response['resource'], cp['clientId'], cp['clientSecret'], callback)
 
-        null_user = None
+        none_user = None
         context2 = AuthenticationContext(cp['authUrl'])
-        context2.acquire_token(response['resource'], null_user, cp['clientId'], callback)
+        context2.acquire_token(response['resource'], none_user, cp['clientId'], callback)
     
     def test_no_callback(self):
         context = AuthenticationContext(cp['authorityTenant'])
@@ -196,8 +196,8 @@ class TestClientCredentials(unittest.TestCase):
     '''
     function updateSelfSignedJwtStubs() {
         savedProto = {}
-        savedProto._getDateNow = SelfSignedJwt.prototype._getDateNow
-        savedProto._getNewJwtId = SelfSignedJwt.prototype._getNewJwtId
+        savedProto._getDateNow = SelfSignedJwt._getDateNow
+        savedProto._getNewJwtId = SelfSignedJwt._getNewJwtId
 
         SelfSignedJwt.prototype._getDateNow = function() { return cp['nowDate'] }
         SelfSignedJwt.prototype._getNewJwtId = function() { return cp['jwtId'] }
@@ -206,7 +206,7 @@ class TestClientCredentials(unittest.TestCase):
       }
 
     function resetSelfSignedJwtStubs(saveProto) {
-        _.extend(SelfSignedJwt.prototype, saveProto)
+        _.extend(SelfSignedJwt, saveProto)
       }
     '''
 

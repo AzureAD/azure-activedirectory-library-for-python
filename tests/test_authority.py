@@ -72,6 +72,7 @@ class TestAuthority(unittest.TestCase):
 
     @httpretty.activate
     def test_success_dynamic_instance_discovery(self):
+        ''' TODO: Test Failing as of 2015/06/03 and needs to be completed. '''
         instanceDiscoveryRequest = util.setup_expected_instance_discovery_request(
             200, 
             cp['authorityHosts']['global'],
@@ -123,6 +124,7 @@ class TestAuthority(unittest.TestCase):
     
     @httpretty.activate
     def test_success_static_instance_discovery(self):
+        ''' TODO: Test Failing as of 2015/06/03 and needs to be completed. '''
         def callback(err):
             if err:
                 raise Exception(err)
@@ -161,6 +163,7 @@ class TestAuthority(unittest.TestCase):
 
     @httpretty.activate
     def test_validation_off(self):
+        ''' TODO: Test Failing as of 2015/06/03 and needs to be completed. '''
         response = util.create_response()
         wire_response = response['wireResponse']
 

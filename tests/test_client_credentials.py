@@ -21,6 +21,7 @@ class TestClientCredentials(unittest.TestCase):
 
     @httpretty.activate
     def test_happy_path(self):
+        ''' TODO: Test Failing as of 2015/06/03 and needs to be completed. '''
         response_options = { 'noRefresh' : True }
         response = util.create_response(response_options)
         token_request = util.setup_expected_client_cred_token_request_response(200, response['wireResponse'])
@@ -37,6 +38,7 @@ class TestClientCredentials(unittest.TestCase):
         
     @httpretty.activate
     def test_happy_path_cached_token(self):
+        ''' TODO: Test Failing as of 2015/06/03 and needs to be completed. '''
         '''
         Tests happy-path followed by an additional call to acquire_token_with_client_credentials that should
         be served from the cache.
@@ -59,6 +61,7 @@ class TestClientCredentials(unittest.TestCase):
     
     @httpretty.activate
     def test_happy_path_cached_token_2(self):
+        ''' TODO: Test Failing as of 2015/06/03 and needs to be completed. '''
         '''
         Tests happy path plus a call to the cache only function acquireToken which should find the token from the
         previous call to acquire_token_with_client_credentials.
@@ -125,6 +128,7 @@ class TestClientCredentials(unittest.TestCase):
     
     @httpretty.activate
     def test_http_error(self):
+        ''' TODO: Test Failing as of 2015/06/03 and needs to be completed. '''
         tokenRequest = util.setup_expected_client_cred_token_request_response(403)
         context = AuthenticationContext(cp['authUrl'])
 
@@ -137,6 +141,7 @@ class TestClientCredentials(unittest.TestCase):
     
     @httpretty.activate
     def test_oauth_error(self):
+        ''' TODO: Test Failing as of 2015/06/03 and needs to be completed. '''
         errorResponse = {
           'error' : 'invalid_client',
           'error_description' : 'This is a test error description',
@@ -192,27 +197,34 @@ class TestClientCredentials(unittest.TestCase):
             self.assertIn('not found', err.args[0], 'Returned error did not contain expected message: ' + err.args[0])
 
         context.acquire_token(cp['resource'], 'unknownUser', cp['clientId'], callback)
-       
-    '''
-    function updateSelfSignedJwtStubs() {
-        savedProto = {}
-        savedProto._getDateNow = SelfSignedJwt._getDateNow
-        savedProto._getNewJwtId = SelfSignedJwt._getNewJwtId
+    
+    def update_self_signed_jwt_stubs():
+        '''
+        function updateSelfSignedJwtStubs() {
+            savedProto = {}
+            savedProto._getDateNow = SelfSignedJwt._getDateNow
+            savedProto._getNewJwtId = SelfSignedJwt._getNewJwtId
 
-        SelfSignedJwt.prototype._getDateNow = function() { return cp['nowDate'] }
-        SelfSignedJwt.prototype._getNewJwtId = function() { return cp['jwtId'] }
+            SelfSignedJwt.prototype._getDateNow = function() { return cp['nowDate'] }
+            SelfSignedJwt.prototype._getNewJwtId = function() { return cp['jwtId'] }
 
-        return savedProto
-      }
+            return savedProto
+          }
+        '''
+        raise NotImplementedError()
 
-    function resetSelfSignedJwtStubs(saveProto) {
-        _.extend(SelfSignedJwt, saveProto)
-      }
-    '''
+    def reset_self_signed_jwt_stubs(safe_proto):
+        '''
+        function resetSelfSignedJwtStubs(saveProto) {
+            _.extend(SelfSignedJwt, saveProto)
+          }
+        '''
+        raise NotImplementedError()
 
-    # TODO TODO: setupExpectedClientAssertionTokenRequestResponse
+    # TODO TODO: setupExpectedClientAssertionTokenRequestResponse, updateSelfSignedJwtStubs
     @httpretty.activate
     def test_cert_happy_path(self):
+        ''' TODO: Test Failing as of 2015/06/03 and needs to be completed. '''
         self.fail("Not Yet Impelemented.  Add Helper Functions and setup method")
         saveProto = updateSelfSignedJwtStubs()
 
@@ -230,6 +242,7 @@ class TestClientCredentials(unittest.TestCase):
         context.acquire_token_with_client_certificate(response.resource, cp['clientId'], cp['cert'], cp['certHash'], callback)
          
     def test_cert_bad_cert(self):
+        ''' TODO: Test Failing as of 2015/06/03 and needs to be completed. '''
         cert = 'gobbledy'
 
         context = AuthenticationContext(cp['authorityTenant'])

@@ -177,12 +177,13 @@ class TestUsernamePassword(unittest.TestCase):
 
     @httpretty.activate
     def test_managed_happy_path_twice_refresh_mrrt_user_respected(self):
+        ''' TODO: Test Failing as of 2015/06/03 and needs to be completed. '''
         util.setup_expected_user_realm_response_common(False)
         response_options = { 'mrrt' : True }
         response = util.create_response(response_options)
         upRequest = self.setup_expected_username_password_request_response(200, response['wireResponse'], response['authority'])
 
-    # Set up a memory cache with an entry of a different user than the one that will be acquiredBelow.
+        # Set up a memory cache with an entry of a different user than the one that will be acquiredBelow.
         alternateUserResponse = util.create_response({ 'isMRRT' : True, 'urlSafeUserId' : True })
         memCache = MemoryCache()
 
@@ -207,14 +208,14 @@ class TestUsernamePassword(unittest.TestCase):
                 else:
                     self.fail()
 
-            def callback(err, tokenResponse):
+            def callback3(err, tokenResponse):
                 if not err:
                     self.assertTrue(util.is_match_token_response(response['cachedResponse'], tokenResponse), 'Response did not match expected: ' + JSON.stringify(tokenResponse))
 
                     # Call again to make sure we get a cached entry.
                     context.acquire_token_with_username_password(refresh_response['resource'], cp['username'], cp['password'], cp['clientId'], callback2)
 
-            context.acquire_token_with_username_password(response['resource'], cp['username'], cp['password'], cp['clientId'], callback)
+            context.acquire_token_with_username_password(response['resource'], cp['username'], cp['password'], cp['clientId'], callback3)
 
         memCache.add([_.clone(alternateUserresponse['cachedResponse'])], callback)
 
@@ -237,7 +238,7 @@ class TestUsernamePassword(unittest.TestCase):
             if not err:
                 self.assertTrue(util.is_match_token_response(response['cachedResponse'], tokenResponse), 'Response did not match expected: ' + JSON.stringify(tokenResponse))
                 
-                numCacheEntries = memCache._entries.length
+                numCacheEntries = len(memCache._entries)
                 self.assertTrue(numCacheEntries == 1, 'Incorrect number of entries in the cache: ' + numCacheEntries)
 
                 # make the single cache entry expired.
@@ -297,6 +298,7 @@ class TestUsernamePassword(unittest.TestCase):
 
     @httpretty.activate
     def test_invalid_id_token(self):
+        ''' TODO: Test Failing as of 2015/06/03 and needs to be completed. '''
         util.setup_expected_user_realm_response_common(False)
         response = util.create_response()
         wireResponse = response['wireResponse']
@@ -450,6 +452,7 @@ class TestUsernamePassword(unittest.TestCase):
         tokenRequest._get_token_with_username_password('username', 'password', callback)
 
     def test_federated_unknown_token_type(self):
+        ''' TODO: Test Failing as of 2015/06/03 and needs to be completed. '''
         context = self.create_authentication_context_stub(cp['authorityTenant'])
         mex = self.create_mex_stub(cp['adfsWsTrust'])
         userRealm = self.create_user_realm_stub('wstrust', 'federated', cp['adfsMex'], cp['adfsWsTrust'])
@@ -523,6 +526,7 @@ class TestUsernamePassword(unittest.TestCase):
         tokenRequest._get_token_with_username_password('username', 'password', callback)
 
     def test_jwt_cracking(self):
+        ''' TODO: Test Failing as of 2015/06/03 and needs to be completed. '''
         testData = [
           [
             'eyJ0eXAiOiJKV1QiLCJhbGciOiJub25lIn0.eyJhdWQiOiJlOTU4YzA5YS1hYzM3LTQ5MDAtYjRkNy1mYjNlZWFmNzMzOGQiLCJpc3MiOiJodHRwczovL3N0cy53aW5kb3dzLm5ldC9jY2ViYTE0Yy02YTAwLTQ5YWMtYjgwNi04NGRlNTJiZjFkNDIvIiwiaWF0IjoxMzkxNjQ1NDU4LCJuYmYiOjEzOTE2NDU0NTgsImV4cCI6MTM5MTY0OTM1OCwidmVyIjoiMS4wIiwidGlkIjoiY2NlYmExNGMtNmEwMC00OWFjLWI4MDYtODRkZTUyYmYxZDQyIiwib2lkIjoiYTQ0MzIwNGEtYWJjOS00Y2I4LWFkYzEtYzBkZmMxMjMwMGFhIiwidXBuIjoicnJhbmRhbGxAcnJhbmRhbGxhYWQxLm9ubWljcm9zb2Z0LmNvbSIsInVuaXF1ZV9uYW1lIjoicnJhbmRhbGxAcnJhbmRhbGxhYWQxLm9ubWljcm9zb2Z0LmNvbSIsInN1YiI6IjRnVHY0RXRvWVctRFRvdzBiRG5KZDFBQTRzZkNoQmJqZXJtcXQ2UV9aYTQiLCJmYW1pbHlfbmFtZSI6IlJhbmRhbGwiLCJnaXZlbl9uYW1lIjoiUmljaCJ9.',
@@ -634,6 +638,7 @@ class TestUsernamePassword(unittest.TestCase):
 
     @httpretty.activate
     def test_bad_id_token_base64_in_response(self):
+        ''' TODO: Test Failing as of 2015/06/03 and needs to be completed. '''
         foundWarning = False
         util.setup_expected_user_realm_response_common(False)
         response = util.create_response()

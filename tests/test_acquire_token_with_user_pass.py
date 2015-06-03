@@ -17,6 +17,7 @@ from adal.authentication_context import AuthenticationContext
 from adal.cache_driver import CacheDriver
 class Test_AcquireTokenWithUsernamePassword(unittest.TestCase):
     def test_acquire_token_with_user_pass(self):
+        ''' TODO: Test Failing as of 2015/06/03 and needs to be completed. '''
         sampleParameters = { 
             "tenant" : "common",
             "authorityHostUrl" : "https://login.windows.net",

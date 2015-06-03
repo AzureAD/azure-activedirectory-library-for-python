@@ -74,6 +74,7 @@ class TestAuthorizationCode(unittest.TestCase):
 
     @httpretty.activate
     def test_happy_path(self):
+        ''' TODO: Test Failing as of 2015/06/03 and needs to be completed. '''
         response = util.create_response();
         
         self.setup_expected_auth_code_token_request_response(200, response['wireResponse'])

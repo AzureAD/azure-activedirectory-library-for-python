@@ -210,7 +210,7 @@ def map_fields(in_obj, out_obj, map):
 def create_response(options = None, iteration = None):
     options = options if options else {}
 
-    authority = options.get('authority', parameters['authorityTenant'])
+    authority = options.get('authority', parameters['authority'])
     base_response = {
         'token_type' : 'Bearer',
         'expires_in': 28800
@@ -356,7 +356,7 @@ def setup_expected_user_realm_response_common(federated):
 
     return setup_expected_user_realm_response(200, response_doc, parameters['authority'])
 
-def setup_expected_refresh_token_request_response(http_code, return_doc, authority_endpoint, resource=None, client_secret=None):
+def setup_expected_refresh_token_request_response(http_code, return_doc, authority_endpoint=None, resource=None, client_secret=None):
     auth_endpoint = authority_endpoint or parameters['authority']
 
     query_parameters = {}

@@ -66,7 +66,7 @@ class OAuth2Client(object):
 
     def __init__(self, call_context, authority):
 
-        self._token_endpoint = authority
+        self._token_endpoint = authority.token_endpoint
         self._log = log.Logger("OAuth2Client", call_context['log_context'])
         self._call_context = call_context
 

@@ -105,8 +105,9 @@ class SelfSignedJwt(object):
 
         # Strip '-----BEGIN RSA PRIVATE KEY-----' and '-----END RSA PRIVATE KEY-----'
         cert_string = "".join(certificate.strip().split("\n")[1:-1])
+        cert_string_64=base64.urlsafe_b64encode(cert_string.encode())
 
-        encoded_jwt = self._encode_jwt(payload, certificate, header)
+        encoded_jwt = self._encode_jwt(payload, cert_string_64, header)
         self._raise_on_invalid_jwt_signature(encoded_jwt)
         return encoded_jwt
 

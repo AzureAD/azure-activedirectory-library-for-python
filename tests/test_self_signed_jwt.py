@@ -49,31 +49,13 @@ class TestSelfSignedJwt(unittest.TestCase):
         self.assertTrue(jwt == self.expectedJwt, 'Generated JWT does not match expected:{}'.format(jwt))
 
     def test_create_jwt_hash_colons(self):
-        ''' 
-        TODO: Test Failing as of 2015/06/09 and needs to be completed. 
-        env34\lib\site-packages\Crypto\Random\OSRNG\nt.py", line 28, in <module>
-        import winrandom
-        ImportError: No module named 'winrandom'
-        '''
         self._create_jwt_and_match_expected_jwt(self.testCert, cp['certHash'])
 
     def test_create_jwt_hash_spaces(self):
-        ''' 
-        TODO: Test Failing as of 2015/06/09 and needs to be completed. 
-        env34\lib\site-packages\Crypto\Random\OSRNG\nt.py", line 28, in <module>
-        import winrandom
-        ImportError: No module named 'winrandom'
-        '''
         thumbprint = cp['certHash'].replace(':', ' ')
         self._create_jwt_and_match_expected_jwt(self.testCert, thumbprint)
 
     def test_create_jwt_hash_straight_hex(self):
-        ''' 
-        TODO: Test Failing as of 2015/06/09 and needs to be completed. 
-        env34\lib\site-packages\Crypto\Random\OSRNG\nt.py", line 28, in <module>
-        import winrandom
-        ImportError: No module named 'winrandom'
-        '''
         thumbprint = cp['certHash'].replace(':', '')
         self._create_jwt_and_match_expected_jwt(self.testCert, thumbprint)
 

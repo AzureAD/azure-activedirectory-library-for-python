@@ -1,4 +1,4 @@
-#-------------------------------------------------------------------------
+﻿#-------------------------------------------------------------------------
 # 
 # Copyright Microsoft Open Technologies, Inc.
 #
@@ -27,7 +27,7 @@ from . import util
 import time
 import datetime
 import uuid
-import jws
+import jwt
 import base64
 import re
 
@@ -83,10 +83,9 @@ class SelfSignedJwt(object):
 
         return jwt_payload
 
-    def _raise_on_invalid_jwt_signature(self, jwt):
-
-        segments = jwt.split('.')
-        if len(seqments) < 3 or not segments[2]:
+    def _raise_on_invalid_jwt_signature(self, encoded_jwt):
+        segments = encoded_jwt.split('.')
+        if len(segments) < 3 or not segments[2]:
             raise self._log.create_error('Failed to sign JWT. This is most likely due to an invalid certificate.')
 
     def _raise_on_invalid_thumbprint(self, thumbprint):
@@ -96,10 +95,24 @@ class SelfSignedJwt(object):
             raise self._log.create_error("The thumbprint does not match a known format")
 
     def _sign_jwt(self, header, payload, certificate):
+        # TODO: Might want to load the cert and get the string proper.
+        cert_start_str = '-----BEGIN RSA PRIVATE KEY-----'
+        cert_end_str = '-----END RSA PRIVATE KEY-----\n'
+        if not certificate.startswith(cert_start_str):
+            raise Exception("Invalid Certificate: Expected Start of Certificate to be '{}'".format(cert_start_str))
+        if not certificate.endswith(cert_end_str):
+            raise Exception("Invalid Certificate: Expected End of Certificate to be '{}'".format(cert_end_str))
 
-        jwt = jws.sign(header, payload, certificate)
-        self._raise_on_invalid_jwt_signature(jwt)
-        return jwt
+        # Strip '-----BEGIN RSA PRIVATE KEY-----' and '-----END RSA PRIVATE KEY-----'
+        cert_string = "".join(certificate.strip().split("\n")[1:-1])
+        cert_string_64=base64.urlsafe_b64encode(cert_string.encode())
+
+        encoded_jwt = self._encode_jwt(payload, cert_string_64, header)
+        self._raise_on_invalid_jwt_signature(encoded_jwt)
+        return encoded_jwt
+
+    def _encode_jwt(self, payload, certificate, header):
+        return jwt.encode(payload, certificate, headers = header).decode()
 
     def _reduce_thumbprint(self, thumbprint):
 
@@ -108,7 +121,6 @@ class SelfSignedJwt(object):
         return canonical
 
     def create(self, certificate, thumbprint):
-
         thumbprint = self._reduce_thumbprint(thumbprint)
         header = self._create_header(thumbprint)
         payload = self._create_payload()

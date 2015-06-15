@@ -1,4 +1,4 @@
-#-------------------------------------------------------------------------
+﻿#-------------------------------------------------------------------------
 #
 # Copyright Microsoft Open Technologies, Inc.
 #
@@ -157,20 +157,11 @@ class AuthenticationContext(object):
 
         self._acquire_token(callback, token_func)
 
-    def acquire_token_with_refresh_token(self, refresh_token, client_id, *args):
-        # Fix up the arguments.  Older clients may pass fewer arguments as the clientSecret parameter did not always exist.
-        # The code needs to make adjustments for those clients.
-
-        client_secret_present = (len(args) == 3)
-        client_secret = args[0] if client_secret_present else None
-        resource = args[1] if client_secret_present else args[0]
-        callback = args[2] if client_secret_present else args[1]
-
+    def acquire_token_with_refresh_token(self, refresh_token, client_id, client_secret, resource, callback):
         argument.validate_callback_type(callback)
         try:
             argument.validate_string_param(refresh_token, 'refresh_token')
             argument.validate_string_param(client_id, 'client_id')
-
         except Exception as exp:
             callback(exp)
             return

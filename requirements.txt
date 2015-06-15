@@ -1,5 +1,4 @@
 httpretty
-jws
 requests
 python-dateutil
-pycrypto
+PyJWT

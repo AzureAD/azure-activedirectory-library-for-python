@@ -1,4 +1,4 @@
-#-------------------------------------------------------------------------
+﻿#-------------------------------------------------------------------------
 #
 # Copyright Microsoft Open Technologies, Inc.
 #
@@ -24,7 +24,7 @@ import requests
 import uuid
 import time
 
-from datetime import datetime
+from datetime import datetime, timedelta
 
 from . import log
 from . import util
@@ -45,18 +45,13 @@ class WSTrustRequest(object):
                               </wsse:UsernameToken>".format(username, password)
         return username_token_xml
 
-    def _date_plus_minutes(self, date, minutes):
-
-        minutes_in_millisecs = minutes *60 *1000
-        epoch_time = time.mktime(date.timetuple())
-        return datetime.fromtimestamp(epoch_time + minutes_in_millisecs)
-
     def _build_security_header(self, username, password):
 
-        time_now = datetime.now()
-        expire_time = self._date_plus_minutes(time_now, 10)
-        time_now_str = time_now.isoformat()
-        expire_time_str = expire_time.isoformat()
+        time_now = datetime.utcnow()
+        expire_time = time_now + timedelta(minutes=10)
+
+        time_now_str = time_now.isoformat()[:-3] + 'Z'
+        expire_time_str = expire_time.isoformat()[:-3] + 'Z'
 
         security_header_xml = "<wsse:Security s:mustUnderstand=\'1\' xmlns:wsse=\'http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd\'>\
                                <wsu:Timestamp wsu:Id=\'_0\'>\

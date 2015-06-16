@@ -1,4 +1,4 @@
-#-------------------------------------------------------------------------
+﻿#-------------------------------------------------------------------------
 #
 # Copyright Microsoft Open Technologies, Inc.
 #
@@ -64,19 +64,22 @@ METADATA_AUTHORITY = '_authority'
 def is_MRRT(entry):
     return True if entry.get('resource') else False
 
-def nop(place_holder, callback):
+def nop(self, place_holder, callback):
     callback()
-
+def nop1(self, place_holder, callback):
+    callback(None)
+def nop2(self, place_holder, callback):
+    callback(None, None)
 
 class nopCache(object):
     """
     This is a place holder cache that does nothing.
     """
-    add = nop
-    add_many = nop
-    remove = nop
-    remove_many = nop
-    find = nop
+    add = nop2
+    add_many = nop2
+    remove = nop1
+    remove_many = nop1
+    find = nop2
 
 def create_token_hash(token):
     token_encoded = token.encode()
@@ -187,7 +190,7 @@ class CacheDriver(object):
 
     def _replace_entry(self, entry_to_replace, new_entry, callback):
 
-        def _callback(err):
+        def _callback(err, _=None):
             if err:
                 callback(err)
                 return
@@ -311,7 +314,7 @@ class CacheDriver(object):
 
         self._log.debug("Removing many: {0}".format(len(entries)))
 
-        def _callback(err):
+        def _callback(err, _=None):
             callback(err)
             return
 
@@ -321,7 +324,7 @@ class CacheDriver(object):
 
         self._log.debug("Adding many: {0}".format(len(entries)))
 
-        def _callback(err):
+        def _callback(err, _=None):
             callback(err)
             return
 
@@ -353,7 +356,7 @@ class CacheDriver(object):
 
         self._log.debug("Removing entry.")
 
-        def _callback(err):
+        def _callback(err, _=None):
             callback(err)
             return
 
@@ -364,12 +367,12 @@ class CacheDriver(object):
         self._log.debug("Adding entry: {0}".format(create_token_id_message(entry)))
         self._augment_entry_with_cache_metadata(entry)
 
-        def _callback(err):
+        def _callback(err, _=None):
             if err:
                 callback(err)
                 return
 
-            def _call(err, _):
+            def _call(err, _=None):
                 callback(err)
                 return
             self._cache.add([entry], _call)

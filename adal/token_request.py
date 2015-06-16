@@ -1,4 +1,4 @@
-#-------------------------------------------------------------------------
+﻿#-------------------------------------------------------------------------
 #
 # Copyright Microsoft Open Technologies, Inc.
 #
@@ -156,7 +156,7 @@ class TokenRequest(object):
         self._oauth_get_token(oauth_parameters, callback)
 
     def _get_saml_grant_type(self, wstrust_response):
-        token_type = wstrust_response.token_type
+        token_type = wstrust_response['token_type']
         if token_type == Saml.TokenTypeV1:
             return OAuth2GrantType.SAML1
 
@@ -205,7 +205,7 @@ class TokenRequest(object):
                 return
             self._perform_wstrust_assertion_oauth_exchange(wstrust_response, callback)
 
-        self._perform_wstrust_exchange(wstrust_endpoint, username, passowrd, _callback)
+        self._perform_wstrust_exchange(wstrust_endpoint, username, password, _callback)
 
     def _create_adwstrust_endpoint_error(self):
         return self._log.create_error('AAD did not return a WSTrust endpoint.  Unable to proceed.')
@@ -227,16 +227,15 @@ class TokenRequest(object):
             self._log.debug("Attempting mex at: {0}".format(mex_endpoint))
             mex = self._create_mex(mex_endpoint)
 
-            def _callback(mex_err):
-                wstrust_endpoint = ""
+            def _callback(mex_err, _=None):
                 if mex_err:
-                    self._log.warn("MEX exchnage failed.  Attempting fallback to AAD supplied endpoint.")
+                    self._log.warn("MEX exchange failed.  Attempting fallback to AAD supplied endpoint.")
                     wstrust_endpoint = self._user_realm.federation_active_auth_url
                     if not wstrust_endpoint:
                         callback(self._create_adwstrust_endpoint_error())
                         return
-                    else:
-                        wstrust_endpoint = mex.username_password_url
+                else:
+                    wstrust_endpoint = mex.username_password_url
                 self._perform_username_password_for_access_token_exchange(wstrust_endpoint, username, password, callback)
                 return
             mex.discover(_callback)

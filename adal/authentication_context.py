@@ -79,7 +79,7 @@ class AuthenticationContext(object):
 
         self._call_context['log_context'] = log.create_log_context(self._correlation_id)
 
-        def _callback(err):
+        def _callback(err, _=None):
             if err:
                 callback(err)
                 return

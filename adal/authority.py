@@ -1,4 +1,4 @@
-#-------------------------------------------------------------------------
+﻿#-------------------------------------------------------------------------
 # 
 # Copyright Microsoft Open Technologies, Inc.
 #
@@ -171,12 +171,12 @@ class Authority(object):
         if not self._validated:
             self._log.debug("Performing instance discovery: {0}".format(self._url.geturl()))
 
-            def _callback(err, tenant_dicovery_endpoint):
+            def _callback(err, tenant_discovery_endpoint):
                 if err:
                     callback(err)
                 else:
                     self._validated = True
-                    self._get_oauth_endpoints(tenant_dicovery_endpoint, callback)
+                    self._get_oauth_endpoints(tenant_discovery_endpoint, callback)
                     return
 
             self._validate_via_instance_discovery(_callback)

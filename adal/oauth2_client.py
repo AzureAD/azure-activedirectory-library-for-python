@@ -1,4 +1,4 @@
-#-------------------------------------------------------------------------
+﻿#-------------------------------------------------------------------------
 # 
 # Copyright Microsoft Open Technologies, Inc.
 #
@@ -150,7 +150,7 @@ class OAuth2Client(object):
                 self._log.warn('The returned id_token could not be base64 url safe decoded.')
                 return
 
-            id_token = json.loads(b64_decoded)
+            id_token = json.loads(b64_decoded.decode())
 
         except Exception as exp:
             self._log.warn("The returned id_token could not be decoded: {0}".format(exp))

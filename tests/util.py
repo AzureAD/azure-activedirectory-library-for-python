@@ -1,4 +1,4 @@
-#-------------------------------------------------------------------------
+﻿#-------------------------------------------------------------------------
 #
 # Copyright Microsoft Open Technologies, Inc.
 #
@@ -201,6 +201,27 @@ TOKEN_RESPONSE_MAP['error'] = 'error'
 TOKEN_RESPONSE_MAP['error_description'] = 'errorDescription'
 TOKEN_RESPONSE_MAP['resource'] = 'resource'
 
+def dicts_equal(expected, actual):
+    '''
+    Compares two dictionaries and returns an error message if something is wrong.
+    None otherwise
+    '''
+    if not len(expected) == len(actual):
+        return 'dicts are not the same length'
+
+    shared_items = set(expected.keys()) & set(actual.keys())
+    if not len(shared_items) == len(expected):
+        return 'The provided dicts do not have the same keys'
+
+    for i in expected.keys():
+        expected_value = expected[i]
+        actual_value = actual[i]
+
+        if not expected_value == actual_value:
+            return 'Not Equal: expected:{} actual:{}'.format(expected_value, actual_value)
+
+    return None
+
 def map_fields(in_obj, out_obj, map):
     for key in in_obj.keys():
         if map.get(key):
@@ -275,7 +296,7 @@ def create_response(options = None, iteration = None):
     'resource' : iterated['resource'],
     'refreshToken' : iterated['refresh_token'],
     'clientId' : cached_response['_clientId'],
-    'authority' : authority
+    'authority' : authority,
   }
 
 def compare_query_strings(left, right):

@@ -1,4 +1,4 @@
-#-------------------------------------------------------------------------
+﻿#-------------------------------------------------------------------------
 # Copyright (c) Microsoft. All rights reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,6 +15,8 @@
 import unittest
 from adal.authentication_context import AuthenticationContext
 from adal.cache_driver import CacheDriver
+import base64
+import json
 class Test_AcquireTokenWithUsernamePassword(unittest.TestCase):
     def test_acquire_token_with_user_pass(self):
         ''' TODO: Test Failing as of 2015/06/03 and needs to be completed. '''
@@ -23,8 +25,10 @@ class Test_AcquireTokenWithUsernamePassword(unittest.TestCase):
             "authorityHostUrl" : "https://login.windows.net",
             "clientId" : "04b07795-8ddb-461a-bbee-02f9e1bf7b46", # xplat's which is supposed to be in every tenant
             "username" : "crwilcox@microsoft.com", 
-            "password" : "SUPER SECRET PASSWORD" 
+            "password" : None
         }
+        
+        self.assertIsNotNone(sampleParameters['password'], "This test cannot work without you adding a password")
 
         authorityUrl = sampleParameters['authorityHostUrl'] + '/' + sampleParameters['tenant']
 
@@ -34,11 +38,21 @@ class Test_AcquireTokenWithUsernamePassword(unittest.TestCase):
         cache = None # TODO: Make this a cache driver
         context = AuthenticationContext(authorityUrl, cache)
 
-        # TODO: Implement callback and check here for implementation
         def callback(err, tokenResponse):
-            print(tokenResponse)
+            self.assertIsNone(err)
+            self.assertIsNotNone(tokenResponse)
 
-            self.fail("Not implemented")
+            # token response is a dict that should have
+            expected = [
+                'accessToken', 'expiresIn', 'expiresOn', 'familyName', 'givenName', 
+                'isUserIdDisplayable', 'refreshToken', 'resource', 'tenantId', 'tokenType', 'userId'
+            ]
+            for i in expected:
+                self.assertIsNotNone(tokenResponse.get(i), '{} is an expected item in the token response'.format(i))
+            
+            return
+
+            
 
         context.acquire_token_with_username_password(resource, sampleParameters['username'], sampleParameters['password'], sampleParameters['clientId'], callback)
 

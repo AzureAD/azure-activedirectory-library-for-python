@@ -119,7 +119,10 @@ class TokenRequest(object):
                         return
 
                     self._log.debug("Successfully retrieved token from authority.")
-                    self._cache_driver.add(token_response, lambda callback: callback(None, token_response))
+
+                    # TODO: This has an issue with the callback. Either fix or remove cache.
+                    #self._cache_driver.add(token_response, lambda callback: callback(None, token_response))
+                    callback(None, token_response)
 
                 get_token_func(_call)
             else:
@@ -156,7 +159,7 @@ class TokenRequest(object):
         self._oauth_get_token(oauth_parameters, callback)
 
     def _get_saml_grant_type(self, wstrust_response):
-        token_type = wstrust_response['token_type']
+        token_type = wstrust_response.token_type
         if token_type == Saml.TokenTypeV1:
             return OAuth2GrantType.SAML1
 
@@ -171,7 +174,7 @@ class TokenRequest(object):
 
         oauth_parameters = {}
         try:
-            grant_type = self._get_saml_grant_type(wstrust_request)
+            grant_type = self._get_saml_grant_type(wstrust_response)
             assertion = b64encode(wstrust_response.token)
             oauth_parameters = self._create_oauth_parameters(grant_type)
             oauth_parameters[OAuth2Parameters.ASSERTION] = assertion
@@ -191,7 +194,7 @@ class TokenRequest(object):
                 return
 
             if not response.token:
-                rst_err = self._log.create_error("Unsucessful RSTR.\n\terror code: {0}\n\tfaultMessage: {1}".format(response.error_code, response.fault_message))
+                rst_err = self._log.create_error("Unsuccessful RSTR.\n\terror code: {0}\n\tfaultMessage: {1}".format(response.error_code, response.fault_message))
                 callback(rst_err, None)
                 return
             callback(None, response)

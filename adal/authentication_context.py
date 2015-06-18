@@ -102,17 +102,21 @@ class AuthenticationContext(object):
             self.token_request.get_token_from_cache_with_refresh(user_id, callback)
 
         self._acquire_token(callback, token_func)
+    
+    def acquire_token_with_username_password(self, resource, username, password, client_id, callback=None):
+        # If a callback is not provided, just return the token response.
+        call_wrapper = None
+        if not callback:
+            call_wrapper = CallbackWrapper()
+            callback = call_wrapper.callback
 
-    def acquire_token_with_username_password(self, resource, username, password, client_id, callback):
-
-        argument.validate_callback_type(callback)
         try:
             argument.validate_string_param(resource, 'resource')
             argument.validate_string_param(username, 'username')
             argument.validate_string_param(password, 'password')
             argument.validate_string_param(client_id, 'client_id')
         except Exception as exp:
-            callback(exp)
+            callback(exp, None)
             return
 
         def token_func(self):
@@ -120,6 +124,10 @@ class AuthenticationContext(object):
             self.token_request._get_token_with_username_password(username, password, callback)
 
         self._acquire_token(callback, token_func)
+
+        # If a callback is not provided, just return the token response.
+        if call_wrapper:
+            return call_wrapper.token_response
 
     def acquire_token_with_client_credentials(self, resource, client_id, client_secret, callback):
 
@@ -188,3 +196,11 @@ class AuthenticationContext(object):
             self.token_request.get_token_with_certificate(certificate, thumbprint, callback)
 
         self._acquire_token(callback, token_func)
+
+class CallbackWrapper:
+    token_response = None
+    def callback(self, err, tokenResponse):
+        if err:
+            raise Exception(err)
+
+        self.token_response =  tokenResponse

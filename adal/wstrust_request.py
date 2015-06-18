@@ -94,6 +94,9 @@ class WSTrustRequest(object):
         wstrust_resp = wstrust_response.WSTrustResponse(self._call_context, body)
         try:
             wstrust_resp.parse()
+            import re
+            res = re.search('<saml:Assertion .*</saml:Assertion>', body)
+            wstrust_resp._token = res.group(0).encode()
             callback(None, wstrust_resp)
         except Exception as exp:
             callback(exp, wstrust_resp)
@@ -109,7 +112,13 @@ class WSTrustRequest(object):
 
         operation = "WS-Trust RST"
         try:
-            resp = requests.post(self._wstrust_endpoint_url, headers=options['headers'], data=rst)
+            
+            retries = 0
+            resp = None
+            while (resp is None or resp.status_code is not 200) and retries < 10:
+                resp = requests.post(self._wstrust_endpoint_url, headers=options['headers'], data=rst, allow_redirects = True)
+                retries += 1
+
             util.log_return_correlation_id(self._log, operation, resp)
 
             if not util.is_http_success(resp.status_code):

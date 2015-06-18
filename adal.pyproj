@@ -90,6 +90,7 @@
     <Compile Include="tests\test_log.py" />
     <Compile Include="tests\test_mex.py" />
     <Compile Include="tests\test_refresh_token.py" />
+    <Compile Include="tests\test_cache_driver.py" />
     <Compile Include="tests\test_self_signed_jwt.py" />
     <Compile Include="tests\test_username_password.py" />
     <Compile Include="tests\test_user_realm.py" />
@@ -134,7 +135,7 @@
   </ItemGroup>
   <ItemGroup>
     <Interpreter Include="env27\">
-      <Id>{6bcc332c-96fb-4cac-83f4-b1d92a0b64cb}</Id>
+      <Id>{035af01c-b03d-490d-8832-e92e10c726f3}</Id>
       <BaseInterpreter>{2af0f10d-7135-4994-9156-5d01c9c11b7e}</BaseInterpreter>
       <Version>2.7</Version>
       <Description>env27 (Python 2.7)</Description>

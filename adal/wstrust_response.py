@@ -1,4 +1,4 @@
-#-------------------------------------------------------------------------
+﻿#-------------------------------------------------------------------------
 #
 # Copyright Microsoft Open Technologies, Inc.
 #
@@ -131,7 +131,7 @@ class WSTrustResponse(object):
                 self._log.warn("Unable to find RequestsSecurityToken element associated with TokenType element: {0}".format(token_type))
                 continue
 
-            token = requested_token_node[0] # xmlutil.serialize_node_children(requested_token_node[0])
+            token = ElementTree.tostring(requested_token_node[0][0])
             if token is None:
                 self._log.warn("Unable to find token associated with TokenType element: {0}".format(token_type))
                 continue

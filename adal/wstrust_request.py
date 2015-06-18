@@ -109,12 +109,7 @@ class WSTrustRequest(object):
 
         operation = "WS-Trust RST"
         try:
-            
-            retries = 0
-            resp = None
-            while (resp is None or resp.status_code is not 200) and retries < 10:
-                resp = requests.post(self._wstrust_endpoint_url, headers=options['headers'], data=rst, allow_redirects = True)
-                retries += 1
+            resp = requests.post(self._wstrust_endpoint_url, headers=options['headers'], data=rst, allow_redirects = True)
 
             util.log_return_correlation_id(self._log, operation, resp)
 

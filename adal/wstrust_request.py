@@ -94,9 +94,6 @@ class WSTrustRequest(object):
         wstrust_resp = wstrust_response.WSTrustResponse(self._call_context, body)
         try:
             wstrust_resp.parse()
-            import re
-            res = re.search('<saml:Assertion .*</saml:Assertion>', body)
-            wstrust_resp._token = res.group(0).encode()
             callback(None, wstrust_resp)
         except Exception as exp:
             callback(exp, wstrust_resp)

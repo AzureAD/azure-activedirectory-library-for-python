@@ -38,9 +38,8 @@ class Test_AcquireTokenWithUsernamePassword(unittest.TestCase):
         cache = None # TODO: Make this a cache driver
         context = AuthenticationContext(authorityUrl, cache)
 
-        # TODO: Implement callback and check here for implementation
         def callback(err, tokenResponse):
-            print(tokenResponse)
+            self.assertIsNone(err)
             self.assertIsNotNone(tokenResponse)
 
             # token response is a dict that should have
@@ -53,8 +52,7 @@ class Test_AcquireTokenWithUsernamePassword(unittest.TestCase):
             
             return
 
-            if err:
-                self.fail('Unexpected Err:{}'.format(err))
+            
 
         context.acquire_token_with_username_password(resource, sampleParameters['username'], sampleParameters['password'], sampleParameters['clientId'], callback)
 

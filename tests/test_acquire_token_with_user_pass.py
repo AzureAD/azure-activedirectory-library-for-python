@@ -17,28 +17,33 @@ from adal.authentication_context import AuthenticationContext
 from adal.cache_driver import CacheDriver
 import base64
 import json
+import adal
+
+sampleParameters = { 
+        "tenant" : "common",
+        "authorityHostUrl" : "https://login.windows.net",
+        "clientId" : "04b07795-8ddb-461a-bbee-02f9e1bf7b46", # xplat's which is supposed to be in every tenant
+        "username" : "crwilcox@microsoft.com", 
+        "password" : None
+}
 
 class Test_AcquireTokenWithUsernamePassword(unittest.TestCase):
-    sampleParameters = { 
-            "tenant" : "common",
-            "authorityHostUrl" : "https://login.windows.net",
-            "clientId" : "04b07795-8ddb-461a-bbee-02f9e1bf7b46", # xplat's which is supposed to be in every tenant
-            "username" : "crwilcox@microsoft.com", 
-            "password" : None
-    }
 
-    def test_acquire_token_with_user_pass(self):
-        sampleParameters = self.sampleParameters
-        
+    def setUp(self):
         self.assertIsNotNone(sampleParameters['password'], "This test cannot work without you adding a password")
+        return super().setUp()
 
+    def test_acquire_token_with_user_pass_defaults(self):
+        token_response = adal.acquire_token_with_username_password(sampleParameters['username'], sampleParameters['password'])
+        self.validate_token_response(token_response)
+
+    def test_acquire_token_with_user_pass_explicit(self):
         authorityUrl = sampleParameters['authorityHostUrl'] + '/' + sampleParameters['tenant']
-
         resource = '00000002-0000-0000-c000-000000000000' # or 'https://management.core.windows.net/'
+        token_response = adal.acquire_token_with_username_password(sampleParameters['username'], sampleParameters['password'], authorityUrl, resource, sampleParameters['clientId'])
+        self.validate_token_response(token_response)
 
-        context = AuthenticationContext(authorityUrl)
-        token_response = context.acquire_token_with_username_password(resource, sampleParameters['username'], sampleParameters['password'], sampleParameters['clientId'])
-
+    def validate_token_response(self, token_response):
         self.assertIsNotNone(token_response)
 
         # token response is a dict that should have
@@ -48,6 +53,5 @@ class Test_AcquireTokenWithUsernamePassword(unittest.TestCase):
         ]
         for i in expected:
             self.assertIsNotNone(token_response.get(i), '{} is an expected item in the token response'.format(i))
-        
 if __name__ == '__main__':
     unittest.main()

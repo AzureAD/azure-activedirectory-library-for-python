@@ -103,12 +103,14 @@ class AuthenticationContext(object):
 
         self._acquire_token(callback, token_func)
     
-    def acquire_token_with_username_password(self, resource, username, password, client_id, callback=None):
-        # If a callback is not provided, just return the token response.
-        call_wrapper = None
-        if not callback:
-            call_wrapper = CallbackWrapper()
-            callback = call_wrapper.callback
+    def acquire_token_with_username_password(self, resource, username, password, client_id):
+        token_response = []
+        
+        def callback(err, tokenResponse):
+            if err:
+                raise Exception(err)
+
+            token_response.append(tokenResponse)
 
         try:
             argument.validate_string_param(resource, 'resource')
@@ -125,9 +127,7 @@ class AuthenticationContext(object):
 
         self._acquire_token(callback, token_func)
 
-        # If a callback is not provided, just return the token response.
-        if call_wrapper:
-            return call_wrapper.token_response
+        return token_response[0]
 
     def acquire_token_with_client_credentials(self, resource, client_id, client_secret, callback):
 
@@ -196,11 +196,3 @@ class AuthenticationContext(object):
             self.token_request.get_token_with_certificate(certificate, thumbprint, callback)
 
         self._acquire_token(callback, token_func)
-
-class CallbackWrapper:
-    token_response = None
-    def callback(self, err, tokenResponse):
-        if err:
-            raise Exception(err)
-
-        self.token_response =  tokenResponse

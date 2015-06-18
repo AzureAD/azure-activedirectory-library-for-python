@@ -49,29 +49,5 @@ class Test_AcquireTokenWithUsernamePassword(unittest.TestCase):
         for i in expected:
             self.assertIsNotNone(token_response.get(i), '{} is an expected item in the token response'.format(i))
         
-    def test_acquire_token_with_user_pass_callback(self):
-        sampleParameters = self.sampleParameters
-        self.assertIsNotNone(sampleParameters['password'], "This test cannot work without you adding a password")
-
-        authorityUrl = sampleParameters['authorityHostUrl'] + '/' + sampleParameters['tenant']
-
-        resource = '00000002-0000-0000-c000-000000000000' # or 'https://management.core.windows.net/'
-
-        context = AuthenticationContext(authorityUrl)
-
-        def callback(err, tokenResponse):
-            self.assertIsNone(err)
-            self.assertIsNotNone(tokenResponse)
-
-            # token response is a dict that should have
-            expected = [
-                'accessToken', 'expiresIn', 'expiresOn', 'familyName', 'givenName', 
-                'isUserIdDisplayable', 'refreshToken', 'resource', 'tenantId', 'tokenType', 'userId'
-            ]
-            for i in expected:
-                self.assertIsNotNone(tokenResponse.get(i), '{} is an expected item in the token response'.format(i))
-            
-        context.acquire_token_with_username_password(resource, sampleParameters['username'], sampleParameters['password'], sampleParameters['clientId'], callback)
-
 if __name__ == '__main__':
     unittest.main()

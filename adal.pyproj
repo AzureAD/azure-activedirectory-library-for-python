@@ -38,16 +38,10 @@
     <Compile Include="adal\authority.py">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="adal\cache_driver.py">
-      <SubType>Code</SubType>
-    </Compile>
     <Compile Include="adal\constants.py">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="adal\log.py">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="adal\memory_cache.py">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="adal\mex.py">
@@ -90,7 +84,6 @@
     <Compile Include="tests\test_log.py" />
     <Compile Include="tests\test_mex.py" />
     <Compile Include="tests\test_refresh_token.py" />
-    <Compile Include="tests\test_cache_driver.py" />
     <Compile Include="tests\test_self_signed_jwt.py" />
     <Compile Include="tests\test_username_password.py" />
     <Compile Include="tests\test_user_realm.py" />

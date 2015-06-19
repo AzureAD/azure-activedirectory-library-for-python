@@ -21,7 +21,6 @@
 #--------------------------------------------------------------------------
 
 from . import constants
-from . import cache_driver
 from . import log
 from . import mex
 from . import oauth2_client
@@ -60,7 +59,6 @@ class TokenRequest(object):
         self._user_id = None
 
         self._user_realm = None
-        self._cache_driver = None
 
     def _create_user_realm_request(self, username):
         return user_realm.UserRealm(self._call_context, username, self._authentication_context.authority)
@@ -79,12 +77,7 @@ class TokenRequest(object):
 
     def _oauth_get_token(self, oauth_parameters, callback):
         client = self._create_oauth2_client()
-        client.get_token(oauth_parameters, callback)
-
-    def _create_cache_driver(self):
-        return cache_driver.CacheDriver(self._call_context, self._authentication_context.authority,
-                                        self._resource, self._client_id, self._authentication_context.cache,
-                                        partial(self._get_token_with_token_response, self))
+        client.get_token(oauth_parameters, callback)   
 
     def _get_token_with_token_response(self, entry, resource, callback):
         self._log.debug("called to refresh a token from the cache")
@@ -100,36 +93,18 @@ class TokenRequest(object):
 
         return query
 
-    def _get_token_with_cache_wrapper(self, callback, get_token_func):
-
-        self._cache_driver = self._create_cache_driver()
-        cache_query = self._create_cache_query()
-
-        def _callback(err, token):
+    def _get_token(self, callback, get_token_func):
+        def _call(err, token_response=None):
             if err:
-                self._log.warn("Attempt to look for token in cache resulted in Error: {0}".format(err))
+                self._log.warn("get_token_func returned with err")
+                callback(err, token_response)
+                return
 
-            if not token:
-                self._log.debug("No appropriate cached token found.")
+            self._log.debug("Successfully retrieved token from authority.")
+            callback(None, token_response)
 
-                def _call(err, token_response=None):
-                    if err:
-                        self._log.warn("get_token_func returned with err")
-                        callback(err, token_response)
-                        return
-
-                    self._log.debug("Successfully retrieved token from authority.")
-
-                    # TODO: This has an issue with the callback. Either fix or remove cache.
-                    #self._cache_driver.add(token_response, lambda callback: callback(None, token_response))
-                    callback(None, token_response)
-
-                get_token_func(_call)
-            else:
-                self._log.info("Returning cached token.")
-                callback(err, token)
-
-        self._cache_driver.find(cache_query, _callback)
+        get_token_func(_call)
+            
 
     def _create_oauth_parameters(self, grant_type):
 
@@ -267,7 +242,7 @@ class TokenRequest(object):
                 return
 
             self._user_realm.discover(_call)
-        self._get_token_with_cache_wrapper(callback, _callback)
+        self._get_token(callback, _callback)
 
     def _get_token_with_client_credentials(self, client_secret, callback):
 
@@ -278,7 +253,7 @@ class TokenRequest(object):
             oauth_parameters[OAuth2Parameters.CLIENT_SECRET] = client_secret
             self._oauth_get_token(oauth_parameters, get_token_complete_callback)
 
-        self._get_token_with_cache_wrapper(callback, _callback)
+        self._get_token(callback, _callback)
 
     def _get_token_with_authorization_code(self, authorization_code, client_secret, callback):
 
@@ -323,7 +298,7 @@ class TokenRequest(object):
         self._log.info("Getting token from cache with refresh if necessary.")
 
         self._user_id = user_id
-        self._get_token_with_cache_wrapper(callback, lambda _callback: _callback(self._log.create_error("Entry not found in cache.")))
+        self._get_token(callback, lambda _callback: _callback(self._log.create_error("Entry not found in cache.")))
 
     def get_token_with_certificate(self, certificate, thumbprint, callback):
 
@@ -344,5 +319,5 @@ class TokenRequest(object):
         def _callback(get_token_complete_callback):
             self._oauth_get_token(oauth_parameters, get_token_complete_callback)
 
-        self._get_token_with_cache_wrapper(callback, _callback)
+        self._get_token(callback, _callback)
 

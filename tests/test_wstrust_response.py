@@ -1,4 +1,4 @@
-#-------------------------------------------------------------------------
+﻿#-------------------------------------------------------------------------
 # Copyright (c) Microsoft. All rights reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,6 +16,7 @@ import unittest
 from adal.wstrust_response import WSTrustResponse
 import os
 from adal.constants import XmlNamespaces, Errors
+from xml.etree import ElementTree
 
 _namespaces = XmlNamespaces.namespaces
 _call_context = {'log_context' : {'correlation-id':'test-corr-id'}}
@@ -60,7 +61,7 @@ class Test_wstrustresponse(unittest.TestCase):
 
         self.assertEqual(wstrustResponse.token_type, 'urn:oasis:names:tc:SAML:1.0:assertion', 'TokenType did not match expected value: ' + wstrustResponse.token_type)
 
-        attribute_values = wstrustResponse._token.findall('saml:Assertion/saml:AttributeStatement/saml:Attribute/saml:AttributeValue', _namespaces)
+        attribute_values = ElementTree.fromstring(wstrustResponse.token).findall('saml:AttributeStatement/saml:Attribute/saml:AttributeValue', _namespaces)
         self.assertEqual(2, len(attribute_values))
         self.assertEqual('1TIu064jGEmmf+hnI+F0Jg==', attribute_values[1].text)
 

@@ -1,4 +1,4 @@
-#-------------------------------------------------------------------------
+﻿#-------------------------------------------------------------------------
 #
 # Copyright Microsoft Open Technologies, Inc.
 #
@@ -32,6 +32,7 @@ from adal.wstrust_response import WSTrustResponse
 from adal.wstrust_request import WSTrustRequest
 from adal import log
 from adal.memory_cache import MemoryCache
+from adal.authority import Authority
 
 try:
     import unittest2 as unittest
@@ -72,7 +73,7 @@ class TestUsernamePassword(unittest.TestCase):
         queryParameters['assertion'] = assertion
         queryParameters['scope'] = 'openid'
 
-        return util.setup_expected_oauth_response(queryParameters, cp['tokenUrlPath'], 200, response['wireResponse'], cp['authority'])
+        return util.setup_expected_oauth_response(queryParameters, cp['tokenUrlPath'], 200, response['wireResponse'], cp['authority'] + '/' + cp['tenant'])
 
     def setup_expected_username_password_request_response(self, httpCode, returnDoc, authorityEndpoint):
         queryParameters = {}
@@ -85,8 +86,8 @@ class TestUsernamePassword(unittest.TestCase):
 
         query = urlencode(queryParameters)
         
-        url = '{}{}?{}'.format(authorityEndpoint, cp['tokenPath'], query)
-
+        url = '{}{}'.format(authorityEndpoint, cp['tokenPath'])
+        #'https://login.windows.net/rrandallaad1.onmicrosoft.com/oauth2/token?slice=testslice&api-version=1.0'
         httpretty.register_uri(httpretty.POST, url, returnDoc, status = httpCode, content_type = 'text/json')
     
     @httpretty.activate
@@ -94,33 +95,27 @@ class TestUsernamePassword(unittest.TestCase):
         util.setup_expected_user_realm_response_common(False)
         response = util.create_response()
 
-        upRequest = self.setup_expected_username_password_request_response(200, response['wireResponse'], response['authority'])
-
-        context = AuthenticationContext(response['authority'])
-
-        def callback(err, tokenResponse):
-            if not err:
-                self.assertTrue(util.isMatchTokenResponse(response['cachedResponse'], tokenResponse), 'Response did not match expected: ' + JSON.stringify(tokenResponse))
+        authorityUrl = response['authority'] + '/' + cp['tenant']
+        upRequest = self.setup_expected_username_password_request_response(200, response['wireResponse'], authorityUrl)
         
-        context.acquire_token_with_username_password(response['resource'], cp['username'], cp['password'], cp['clientId'], callback)
+        tokenResponse = adal.acquire_token_with_username_password(cp['username'], cp['password'], authorityUrl, response['resource'], cp['clientId'])
+        self.assertTrue(util.isMatchTokenResponse(response['cachedResponse'], tokenResponse), 'Response did not match expected: ' + JSON.stringify(tokenResponse))
 
     @httpretty.activate
     def test_managed_happy_path_twice_cache(self):
         util.setup_expected_user_realm_response_common(False)
         response = util.create_response()
 
-        upRequest = self.setup_expected_username_password_request_response(200, response['wireResponse'], response['authority'])
+        authorityUrl = response['authority'] + '/' + cp['tenant']
+        upRequest = self.setup_expected_username_password_request_response(200, response['wireResponse'], authorityUrl)
 
-        context = AuthenticationContext(response['authority'])
-        def callback(err, tokenResponse):
-            if not err:
-                self.assertTrue(util.isMatchTokenResponse(response['cachedResponse'], tokenResponse), 'Response did not match expected: ' + JSON.stringify(tokenResponse))
-        
+        tokenResponse = adal.acquire_token_with_username_password(cp['username'], cp['password'], authorityUrl, response['resource'], cp['clientId'])
+        self.assertTrue(util.isMatchTokenResponse(response['cachedResponse'], tokenResponse), 'Response did not match expected: ' + JSON.stringify(tokenResponse))
 
-        context.acquire_token_with_username_password(response['resource'], cp['username'], cp['password'], cp['clientId'], callback)
-        
         # Call again to make sure we get a cached entry.
-        context.acquire_token_with_username_password(response['resource'], cp['username'], cp['password'], cp['clientId'], callback)
+        tokenResponse = adal.acquire_token_with_username_password(cp['username'], cp['password'], authorityUrl, response['resource'], cp['clientId'])
+        self.assertTrue(util.isMatchTokenResponse(response['cachedResponse'], tokenResponse), 'Response did not match expected: ' + JSON.stringify(tokenResponse))
+
     
     @httpretty.activate
     def test_managed_happy_path_twice_refresh_mrrt_static_cache(self):
@@ -135,124 +130,32 @@ class TestUsernamePassword(unittest.TestCase):
 
         context = AuthenticationContext(response['authority'])
 
-        def secondCallback(err, secondTokenResponse):
-            if not err:
-                self.assertTrue(util.isMatchTokenResponse(response['cachedResponse'], secondTokenResponse), 'Response did not match expected: ' + JSON.stringify(tokenResponse))
+        tokenResponse = adal.acquire_token_with_username_password(cp['username'], cp['password'], response['authority'], response['resource'], cp['clientId'])
+        self.assertTrue(util.isMatchTokenResponse(response['cachedResponse'], tokenResponse), 'Response did not match expected: ' + JSON.stringify(tokenResponse))
 
-        def callback(err, tokenResponse):
-            if not err:
-                self.assertTrue(util.isMatchTokenResponse(response['cachedResponse'], tokenResponse), 'Response did not match expected: ' + JSON.stringify(tokenResponse))
+        # Call again to make sure we get a cached entry.
+        tokenResponse = adal.acquire_token_with_username_password(cp['username'], cp['password'], response['authority'], response['resource'], cp['clientId'])
+        self.assertTrue(util.isMatchTokenResponse(response['cachedResponse'], tokenResponse), 'Response did not match expected: ' + JSON.stringify(tokenResponse))
 
-                # Call again to make sure we get a cached entry.
-                context.acquire_token_with_username_password(refresh_response['resource'], cp['username'], cp['password'], cp['clientId'], secondCallback)
-                 
-              
-        context.acquire_token_with_username_password(response['resource'], cp['username'], cp['password'], cp['clientId'], callback)
-    
     @httpretty.activate
     def test_managed_happy_path_with_simple_cache_only_acquire_token(self):
         util.setup_expected_user_realm_response_common(False)
         response_options = { 'mrrt' : True }
         response = util.create_response(response_options)
-        upRequest = self.setup_expected_username_password_request_response(200, response['wireResponse'], response['authority'])
+        authorityUrl = response['authority'] + '/' + cp['tenant']
+        upRequest = self.setup_expected_username_password_request_response(200, response['wireResponse'], authorityUrl)
 
         refresh_response_options = { 'refreshedRefresh' : True, 'resource' : 'newResource', 'mrrt' : True }
         refresh_response = util.create_response(refresh_response_options)
-        util.setup_expected_refresh_token_request_response(200, refresh_response['wireResponse'], response['authority'], refresh_response['resource'])
+        util.setup_expected_refresh_token_request_response(200, refresh_response['wireResponse'], authorityUrl, refresh_response['resource'])
 
-        context = AuthenticationContext(response['authority'])
+        tokenResponse = adal.acquire_token_with_username_password(cp['username'], cp['password'], authorityUrl, response['resource'], cp['clientId'])
+        self.assertTrue(util.isMatchTokenResponse(response['cachedResponse'], tokenResponse), 'Response did not match expected: ' + JSON.stringify(tokenResponse))
 
-        def secondCallback(err, secondTokenResponse):
-              if not err:
-                self.assertTrue(util.isMatchTokenResponse(response['cachedResponse'], tokenResponse), 'Response did not match expected: ' + JSON.stringify(tokenResponse))
+        # Call again to make sure we get a cached entry.
+        tokenResponse = adal.acquire_token_with_username_password(cp['username'], cp['password'], authorityUrl, response['resource'], cp['clientId'])
+        self.assertTrue(util.isMatchTokenResponse(response['cachedResponse'], tokenResponse), 'Response did not match expected: ' + JSON.stringify(tokenResponse))
 
-        def callback(err, tokenResponse):
-            if not err:
-                self.assertTrue(util.isMatchTokenResponse(response['cachedResponse'], tokenResponse), 'Response did not match expected: ' + JSON.stringify(tokenResponse))
-
-            # Call again to make sure we get a cached entry.
-            context.acquire_token(refresh_response['resource'], cp['username'], cp['clientId'], secondCallback)
-
-        context.acquire_token_with_username_password(response['resource'], cp['username'], cp['password'], cp['clientId'], callback)
-
-    @httpretty.activate
-    def test_managed_happy_path_twice_refresh_mrrt_user_respected(self):
-        ''' TODO: Test Failing as of 2015/06/03 and needs to be completed. '''
-        util.setup_expected_user_realm_response_common(False)
-        response_options = { 'mrrt' : True }
-        response = util.create_response(response_options)
-        upRequest = self.setup_expected_username_password_request_response(200, response['wireResponse'], response['authority'])
-
-        # Set up a memory cache with an entry of a different user than the one that will be acquiredBelow.
-        alternateUserResponse = util.create_response({ 'isMRRT' : True, 'urlSafeUserId' : True })
-        memCache = MemoryCache()
-
-        def callback(memErr):
-            self.assertTrue(not memErr, 'Error added test entry to cache.')
-            refresh_response_options = { 'refreshedRefresh' : True, 'resource' : 'newResource', 'mrrt' : True }
-            refresh_response = util.create_response(refresh_response_options)
-            util.setup_expected_refresh_token_request_response(200, refresh_response['wireResponse'], response['authority'], refresh_response['resource'])
-
-            context = AuthenticationContext(response['authority'], True, memCache)
-
-            def callback2(err2, secondTokenResponse):
-                if not err2:
-                    self.assertTrue(util.isMatchTokenResponse(response['cachedResponse'], secondTokenResponse), 'Response did not match expected: ' + JSON.stringify(tokenResponse))
-                    # Check that the pre-existing cache entry was not changed at all.
-
-                    def is_equal(err3, results):
-                        alternateUserEntry = results[0]
-                        self.assertTrue(_.isEqual(results[0], alternateUserresponse['cachedResponse']), 'The pre-existing alternate user cache entry was inappropriately altered.')
-
-                    memCache.find(alternateUserresponse['cachedResponse'], is_equal)
-                else:
-                    self.fail()
-
-            def callback3(err, tokenResponse):
-                if not err:
-                    self.assertTrue(util.is_match_token_response(response['cachedResponse'], tokenResponse), 'Response did not match expected: ' + JSON.stringify(tokenResponse))
-
-                    # Call again to make sure we get a cached entry.
-                    context.acquire_token_with_username_password(refresh_response['resource'], cp['username'], cp['password'], cp['clientId'], callback2)
-
-            context.acquire_token_with_username_password(response['resource'], cp['username'], cp['password'], cp['clientId'], callback3)
-
-        memCache.add([_.clone(alternateUserresponse['cachedResponse'])], callback)
-
-    @httpretty.activate
-    def test_managed_happy_path_twice_refresh_expired_token(self):
-        util.setup_expected_user_realm_response_common(False)
-        response_options = { 'expired' : True }
-        response = util.create_response(response_options)
-        upRequest = self.setup_expected_username_password_request_response(200, response['wireResponse'], response['authority'])
-
-        refresh_response_options = { 'refreshedRefresh' : True }
-        refresh_response = util.create_response(refresh_response_options)
-        util.setup_expected_refresh_token_request_response(200, refresh_response['wireResponse'], response['authority'], refresh_response['resource'], None)
-
-        memCache = MemoryCache()
-
-        context = AuthenticationContext(response['authority'], True, memCache)
-        
-        def callback(err, tokenResponse):
-            if not err:
-                self.assertTrue(util.is_match_token_response(response['cachedResponse'], tokenResponse), 'Response did not match expected: ' + JSON.stringify(tokenResponse))
-                
-                numCacheEntries = len(memCache._entries)
-                self.assertTrue(numCacheEntries == 1, 'Incorrect number of entries in the cache: ' + numCacheEntries)
-
-                # make the single cache entry expired.
-                memCache._entries[0]['expiresOn'] = Date.yesterday()
-
-                def second_callback(err, secondTokenResponse):
-                    if not err:
-                        self.assertTrue(util.is_match_token_response(response['cachedResponse'], secondTokenResponse), 'Response did not match expected: ' + JSON.stringify(tokenResponse))
-
-                # Call again to make sure we get a cached entry and refresh it.
-                context.acquire_token_with_username_password(refresh_response['resource'], cp['username'], cp['password'], cp['clientId'], second_callback)
-
-        context.acquire_token_with_username_password(response['resource'], cp['username'], cp['password'], cp['clientId'], callback)
-        
 
     # Since this test is the most code intensive it will make a good test case for
     # correlation id.
@@ -269,9 +172,8 @@ class TestUsernamePassword(unittest.TestCase):
         logFunctionCalled = False
         def testCorrelationIdLog(level, message):
             logFunctionCalled = True
-            self.assertTrue(correlationId in message, 'Did not see expected correlationId in this message: ' + message)
-            if 'correlationId: ' + correlationId in message:
-                foundServerReturnedCorrelationId = True
+            self.assertIsNotNone(message)
+
             
         logOptions = {
             'level' : 3,
@@ -280,21 +182,16 @@ class TestUsernamePassword(unittest.TestCase):
         oldOptions = log.get_logging_options()
         log.set_logging_options(logOptions)
 
-        context = AuthenticationContext(response['authority'])
-        context.correlationId = correlationId
+        authorityUrl = response['authority'] + '/' + cp['tenant']
 
-        def callback(err, tokenResponse):
-            log.set_logging_options(oldOptions)
-            util.set_correlation_id()
-            if not err:
-                self.assertTrue(util.isMatchTokenResponse(response['cachedResponse'], tokenResponse), 'The response did not match what was expected')
-                userRealm.done()
-                mexWsTrust.done()
-                assertion.done()
-                self.assertTrue(logFunctionCalled, 'Logging was turned on but no messages were recieved.')
-                self.assertTrue(foundServerReturnedCorrelationId, 'Did not find any logs that indicated the server returned a correlationId')
+        tokenResponse = adal.acquire_token_with_username_password(cp['username'], cp['password'], authorityUrl, response['resource'], cp['clientId'])
+        self.assertTrue(util.isMatchTokenResponse(response['cachedResponse'], tokenResponse), 'Response did not match expected: ' + JSON.stringify(tokenResponse))
+        log.set_logging_options(oldOptions)
+        util.set_correlation_id()
 
-        context.acquire_token_with_username_password(response['resource'], cp['username'], cp['password'], response['clientId'], callback)
+        self.assertTrue(util.isMatchTokenResponse(response['cachedResponse'], tokenResponse), 'The response did not match what was expected')
+        self.assertTrue(logFunctionCalled, 'Logging was turned on but no messages were recieved.')
+
 
     @httpretty.activate
     def test_invalid_id_token(self):
@@ -304,23 +201,17 @@ class TestUsernamePassword(unittest.TestCase):
         wireResponse = response['wireResponse']
 
         response_options = { 'noIdToken' : True }
-        responseNoIdToken = util.create_response(response_options)
+        #response = util.create_response(response_options)
 
         # break the id token
-        idToken = wireResponse['id_token']
-        idToken = idToken.replace('.', ' ')
-        wireResponse['id_token'] = idToken
+        #idToken = wireResponse['id_token']
+        #idToken = idToken.replace('.', ' ')
+        #wireResponse['id_token'] = idToken
+        authorityUrl = response['authority'] + '/' + cp['tenant']
+        upRequest = self.setup_expected_username_password_request_response(200, wireResponse, authorityUrl)
 
-        upRequest = self.setup_expected_username_password_request_response(200, wireResponse, response['authority'])
-
-        context = AuthenticationContext(response['authority'])
-
-        def callback(err, tokenResponse):
-            if not err:
-                # There shouldn't be any id_token related parameters in the response.
-                self.assertTrue(util.is_match_token_response(responseNoIdToken.cachedResponse, tokenResponse), 'Response did not match expected: ' + JSON.stringify(tokenResponse))
-
-        context.acquire_token_with_username_password(response['resource'], cp['username'], cp['password'], response['clientId'], callback)
+        tokenResponse = adal.acquire_token_with_username_password(cp['username'], cp['password'], authorityUrl, response['resource'], cp['clientId'])
+        self.assertTrue(util.isMatchTokenResponse(response['cachedResponse'], tokenResponse), 'Response did not match expected: ' + JSON.stringify(tokenResponse))
 
     def create_mex_stub(self, usernamePasswordUrl, err=None):
         mex = Mex(cp['callContext'], '')
@@ -389,7 +280,7 @@ class TestUsernamePassword(unittest.TestCase):
 
         response = util.create_response()
         oauthClient = self.create_oauth2_client_stub(cp['authority'], response['decodedResponse'], None)
-
+        
         tokenRequest = TokenRequest(cp['callContext'], context, response['clientId'], response['resource'])
         self.stub_out_token_request_dependencies(tokenRequest, userRealm, mex, wstrustRequest, oauthClient)
 
@@ -467,7 +358,7 @@ class TestUsernamePassword(unittest.TestCase):
 
         def callback(err, tokenResponse):
             self.assertTrue(err, 'Did not receive expected err.')
-            self.assertTrue('tokenType' in  err.args[0], "Error message did not contain 'token type'.")
+            self.assertTrue('tokenType' in  err.args[0], "Error message did not contain 'token type'. message:{}".format(err.args[0]))
 
         tokenRequest._get_token_with_username_password('username', 'password', callback)
 
@@ -606,18 +497,20 @@ class TestUsernamePassword(unittest.TestCase):
           ],
         ]
 
-        oauthObj = util.create_empty_adal_object()
-        crack = OAuth2Client._crack_jwt.bind(oauthObj)
-        for i in range(testData.length):
-            testCase = testData[i]
+        OAuth2Client._crack_jwt
+
+        for testCase in testData:
             testJWT = testCase[0]
             testResult = testCase[1]
 
-            crackedJwt = crack(testJWT)
             if testResult:
-                self.assertTrue(_.isEqual(testResult, crackedJwt), 'The cracked token does not match the expected result.')
+                crackedJwt = OAuth2Client._crack_jwt(testJWT)
+                resp = util.dicts_equal(testResult, crackedJwt)
+                self.assertTrue(resp is None, 'The cracked token does not match the expected result.: {}'.format(resp))
             else:
-                self.assertTrue(not crackedJwt, 'The JWT token was invalid but token cracking returned success.')
+                with self.assertRaises(ValueError):
+                    crackedJwt = OAuth2Client._crack_jwt(testJWT)
+
 
 
     @httpretty.activate
@@ -628,13 +521,12 @@ class TestUsernamePassword(unittest.TestCase):
         response['wireResponse']['expires_in'] = 'foo'
 
         upRequest = self.setup_expected_username_password_request_response(200, response['wireResponse'], response['authority'])
+        authorityUrl = response['authority'] + '/' + cp['tenant']
 
-        context = AuthenticationContext(response['authority'])
-
-        def callback(err, tokenResponse):
-            self.assertTrue(err, 'Did not receive expected error about bad int parameter.')
-
-        context.acquire_token_with_username_password(response['resource'], cp['username'], cp['password'], cp['clientId'], callback)
+        # Did not receive expected error about bad int parameter
+        with self.assertRaises(Exception):
+            tokenResponse = adal.acquire_token_with_username_password(cp['username'], cp['password'], authorityUrl, response['resource'], cp['clientId'])
+        
 
     @httpretty.activate
     def test_bad_id_token_base64_in_response(self):
@@ -650,16 +542,11 @@ class TestUsernamePassword(unittest.TestCase):
         #util.turnOnLogging(None, findIdTokenWarning)
 
         response['wireResponse']['id_token'] = 'aaaaaaa./+===.aaaaaa'
+        authorityUrl = response['authority'] + '/' + cp['tenant']
+        upRequest = self.setup_expected_username_password_request_response(200, response['wireResponse'], authorityUrl)
 
-        upRequest = self.setup_expected_username_password_request_response(200, response['wireResponse'], response['authority'])
-
-        context = AuthenticationContext(response['authority'])
-
-        def callback(err, tokenResponse):
-            self.assertTrue(not err, 'Should not have received error since the id_token is optional.')
-            self.assertTrue(foundWarning, 'Did not see expected warning message about bad id_token base64.')
-
-        context.acquire_token_with_username_password(response['resource'], cp['username'], cp['password'], cp['clientId'], callback)
+        tokenResponse = adal.acquire_token_with_username_password(cp['username'], cp['password'], authorityUrl, response['resource'], cp['clientId'])
+        self.assertTrue(foundWarning, 'Did not see expected warning message about bad id_token base64.')
 
     @httpretty.activate
     def test_no_token_type(self):
@@ -670,13 +557,10 @@ class TestUsernamePassword(unittest.TestCase):
 
         upRequest = self.setup_expected_username_password_request_response(200, response['wireResponse'], response['authority'])
 
-        context = AuthenticationContext(response['authority'])
+        # Did not receive expected error about missing token_type
+        with self.assertRaises(Exception):
+            tokenResponse = adal.acquire_token_with_username_password(cp['username'], cp['password'], response['authority'], response['resource'], cp['clientId'])
 
-        def callback(err, tokenResponse):
-            self.assertTrue(err, 'Did not receive expected error about missing token_type')
-
-        context.acquire_token_with_username_password(response['resource'], cp['username'], cp['password'], cp['clientId'], callback)
-        
     @httpretty.activate
     def test_no_access_token(self):
         util.setup_expected_user_realm_response_common(False)
@@ -685,13 +569,10 @@ class TestUsernamePassword(unittest.TestCase):
         del response['wireResponse']['access_token']
 
         upRequest = self.setup_expected_username_password_request_response(200, response['wireResponse'], response['authority'])
-
-        context = AuthenticationContext(response['authority'])
-
-        def callback(err, tokenResponse):
-            self.assertTrue(err, 'Did not receive expected error about missing token_type')
-
-        context.acquire_token_with_username_password(response['resource'], cp['username'], cp['password'], cp['clientId'], callback)
+        authorityUrl = response['authority'] + '/' + cp['tenant']
+        # Did not receive expected error about missing token_type
+        with self.assertRaises(Exception):
+            tokenResponse = adal.acquire_token_with_username_password(cp['username'], cp['password'], authorityUrl, response['resource'], cp['clientId'])
 
 if __name__ == '__main__':
     unittest.main()

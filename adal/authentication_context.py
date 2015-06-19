@@ -20,7 +20,6 @@
 #
 #--------------------------------------------------------------------------
 
-from .memory_cache import MemoryCache
 from .authority import Authority
 from . import argument
 from .token_request import TokenRequest
@@ -29,7 +28,6 @@ from . import log
 
 
 global_ADAL_options = {}
-global_cache = MemoryCache()
 
 def get_ADAL_options():
     return global_ADAL_options
@@ -39,7 +37,7 @@ def set_ADAL_options(options):
 
 class AuthenticationContext(object):
 
-    def __init__(self, authority, validate_authority = None, cache = None):
+    def __init__(self, authority, validate_authority = None):
 
         validate = validate_authority
         if not validate_authority:
@@ -49,15 +47,10 @@ class AuthenticationContext(object):
         self._oauth2client = None
         self._correlation_id = None
         self._call_context = {'options': global_ADAL_options}
-        self._cache = cache if cache else global_cache
 
     @property
     def authority(self):
         return self._authority.url
-
-    @property
-    def cache(self):
-        return self._cache
 
     @property
     def correlation_id(self):

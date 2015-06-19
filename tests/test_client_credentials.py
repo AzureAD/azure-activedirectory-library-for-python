@@ -31,32 +31,7 @@ class TestClientCredentials(unittest.TestCase):
             util.is_match_token_response(response['cachedResponse'], tokenResponse), 
             'The response does not match what was expected.: ' + str(tokenResponse)
         )
-
-    @httpretty.activate
-    def test_happy_path_cached_token(self):
-        ''' TODO: Cache is not being used so this test is actually a bit redundant'''
-        '''
-        Tests happy-path followed by an additional call to acquire_token_with_client_credentials that should
-        be served from the cache.
-        '''
-        response_options = { 'noRefresh' : True }
-        response = util.create_response(response_options)
-        token_request = util.setup_expected_client_cred_token_request_response(200, response['wireResponse'])
-
-        tokenResponse = adal.acquire_token_with_client_credentials(
-            cp['clientSecret'], cp['authUrl'], response['resource'], cp['clientId'])
-        self.assertTrue(
-            util.is_match_token_response(response['cachedResponse'], tokenResponse), 
-            'The response does not match what was expected.: ' + str(tokenResponse)
-        )
-        
-        tokenResponse = adal.acquire_token_with_client_credentials(
-            cp['clientSecret'], cp['authUrl'], response['resource'], cp['clientId'])
-        self.assertTrue(
-            util.is_match_token_response(response['cachedResponse'], tokenResponse), 
-            'The response does not match what was expected.: ' + str(tokenResponse)
-        )
-            
+    
     def test_no_arguments(self):
         with self.assertRaisesRegex(Exception, 'parameter'):
             adal.acquire_token_with_client_credentials(None)

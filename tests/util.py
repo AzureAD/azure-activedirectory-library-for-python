@@ -451,5 +451,6 @@ def is_match_token_response(expected, received):
     if received_copy.get('clientId', None) and not expected_copy.get('clientId', None):
         received_copy.pop('clientId', None)
     
-    isEqual = dicts_equal(expected_copy, received_copy)
-    return isEqual
+
+    response = dicts_equal(expected_copy, received_copy)
+    return response is None

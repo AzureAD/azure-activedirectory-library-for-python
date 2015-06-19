@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+﻿#!/usr/bin/env python
 
 from setuptools import setup
 
@@ -36,7 +36,7 @@ setup(
     ],
     packages=['adal'],
     install_requires=[
-        'jws',
+        'PyJWT',
         'requests',
     ]
 )

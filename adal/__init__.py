@@ -35,6 +35,8 @@ from .memory_cache import MemoryCache
 
 from . import util
 from adal.token_request import TokenRequest
+import argument
+
 util.adal_init()
 
 def create_authentication_context(authority, validate_authority):
@@ -75,23 +77,18 @@ def acquire_token_with_username_password(
     resource = resource or _DefaultValues.resource
     client_id = client_id or _DefaultValues.client_id 
 
+    argument.validate_string_param(resource, 'resource')
+    argument.validate_string_param(username, 'username')
+    argument.validate_string_param(password, 'password')
+    argument.validate_string_param(client_id, 'client_id')
+   
     context = create_authentication_context(authority, validate_authority)
     token_response = []
         
     def callback(err, tokenResponse):
         if err:
             raise Exception(err)
-
         token_response.append(tokenResponse)
-
-    try:
-        argument.validate_string_param(resource, 'resource')
-        argument.validate_string_param(username, 'username')
-        argument.validate_string_param(password, 'password')
-        argument.validate_string_param(client_id, 'client_id')
-    except Exception as exp:
-        callback(exp, None)
-        return
 
     def token_func(context):
         context.token_request = TokenRequest(context._call_context, context, client_id, resource)
@@ -132,23 +129,17 @@ def acquire_token_with_client_credentials(
     resource = resource or _DefaultValues.resource
     client_id = client_id or _DefaultValues.client_id 
 
+    argument.validate_string_param(resource, 'resource')
+    argument.validate_string_param(client_id, 'client_id')
+    argument.validate_string_param(client_secret, 'client_secret')
+    
     context = create_authentication_context(authority, validate_authority)
     token_response = []
         
     def callback(err, tokenResponse):
         if err:
             raise Exception(err)
-
         token_response.append(tokenResponse)
-
-    argument.validate_callback_type(callback)
-    try:
-        argument.validate_string_param(resource, 'resource')
-        argument.validate_string_param(client_id, 'client_id')
-        argument.validate_string_param(client_secret, 'client_secret')
-    except Exception as exp:
-        callback(exp, None)
-        return
 
     def token_func(context, extra=None):
         context.token_request = TokenRequest(context._call_context, context, client_id, resource)
@@ -195,25 +186,19 @@ def acquire_token_with_authorization_code(
     resource = resource or _DefaultValues.resource
     client_id = client_id or _DefaultValues.client_id 
 
+    argument.validate_string_param(resource, 'resource')
+    argument.validate_string_param(authorization_code, 'authorization_code')
+    argument.validate_string_param(redirect_uri, 'redirect_uri')
+    argument.validate_string_param(client_id, 'client_id')
+    argument.validate_string_param(client_secret, 'client_secret')
+   
     context = create_authentication_context(authority, validate_authority)
     token_response = []
         
     def callback(err, tokenResponse):
         if err:
             raise Exception(err)
-
         token_response.append(tokenResponse)
-
-    argument.validate_callback_type(callback)
-    try:
-        argument.validate_string_param(resource, 'resource')
-        argument.validate_string_param(authorization_code, 'authorization_code')
-        argument.validate_string_param(redirect_uri, 'redirect_uri')
-        argument.validate_string_param(client_id, 'client_id')
-        argument.validate_string_param(client_secret, 'client_secret')
-    except Exception as exp:
-        callback(exp)
-        return
 
     def token_func(context):
         context.token_request = TokenRequest(context._call_context, context, client_id, resource, redirect_uri)
@@ -257,22 +242,16 @@ def acquire_token_with_refresh_token(
     resource = resource or _DefaultValues.resource
     client_id = client_id or _DefaultValues.client_id 
 
+    argument.validate_string_param(refresh_token, 'refresh_token')
+    argument.validate_string_param(client_id, 'client_id')
+
     context = create_authentication_context(authority, validate_authority)
     token_response = []
         
     def callback(err, tokenResponse):
         if err:
             raise Exception(err)
-
         token_response.append(tokenResponse)
-
-    argument.validate_callback_type(callback)
-    try:
-        argument.validate_string_param(refresh_token, 'refresh_token')
-        argument.validate_string_param(client_id, 'client_id')
-    except Exception as exp:
-        callback(exp)
-        return
 
     def token_func(context):
         context.token_request = TokenRequest(context._call_context, context, client_id, resource)
@@ -316,23 +295,17 @@ def acquire_token_with_client_certificate(
     resource = resource or _DefaultValues.resource
     client_id = client_id or _DefaultValues.client_id 
 
+    argument.validate_string_param(resource, 'resource')
+    argument.validate_string_param(certificate, 'certificate')
+    argument.validate_string_param(thumbprint, 'thumbprint')
+
     context = create_authentication_context(authority, validate_authority)
     token_response = []
         
     def callback(err, tokenResponse):
         if err:
             raise Exception(err)
-
         token_response.append(tokenResponse)
-
-    argument.validate_callback_type(callback)
-    try:
-        argument.validate_string_param(resource, 'resource')
-        argument.validate_string_param(certificate, 'certificate')
-        argument.validate_string_param(thumbprint, 'thumbprint')
-    except Exception as exp:
-        callback(exp)
-        return
 
     def token_func(context):
         context.token_request = TokenRequest(context._call_context, context, client_id, resource)

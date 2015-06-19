@@ -1,4 +1,4 @@
-#-------------------------------------------------------------------------
+﻿#-------------------------------------------------------------------------
 #
 # Copyright Microsoft Open Technologies, Inc.
 #
@@ -74,39 +74,24 @@ class TestAuthorizationCode(unittest.TestCase):
 
     @httpretty.activate
     def test_happy_path(self):
-        ''' TODO: Test Failing as of 2015/06/03 and needs to be completed. '''
         response = util.create_response();
         
         self.setup_expected_auth_code_token_request_response(200, response['wireResponse'])
 
-        def callback(err, tokenResponse):
-            if not err:
-                self.assertTrue(util.is_match_token_response(response['decodedResponse'], tokenResponse), 'The response did not match what was expected')
+        tokenResponse = adal.acquire_token_with_authorization_code(self.authorization_code, self.redirect_uri, cp['clientSecret'], cp['authUrl'], response['resource'], cp['clientId'])
+
+        self.assertTrue(util.is_match_token_response(response['decodedResponse'], tokenResponse), 'The response did not match what was expected')
                 
-                req = httpretty.last_request()
-                util.match_standard_request_headers(req)
-            else:
-                self.fail("Err should have been none")
-
-        context = adal.AuthenticationContext(cp['authUrl']);
-        context.acquire_token_with_authorization_code(self.authorization_code, self.redirect_uri, response['resource'], cp['clientId'], cp['clientSecret'], callback)
-
+        req = httpretty.last_request()
+        util.match_standard_request_headers(req)
 
     def test_failed_http_request(self):
-        context = adal.AuthenticationContext('https://0.1.1.1:12/my.tenant.com')
-
-        def callback(err):
-            self.assertTrue(err, 'Did not recieve expected error on failed http request.')
-
-        context.acquire_token_with_authorization_code(self.authorization_code, self.redirect_uri, cp['resource'], cp['clientId'], cp['clientSecret'], callback)
+        with self.assertRaises(Exception):
+            adal.acquire_token_with_authorization_code(self.authorization_code, self.redirect_uri, cp['clientSecret'], 'https://0.1.1.1:12/my.tenant.com', response['resource'], cp['clientId'])
 
     def test_bad_argument(self):
-        context = adal.AuthenticationContext(cp['authUrl'])
-
-        def callback(err):
-            self.assertTrue(err, 'Did not receive expected argument error.')
-
-        context.acquire_token_with_authorization_code(self.authorization_code, self.redirect_uri, None, cp['clientId'], cp['clientSecret'], callback)
+        with self.assertRaises(Exception):
+            adal.acquire_token_with_authorization_code(self.authorization_code, self.redirect_uri, cp['clientSecret'], 'https://0.1.1.1:12/my.tenant.com', 'BogusResource', cp['clientId'])
 
 if __name__ == '__main__':
     unittest.main()

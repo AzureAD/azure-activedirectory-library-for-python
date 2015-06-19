@@ -72,7 +72,7 @@ class TokenRequest(object):
         return wstrust_request.WSTrustRequest(self._call_context, wstrust_endpoint, applies_to)
 
     def _create_oauth2_client(self):
-        return oauth2_client.OAuth2Client(self._call_context, self._authentication_context._authority)
+        return oauth2_client.OAuth2Client(self._call_context, self._authentication_context._authority.token_endpoint)
 
     def _create_self_signed_jwt(self):
         return self_signed_jwt.SelfSignedJwt(self._call_context, self._authentication_context._authority, self._client_id)
@@ -334,7 +334,7 @@ class TokenRequest(object):
         try:
             jwt = self._create_jwt(authority_url, certificate, thumbprint)
         except Exception as exp:
-            callback(exp)
+            callback(exp, None)
             return
 
         oauth_parameters = self._create_oauth_parameters(OAuth2GrantType.CLIENT_CREDENTIALS)

@@ -64,9 +64,8 @@ def map_fields(in_obj, out_obj, map):
 
 class OAuth2Client(object):
 
-    def __init__(self, call_context, authority):
-
-        self._token_endpoint = authority.token_endpoint
+    def __init__(self, call_context, authority_token_endpoint):
+        self._token_endpoint = authority_token_endpoint
         self._log = log.Logger("OAuth2Client", call_context['log_context'])
         self._call_context = call_context
 
@@ -86,14 +85,13 @@ class OAuth2Client(object):
             except KeyError:
                 # if the key isn't present we can just continue
                 pass
-
-    def _crack_jwt(self, jwt_token):
+    @classmethod
+    def _crack_jwt(cls, jwt_token):
 
         id_token_parts_reg = "^([^\.\s]*)\.([^\.\s]+)\.([^\.\s]*)$"
         matches = re.search(id_token_parts_reg, jwt_token)
         if not matches or len(matches.groups()) < 3:
-            self._log.warn("The returned id_token is not parsable")
-            return
+            raise ValueError('The token was not parsable.')
 
         cracked_token = {
             'header': matches.group(1),
@@ -242,6 +240,8 @@ class OAuth2Client(object):
                 self._handle_get_token_response(resp, resp.text, callback)
 
         except Exception as exp:
+            import sys
+            _1, _2, _3 = sys.exc_info()
             self._log.error("{0} request failed".format(operation), exp)
             callback(exp, None)
             return

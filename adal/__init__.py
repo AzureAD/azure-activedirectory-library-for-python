@@ -35,7 +35,7 @@ from .memory_cache import MemoryCache
 
 from . import util
 from adal.token_request import TokenRequest
-import argument
+from adal import argument
 
 util.adal_init()
 
@@ -87,7 +87,7 @@ def acquire_token_with_username_password(
         
     def callback(err, tokenResponse):
         if err:
-            raise Exception(err)
+            raise Exception("Error:{} TokenResponse:{}".format(err, tokenResponse))
         token_response.append(tokenResponse)
 
     def token_func(context):
@@ -138,7 +138,7 @@ def acquire_token_with_client_credentials(
         
     def callback(err, tokenResponse):
         if err:
-            raise Exception(err)
+            raise Exception("Error:{} TokenResponse:{}".format(err, tokenResponse))
         token_response.append(tokenResponse)
 
     def token_func(context, extra=None):
@@ -197,7 +197,7 @@ def acquire_token_with_authorization_code(
         
     def callback(err, tokenResponse):
         if err:
-            raise Exception(err)
+            raise Exception("Error:{} TokenResponse:{}".format(err, tokenResponse))
         token_response.append(tokenResponse)
 
     def token_func(context):
@@ -250,7 +250,7 @@ def acquire_token_with_refresh_token(
         
     def callback(err, tokenResponse):
         if err:
-            raise Exception(err)
+            raise Exception("Error:{} TokenResponse:{}".format(err, tokenResponse))
         token_response.append(tokenResponse)
 
     def token_func(context):
@@ -304,7 +304,7 @@ def acquire_token_with_client_certificate(
         
     def callback(err, tokenResponse):
         if err:
-            raise Exception(err)
+            raise Exception("Error:{} TokenResponse:{}".format(err, tokenResponse))
         token_response.append(tokenResponse)
 
     def token_func(context):

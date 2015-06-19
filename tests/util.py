@@ -408,10 +408,10 @@ def create_empty_adal_object():
 
 def is_date_within_tolerance(date, expected_date = None):
     expected = expected_date or datetime.today()
-    fiveBefore = expected - timedelta(0, 5)
-    fiveAfter = expected + timedelta(0, 5)
+    min_range = expected - timedelta(0, 10)
+    max_range = expected + timedelta(0, 10)
     
-    if date >= fiveBefore and date <= fiveAfter:
+    if date >= min_range and date <= max_range:
         return True
 
     return False
@@ -451,7 +451,5 @@ def is_match_token_response(expected, received):
     if received_copy.get('clientId', None) and not expected_copy.get('clientId', None):
         received_copy.pop('clientId', None)
     
-    # TODO: This should be modified in order to do an actual key to key comparison as dicts don't
-    # guarantee order.
-    isEqual = received_copy == expected_copy
+    isEqual = dicts_equal(expected_copy, received_copy)
     return isEqual

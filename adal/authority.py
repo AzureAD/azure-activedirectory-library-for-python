@@ -38,7 +38,7 @@ except ImportError:
 
 class Authority(object):
     
-    def __init__(self, authority_url, validate_authority):
+    def __init__(self, authority_url, validate_authority=True):
 
         self._log = None
         self._call_context = None

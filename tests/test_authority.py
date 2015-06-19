@@ -1,4 +1,4 @@
-#-------------------------------------------------------------------------
+﻿#-------------------------------------------------------------------------
 #
 # Copyright Microsoft Open Technologies, Inc.
 #
@@ -72,7 +72,6 @@ class TestAuthority(unittest.TestCase):
 
     @httpretty.activate
     def test_success_dynamic_instance_discovery(self):
-        ''' TODO: Test Failing as of 2015/06/03 and needs to be completed. '''
         instanceDiscoveryRequest = util.setup_expected_instance_discovery_request(
             200, 
             cp['authorityHosts']['global'],
@@ -86,18 +85,12 @@ class TestAuthority(unittest.TestCase):
         
         util.setup_expected_client_cred_token_request_response(200, wireResponse, self.nonHardCodedAuthority)
 
-        context = AuthenticationContext(self.nonHardCodedAuthority)
-
-        def callback(err, tokenResponse = None):
-            if err:
-                self.fail('Error Unexpected' + err.args[0])
-
-            self.assertTrue(
-                util.is_match_token_response(response['cachedResponse'], tokenResponse), 
-                'The response does not match what was expected.: ' + tokenResponse
-            )
-
-        context.acquire_token_with_client_credentials(response['resource'], cp['clientId'], cp['clientSecret'], callback)
+        tokenResponse = adal.acquire_token_with_client_credentials(
+            cp['clientSecret'], self.nonHardCodedAuthority, response['resource'], cp['clientId'])
+        self.assertTrue(
+            util.is_match_token_response(response['cachedResponse'], tokenResponse), 
+            'The response does not match what was expected.: ' + str(tokenResponse)
+        )
 
     def performStaticInstanceDiscovery(self, authorityHost, callback):
         hardCodedAuthority = 'https://' + authorityHost + '/' + cp['tenant']
@@ -109,22 +102,16 @@ class TestAuthority(unittest.TestCase):
         wireResponse = response['wireResponse']
         tokenRequest = util.setup_expected_client_cred_token_request_response(200, wireResponse, hardCodedAuthority)
 
-        context = AuthenticationContext(hardCodedAuthority)
-
-        def _callback(err, tokenResponse = None):
-            if not err:
-                self.assertTrue(
-                    util.is_match_token_response(response.cachedResponse, tokenResponse), 
-                    'The response does not match what was expected.: ' + tokenResponse)
-            
-            callback(err)
-
-        context.acquire_token_with_client_credentials(response['resource'], cp['clientId'], cp['clientSecret'], _callback)
+        tokenResponse = adal.acquire_token_with_client_credentials(
+            cp['clientSecret'], hardCodedAuthority, response['resource'], cp['clientId'])
+        self.assertTrue(
+            util.is_match_token_response(response['cachedResponse'], tokenResponse), 
+            'The response does not match what was expected.: ' + str(tokenResponse)
+        )
 
     
     @httpretty.activate
     def test_success_static_instance_discovery(self):
-        ''' TODO: Test Failing as of 2015/06/03 and needs to be completed. '''
         def callback(err):
             if err:
                 raise Exception(err)
@@ -139,45 +126,41 @@ class TestAuthority(unittest.TestCase):
     def test_http_error(self):      
         util.setup_expected_instance_discovery_request(500, cp['authorityHosts']['global'], None, self.nonHardCodedAuthorizeEndpoint)
 
-        context = AuthenticationContext(self.nonHardCodedAuthority)
-
-        def callback(err):
-            self.assertTrue(err, 'No error was returned when one was expected.')
-            self.assertIn('500', err.args[0], 'The http error was not returned')
-
-        context.acquire_token_with_client_credentials(cp['resource'], cp['clientId'], cp['clientSecret'], callback)
+        with self.assertRaisesRegex(Exception, '500'):
+            tokenResponse = adal.acquire_token_with_client_credentials(
+                cp['clientSecret'], self.nonHardCodedAuthority, cp['resource'], cp['clientId'])
 
     @httpretty.activate
     def test_validation_error(self):
         returnDoc = { 'error' : 'invalid_instance', 'error_description' : 'the instance was invalid' }
         util.setup_expected_instance_discovery_request(400, cp['authorityHosts']['global'], returnDoc, self.nonHardCodedAuthorizeEndpoint)
 
-        context = AuthenticationContext(self.nonHardCodedAuthority);
-
-        def callback(err):
-            self.assertTrue(err, 'No error was returned when one was expected.')
-            self.assertIn('invalid_instance', err.args[0], 'The server error was not returned')
-            self.assertIn('instance was invalid', err.args[0], 'The server error message was not returned')
-
-        context.acquire_token_with_client_credentials(cp['resource'], cp['clientId'], cp['clientSecret'], callback)
+        with self.assertRaisesRegex(Exception, 'instance was invalid'):
+            tokenResponse = adal.acquire_token_with_client_credentials(
+                cp['clientSecret'], self.nonHardCodedAuthority, cp['resource'], cp['clientId'])
 
     @httpretty.activate
     def test_validation_off(self):
-        ''' TODO: Test Failing as of 2015/06/03 and needs to be completed. '''
-        response = util.create_response()
-        wire_response = response['wireResponse']
+        instanceDiscoveryRequest = util.setup_expected_instance_discovery_request(
+            200, 
+            cp['authorityHosts']['global'],
+            {'tenant_discovery_endpoint' : 'http://foobar'}, 
+            self.nonHardCodedAuthorizeEndpoint
+        )
 
-        util.setup_expected_client_cred_token_request_response(200, wire_response, response['authority'])
+        responseOptions = { 'authority' : self.nonHardCodedAuthority}
+        response = util.create_response(responseOptions)
+        wireResponse = response['wireResponse']
         
-        context = AuthenticationContext(cp['authorityTenant'], False)
-        
-        def callback(err, token_response):
-            if not err:
-                self.assertTrue(util.is_match_token_response(response['cachedResponse'], token_response), 'The response does not match what was expected.')
-            else:
-                self.fail("did not expect err:" + err.args[0])
+        util.setup_expected_client_cred_token_request_response(200, wireResponse, self.nonHardCodedAuthority)
 
-        context.acquire_token_with_client_credentials(response['resource'], cp['clientId'], cp['clientSecret'], callback) 
+        tokenResponse = adal.acquire_token_with_client_credentials(
+            cp['clientSecret'], self.nonHardCodedAuthority, response['resource'], cp['clientId'], validate_authority = False)
+        self.assertTrue(
+            util.is_match_token_response(response['cachedResponse'], tokenResponse), 
+            'The response does not match what was expected.: ' + str(tokenResponse)
+        )
+
 
     @httpretty.activate
     def test_bad_url_not_https(self):

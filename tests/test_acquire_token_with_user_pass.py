@@ -14,7 +14,6 @@
 #--------------------------------------------------------------------------
 import unittest
 from adal.authentication_context import AuthenticationContext
-from adal.cache_driver import CacheDriver
 import base64
 import json
 import adal

@@ -30,9 +30,6 @@ from . import log
 from .log import Logger
 from . import authentication_parameters
 
-from . import memory_cache
-from .memory_cache import MemoryCache
-
 from . import util
 from adal.token_request import TokenRequest
 from adal import argument

@@ -31,7 +31,6 @@ from adal.user_realm import UserRealm
 from adal.wstrust_response import WSTrustResponse
 from adal.wstrust_request import WSTrustRequest
 from adal import log
-from adal.memory_cache import MemoryCache
 from adal.authority import Authority
 
 try:
@@ -100,63 +99,8 @@ class TestUsernamePassword(unittest.TestCase):
         
         tokenResponse = adal.acquire_token_with_username_password(cp['username'], cp['password'], authorityUrl, response['resource'], cp['clientId'])
         self.assertTrue(util.isMatchTokenResponse(response['cachedResponse'], tokenResponse), 'Response did not match expected: ' + JSON.stringify(tokenResponse))
-
-    @httpretty.activate
-    def test_managed_happy_path_twice_cache(self):
-        util.setup_expected_user_realm_response_common(False)
-        response = util.create_response()
-
-        authorityUrl = response['authority'] + '/' + cp['tenant']
-        upRequest = self.setup_expected_username_password_request_response(200, response['wireResponse'], authorityUrl)
-
-        tokenResponse = adal.acquire_token_with_username_password(cp['username'], cp['password'], authorityUrl, response['resource'], cp['clientId'])
-        self.assertTrue(util.isMatchTokenResponse(response['cachedResponse'], tokenResponse), 'Response did not match expected: ' + JSON.stringify(tokenResponse))
-
-        # Call again to make sure we get a cached entry.
-        tokenResponse = adal.acquire_token_with_username_password(cp['username'], cp['password'], authorityUrl, response['resource'], cp['clientId'])
-        self.assertTrue(util.isMatchTokenResponse(response['cachedResponse'], tokenResponse), 'Response did not match expected: ' + JSON.stringify(tokenResponse))
-
     
-    @httpretty.activate
-    def test_managed_happy_path_twice_refresh_mrrt_static_cache(self):
-        util.setup_expected_user_realm_response_common(False)
-        response_options = { 'mrrt' : True }
-        response = util.create_response(response_options)
-        upRequest = self.setup_expected_username_password_request_response(200, response['wireResponse'], response['authority'])
-
-        refresh_response_options = { 'refreshedRefresh' : True, 'resource' : 'newResource', 'mrrt ': True }
-        refresh_response = util.create_response(refresh_response_options)
-        util.setup_expected_refresh_token_request_response(200, refresh_response['wireResponse'], response['authority'], refresh_response['resource'])
-
-        context = AuthenticationContext(response['authority'])
-
-        tokenResponse = adal.acquire_token_with_username_password(cp['username'], cp['password'], response['authority'], response['resource'], cp['clientId'])
-        self.assertTrue(util.isMatchTokenResponse(response['cachedResponse'], tokenResponse), 'Response did not match expected: ' + JSON.stringify(tokenResponse))
-
-        # Call again to make sure we get a cached entry.
-        tokenResponse = adal.acquire_token_with_username_password(cp['username'], cp['password'], response['authority'], response['resource'], cp['clientId'])
-        self.assertTrue(util.isMatchTokenResponse(response['cachedResponse'], tokenResponse), 'Response did not match expected: ' + JSON.stringify(tokenResponse))
-
-    @httpretty.activate
-    def test_managed_happy_path_with_simple_cache_only_acquire_token(self):
-        util.setup_expected_user_realm_response_common(False)
-        response_options = { 'mrrt' : True }
-        response = util.create_response(response_options)
-        authorityUrl = response['authority'] + '/' + cp['tenant']
-        upRequest = self.setup_expected_username_password_request_response(200, response['wireResponse'], authorityUrl)
-
-        refresh_response_options = { 'refreshedRefresh' : True, 'resource' : 'newResource', 'mrrt' : True }
-        refresh_response = util.create_response(refresh_response_options)
-        util.setup_expected_refresh_token_request_response(200, refresh_response['wireResponse'], authorityUrl, refresh_response['resource'])
-
-        tokenResponse = adal.acquire_token_with_username_password(cp['username'], cp['password'], authorityUrl, response['resource'], cp['clientId'])
-        self.assertTrue(util.isMatchTokenResponse(response['cachedResponse'], tokenResponse), 'Response did not match expected: ' + JSON.stringify(tokenResponse))
-
-        # Call again to make sure we get a cached entry.
-        tokenResponse = adal.acquire_token_with_username_password(cp['username'], cp['password'], authorityUrl, response['resource'], cp['clientId'])
-        self.assertTrue(util.isMatchTokenResponse(response['cachedResponse'], tokenResponse), 'Response did not match expected: ' + JSON.stringify(tokenResponse))
-
-
+   
     # Since this test is the most code intensive it will make a good test case for
     # correlation id.
     def test_federated_happy_path_and_correlation_id(self):

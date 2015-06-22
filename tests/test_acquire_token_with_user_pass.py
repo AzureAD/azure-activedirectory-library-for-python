@@ -18,11 +18,11 @@ import base64
 import json
 import adal
 
-sampleParameters = { 
+sampleParameters = {
         "tenant" : "common",
         "authorityHostUrl" : "https://login.windows.net",
         "clientId" : "04b07795-8ddb-461a-bbee-02f9e1bf7b46", # xplat's which is supposed to be in every tenant
-        "username" : "crwilcox@microsoft.com", 
+        "username" : "crwilcox@microsoft.com",
         "password" : None
 }
 
@@ -47,7 +47,7 @@ class Test_AcquireTokenWithUsernamePassword(unittest.TestCase):
 
         # token response is a dict that should have
         expected = [
-            'accessToken', 'expiresIn', 'expiresOn', 'familyName', 'givenName', 
+            'accessToken', 'expiresIn', 'expiresOn', 'familyName', 'givenName',
             'isUserIdDisplayable', 'refreshToken', 'resource', 'tenantId', 'tokenType', 'userId'
         ]
         for i in expected:

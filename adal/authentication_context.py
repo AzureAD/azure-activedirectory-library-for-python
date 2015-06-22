@@ -95,4 +95,3 @@ class AuthenticationContext(object):
             self.token_request.get_token_from_cache_with_refresh(user_id, callback)
 
         self._acquire_token(callback, token_func)
-    

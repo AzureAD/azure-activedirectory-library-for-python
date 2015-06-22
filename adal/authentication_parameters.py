@@ -1,5 +1,5 @@
-#-------------------------------------------------------------------------
-# 
+﻿#-------------------------------------------------------------------------
+#
 # Copyright Microsoft Open Technologies, Inc.
 #
 # All Rights Reserved
@@ -184,4 +184,3 @@ def create_authentication_parameters_from_url(url, callback, correlation_id=None
 
     except Exception as exp:
         callback(exp, None)
-

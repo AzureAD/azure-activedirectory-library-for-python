@@ -25,8 +25,8 @@ from .authentication_context import (
     AuthenticationContext,
     get_ADAL_options,
     set_ADAL_options)
- 
-from . import log  
+
+from . import log
 from .log import Logger
 from . import authentication_parameters
 
@@ -40,48 +40,48 @@ def create_authentication_context(authority, validate_authority):
     return AuthenticationContext(authority, validate_authority)
 
 def acquire_token_with_username_password(
-    username, 
-    password, 
+    username,
+    password,
     authority = None,
-    resource = None, 
-    client_id = None, 
+    resource = None,
+    client_id = None,
     validate_authority = True):
     '''
     Acquires a token when given a username and password combination
 
     Args:
-        username (str): 
+        username (str):
             Your username in the form user@domain.com.
-        password (str): 
+        password (str):
             Your password.
         authority (str, optional):
             Your authority with default 'https://login.windows.net/common'.
-        resource (str, optional): 
+        resource (str, optional):
             The resource you are accessing.  Defaults to '00000002-0000-0000-c000-000000000000'.
             Another common connection resource is 'https://management.core.windows.net/'.
-        client_id (str, optional): 
+        client_id (str, optional):
             The id of your client. Defaults to '04b07795-8ddb-461a-bbee-02f9e1bf7b46'
             This is the client id for xplat which should be on all tenants.
         validate_authority (bool, optional):
             Indicates whether you want the authority validated. Defaults to True.
 
     Returns:
-        dict: a dict with the following keys: 'accessToken', 'expiresIn', 
-        'expiresOn', 'familyName', 'givenName', 'isUserIdDisplayable', 
+        dict: a dict with the following keys: 'accessToken', 'expiresIn',
+        'expiresOn', 'familyName', 'givenName', 'isUserIdDisplayable',
         'refreshToken', 'resource', 'tenantId', 'tokenType', 'userId'
     '''
     authority = authority or _DefaultValues.authority
     resource = resource or _DefaultValues.resource
-    client_id = client_id or _DefaultValues.client_id 
+    client_id = client_id or _DefaultValues.client_id
 
     argument.validate_string_param(resource, 'resource')
     argument.validate_string_param(username, 'username')
     argument.validate_string_param(password, 'password')
     argument.validate_string_param(client_id, 'client_id')
-   
+
     context = create_authentication_context(authority, validate_authority)
     token_response = []
-        
+
     def callback(err, tokenResponse):
         if err:
             raise Exception("Error:{} TokenResponse:{}".format(err, tokenResponse))
@@ -97,8 +97,8 @@ def acquire_token_with_username_password(
 def acquire_token_with_client_credentials(
     client_secret,
     authority = None,
-    resource = None, 
-    client_id = None, 
+    resource = None,
+    client_id = None,
     validate_authority = True):
     '''
     Acquires a token when given a username and password combination
@@ -108,31 +108,31 @@ def acquire_token_with_client_credentials(
             The client secret used to get the token.
         authority (str, optional):
             Your authority with default 'https://login.windows.net/common'.
-        resource (str, optional): 
+        resource (str, optional):
             The resource you are accessing.  Defaults to '00000002-0000-0000-c000-000000000000'.
             Another common connection resource is 'https://management.core.windows.net/'.
-        client_id (str, optional): 
+        client_id (str, optional):
             The id of your client. Defaults to '04b07795-8ddb-461a-bbee-02f9e1bf7b46'
             This is the client id for xplat which should be on all tenants.
         validate_authority (bool, optional):
             Indicates whether you want the authority validated. Defaults to True.
 
     Returns:
-        dict: a dict with the following keys: 'accessToken', 'expiresIn', 
-        'expiresOn', 'familyName', 'givenName', 'isUserIdDisplayable', 
+        dict: a dict with the following keys: 'accessToken', 'expiresIn',
+        'expiresOn', 'familyName', 'givenName', 'isUserIdDisplayable',
         'refreshToken', 'resource', 'tenantId', 'tokenType', 'userId'.
     '''
     authority = authority or _DefaultValues.authority
     resource = resource or _DefaultValues.resource
-    client_id = client_id or _DefaultValues.client_id 
+    client_id = client_id or _DefaultValues.client_id
 
     argument.validate_string_param(resource, 'resource')
     argument.validate_string_param(client_id, 'client_id')
     argument.validate_string_param(client_secret, 'client_secret')
-    
+
     context = create_authentication_context(authority, validate_authority)
     token_response = []
-        
+
     def callback(err, tokenResponse):
         if err:
             raise Exception("Error:{} TokenResponse:{}".format(err, tokenResponse))
@@ -146,52 +146,52 @@ def acquire_token_with_client_credentials(
     return token_response[0]
 
 def acquire_token_with_authorization_code(
-    authorization_code, 
-    redirect_uri, 
+    authorization_code,
+    redirect_uri,
     client_secret,
     authority = None,
-    resource = None, 
-    client_id = None, 
+    resource = None,
+    client_id = None,
     validate_authority = True):
     '''
     Acquires a token when given a username and password combination
 
     Args:
-        authorization_code (str): 
+        authorization_code (str):
             The authorization code used to get a token.
-        redirect_uri (str): 
+        redirect_uri (str):
             The URI to redirect to.
         client_secret (str):
             The client secret used to get the token.
         authority (str, optional):
             Your authority with default 'https://login.windows.net/common'.
-        resource (str, optional): 
+        resource (str, optional):
             The resource you are accessing.  Defaults to '00000002-0000-0000-c000-000000000000'.
             Another common connection resource is 'https://management.core.windows.net/'.
-        client_id (str, optional): 
+        client_id (str, optional):
             The id of your client. Defaults to '04b07795-8ddb-461a-bbee-02f9e1bf7b46'
             This is the client id for xplat which should be on all tenants.
         validate_authority (bool, optional):
             Indicates whether you want the authority validated. Defaults to True.
 
     Returns:
-        dict: a dict with the following keys: 'accessToken', 'expiresIn', 
-        'expiresOn', 'familyName', 'givenName', 'isUserIdDisplayable', 
+        dict: a dict with the following keys: 'accessToken', 'expiresIn',
+        'expiresOn', 'familyName', 'givenName', 'isUserIdDisplayable',
         'refreshToken', 'resource', 'tenantId', 'tokenType', 'userId'.
     '''
     authority = authority or _DefaultValues.authority
     resource = resource or _DefaultValues.resource
-    client_id = client_id or _DefaultValues.client_id 
+    client_id = client_id or _DefaultValues.client_id
 
     argument.validate_string_param(resource, 'resource')
     argument.validate_string_param(authorization_code, 'authorization_code')
     argument.validate_string_param(redirect_uri, 'redirect_uri')
     argument.validate_string_param(client_id, 'client_id')
     argument.validate_string_param(client_secret, 'client_secret')
-   
+
     context = create_authentication_context(authority, validate_authority)
     token_response = []
-        
+
     def callback(err, tokenResponse):
         if err:
             raise Exception("Error:{} TokenResponse:{}".format(err, tokenResponse))
@@ -205,46 +205,46 @@ def acquire_token_with_authorization_code(
     return token_response[0]
 
 def acquire_token_with_refresh_token(
-    refresh_token, 
-    client_secret, 
+    refresh_token,
+    client_secret,
     authority = None,
-    resource = None, 
-    client_id = None, 
+    resource = None,
+    client_id = None,
     validate_authority = True):
     '''
     Acquires a token when given a username and password combination
 
     Args:
-        refresh_token (str): 
+        refresh_token (str):
             The refresh token for the token you are refreshing.
         client_secret (str):
             The client secret used to get the token.
         authority (str, optional):
             Your authority with default 'https://login.windows.net/common'
-        resource (str, optional): 
+        resource (str, optional):
             The resource you are accessing.  Defaults to '00000002-0000-0000-c000-000000000000'.
             Another common connection resource is 'https://management.core.windows.net/'.
-        client_id (str, optional): 
+        client_id (str, optional):
             The id of your client. Defaults to '04b07795-8ddb-461a-bbee-02f9e1bf7b46'
             This is the client id for xplat which should be on all tenants.
         validate_authority (bool, optional):
             Indicates whether you want the authority validated. Defaults to True.
 
     Returns:
-        dict: a dict with the following keys: 'accessToken', 'expiresIn', 
-        'expiresOn', 'familyName', 'givenName', 'isUserIdDisplayable', 
+        dict: a dict with the following keys: 'accessToken', 'expiresIn',
+        'expiresOn', 'familyName', 'givenName', 'isUserIdDisplayable',
         'refreshToken', 'resource', 'tenantId', 'tokenType', 'userId'.
     '''
     authority = authority or _DefaultValues.authority
     resource = resource or _DefaultValues.resource
-    client_id = client_id or _DefaultValues.client_id 
+    client_id = client_id or _DefaultValues.client_id
 
     argument.validate_string_param(refresh_token, 'refresh_token')
     argument.validate_string_param(client_id, 'client_id')
 
     context = create_authentication_context(authority, validate_authority)
     token_response = []
-        
+
     def callback(err, tokenResponse):
         if err:
             raise Exception("Error:{} TokenResponse:{}".format(err, tokenResponse))
@@ -258,11 +258,11 @@ def acquire_token_with_refresh_token(
     return token_response[0]
 
 def acquire_token_with_client_certificate(
-    certificate, 
+    certificate,
     thumbprint,
     authority = None,
-    resource = None, 
-    client_id = None, 
+    resource = None,
+    client_id = None,
     validate_authority = True):
     '''
     Acquires a token when given a username and password combination
@@ -270,27 +270,27 @@ def acquire_token_with_client_certificate(
     Args:
         certificate (str):
             The certificate for the token you are getting.
-        thumbprint (str): 
+        thumbprint (str):
             The thumbprint of the certificate.
         authority (str, optional):
             Your authority with default 'https://login.windows.net/common'.
-        resource (str, optional): 
+        resource (str, optional):
             The resource you are accessing.  Defaults to '00000002-0000-0000-c000-000000000000'.
             Another common connection resource is 'https://management.core.windows.net/'.
-        client_id (str, optional): 
+        client_id (str, optional):
             The id of your client. Defaults to '04b07795-8ddb-461a-bbee-02f9e1bf7b46'
             This is the client id for xplat which should be on all tenants.
         validate_authority (bool, optional):
             Indicates whether you want the authority validated. Defaults to True.
 
     Returns:
-        dict: a dict with the following keys: 'accessToken', 'expiresIn', 
-        'expiresOn', 'familyName', 'givenName', 'isUserIdDisplayable', 
+        dict: a dict with the following keys: 'accessToken', 'expiresIn',
+        'expiresOn', 'familyName', 'givenName', 'isUserIdDisplayable',
         'refreshToken', 'resource', 'tenantId', 'tokenType', 'userId'
     '''
     authority = authority or _DefaultValues.authority
     resource = resource or _DefaultValues.resource
-    client_id = client_id or _DefaultValues.client_id 
+    client_id = client_id or _DefaultValues.client_id
 
     argument.validate_string_param(resource, 'resource')
     argument.validate_string_param(certificate, 'certificate')
@@ -298,7 +298,7 @@ def acquire_token_with_client_certificate(
 
     context = create_authentication_context(authority, validate_authority)
     token_response = []
-        
+
     def callback(err, tokenResponse):
         if err:
             raise Exception("Error:{} TokenResponse:{}".format(err, tokenResponse))
@@ -312,6 +312,6 @@ def acquire_token_with_client_certificate(
     return token_response[0]
 
 class _DefaultValues:
-    authority='https://login.windows.net/common'
-    resource = '00000002-0000-0000-c000-000000000000' 
-    client_id='04b07795-8ddb-461a-bbee-02f9e1bf7b46'
+    authority = 'https://login.windows.net/common'
+    resource = '00000002-0000-0000-c000-000000000000'
+    client_id = '04b07795-8ddb-461a-bbee-02f9e1bf7b46'

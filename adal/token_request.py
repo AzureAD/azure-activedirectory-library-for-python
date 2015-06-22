@@ -43,7 +43,7 @@ def add_parameter_if_available(parameters, key, value):
         parameters[key] = value
 
 class TokenRequest(object):
-    
+
     def __init__(self, call_context, authentication_context, client_id, resource, redirect_uri=None):
 
         self._log = log.Logger("TokenRequest", call_context['log_context'])
@@ -55,9 +55,8 @@ class TokenRequest(object):
         self._redirect_uri = redirect_uri
 
         # This should be set at the beginning of get_token
-        # functions that have a user_id 
+        # functions that have a user_id
         self._user_id = None
-
         self._user_realm = None
 
     def _create_user_realm_request(self, username):
@@ -77,7 +76,7 @@ class TokenRequest(object):
 
     def _oauth_get_token(self, oauth_parameters, callback):
         client = self._create_oauth2_client()
-        client.get_token(oauth_parameters, callback)   
+        client.get_token(oauth_parameters, callback)
 
     def _get_token_with_token_response(self, entry, resource, callback):
         self._log.debug("called to refresh a token from the cache")
@@ -104,7 +103,6 @@ class TokenRequest(object):
             callback(None, token_response)
 
         get_token_func(_call)
-            
 
     def _create_oauth_parameters(self, grant_type):
 
@@ -268,7 +266,7 @@ class TokenRequest(object):
     def _get_token_with_refresh_token(self, refresh_token, resource, client_secret, callback):
 
         self._log.info("Getting a new token from a refresh token")
-        
+
         oauth_parameters = self._create_oauth_parameters(OAuth2GrantType.REFRESH_TOKEN)
 
         if resource:
@@ -320,4 +318,3 @@ class TokenRequest(object):
             self._oauth_get_token(oauth_parameters, get_token_complete_callback)
 
         self._get_token(callback, _callback)
-

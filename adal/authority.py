@@ -1,5 +1,5 @@
 ﻿#-------------------------------------------------------------------------
-# 
+#
 # Copyright Microsoft Open Technologies, Inc.
 #
 # All Rights Reserved
@@ -37,7 +37,7 @@ except ImportError:
     from urlparse import urlparse, urlsplit
 
 class Authority(object):
-    
+
     def __init__(self, authority_url, validate_authority=True):
 
         self._log = None

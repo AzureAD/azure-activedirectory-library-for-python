@@ -266,7 +266,7 @@ def create_response(options = None, iteration = None):
 
     decoded_response = {}
     map_fields(wire_response, decoded_response, TOKEN_RESPONSE_MAP)
-    decoded_response['createdOn'] = date_now
+    decoded_response['createdOn'] = str(date_now)
 
     if not options.get('noIdToken') and options.get('urlSafeUserId') is not None:
         wire_response['id_token'] = options['urlSafeUserId'] if encoded_id_token_url_safe else encoded_id_token
@@ -281,8 +281,6 @@ def create_response(options = None, iteration = None):
     decoded_response['expiresOn'] = str(expires_on_date)
 
     cached_response = dict(decoded_response)
-    cached_response['_clientId'] = parameters['clientId']
-    cached_response['_authority'] = authority
     cached_response['resource'] = iterated['resource']
 
     if options.get('mrrt'):
@@ -295,7 +293,7 @@ def create_response(options = None, iteration = None):
     'decodedIdToken' : decoded_id_token,
     'resource' : iterated['resource'],
     'refreshToken' : iterated['refresh_token'],
-    'clientId' : cached_response['_clientId'],
+    'clientId' : parameters['clientId'],
     'authority' : authority,
   }
 
@@ -450,7 +448,7 @@ def is_match_token_response(expected, received):
 
     if received_copy.get('clientId', None) and not expected_copy.get('clientId', None):
         received_copy.pop('clientId', None)
-    
 
-    response = dicts_equal(expected_copy, received_copy)
-    return response is None
+    expect_empty = dicts_equal(expected_copy, received_copy)
+    return expect_empty is None
+

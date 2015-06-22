@@ -21,10 +21,7 @@
 #--------------------------------------------------------------------------
 
 from . import authentication_context
-from .authentication_context import (
-    AuthenticationContext,
-    get_adal_options,
-    set_adal_options)
+from .authentication_context import AuthenticationContext
 
 from . import log
 from .log import Logger
@@ -133,19 +130,19 @@ def acquire_token_with_client_credentials(
     argument.validate_string_param(client_secret, 'client_secret')
 
     context = create_authentication_context(authority, validate_authority)
-    token_response = []
+    token_responses = []
 
     def callback(err, token_response):
         if err:
             raise Exception("Error:{} token_response:{}".format(err, token_response))
-        token_response.append(token_response)
+        token_responses.append(token_response)
 
     def token_func(context, extra=None):
         context.token_request = TokenRequest(context._call_context, context, client_id, resource)
         context.token_request._get_token_with_client_credentials(client_secret, callback)
 
     context._acquire_token(callback, token_func)
-    return token_response[0]
+    return token_responses[0]
 
 def acquire_token_with_authorization_code(
     authorization_code,

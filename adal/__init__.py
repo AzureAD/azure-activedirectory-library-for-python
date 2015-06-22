@@ -23,8 +23,8 @@
 from . import authentication_context
 from .authentication_context import (
     AuthenticationContext,
-    get_ADAL_options,
-    set_ADAL_options)
+    get_adal_options,
+    set_adal_options)
 
 from . import log
 from .log import Logger
@@ -42,10 +42,11 @@ def create_authentication_context(authority, validate_authority):
 def acquire_token_with_username_password(
     username,
     password,
-    authority = None,
-    resource = None,
-    client_id = None,
-    validate_authority = True):
+    authority=None,
+    resource=None,
+    client_id=None,
+    validate_authority=True
+):
     '''
     Acquires a token when given a username and password combination
 
@@ -82,10 +83,10 @@ def acquire_token_with_username_password(
     context = create_authentication_context(authority, validate_authority)
     token_response = []
 
-    def callback(err, tokenResponse):
+    def callback(err, token_response):
         if err:
-            raise Exception("Error:{} TokenResponse:{}".format(err, tokenResponse))
-        token_response.append(tokenResponse)
+            raise Exception("Error:{} token_response:{}".format(err, token_response))
+        token_response.append(token_response)
 
     def token_func(context):
         context.token_request = TokenRequest(context._call_context, context, client_id, resource)
@@ -96,10 +97,11 @@ def acquire_token_with_username_password(
 
 def acquire_token_with_client_credentials(
     client_secret,
-    authority = None,
-    resource = None,
-    client_id = None,
-    validate_authority = True):
+    authority=None,
+    resource=None,
+    client_id=None,
+    validate_authority=True
+):
     '''
     Acquires a token when given a username and password combination
 
@@ -133,10 +135,10 @@ def acquire_token_with_client_credentials(
     context = create_authentication_context(authority, validate_authority)
     token_response = []
 
-    def callback(err, tokenResponse):
+    def callback(err, token_response):
         if err:
-            raise Exception("Error:{} TokenResponse:{}".format(err, tokenResponse))
-        token_response.append(tokenResponse)
+            raise Exception("Error:{} token_response:{}".format(err, token_response))
+        token_response.append(token_response)
 
     def token_func(context, extra=None):
         context.token_request = TokenRequest(context._call_context, context, client_id, resource)
@@ -149,10 +151,11 @@ def acquire_token_with_authorization_code(
     authorization_code,
     redirect_uri,
     client_secret,
-    authority = None,
-    resource = None,
-    client_id = None,
-    validate_authority = True):
+    authority=None,
+    resource=None,
+    client_id=None,
+    validate_authority=True
+):
     '''
     Acquires a token when given a username and password combination
 
@@ -192,14 +195,18 @@ def acquire_token_with_authorization_code(
     context = create_authentication_context(authority, validate_authority)
     token_response = []
 
-    def callback(err, tokenResponse):
+    def callback(err, token_response):
         if err:
-            raise Exception("Error:{} TokenResponse:{}".format(err, tokenResponse))
-        token_response.append(tokenResponse)
+            raise Exception("Error:{} token_response:{}".format(err, token_response))
+        token_response.append(token_response)
 
     def token_func(context):
-        context.token_request = TokenRequest(context._call_context, context, client_id, resource, redirect_uri)
-        context.token_request._get_token_with_authorization_code(authorization_code, client_secret, callback)
+        context.token_request = TokenRequest(
+            context._call_context, context, client_id, resource, redirect_uri
+        )
+        context.token_request._get_token_with_authorization_code(
+            authorization_code, client_secret, callback
+        )
 
     context._acquire_token(callback, token_func)
     return token_response[0]
@@ -207,10 +214,11 @@ def acquire_token_with_authorization_code(
 def acquire_token_with_refresh_token(
     refresh_token,
     client_secret,
-    authority = None,
-    resource = None,
-    client_id = None,
-    validate_authority = True):
+    authority=None,
+    resource=None,
+    client_id=None,
+    validate_authority=True
+):
     '''
     Acquires a token when given a username and password combination
 
@@ -245,10 +253,10 @@ def acquire_token_with_refresh_token(
     context = create_authentication_context(authority, validate_authority)
     token_response = []
 
-    def callback(err, tokenResponse):
+    def callback(err, token_response):
         if err:
-            raise Exception("Error:{} TokenResponse:{}".format(err, tokenResponse))
-        token_response.append(tokenResponse)
+            raise Exception("Error:{} token_response:{}".format(err, token_response))
+        token_response.append(token_response)
 
     def token_func(context):
         context.token_request = TokenRequest(context._call_context, context, client_id, resource)
@@ -260,10 +268,11 @@ def acquire_token_with_refresh_token(
 def acquire_token_with_client_certificate(
     certificate,
     thumbprint,
-    authority = None,
-    resource = None,
-    client_id = None,
-    validate_authority = True):
+    authority=None,
+    resource=None,
+    client_id=None,
+    validate_authority=True
+):
     '''
     Acquires a token when given a username and password combination
 
@@ -299,10 +308,10 @@ def acquire_token_with_client_certificate(
     context = create_authentication_context(authority, validate_authority)
     token_response = []
 
-    def callback(err, tokenResponse):
+    def callback(err, token_response):
         if err:
-            raise Exception("Error:{} TokenResponse:{}".format(err, tokenResponse))
-        token_response.append(tokenResponse)
+            raise Exception("Error:{} token_response:{}".format(err, token_response))
+        token_response.append(token_response)
 
     def token_func(context):
         context.token_request = TokenRequest(context._call_context, context, client_id, resource)

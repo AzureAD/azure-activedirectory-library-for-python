@@ -97,8 +97,8 @@ class TestUsernamePassword(unittest.TestCase):
         authorityUrl = response['authority'] + '/' + cp['tenant']
         upRequest = self.setup_expected_username_password_request_response(200, response['wireResponse'], authorityUrl)
         
-        tokenResponse = adal.acquire_token_with_username_password(cp['username'], cp['password'], authorityUrl, response['resource'], cp['clientId'])
-        self.assertTrue(util.isMatchTokenResponse(response['cachedResponse'], tokenResponse), 'Response did not match expected: ' + JSON.stringify(tokenResponse))
+        token_response = adal.acquire_token_with_username_password(cp['username'], cp['password'], authorityUrl, response['resource'], cp['clientId'])
+        self.assertTrue(util.isMatchTokenResponse(response['cachedResponse'], token_response), 'Response did not match expected: ' + JSON.stringify(token_response))
     
    
     # Since this test is the most code intensive it will make a good test case for
@@ -128,12 +128,12 @@ class TestUsernamePassword(unittest.TestCase):
 
         authorityUrl = response['authority'] + '/' + cp['tenant']
 
-        tokenResponse = adal.acquire_token_with_username_password(cp['username'], cp['password'], authorityUrl, response['resource'], cp['clientId'])
-        self.assertTrue(util.isMatchTokenResponse(response['cachedResponse'], tokenResponse), 'Response did not match expected: ' + JSON.stringify(tokenResponse))
+        token_response = adal.acquire_token_with_username_password(cp['username'], cp['password'], authorityUrl, response['resource'], cp['clientId'])
+        self.assertTrue(util.isMatchTokenResponse(response['cachedResponse'], token_response), 'Response did not match expected: ' + JSON.stringify(token_response))
         log.set_logging_options(oldOptions)
         util.set_correlation_id()
 
-        self.assertTrue(util.isMatchTokenResponse(response['cachedResponse'], tokenResponse), 'The response did not match what was expected')
+        self.assertTrue(util.isMatchTokenResponse(response['cachedResponse'], token_response), 'The response did not match what was expected')
         self.assertTrue(logFunctionCalled, 'Logging was turned on but no messages were recieved.')
 
 
@@ -154,8 +154,8 @@ class TestUsernamePassword(unittest.TestCase):
         authorityUrl = response['authority'] + '/' + cp['tenant']
         upRequest = self.setup_expected_username_password_request_response(200, wireResponse, authorityUrl)
 
-        tokenResponse = adal.acquire_token_with_username_password(cp['username'], cp['password'], authorityUrl, response['resource'], cp['clientId'])
-        self.assertTrue(util.isMatchTokenResponse(response['cachedResponse'], tokenResponse), 'Response did not match expected: ' + JSON.stringify(tokenResponse))
+        token_response = adal.acquire_token_with_username_password(cp['username'], cp['password'], authorityUrl, response['resource'], cp['clientId'])
+        self.assertTrue(util.isMatchTokenResponse(response['cachedResponse'], token_response), 'Response did not match expected: ' + JSON.stringify(token_response))
 
     def create_mex_stub(self, usernamePasswordUrl, err=None):
         mex = Mex(cp['callContext'], '')
@@ -201,11 +201,11 @@ class TestUsernamePassword(unittest.TestCase):
         context._authority._tokenEndpoint = authority + cp['tokenPath']
         return context
 
-    def create_oauth2_client_stub(self, authority, tokenResponse, err):
+    def create_oauth2_client_stub(self, authority, token_response, err):
         client = OAuth2Client(cp['callContext'], authority)
 
         def side_effect (oauth, callback):
-            callback(err, tokenResponse)
+            callback(err, token_response)
         client.get_token = mock.MagicMock(side_effect=side_effect)
 
         return client
@@ -228,9 +228,9 @@ class TestUsernamePassword(unittest.TestCase):
         tokenRequest = TokenRequest(cp['callContext'], context, response['clientId'], response['resource'])
         self.stub_out_token_request_dependencies(tokenRequest, userRealm, mex, wstrustRequest, oauthClient)
 
-        def callback(err, tokenResponse):
+        def callback(err, token_response):
             if not err:
-                self.assertTrue(util.is_match_token_response(response['cachedResponse'], tokenResponse), 'The response did not match what was expected')
+                self.assertTrue(util.is_match_token_response(response['cachedResponse'], token_response), 'The response did not match what was expected')
 
         tokenRequest._get_token_with_username_password('username', 'password', callback)
 
@@ -247,9 +247,9 @@ class TestUsernamePassword(unittest.TestCase):
         tokenRequest = TokenRequest(cp['callContext'], context, response['clientId'], response['resource'])
         self.stub_out_token_request_dependencies(tokenRequest, userRealm, mex, wstrustRequest, oauthClient)
 
-        def callback(err, tokenResponse):
+        def callback(err, token_response):
             if not err:
-                self.assertTrue(util.is_match_token_response(response['cachedResponse'], tokenResponse), 'The response did not match what was expected')
+                self.assertTrue(util.is_match_token_response(response['cachedResponse'], token_response), 'The response did not match what was expected')
 
         tokenRequest._get_token_with_username_password('username', 'password', callback)
 
@@ -261,7 +261,7 @@ class TestUsernamePassword(unittest.TestCase):
         tokenRequest = TokenRequest(cp['callContext'], context, cp['clientId'], cp['resource'])
         self.stub_out_token_request_dependencies(tokenRequest, userRealm, mex)
 
-        def callback(err, tokenResponse):
+        def callback(err, token_response):
             self.assertTrue(err, 'Did not receive expected err.')
             self.assertTrue('unknown AccountType' in  err.args[0], 'Did not receive expected error message.')
 
@@ -280,9 +280,9 @@ class TestUsernamePassword(unittest.TestCase):
         tokenRequest = TokenRequest(cp['callContext'], context, response['clientId'], response['resource'])
         self.stub_out_token_request_dependencies(tokenRequest, userRealm, mex, wstrustRequest, oauthClient)
 
-        def callback(err, tokenResponse):
+        def callback(err, token_response):
             if not err:
-                self.assertTrue(util.is_match_token_response(response['cachedResponse'], tokenResponse), 'The response did not match what was expected')
+                self.assertTrue(util.is_match_token_response(response['cachedResponse'], token_response), 'The response did not match what was expected')
 
         tokenRequest._get_token_with_username_password('username', 'password', callback)
 
@@ -300,7 +300,7 @@ class TestUsernamePassword(unittest.TestCase):
         tokenRequest = TokenRequest(cp['callContext'], context, response['clientId'], response['resource'])
         self.stub_out_token_request_dependencies(tokenRequest, userRealm, mex, wstrustRequest, oauthClient)
 
-        def callback(err, tokenResponse):
+        def callback(err, token_response):
             self.assertTrue(err, 'Did not receive expected err.')
             self.assertTrue('tokenType' in  err.args[0], "Error message did not contain 'token type'. message:{}".format(err.args[0]))
 
@@ -319,7 +319,7 @@ class TestUsernamePassword(unittest.TestCase):
         tokenRequest = TokenRequest(cp['callContext'], context, response['clientId'], response['resource'])
         self.stub_out_token_request_dependencies(tokenRequest, userRealm, mex, wstrustRequest, oauthClient)
 
-        def callback(err, tokenResponse):
+        def callback(err, token_response):
             self.assertTrue(err, 'Did not receive expected error')
 
         tokenRequest._get_token_with_username_password('username', 'password', callback)
@@ -337,7 +337,7 @@ class TestUsernamePassword(unittest.TestCase):
         tokenRequest = TokenRequest(cp['callContext'], context, response['clientId'], response['resource'])
         self.stub_out_token_request_dependencies(tokenRequest, userRealm, mex, wstrustRequest, oauthClient)
         
-        def callback(err, tokenResponse):
+        def callback(err, token_response):
             self.assertTrue(err, 'Did not receive expected error')
 
         tokenRequest._get_token_with_username_password('username', 'password', callback)
@@ -355,7 +355,7 @@ class TestUsernamePassword(unittest.TestCase):
         tokenRequest = TokenRequest(cp['callContext'], context, response['clientId'], response['resource'])
         self.stub_out_token_request_dependencies(tokenRequest, userRealm, mex, wstrustRequest, oauthClient)
 
-        def callback(err, tokenResponse):
+        def callback(err, token_response):
             self.assertTrue(err, 'Did not receive expected error')
 
         tokenRequest._get_token_with_username_password('username', 'password', callback)
@@ -469,7 +469,7 @@ class TestUsernamePassword(unittest.TestCase):
 
         # Did not receive expected error about bad int parameter
         with self.assertRaises(Exception):
-            tokenResponse = adal.acquire_token_with_username_password(cp['username'], cp['password'], authorityUrl, response['resource'], cp['clientId'])
+            token_response = adal.acquire_token_with_username_password(cp['username'], cp['password'], authorityUrl, response['resource'], cp['clientId'])
         
 
     @httpretty.activate
@@ -489,7 +489,7 @@ class TestUsernamePassword(unittest.TestCase):
         authorityUrl = response['authority'] + '/' + cp['tenant']
         upRequest = self.setup_expected_username_password_request_response(200, response['wireResponse'], authorityUrl)
 
-        tokenResponse = adal.acquire_token_with_username_password(cp['username'], cp['password'], authorityUrl, response['resource'], cp['clientId'])
+        token_response = adal.acquire_token_with_username_password(cp['username'], cp['password'], authorityUrl, response['resource'], cp['clientId'])
         self.assertTrue(foundWarning, 'Did not see expected warning message about bad id_token base64.')
 
     @httpretty.activate
@@ -503,7 +503,7 @@ class TestUsernamePassword(unittest.TestCase):
 
         # Did not receive expected error about missing token_type
         with self.assertRaises(Exception):
-            tokenResponse = adal.acquire_token_with_username_password(cp['username'], cp['password'], response['authority'], response['resource'], cp['clientId'])
+            token_response = adal.acquire_token_with_username_password(cp['username'], cp['password'], response['authority'], response['resource'], cp['clientId'])
 
     @httpretty.activate
     def test_no_access_token(self):
@@ -516,7 +516,7 @@ class TestUsernamePassword(unittest.TestCase):
         authorityUrl = response['authority'] + '/' + cp['tenant']
         # Did not receive expected error about missing token_type
         with self.assertRaises(Exception):
-            tokenResponse = adal.acquire_token_with_username_password(cp['username'], cp['password'], authorityUrl, response['resource'], cp['clientId'])
+            token_response = adal.acquire_token_with_username_password(cp['username'], cp['password'], authorityUrl, response['resource'], cp['clientId'])
 
 if __name__ == '__main__':
     unittest.main()

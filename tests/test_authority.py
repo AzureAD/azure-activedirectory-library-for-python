@@ -85,11 +85,11 @@ class TestAuthority(unittest.TestCase):
         
         util.setup_expected_client_cred_token_request_response(200, wireResponse, self.nonHardCodedAuthority)
 
-        tokenResponse = adal.acquire_token_with_client_credentials(
+        token_response = adal.acquire_token_with_client_credentials(
             cp['clientSecret'], self.nonHardCodedAuthority, response['resource'], cp['clientId'])
         self.assertTrue(
-            util.is_match_token_response(response['cachedResponse'], tokenResponse), 
-            'The response does not match what was expected.: ' + str(tokenResponse)
+            util.is_match_token_response(response['cachedResponse'], token_response), 
+            'The response does not match what was expected.: ' + str(token_response)
         )
 
     def performStaticInstanceDiscovery(self, authorityHost, callback):
@@ -102,11 +102,11 @@ class TestAuthority(unittest.TestCase):
         wireResponse = response['wireResponse']
         tokenRequest = util.setup_expected_client_cred_token_request_response(200, wireResponse, hardCodedAuthority)
 
-        tokenResponse = adal.acquire_token_with_client_credentials(
+        token_response = adal.acquire_token_with_client_credentials(
             cp['clientSecret'], hardCodedAuthority, response['resource'], cp['clientId'])
         self.assertTrue(
-            util.is_match_token_response(response['cachedResponse'], tokenResponse), 
-            'The response does not match what was expected.: ' + str(tokenResponse)
+            util.is_match_token_response(response['cachedResponse'], token_response), 
+            'The response does not match what was expected.: ' + str(token_response)
         )
 
     
@@ -127,7 +127,7 @@ class TestAuthority(unittest.TestCase):
         util.setup_expected_instance_discovery_request(500, cp['authorityHosts']['global'], None, self.nonHardCodedAuthorizeEndpoint)
 
         with self.assertRaisesRegex(Exception, '500'):
-            tokenResponse = adal.acquire_token_with_client_credentials(
+            token_response = adal.acquire_token_with_client_credentials(
                 cp['clientSecret'], self.nonHardCodedAuthority, cp['resource'], cp['clientId'])
 
     @httpretty.activate
@@ -136,7 +136,7 @@ class TestAuthority(unittest.TestCase):
         util.setup_expected_instance_discovery_request(400, cp['authorityHosts']['global'], returnDoc, self.nonHardCodedAuthorizeEndpoint)
 
         with self.assertRaisesRegex(Exception, 'instance was invalid'):
-            tokenResponse = adal.acquire_token_with_client_credentials(
+            token_response = adal.acquire_token_with_client_credentials(
                 cp['clientSecret'], self.nonHardCodedAuthority, cp['resource'], cp['clientId'])
 
     @httpretty.activate
@@ -154,11 +154,11 @@ class TestAuthority(unittest.TestCase):
         
         util.setup_expected_client_cred_token_request_response(200, wireResponse, self.nonHardCodedAuthority)
 
-        tokenResponse = adal.acquire_token_with_client_credentials(
+        token_response = adal.acquire_token_with_client_credentials(
             cp['clientSecret'], self.nonHardCodedAuthority, response['resource'], cp['clientId'], validate_authority = False)
         self.assertTrue(
-            util.is_match_token_response(response['cachedResponse'], tokenResponse), 
-            'The response does not match what was expected.: ' + str(tokenResponse)
+            util.is_match_token_response(response['cachedResponse'], token_response), 
+            'The response does not match what was expected.: ' + str(token_response)
         )
 
 

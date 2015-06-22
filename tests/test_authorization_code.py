@@ -78,9 +78,9 @@ class TestAuthorizationCode(unittest.TestCase):
         
         self.setup_expected_auth_code_token_request_response(200, response['wireResponse'])
 
-        tokenResponse = adal.acquire_token_with_authorization_code(self.authorization_code, self.redirect_uri, cp['clientSecret'], cp['authUrl'], response['resource'], cp['clientId'])
+        token_response = adal.acquire_token_with_authorization_code(self.authorization_code, self.redirect_uri, cp['clientSecret'], cp['authUrl'], response['resource'], cp['clientId'])
 
-        self.assertTrue(util.is_match_token_response(response['decodedResponse'], tokenResponse), 'The response did not match what was expected')
+        self.assertTrue(util.is_match_token_response(response['decodedResponse'], token_response), 'The response did not match what was expected')
                 
         req = httpretty.last_request()
         util.match_standard_request_headers(req)

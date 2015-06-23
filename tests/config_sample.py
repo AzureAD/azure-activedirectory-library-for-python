@@ -4,7 +4,7 @@ instructions to fill in your values.
 '''
 acquire_token_with_username_password = {
     # Getting token with username and passwords is the simple method.  You need to create an Azure
-    # Active Directory and a user.  Once you ahve done this, you can put the tenant name, username
+    # Active Directory and a user.  Once you have done this, you can put the tenant name, username
     # and password combination here.
     #
     # Note: You need to attempt to login to the user at least once to create a non-temp password.

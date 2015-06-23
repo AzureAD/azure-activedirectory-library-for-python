@@ -73,39 +73,36 @@ class TestE2EExamples(unittest.TestCase):
    
 
     # Validation Methods
-    def validate_token_response_username_password(self, token_response):
-        self.assertIsNotNone(token_response)
+    def validate_keys_in_dict(self, dict, keys):
+        for i in keys:
+            self.assertIn(i, dict)
 
-        # token response is a dict that should have
-        expected = [
-            'accessToken', 'expiresIn', 'expiresOn', 'familyName', 'givenName',
-            'isUserIdDisplayable', 'refreshToken', 'resource', 'tenantId', 'tokenType', 'userId'
-        ]
-        for i in expected:
-            self.assertIsNotNone(token_response.get(i), '{} is an expected item in the token response'.format(i))
+    def validate_token_response_username_password(self, token_response):
+        self.validate_keys_in_dict(
+            token_response, 
+            [
+                'accessToken', 'expiresIn', 'expiresOn', 'familyName', 'givenName',
+                'isUserIdDisplayable', 'refreshToken', 'resource', 'tenantId', 
+                'tokenType', 'userId'
+            ]
+        )
 
     def validate_token_response_client_credentials(self, token_response):
-        self.assertIsNotNone(token_response)
-
-        # token response is a dict that should have
-        expected = [
-            'accessToken', 'expiresIn', 'expiresOn', 'resource', 'tokenType'
-        ]
-        for i in expected:
-            self.assertIsNotNone(token_response.get(i), '{} is an expected item in the token response'.format(i))
-
+        self.validate_keys_in_dict(
+            token_response, 
+            ['accessToken', 'expiresIn', 'expiresOn', 'resource', 'tokenType']
+        )
+        
     def validate_token_response_authorization_code(self, token_response):
         self.fail("Not Yet Implemented")
 
     def validate_token_response_refresh_token(self, token_response):
-        self.assertIsNotNone(token_response)
-
-        # token response is a dict that should have
-        expected = [
-            'accessToken', 'expiresIn', 'expiresOn', 'refreshToken', 'resource', 'tokenType'
-        ]
-        for i in expected:
-            self.assertIsNotNone(token_response.get(i), '{} is an expected item in the token response'.format(i))
+        self.validate_keys_in_dict(
+            token_response,
+            [
+                'accessToken', 'expiresIn', 'expiresOn', 'refreshToken', 'resource', 'tokenType'
+            ]
+        )
 
     def validate_token_response_client_certificate(self, token_response):
         self.fail("Not Yet Implemented")

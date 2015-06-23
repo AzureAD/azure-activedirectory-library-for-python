@@ -1,5 +1,5 @@
 ﻿#-------------------------------------------------------------------------
-# 
+#
 # Copyright Microsoft Open Technologies, Inc.
 #
 # All Rights Reserved
@@ -142,6 +142,5 @@ def pad_string_for_base64(input):
     # if we say we need 4 padding, we don't really need padding
     if not padding_to_add == 4:
         input += '=' * padding_to_add
-    
-    return input
 
+    return input

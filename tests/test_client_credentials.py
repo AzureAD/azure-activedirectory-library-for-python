@@ -25,11 +25,11 @@ class TestClientCredentials(unittest.TestCase):
         response = util.create_response(response_options)
         token_request = util.setup_expected_client_cred_token_request_response(200, response['wireResponse'])
 
-        tokenResponse = adal.acquire_token_with_client_credentials(
+        token_response = adal.acquire_token_with_client_credentials(
             cp['clientSecret'], cp['authUrl'], response['resource'], cp['clientId'])
         self.assertTrue(
-            util.is_match_token_response(response['cachedResponse'], tokenResponse), 
-            'The response does not match what was expected.: ' + str(tokenResponse)
+            util.is_match_token_response(response['cachedResponse'], token_response), 
+            'The response does not match what was expected.: ' + str(token_response)
         )
     
     def test_no_arguments(self):
@@ -119,7 +119,7 @@ class TestClientCredentials(unittest.TestCase):
 
         adal.acquire_token_with_client_certificate(cp['cert'], cp['certHash'], cp['authorityTenant'], response.resource, cp['clientId'])
         resetSelfSignedJwtStubs(saveProto)
-        self.assertTrue(util.is_match_token_response(response.cachedResponse, tokenResponse), 'The response did not match what was expected')
+        self.assertTrue(util.is_match_token_response(response.cachedResponse, token_response), 'The response did not match what was expected')
 
     def test_cert_bad_cert(self):
         cert = 'gobbledy'

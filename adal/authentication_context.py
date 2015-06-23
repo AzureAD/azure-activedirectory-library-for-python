@@ -27,17 +27,11 @@ from . import util
 from . import log
 
 
-global_ADAL_options = {}
-
-def get_ADAL_options():
-    return global_ADAL_options
-
-def set_ADAL_options(options):
-    global_ADAL_options = options
+global_adal_options = {}
 
 class AuthenticationContext(object):
 
-    def __init__(self, authority, validate_authority = None):
+    def __init__(self, authority, validate_authority=None):
 
         validate = validate_authority
         if not validate_authority:
@@ -46,7 +40,7 @@ class AuthenticationContext(object):
         self._authority = Authority(authority, validate)
         self._oauth2client = None
         self._correlation_id = None
-        self._call_context = {'options': global_ADAL_options}
+        self._call_context = {'options': global_adal_options}
 
     @property
     def authority(self):
@@ -72,9 +66,9 @@ class AuthenticationContext(object):
 
         self._call_context['log_context'] = log.create_log_context(self._correlation_id)
 
-        def _callback(err, tokenResponse=None):
+        def _callback(err, token_response=None):
             if err:
-                callback(err, tokenResponse)
+                callback(err, token_response)
                 return
             token_func(self)
 
@@ -95,4 +89,3 @@ class AuthenticationContext(object):
             self.token_request.get_token_from_cache_with_refresh(user_id, callback)
 
         self._acquire_token(callback, token_func)
-    

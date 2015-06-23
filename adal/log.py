@@ -1,5 +1,5 @@
-#-------------------------------------------------------------------------
-# 
+﻿#-------------------------------------------------------------------------
+#
 # Copyright Microsoft Open Technologies, Inc.
 #
 # All Rights Reserved
@@ -35,13 +35,14 @@ class LOGGING_LEVEL:
     WARN    = 1
     INFO    = 2
     DEBUG   = 3
-  
+
 LEVEL_PY_MAP = {
     LOGGING_LEVEL.ERROR  : 40,
     LOGGING_LEVEL.WARN   : 30,
     LOGGING_LEVEL.INFO   : 20,
     LOGGING_LEVEL.DEBUG  : 10
     }
+
 def create_log_context(correlation_id = None):
     id = correlation_id if correlation_id else str(uuid.uuid4())
     return {'correlation_id':id}
@@ -57,7 +58,6 @@ def set_logging_options(options={}):
         logger.setLevel(LEVEL_PY_MAP[level])
     else:
         logger.setLevel(LEVEL_PY_MAP[LOGGING_LEVEL.ERROR])
-    
 
 def get_logging_options():
 
@@ -66,7 +66,6 @@ def get_logging_options():
     for (key, val) in LEVEL_PY_MAP.items():
         if level == val:
             return {'level':key}
-
 
 class Logger(object):
 
@@ -94,22 +93,22 @@ class Logger(object):
         return formatted
 
     def error(self, message, error=None):
-       
+
         message = self.log_message(0, message, error)
         self._logging.error(message)
 
     def warn(self, message, error=None):
-       
+
         message = self.log_message(1, message, error)
         self._logging.warning(message)
 
     def info(self, message, error=None):
-       
+
         message = self.log_message(2, message, error)
         self._logging.info(message)
 
     def debug(self, message, error=None):
-       
+
         message = self.log_message(3, message, error)
         self._logging.debug(message)
 

@@ -31,7 +31,7 @@ from . import util
 from . import wstrust_response
 
 class WSTrustRequest(object):
-    
+
     def __init__(self, call_context, watrust_endpoint_url, applies_to):
         self._log = log.Logger('WSTrustRequest', call_context['log_context'])
         self._call_context = call_context

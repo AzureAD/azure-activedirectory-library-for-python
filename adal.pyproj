@@ -25,7 +25,6 @@
     <EnableUnmanagedDebugging>false</EnableUnmanagedDebugging>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="adal\adal.py" />
     <Compile Include="adal\argument.py">
       <SubType>Code</SubType>
     </Compile>

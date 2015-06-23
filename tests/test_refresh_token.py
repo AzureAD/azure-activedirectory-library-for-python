@@ -19,11 +19,11 @@ class TestRefreshToken(unittest.TestCase):
         self.response = util.create_response(self.response_options)
         self.wire_response = self.response['wireResponse']
 
-    def _callback(self, err, tokenResponse):
+    def _callback(self, err, token_response):
         self.assertFalse(err, 'Unexpected Err:{}'.format(err))
         self.assertTrue(
-            util.is_match_token_response(self.response['decodedResponse'], tokenResponse), 
-            'The response did not match what was expected: ' + str(tokenResponse)
+            util.is_match_token_response(self.response['decodedResponse'], token_response), 
+            'The response did not match what was expected: ' + str(token_response)
         )
 
     @httpretty.activate

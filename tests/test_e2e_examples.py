@@ -13,7 +13,6 @@
 # limitations under the License.
 #--------------------------------------------------------------------------
 import unittest
-from adal.authentication_context import AuthenticationContext
 import base64
 import json
 import adal

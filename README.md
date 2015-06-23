@@ -47,7 +47,7 @@ token_response = adal.acquire_token_with_client_credentials(
 If you are using this with the Azure SDK, you will need to give the PythonSDK application we have access.
 From powershell you can execute the following:
 
-```
+```powershell
 Switch-AzureMode -Name AzureResourceManager
 Add-AzureAccount # This will pop up a login dialog
 # Look at the subscriptions returned and put one on the line below

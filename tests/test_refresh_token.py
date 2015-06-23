@@ -27,24 +27,24 @@ class TestRefreshToken(unittest.TestCase):
         )
 
     @httpretty.activate
-    def test_happy_path_no_resource(self):
+    def test_happy_path_no_resource_no_client_secret(self):
         tokenRequest = util.setup_expected_refresh_token_request_response(200, self.wire_response, self.response['authority'])
-        adal.acquire_token_with_refresh_token(cp['refreshToken'], None, cp['authorityTenant'], None, cp['clientId'])
+        adal.acquire_token_with_refresh_token(cp['authorityTenant'], cp['refreshToken'], cp['clientId'], None, None)
 
     @httpretty.activate
-    def test_happy_path_with_resource(self):
+    def test_happy_path_with_resource_no_client_secret(self):
         tokenRequest = util.setup_expected_refresh_token_request_response(200, self.wire_response, self.response['authority'], self.response['resource'])
-        adal.acquire_token_with_refresh_token(cp['refreshToken'], None, cp['authorityTenant'], cp['resource'], cp['clientId'])
+        adal.acquire_token_with_refresh_token(cp['authorityTenant'], cp['refreshToken'], cp['clientId'], None, cp['resource'])
 
     @httpretty.activate
     def test_happy_path_no_resource_client_secret(self):
         tokenRequest = util.setup_expected_refresh_token_request_response(200, self.wire_response, self.response['authority'], None, cp['clientSecret'])
-        adal.acquire_token_with_refresh_token(cp['refreshToken'], cp['clientSecret'], cp['authorityTenant'], None, cp['clientId'])
+        adal.acquire_token_with_refresh_token(cp['authorityTenant'], cp['refreshToken'], cp['clientId'], cp['clientSecret'], None)
 
     @httpretty.activate
     def test_happy_path_with_resource_client_secret(self):
         tokenRequest = util.setup_expected_refresh_token_request_response(200, self.wire_response, self.response['authority'], self.response['resource'], cp['clientSecret'])
-        adal.acquire_token_with_refresh_token(cp['refreshToken'], cp['clientSecret'], cp['authorityTenant'], cp['resource'], cp['clientId'])
+        adal.acquire_token_with_refresh_token(cp['authorityTenant'], cp['refreshToken'], cp['clientId'], cp['clientSecret'], cp['resource'])
 
 if __name__ == '__main__':
     unittest.main()

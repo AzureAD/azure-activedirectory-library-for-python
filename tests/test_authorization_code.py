@@ -78,7 +78,7 @@ class TestAuthorizationCode(unittest.TestCase):
         
         self.setup_expected_auth_code_token_request_response(200, response['wireResponse'])
 
-        token_response = adal.acquire_token_with_authorization_code(self.authorization_code, self.redirect_uri, cp['clientSecret'], cp['authUrl'], response['resource'], cp['clientId'])
+        token_response = adal._acquire_token_with_authorization_code(cp['authUrl'], cp['clientId'], cp['clientSecret'], self.authorization_code, self.redirect_uri, response['resource'])
 
         self.assertTrue(util.is_match_token_response(response['decodedResponse'], token_response), 'The response did not match what was expected')
                 
@@ -87,11 +87,14 @@ class TestAuthorizationCode(unittest.TestCase):
 
     def test_failed_http_request(self):
         with self.assertRaises(Exception):
-            adal.acquire_token_with_authorization_code(self.authorization_code, self.redirect_uri, cp['clientSecret'], 'https://0.1.1.1:12/my.tenant.com', response['resource'], cp['clientId'])
+            adal._acquire_token_with_authorization_code(
+                'https://0.1.1.1:12/my.tenant.com', cp['clientId'], cp['clientSecret'], 
+                self.authorization_code, self.redirect_uri, response['resource'])
 
     def test_bad_argument(self):
         with self.assertRaises(Exception):
-            adal.acquire_token_with_authorization_code(self.authorization_code, self.redirect_uri, cp['clientSecret'], 'https://0.1.1.1:12/my.tenant.com', 'BogusResource', cp['clientId'])
-
+            adal._acquire_token_with_authorization_code(
+                'https://0.1.1.1:12/my.tenant.com', cp['clientId'], cp['clientSecret'], 
+                self.authorization_code, self.redirect_uri, 'BogusResource')
 if __name__ == '__main__':
     unittest.main()

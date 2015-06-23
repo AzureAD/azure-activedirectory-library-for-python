@@ -76,7 +76,8 @@
     <Compile Include="setup.py">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="tests\test_acquire_token_with_user_pass.py" />
+    <Compile Include="tests\config_sample.py" />
+    <Compile Include="tests\test_e2e_examples.py" />
     <Compile Include="tests\test_authority.py" />
     <Compile Include="tests\test_authorization_code.py" />
     <Compile Include="tests\test_client_credentials.py" />

@@ -86,7 +86,7 @@ class TestAuthority(unittest.TestCase):
         util.setup_expected_client_cred_token_request_response(200, wireResponse, self.nonHardCodedAuthority)
 
         token_response = adal.acquire_token_with_client_credentials(
-            cp['clientSecret'], self.nonHardCodedAuthority, response['resource'], cp['clientId'])
+            self.nonHardCodedAuthority, cp['clientId'], cp['clientSecret'], response['resource'])
         self.assertTrue(
             util.is_match_token_response(response['cachedResponse'], token_response), 
             'The response does not match what was expected.: ' + str(token_response)
@@ -103,7 +103,8 @@ class TestAuthority(unittest.TestCase):
         tokenRequest = util.setup_expected_client_cred_token_request_response(200, wireResponse, hardCodedAuthority)
 
         token_response = adal.acquire_token_with_client_credentials(
-            cp['clientSecret'], hardCodedAuthority, response['resource'], cp['clientId'])
+            hardCodedAuthority, cp['clientId'], cp['clientSecret'], response['resource'])
+
         self.assertTrue(
             util.is_match_token_response(response['cachedResponse'], token_response), 
             'The response does not match what was expected.: ' + str(token_response)
@@ -128,7 +129,7 @@ class TestAuthority(unittest.TestCase):
 
         with self.assertRaisesRegex(Exception, '500'):
             token_response = adal.acquire_token_with_client_credentials(
-                cp['clientSecret'], self.nonHardCodedAuthority, cp['resource'], cp['clientId'])
+                self.nonHardCodedAuthority, cp['clientId'], cp['clientSecret'], cp['resource'])
 
     @httpretty.activate
     def test_validation_error(self):
@@ -137,7 +138,7 @@ class TestAuthority(unittest.TestCase):
 
         with self.assertRaisesRegex(Exception, 'instance was invalid'):
             token_response = adal.acquire_token_with_client_credentials(
-                cp['clientSecret'], self.nonHardCodedAuthority, cp['resource'], cp['clientId'])
+                self.nonHardCodedAuthority, cp['clientId'], cp['clientSecret'], cp['resource'])
 
     @httpretty.activate
     def test_validation_off(self):
@@ -155,7 +156,7 @@ class TestAuthority(unittest.TestCase):
         util.setup_expected_client_cred_token_request_response(200, wireResponse, self.nonHardCodedAuthority)
 
         token_response = adal.acquire_token_with_client_credentials(
-            cp['clientSecret'], self.nonHardCodedAuthority, response['resource'], cp['clientId'], validate_authority = False)
+            self.nonHardCodedAuthority, cp['clientId'], cp['clientSecret'], response['resource'], validate_authority = False)
         self.assertTrue(
             util.is_match_token_response(response['cachedResponse'], token_response), 
             'The response does not match what was expected.: ' + str(token_response)

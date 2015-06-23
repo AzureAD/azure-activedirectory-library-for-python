@@ -97,7 +97,7 @@ class TestUsernamePassword(unittest.TestCase):
         authorityUrl = response['authority'] + '/' + cp['tenant']
         upRequest = self.setup_expected_username_password_request_response(200, response['wireResponse'], authorityUrl)
         
-        token_response = adal.acquire_token_with_username_password(cp['username'], cp['password'], authorityUrl, response['resource'], cp['clientId'])
+        token_response = adal.acquire_token_with_username_password(authorityUrl, cp['username'], cp['password'], cp['clientId'], response['resource'])
         self.assertTrue(util.isMatchTokenResponse(response['cachedResponse'], token_response), 'Response did not match expected: ' + JSON.stringify(token_response))
     
    
@@ -128,7 +128,7 @@ class TestUsernamePassword(unittest.TestCase):
 
         authorityUrl = response['authority'] + '/' + cp['tenant']
 
-        token_response = adal.acquire_token_with_username_password(cp['username'], cp['password'], authorityUrl, response['resource'], cp['clientId'])
+        token_response = adal.acquire_token_with_username_password(authorityUrl, cp['username'], cp['password'], cp['clientId'], response['resource'])
         self.assertTrue(util.isMatchTokenResponse(response['cachedResponse'], token_response), 'Response did not match expected: ' + JSON.stringify(token_response))
         log.set_logging_options(oldOptions)
         util.set_correlation_id()
@@ -154,7 +154,7 @@ class TestUsernamePassword(unittest.TestCase):
         authorityUrl = response['authority'] + '/' + cp['tenant']
         upRequest = self.setup_expected_username_password_request_response(200, wireResponse, authorityUrl)
 
-        token_response = adal.acquire_token_with_username_password(cp['username'], cp['password'], authorityUrl, response['resource'], cp['clientId'])
+        token_response = adal.acquire_token_with_username_password(authorityUrl, cp['username'], cp['password'], cp['clientId'], response['resource'])
         self.assertTrue(util.isMatchTokenResponse(response['cachedResponse'], token_response), 'Response did not match expected: ' + JSON.stringify(token_response))
 
     def create_mex_stub(self, usernamePasswordUrl, err=None):
@@ -469,8 +469,8 @@ class TestUsernamePassword(unittest.TestCase):
 
         # Did not receive expected error about bad int parameter
         with self.assertRaises(Exception):
-            token_response = adal.acquire_token_with_username_password(cp['username'], cp['password'], authorityUrl, response['resource'], cp['clientId'])
-        
+            token_response = adal.acquire_token_with_username_password(authorityUrl, cp['username'], cp['password'], cp['clientId'], response['resource'])
+
 
     @httpretty.activate
     def test_bad_id_token_base64_in_response(self):
@@ -489,7 +489,8 @@ class TestUsernamePassword(unittest.TestCase):
         authorityUrl = response['authority'] + '/' + cp['tenant']
         upRequest = self.setup_expected_username_password_request_response(200, response['wireResponse'], authorityUrl)
 
-        token_response = adal.acquire_token_with_username_password(cp['username'], cp['password'], authorityUrl, response['resource'], cp['clientId'])
+        token_response = adal.acquire_token_with_username_password(authorityUrl, cp['username'], cp['password'], cp['clientId'], response['resource'])
+
         self.assertTrue(foundWarning, 'Did not see expected warning message about bad id_token base64.')
 
     @httpretty.activate
@@ -503,7 +504,7 @@ class TestUsernamePassword(unittest.TestCase):
 
         # Did not receive expected error about missing token_type
         with self.assertRaises(Exception):
-            token_response = adal.acquire_token_with_username_password(cp['username'], cp['password'], response['authority'], response['resource'], cp['clientId'])
+            token_response = adal.acquire_token_with_username_password(response['authority'], cp['username'], cp['password'], cp['clientId'], response['resource'])
 
     @httpretty.activate
     def test_no_access_token(self):
@@ -516,7 +517,7 @@ class TestUsernamePassword(unittest.TestCase):
         authorityUrl = response['authority'] + '/' + cp['tenant']
         # Did not receive expected error about missing token_type
         with self.assertRaises(Exception):
-            token_response = adal.acquire_token_with_username_password(cp['username'], cp['password'], authorityUrl, response['resource'], cp['clientId'])
+            token_response = adal.acquire_token_with_username_password(authorityUrl, cp['username'], cp['password'], cp['clientId'], response['resource'])
 
 if __name__ == '__main__':
     unittest.main()

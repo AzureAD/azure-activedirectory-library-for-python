@@ -61,9 +61,9 @@ def acquire_token_with_username_password(
 
     Args:
         authority (str):
-            Your authority will have the form 
-            'https://login.windows.net/ABCDEFGH-1234-ABCD-1234-ABCDEFGHIJKL'.  
-            You must retrieve the this URI + GUID for your tenant.  You can find this on the Azure 
+            Your authority will have the form
+            'https://login.windows.net/ABCDEFGH-1234-ABCD-1234-ABCDEFGHIJKL'.
+            You must retrieve the this URI + GUID for your tenant.  You can find this on the Azure
             Active Directory Application Configure page and click view endpoints.  This string will
             be the root of the connection links given.
         username (str):
@@ -118,9 +118,9 @@ def acquire_token_with_client_credentials(
 
     Args:
         authority (str):
-            Your authority will have the form 
-            'https://login.windows.net/ABCDEFGH-1234-ABCD-1234-ABCDEFGHIJKL'.  
-            You must retrieve the this URI + GUID for your tenant.  You can find this on the Azure 
+            Your authority will have the form
+            'https://login.windows.net/ABCDEFGH-1234-ABCD-1234-ABCDEFGHIJKL'.
+            You must retrieve the this URI + GUID for your tenant.  You can find this on the Azure
             Active Directory Application Configure page and click view endpoints.  This string will
             be the root of the connection links given.
         client_id (str):
@@ -135,11 +135,11 @@ def acquire_token_with_client_credentials(
             Indicates whether you want the authority validated. Defaults to True.
 
     Returns:
-        dict: a dict with the following keys: 'accessToken', 'expiresIn', 'expiresOn', 'resource', 
+        dict: a dict with the following keys: 'accessToken', 'expiresIn', 'expiresOn', 'resource',
         'tokenType'.
     '''
     resource = resource or _DefaultValues.resource
-    
+
     argument.validate_string_param(authority, 'authority')
     argument.validate_string_param(client_id, 'client_id')
     argument.validate_string_param(client_secret, 'client_secret')
@@ -176,11 +176,11 @@ def _acquire_token_with_authorization_code(
 
     Args:
         authority (str):
-            Your authority will have the form 
-            'https://login.windows.net/ABCDEFGH-1234-ABCD-1234-ABCDEFGHIJKL'.  
-            You must retrieve the this URI + GUID for your tenant.  You can find this on the Azure 
+            Your authority will have the form
+            'https://login.windows.net/ABCDEFGH-1234-ABCD-1234-ABCDEFGHIJKL'.
+            You must retrieve the this URI + GUID for your tenant.  You can find this on the Azure
             Active Directory Application Configure page and click view endpoints.  This string will
-            be the root of the connection links given.        
+            be the root of the connection links given.
         client_id (str):
             The id of your client. Found on the configure page of Azure Active Directory
             Applications.
@@ -241,11 +241,11 @@ def acquire_token_with_refresh_token(
 
     Args:
         authority (str):
-            Your authority will have the form 
-            'https://login.windows.net/ABCDEFGH-1234-ABCD-1234-ABCDEFGHIJKL'.  
-            You must retrieve the this URI + GUID for your tenant.  You can find this on the Azure 
+            Your authority will have the form
+            'https://login.windows.net/ABCDEFGH-1234-ABCD-1234-ABCDEFGHIJKL'.
+            You must retrieve the this URI + GUID for your tenant.  You can find this on the Azure
             Active Directory Application Configure page and click view endpoints.  This string will
-            be the root of the connection links given.        
+            be the root of the connection links given.
         refresh_token (str):
             The refresh token for the token you are refreshing.
         client_id (str, optional):
@@ -256,7 +256,7 @@ def acquire_token_with_refresh_token(
             The resource you are accessing.  Defaults to 'https://management.core.windows.net/'.
         validate_authority (bool, optional):
             Indicates whether you want the authority validated. Defaults to True.
-       
+
     Returns:
         dict: a dict with the following keys: 'accessToken', 'expiresIn',
         'expiresOn', 'familyName', 'givenName', 'isUserIdDisplayable',
@@ -300,11 +300,11 @@ def _acquire_token_with_client_certificate(
 
     Args:
         authority (str):
-            Your authority will have the form 
-            'https://login.windows.net/ABCDEFGH-1234-ABCD-1234-ABCDEFGHIJKL'.  
-            You must retrieve the this URI + GUID for your tenant.  You can find this on the Azure 
+            Your authority will have the form
+            'https://login.windows.net/ABCDEFGH-1234-ABCD-1234-ABCDEFGHIJKL'.
+            You must retrieve the this URI + GUID for your tenant.  You can find this on the Azure
             Active Directory Application Configure page and click view endpoints.  This string will
-            be the root of the connection links given.        
+            be the root of the connection links given.
         client_id (str):
             The id of your client. Found on the configure page of Azure Active Directory
             Applications.

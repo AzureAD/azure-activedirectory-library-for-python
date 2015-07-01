@@ -1,4 +1,4 @@
-#-------------------------------------------------------------------------
+﻿#-------------------------------------------------------------------------
 # Copyright (c) Microsoft. All rights reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -40,21 +40,21 @@ class Test_wstrust_request(unittest.TestCase):
             .replace('%APPLIES_TO%', appliesTo) \
             .replace('%WSTRUST_ENDPOINT%', wstrustEndpoint)
 
-        #rstRequest = setupUpOutgoingRSTCompare(rst);
+        #rstRequest = setupUpOutgoingRSTCompare(rst)
         request = WSTrustRequest(_call_context, wstrustEndpoint, appliesTo)
 
         # TODO: handle rstr should be mocked out to prevent handling here.
         # TODO: setupUpOutgoingRSTCompare.  Use this to get messageid, created, expires, etc comparisons.
-    
+
         httpretty.register_uri(method=httpretty.POST, uri=wstrustEndpoint, status=200, body='')
-        
+
         request._handle_rstr =mock.MagicMock()
 
         def callback():
             pass
 
         request.acquire_token(username, password, callback)
-    
+
     @httpretty.activate
     def test_fail_to_parse_rstr(self):
         username = 'test_username'
@@ -71,7 +71,7 @@ class Test_wstrust_request(unittest.TestCase):
 
         def callback(err, token):
             self.assertEqual(err.args[0], 'Failed to parse RSTR in to DOM')
-        
+
         request = WSTrustRequest(_call_context, wstrustEndpoint, appliesTo)
         request.acquire_token(username, password, callback)
 

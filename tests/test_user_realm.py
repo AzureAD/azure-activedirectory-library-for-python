@@ -1,4 +1,4 @@
-#-------------------------------------------------------------------------
+﻿#-------------------------------------------------------------------------
 #
 # Copyright Microsoft Open Technologies, Inc.
 #
@@ -55,13 +55,13 @@ class TestUserRealm(unittest.TestCase):
         user_realm_path = cp['userRealmPathTemplate'].replace('<user>', quote(self.user, safe='~()*!.\''))
         query = 'api-version=1.0'
         self.testUrl = self.authority + user_realm_path + '?' + query
-        
+
         return super(TestUserRealm, self).setUp()
 
     @httpretty.activate
     def test_happy_path_federated(self):
 
-        user_realm_response = '{\"account_type\":\"Federated\",\"federation_protocol\":\"wstrust\",\"federation_metadata_url\":\"https://adfs.federatedtenant.com/adfs/services/trust/mex\",\"federation_active_auth_url\":\"https://adfs.federatedtenant.com/adfs/services/trust/2005/usernamemixed\",\"ver\":\"0.8\"}';
+        user_realm_response = '{\"account_type\":\"Federated\",\"federation_protocol\":\"wstrust\",\"federation_metadata_url\":\"https://adfs.federatedtenant.com/adfs/services/trust/mex\",\"federation_active_auth_url\":\"https://adfs.federatedtenant.com/adfs/services/trust/2005/usernamemixed\",\"ver\":\"0.8\"}'
 
         httpretty.register_uri(httpretty.GET, uri=self.testUrl, body=user_realm_response, status=200)
         user_realm = adal.user_realm.UserRealm(cp['callContext'], self.user, self.authority)
@@ -79,7 +79,7 @@ class TestUserRealm(unittest.TestCase):
     @httpretty.activate
     def test_negative_wrong_field(self):
 
-        user_realm_response = '{\"account_type\":\"Manageddf\",\"federation_protocol\":\"SAML20fgfg\",\"federation_metadata\":\"https://adfs.federatedtenant.com/adfs/services/trust/mex\",\"federation_active_auth_url\":\"https://adfs.federatedtenant.com/adfs/services/trust/2005/usernamemixed\",\"version\":\"0.8\"}';
+        user_realm_response = '{\"account_type\":\"Manageddf\",\"federation_protocol\":\"SAML20fgfg\",\"federation_metadata\":\"https://adfs.federatedtenant.com/adfs/services/trust/mex\",\"federation_active_auth_url\":\"https://adfs.federatedtenant.com/adfs/services/trust/2005/usernamemixed\",\"version\":\"0.8\"}'
 
         httpretty.register_uri(httpretty.GET, uri=self.testUrl, body=user_realm_response, status=200)
         user_realm = adal.user_realm.UserRealm(cp['callContext'], self.user, self.authority)

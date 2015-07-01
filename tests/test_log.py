@@ -7,14 +7,14 @@ from tests.util import parameters as cp
 class TestLog(unittest.TestCase):
     def test_settings_none(self):
         current_options = log.get_logging_options()
-        
+
         log.set_logging_options()
-        
+
         options = log.get_logging_options()
         log.set_logging_options(current_options)
 
         noOptions = len(options) == 1 and options['level'] == 0
-        self.assertTrue(noOptions, 'Did not expect to find any logging options set: ' + json.dumps(options));
+        self.assertTrue(noOptions, 'Did not expect to find any logging options set: ' + json.dumps(options))
 
     def test_console_settings(self):
         currentOptions = log.get_logging_options()

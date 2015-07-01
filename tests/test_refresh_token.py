@@ -22,7 +22,7 @@ class TestRefreshToken(unittest.TestCase):
     def _callback(self, err, token_response):
         self.assertFalse(err, 'Unexpected Err:{}'.format(err))
         self.assertTrue(
-            util.is_match_token_response(self.response['decodedResponse'], token_response), 
+            util.is_match_token_response(self.response['decodedResponse'], token_response),
             'The response did not match what was expected: ' + str(token_response)
         )
 
@@ -48,4 +48,3 @@ class TestRefreshToken(unittest.TestCase):
 
 if __name__ == '__main__':
     unittest.main()
-

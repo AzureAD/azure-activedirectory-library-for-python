@@ -23,11 +23,10 @@
 from .authority import Authority
 from . import argument
 from .token_request import TokenRequest
-from . import util
 from . import log
 
 
-global_adal_options = {}
+GLOBAL_ADAL_OPTIONS = {}
 
 class AuthenticationContext(object):
 
@@ -37,22 +36,11 @@ class AuthenticationContext(object):
         if not validate_authority:
             validate = True
 
-        self._authority = Authority(authority, validate)
+        self.authority = Authority(authority, validate)
         self._oauth2client = None
         self._correlation_id = None
-        self._call_context = {'options': global_adal_options}
+        self._call_context = {'options': GLOBAL_ADAL_OPTIONS}
 
-    @property
-    def authority(self):
-        return self._authority.url
-
-    @property
-    def correlation_id(self):
-        return self._correlation_id
-
-    @correlation_id.setter
-    def correlation_id(self, val):
-        self._correlation_id = val
 
     @property
     def options(self):
@@ -72,7 +60,7 @@ class AuthenticationContext(object):
                 return
             token_func(self)
 
-        self._authority.validate(self._call_context, _callback)
+        self.authority.validate(self._call_context, _callback)
 
     def acquire_token(self, resource, user_id, client_id, callback):
 

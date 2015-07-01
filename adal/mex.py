@@ -36,21 +36,13 @@ except ImportError:
     from urllib import quote, unquote
     from urlparse import urlparse, urlsplit
 
-from xml.etree import ElementTree
-from xml.dom.minidom import parseString
+try:
+    from xml.etree import cElementTree as ET
+except ImportError:
+    from xml.etree import ElementTree as ET
+
 from .constants import XmlNamespaces
-
-TRANSPORT_BINDING_XPATH = 'wsp:ExactlyOne/wsp:All/sp:TransportBinding'
-TRANSPORT_BINDING_2005_XPATH = 'wsp:ExactlyOne/wsp:All/sp2005:TransportBinding'
-
-SOAP_ACTION_XPATH = 'wsdl:operation/soap12:operation'
-RST_SOAP_ACTION = 'http://docs.oasis-open.org/ws-sx/ws-trust/200512/RST/Issue'
-SOAP_TRANSPORT_XPATH = 'soap12:binding'
-SOAP_HTTP_TRANSPORT_VALUE = 'http://schemas.xmlsoap.org/soap/http'
-
-PORT_XPATH = 'wsdl:service/wsdl:port'
-ADDRESS_XPATH = 'wsa10:EndpointReference/wsa10:Address'
-
+from .constants import MexNamespaces
 
 class Mex(object):
 
@@ -62,12 +54,8 @@ class Mex(object):
         self._dom = None
         self._parents = None
         self._mex_doc = None
-        self._user_pass_url = None
+        self.username_password_url = None
         self._log.debug("Mex created with url: {0}".format(self._url))
-
-    @property
-    def username_password_url(self):
-        return self._user_pass_url
 
     def discover(self, callback):
 
@@ -96,7 +84,7 @@ class Mex(object):
                 try:
                     self._mex_doc = resp.text
                     #options = {'errorHandler':self._log.error}
-                    self._dom = ElementTree.fromstring(self._mex_doc)
+                    self._dom = ET.fromstring(self._mex_doc)
                     self._parents = {c:p for p in self._dom.iter() for c in p}
                     self._parse(callback)
 
@@ -112,22 +100,21 @@ class Mex(object):
             callback(err, None)
 
     def _check_policy(self, policy_node):
-
-        policy_id = None
-        id = policy_node.attrib["{{{}}}Id".format(XmlNamespaces.namespaces['wsu'])]
-        transport_binding_nodes = xmlutil.xpath_find(policy_node, TRANSPORT_BINDING_XPATH)
+        policy_id = policy_node.attrib["{{{}}}Id".format(XmlNamespaces.namespaces['wsu'])]
+        
+        # Try with Transport Binding XPath
+        transport_binding_nodes = xmlutil.xpath_find(policy_node, MexNamespaces.TRANSPORT_BINDING_XPATH)
+        
+        # If unsuccessful, try again with 2005 XPath
         if not transport_binding_nodes:
-            transport_binding_nodes = xmlutil.xpath_find(policy_node, TRANSPORT_BINDING_2005_XPATH)
-        else:
-            if id:
-                policy_id = id
+            transport_binding_nodes = xmlutil.xpath_find(policy_node, MexNamespaces.TRANSPORT_BINDING_2005_XPATH)
 
-        if policy_id:
-            self._log.debug("Found matching policy id: {0}".format(policy_id))
+        # If we did not find any binding, this is potentially bad.
+        if not transport_binding_nodes:
+            self._log.debug("Potential policy did not match required transport binding: {0}".format(policy_id))
         else:
-            if not id:
-                id = "<no id>"
-            self._log.debug("Potential policy did not match required transport binding: {0}".format(id))
+            self._log.debug("Found matching policy id: {0}".format(policy_id))
+
         return policy_id
 
     def _select_username_password_polices(self):
@@ -155,16 +142,16 @@ class Mex(object):
         name = binding_node.get('name')
 
         soap_transport_attributes = []
-        soap_action_attributes = xmlutil.xpath_find(binding_node, SOAP_ACTION_XPATH)[0].attrib['soapAction']
+        soap_action_attributes = xmlutil.xpath_find(binding_node, MexNamespaces.SOAP_ACTION_XPATH)[0].attrib['soapAction']
 
         if soap_action_attributes:
             soap_action = soap_action_attributes
-            soap_transport_attributes = xmlutil.xpath_find(binding_node, SOAP_TRANSPORT_XPATH)[0].attrib['transport']
+            soap_transport_attributes = xmlutil.xpath_find(binding_node, MexNamespaces.SOAP_TRANSPORT_XPATH)[0].attrib['transport']
 
         if soap_transport_attributes:
             soap_transport = soap_transport_attributes
 
-        found = soap_action == RST_SOAP_ACTION and soap_transport == SOAP_HTTP_TRANSPORT_VALUE
+        found = soap_action == MexNamespaces.RST_SOAP_ACTION and soap_transport == MexNamespaces.SOAP_HTTP_TRANSPORT_VALUE
         if found:
             self._log.debug("Found binding matching Action and Transport: {0}".format(name))
         else:
@@ -196,7 +183,7 @@ class Mex(object):
 
     def _get_ports_for_policy_bindings(self, bindings, policies):
 
-        port_nodes = xmlutil.xpath_find(self._dom, PORT_XPATH)
+        port_nodes = xmlutil.xpath_find(self._dom, MexNamespaces.PORT_XPATH)
         if not port_nodes:
             self._log.warn("No ports found")
 
@@ -207,7 +194,7 @@ class Mex(object):
             binding_policy = policies.get(bindings.get(binding_id))
             if binding_policy:
                 if not binding_policy.get('url', None):
-                    address_node = node.find(ADDRESS_XPATH, XmlNamespaces.namespaces)
+                    address_node = node.find(MexNamespaces.ADDRESS_XPATH, XmlNamespaces.namespaces)
                     if address_node is None:
                         raise self._log.create_error("No address nodes on port")
 
@@ -225,7 +212,7 @@ class Mex(object):
             return
 
         random.shuffle(matching_policies)
-        self._user_pass_url = matching_policies[0]['url']
+        self.username_password_url = matching_policies[0]['url']
 
     def _parse(self, callback):
 

@@ -190,16 +190,17 @@ def reset_logging():
 def clear_static_cache():
     pass
 
-TOKEN_RESPONSE_MAP = {};
-TOKEN_RESPONSE_MAP['token_type'] = 'tokenType'
-TOKEN_RESPONSE_MAP['access_token'] = 'accessToken'
-TOKEN_RESPONSE_MAP['refresh_token'] = 'refreshToken'
-TOKEN_RESPONSE_MAP['created_on'] = 'createdOn'
-TOKEN_RESPONSE_MAP['expires_on'] = 'expiresOn'
-TOKEN_RESPONSE_MAP['expires_in'] = 'expiresIn'
-TOKEN_RESPONSE_MAP['error'] = 'error'
-TOKEN_RESPONSE_MAP['error_description'] = 'errorDescription'
-TOKEN_RESPONSE_MAP['resource'] = 'resource'
+TOKEN_RESPONSE_MAP = {
+    'token_type' : 'tokenType',
+    'access_token' : 'accessToken',
+    'refresh_token' : 'refreshToken',
+    'created_on' : 'createdOn',
+    'expires_on' : 'expiresOn',
+    'expires_in' : 'expiresIn',
+    'error' : 'error',
+    'error_description' : 'errorDescription',
+    'resource' : 'resource',
+}
 
 def dicts_equal(expected, actual):
     '''
@@ -357,10 +358,10 @@ def setup_expected_client_cred_token_request_response(http_code, return_doc=None
 def setup_expected_user_realm_response(http_code, return_doc, authority=None):
     user_realm_authority = authority or parameters['authority']
     user_realm_authority = urlparse(user_realm_authority)
-    
+
     # Get Base URL
     user_realm_authority = '{}://{}'.format(user_realm_authority.scheme, user_realm_authority.netloc)
-    
+
     user_realm_path = parameters['userRealmPathTemplate'].replace('<user>', parameters['username'])
     query = 'api-version=1.0'
     url = '{}{}?{}'.format(user_realm_authority, user_realm_path, query)
@@ -383,10 +384,10 @@ def setup_expected_refresh_token_request_response(http_code, return_doc, authori
     query_parameters['client_id'] = parameters['clientId']
     if client_secret:
         query_parameters['client_secret'] = client_secret
-    
+
     if resource:
         query_parameters['resource'] = resource
-    
+
     query_parameters['refresh_token'] = parameters['refreshToken']
 
     return setup_expected_oauth_response(query_parameters, parameters['tokenUrlPath'], http_code, return_doc, auth_endpoint)
@@ -408,7 +409,7 @@ def is_date_within_tolerance(date, expected_date = None):
     expected = expected_date or datetime.today()
     min_range = expected - timedelta(0, 10)
     max_range = expected + timedelta(0, 10)
-    
+
     if date >= min_range and date <= max_range:
         return True
 
@@ -417,15 +418,15 @@ def is_date_within_tolerance(date, expected_date = None):
 def is_expires_within_tolerance(expires_on):
     # Add the expected expires_in latency.
     expectedExpires = datetime.now() + timedelta(0, 28800)
-    return is_date_within_tolerance(expires_on, expectedExpires);
+    return is_date_within_tolerance(expires_on, expectedExpires)
 
 def is_match_token_response(expected, received):
     if not received:
         raise Exception("Token Response received is None")
-      
+
     expiresOn = received.get('expiresOn', None)
     createdOn = received.get('createdOn', None)
-    
+
     if expiresOn:
         expiresOnTime = dateutil.parser.parse(expiresOn)
         if not is_expires_within_tolerance(expiresOnTime):
@@ -451,4 +452,3 @@ def is_match_token_response(expected, received):
 
     expect_empty = dicts_equal(expected_copy, received_copy)
     return expect_empty is None
-

@@ -22,6 +22,7 @@
 
 import logging
 import uuid
+import traceback
 
 LEVEL_STRING_MAP = {
     0: 'ERROR:',
@@ -31,10 +32,10 @@ LEVEL_STRING_MAP = {
     }
 
 class LOGGING_LEVEL:
-    ERROR   = 0
-    WARN    = 1
-    INFO    = 2
-    DEBUG   = 3
+    ERROR = 0
+    WARN = 1
+    INFO = 2
+    DEBUG = 3
 
 LEVEL_PY_MAP = {
     LOGGING_LEVEL.ERROR  : 40,
@@ -44,8 +45,7 @@ LEVEL_PY_MAP = {
     }
 
 def create_log_context(correlation_id = None):
-    id = correlation_id if correlation_id else str(uuid.uuid4())
-    return {'correlation_id':id}
+    return {'correlation_id' : correlation_id or str(uuid.uuid4())}
 
 def set_logging_options(options={}):
     logger = logging.getLogger('python_adal')
@@ -75,20 +75,16 @@ class Logger(object):
             raise AttributeError('Logger: log_context is a required parameter')
 
         self._component_name = component_name
-        self._log_context = log_context
+        self.log_context = log_context
         self._logging = logging.getLogger('python_adal')
-
-    @property
-    def context(self):
-        return self._log_context
 
     def log_message(self, level, message, error=None):
 
-        correlation_id = self._log_context.get("correlation_id", "<no correlation id>")
+        correlation_id = self.log_context.get("correlation_id", "<no correlation id>")
 
         formatted = "{0} - {1}: {2} {3}".format(correlation_id, self._component_name, LEVEL_STRING_MAP[level], message)
         if error:
-            formatted += "\nStack:\n{0}".format("Stack trace goes here") #TODO
+            formatted += "\nStack:\n{0}".format(traceback.format_stack())
 
         return formatted
 

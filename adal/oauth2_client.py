@@ -26,9 +26,10 @@ import requests
 import re
 import json
 
-from . import constants
 from . import log
 from . import util
+from .constants import OAuth2, TokenResponseFields, IdTokenFields
+import base64
 
 try:
     from urllib.parse import quote, unquote, urlencode
@@ -38,29 +39,20 @@ except ImportError:
     from urllib import quote, unquote, urlencode
     from urlparse import urlparse, urlsplit
 
-OAuth2Parameters = constants.OAuth2.Parameters;
-OAuth2ResponseParameters = constants.OAuth2.ResponseParameters;
-IdTokenMap = constants.OAuth2.IdTokenMap;
-TokenResponseFields = constants.TokenResponseFields;
-IdTokenFields = constants.IdTokenFields;
+TOKEN_RESPONSE_MAP = {
+    Oauth2.ResponseParameters.TOKEN_TYPE : TokenResponseFields.TOKEN_TYPE,
+    Oauth2.ResponseParameters.ACCESS_TOKEN : TokenResponseFields.ACCESS_TOKEN,
+    Oauth2.ResponseParameters.REFRESH_TOKEN : TokenResponseFields.REFRESH_TOKEN,
+    Oauth2.ResponseParameters.CREATED_ON : TokenResponseFields.CREATED_ON,
+    Oauth2.ResponseParameters.EXPIRES_ON : TokenResponseFields.EXPIRES_ON,
+    Oauth2.ResponseParameters.EXPIRES_IN : TokenResponseFields.EXPIRES_IN,
+    Oauth2.ResponseParameters.RESOURCE : TokenResponseFields.RESOURCE,
+    Oauth2.ResponseParameters.ERROR : TokenResponseFields.ERROR,
+    Oauth2.ResponseParameters.ERROR_DESCRIPTION : TokenResponseFields.ERROR_DESCRIPTION,
+}
 
-TOKEN_RESPONSE_MAP = {};
-TOKEN_RESPONSE_MAP[OAuth2ResponseParameters.TOKEN_TYPE] = TokenResponseFields.TOKEN_TYPE
-TOKEN_RESPONSE_MAP[OAuth2ResponseParameters.ACCESS_TOKEN] = TokenResponseFields.ACCESS_TOKEN
-TOKEN_RESPONSE_MAP[OAuth2ResponseParameters.REFRESH_TOKEN] = TokenResponseFields.REFRESH_TOKEN
-TOKEN_RESPONSE_MAP[OAuth2ResponseParameters.CREATED_ON] = TokenResponseFields.CREATED_ON
-TOKEN_RESPONSE_MAP[OAuth2ResponseParameters.EXPIRES_ON] = TokenResponseFields.EXPIRES_ON
-TOKEN_RESPONSE_MAP[OAuth2ResponseParameters.EXPIRES_IN] = TokenResponseFields.EXPIRES_IN
-TOKEN_RESPONSE_MAP[OAuth2ResponseParameters.RESOURCE] = TokenResponseFields.RESOURCE
-TOKEN_RESPONSE_MAP[OAuth2ResponseParameters.ERROR] = TokenResponseFields.ERROR
-TOKEN_RESPONSE_MAP[OAuth2ResponseParameters.ERROR_DESCRIPTION] = TokenResponseFields.ERROR_DESCRIPTION
-
-def map_fields(in_obj, out_obj, map):
-
-    for key in in_obj.keys():
-        if map.get(key):
-            mapped = map[key]
-            out_obj[mapped] = in_obj[key]
+def map_fields(in_obj, map_to):
+    return dict((map_to[k], v) for k, v in in_obj.items() if k in map_to)
 
 class OAuth2Client(object):
 
@@ -72,7 +64,7 @@ class OAuth2Client(object):
     def _create_token_url(self):
         parameters = {}
         parameters['slice'] = 'testslice'
-        parameters[OAuth2Parameters.AAD_API_VERSION] = '1.0'
+        parameters[OAuth2.Parameters.AAD_API_VERSION] = '1.0'
 
         return urlparse('{}?{}'.format(self._token_endpoint, urlencode(parameters)))
 
@@ -85,6 +77,7 @@ class OAuth2Client(object):
             except KeyError:
                 # if the key isn't present we can just continue
                 pass
+    
     @classmethod
     def _crack_jwt(cls, jwt_token):
 
@@ -131,7 +124,7 @@ class OAuth2Client(object):
         extracted_values = {}
         extracted_values.update(self._get_user_id(id_token))
 
-        map_fields(id_token, extracted_values, IdTokenMap)
+        extracted_values = map_fields(id_token, OAuth2.IdTokenMap)
         return extracted_values
 
     def _parse_id_token(self, encoded_token):
@@ -143,7 +136,7 @@ class OAuth2Client(object):
         id_token = None
         try:
             b64_id_token = cracked_token['JWSPayload']
-            b64_decoded = util.base64_decode_string_urlsafe(b64_id_token)
+            b64_decoded = base64.urlsafe_b64decode(b64_id_token)
             if not b64_decoded:
                 self._log.warn('The returned id_token could not be base64 url safe decoded.')
                 return
@@ -163,44 +156,44 @@ class OAuth2Client(object):
 
         try:
             wire_response = json.loads(body)
-        except Exception as exp:
+        except Exception:
             raise ValueError('The token response returned from the server is unparseable as JSON')
 
         int_keys = [
-            OAuth2ResponseParameters.EXPIRES_ON,
-            OAuth2ResponseParameters.EXPIRES_IN,
-            OAuth2ResponseParameters.CREATED_ON
+            Oauth2.ResponseParameters.EXPIRES_ON,
+            Oauth2.ResponseParameters.EXPIRES_IN,
+            Oauth2.ResponseParameters.CREATED_ON
           ]
 
         self._parse_optional_ints(wire_response, int_keys)
 
-        expires_in = wire_response.get(OAuth2ResponseParameters.EXPIRES_IN)
+        expires_in = wire_response.get(Oauth2.ResponseParameters.EXPIRES_IN)
         if expires_in:
             now = datetime.now()
             soon = timedelta(seconds=expires_in)
-            wire_response[OAuth2ResponseParameters.EXPIRES_ON] = str(now + soon)
+            wire_response[Oauth2.ResponseParameters.EXPIRES_ON] = str(now + soon)
 
-        created_on = wire_response.get(OAuth2ResponseParameters.CREATED_ON)
+        created_on = wire_response.get(Oauth2.ResponseParameters.CREATED_ON)
         if created_on:
             temp_date = datetime.fromtimestamp(created_on)
-            wire_response[OAuth2ResponseParameters.CREATED_ON] = str(temp_date)
+            wire_response[Oauth2.ResponseParameters.CREATED_ON] = str(temp_date)
 
-        if not wire_response.get(OAuth2ResponseParameters.TOKEN_TYPE):
+        if not wire_response.get(Oauth2.ResponseParameters.TOKEN_TYPE):
             raise self._log.create_error('wire_response is missing token_type')
 
-        if not wire_response.get(OAuth2ResponseParameters.ACCESS_TOKEN):
+        if not wire_response.get(Oauth2.ResponseParameters.ACCESS_TOKEN):
             raise self._log.create_error('wire_response is missing access_token')
 
-        map_fields(wire_response, token_response, TOKEN_RESPONSE_MAP)
+        token_response = map_fields(wire_response, TOKEN_RESPONSE_MAP)
 
-        if wire_response.get(OAuth2ResponseParameters.ID_TOKEN):
-            id_token = self._parse_id_token(wire_response[OAuth2ResponseParameters.ID_TOKEN])
+        if wire_response.get(Oauth2.ResponseParameters.ID_TOKEN):
+            id_token = self._parse_id_token(wire_response[Oauth2.ResponseParameters.ID_TOKEN])
             if id_token:
                 token_response.update(id_token)
 
         return token_response
 
-    def _handle_get_token_response(self, response, body, callback):
+    def _handle_get_token_response(self, body, callback):
 
         token_response = None
         try:
@@ -237,11 +230,9 @@ class OAuth2Client(object):
                 return
 
             else:
-                self._handle_get_token_response(resp, resp.text, callback)
+                self._handle_get_token_response(resp.text, callback)
 
         except Exception as exp:
-            import sys
-            _1, _2, _3 = sys.exc_info()
             self._log.error("{0} request failed".format(operation), exp)
             callback(exp, None)
             return

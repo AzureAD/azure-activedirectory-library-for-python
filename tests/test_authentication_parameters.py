@@ -1,4 +1,4 @@
-#-------------------------------------------------------------------------
+﻿#-------------------------------------------------------------------------
 #
 # Copyright Microsoft Open Technologies, Inc.
 #
@@ -78,7 +78,7 @@ class TestAuthenticationParameters(unittest.TestCase):
             else:
                 self.assertIsNotNone(error, "{0}Parse succeeded but should have failed.".format(prefix))
 
-            
+
     def test_create_from_header(self):
 
         test_data = [
@@ -280,7 +280,7 @@ class TestAuthenticationParameters(unittest.TestCase):
         util.match_standard_request_headers(req)
 
     def test_create_from_url_bad_object(self):
-        
+
         def _callback(err, resp):
             self.assertIsNotNone(err, "Did not receive expected error.")
 

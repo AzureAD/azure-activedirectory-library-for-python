@@ -49,7 +49,7 @@ class TestAuthorizationCode(unittest.TestCase):
 
     def setup_expected_auth_code_token_request_response(self, httpCode, returnDoc, authorityEndpoint=None):
         if authorityEndpoint is None:
-           authorityEndpoint = '{}{}?slice=testslice&api-version=1.0'.format(cp['authUrl'], cp['tokenPath']) 
+            authorityEndpoint = '{}{}?slice=testslice&api-version=1.0'.format(cp['authUrl'], cp['tokenPath'])
 
         queryParameters = {}
         queryParameters['grant_type'] = 'authorization_code'
@@ -64,37 +64,37 @@ class TestAuthorizationCode(unittest.TestCase):
         def func(body):
             return util.filter_query_strings(query, body)
 
-        import json 
+        import json
         returnDocJson = json.dumps(returnDoc)
         httpretty.register_uri(httpretty.POST, authorityEndpoint, returnDocJson, status = httpCode, content_type = 'text/json')
-        
+
     def setUp(self):
         self.authorization_code = '1234870909'
         self.redirect_uri = 'app_bundle:foo.bar.baz'
 
     @httpretty.activate
     def test_happy_path(self):
-        response = util.create_response();
-        
+        response = util.create_response()
+
         self.setup_expected_auth_code_token_request_response(200, response['wireResponse'])
 
         token_response = adal._acquire_token_with_authorization_code(cp['authUrl'], cp['clientId'], cp['clientSecret'], self.authorization_code, self.redirect_uri, response['resource'])
 
         self.assertTrue(util.is_match_token_response(response['decodedResponse'], token_response), 'The response did not match what was expected')
-                
+
         req = httpretty.last_request()
         util.match_standard_request_headers(req)
 
     def test_failed_http_request(self):
         with self.assertRaises(Exception):
             adal._acquire_token_with_authorization_code(
-                'https://0.1.1.1:12/my.tenant.com', cp['clientId'], cp['clientSecret'], 
+                'https://0.1.1.1:12/my.tenant.com', cp['clientId'], cp['clientSecret'],
                 self.authorization_code, self.redirect_uri, response['resource'])
 
     def test_bad_argument(self):
         with self.assertRaises(Exception):
             adal._acquire_token_with_authorization_code(
-                'https://0.1.1.1:12/my.tenant.com', cp['clientId'], cp['clientSecret'], 
+                'https://0.1.1.1:12/my.tenant.com', cp['clientId'], cp['clientSecret'],
                 self.authorization_code, self.redirect_uri, 'BogusResource')
 if __name__ == '__main__':
     unittest.main()

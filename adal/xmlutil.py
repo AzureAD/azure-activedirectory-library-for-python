@@ -20,7 +20,11 @@
 #
 #--------------------------------------------------------------------------
 
-from xml.etree import ElementTree
+try:
+    from xml.etree import cElementTree as ET
+except ImportError:
+    from xml.etree import ElementTree as ET
+    
 from . import constants
 
 XPATH_PATH_TEMPLATE = '*[local-name() = \'LOCAL_NAME\' and namespace-uri() = \'NAMESPACE\']'
@@ -49,7 +53,7 @@ def serialize_node_children(node):
     doc = ""
     for child in node.iter():
         if is_element_node(child):
-            estring = ElementTree.tostring(child)
+            estring = ET.tostring(child)
             doc += estring if isinstance(estring, str) else estring.decode()
 
     return doc if doc else None

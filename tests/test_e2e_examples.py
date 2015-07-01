@@ -18,8 +18,8 @@ import json
 import adal
 
 try:
-    from tests.config import acquire_token_with_username_password as user_pass_params
-    from tests.config import acquire_token_with_client_credentials as client_cred_params
+    from tests.config import ACQUIRE_TOKEN_WITH_USERNAME_PASSWORD as user_pass_params
+    from tests.config import ACQUIRE_TOKEN_WITH_CLIENT_CREDENTIALS as client_cred_params
 except:
     raise Exception("Author a config.py with values for the tests.  This file is not checked in.")
 
@@ -44,20 +44,21 @@ class TestE2EExamples(unittest.TestCase):
             authority, user_pass_params['username'], user_pass_params['password'],
             client_id_xplat, resource)
         self.validate_token_response_username_password(token_response)
-  
+
     def test_acquire_token_with_client_creds(self):
         token_response = adal.acquire_token_with_client_credentials(
-            client_cred_params['authority'], 
-            client_cred_params['client_id'], 
+            client_cred_params['authority'],
+            client_cred_params['client_id'],
             client_cred_params['secret'])
         self.validate_token_response_client_credentials(token_response)
 
+    @unittest.skip('https://github.com/AzureAD/azure-activedirectory-library-for-python-priv/issues/46')
     def test_acquire_token_with_authorization_code(self):
         self.fail("Not Yet Implemented")
 
     def test_acquire_token_with_refresh_token(self):
         authority = user_pass_params['authorityHostUrl'] + '/' + user_pass_params['tenant']
-        
+
         # Get token using username password first
         token_response = adal.acquire_token_with_username_password(
             authority, user_pass_params['username'], user_pass_params['password'])
@@ -67,10 +68,11 @@ class TestE2EExamples(unittest.TestCase):
         refresh_token = token_response['refreshToken']
         token_response2 = adal.acquire_token_with_refresh_token(authority, refresh_token)
         self.validate_token_response_refresh_token(token_response2)
-    
+
+    @unittest.skip('https://github.com/AzureAD/azure-activedirectory-library-for-python-priv/issues/47')
     def test_acquire_token_with_client_certificate(self):
         self.fail("Not Yet Implemented")
-   
+
 
     # Validation Methods
     def validate_keys_in_dict(self, dict, keys):
@@ -79,20 +81,20 @@ class TestE2EExamples(unittest.TestCase):
 
     def validate_token_response_username_password(self, token_response):
         self.validate_keys_in_dict(
-            token_response, 
+            token_response,
             [
                 'accessToken', 'expiresIn', 'expiresOn', 'familyName', 'givenName',
-                'isUserIdDisplayable', 'refreshToken', 'resource', 'tenantId', 
-                'tokenType', 'userId'
+                'refreshToken', 'resource', 'tenantId', 'tokenType',
             ]
         )
 
     def validate_token_response_client_credentials(self, token_response):
         self.validate_keys_in_dict(
-            token_response, 
+            token_response,
             ['accessToken', 'expiresIn', 'expiresOn', 'resource', 'tokenType']
         )
-        
+
+    @unittest.skip('https://github.com/AzureAD/azure-activedirectory-library-for-python-priv/issues/46')
     def validate_token_response_authorization_code(self, token_response):
         self.fail("Not Yet Implemented")
 
@@ -104,6 +106,7 @@ class TestE2EExamples(unittest.TestCase):
             ]
         )
 
+    @unittest.skip('https://github.com/AzureAD/azure-activedirectory-library-for-python-priv/issues/47')
     def validate_token_response_client_certificate(self, token_response):
         self.fail("Not Yet Implemented")
 

@@ -29,6 +29,8 @@ import base64
 from .constants import AdalIdParameters
 import platform
 
+import adal
+
 try:
     from urllib.parse import quote, unquote
     from urllib.parse import urlparse, urlsplit
@@ -37,25 +39,10 @@ except ImportError:
     from urllib import quote, unquote
     from urlparse import urlparse, urlsplit
 
-global ADAL_VERSION
-
-def load_adal_version():
-    global ADAL_VERSION
-
-    # TODO: this used to load from package.json, which we obviously won't use
-    # either simplify or change to load from somewhere else
-    # we'll probably want adal.__version__ to be set
-    ADAL_VERSION = '0.1.0'
-
-def adal_init():
-    load_adal_version()
-
 def is_http_success(status_code):
     return status_code >= 200 and status_code < 300
 
 def add_default_request_headers(self, options):
-    global ADAL_VERSION
-
     if not options.get('headers'):
         options['headers'] = {}
 
@@ -63,11 +50,11 @@ def add_default_request_headers(self, options):
     if not headers.get('Accept-Charset'):
         headers['Accept-Charset'] = 'utf-8'
 
-    headers['client-request-id'] = self._call_context['log_context']['correlation_id'];
+    headers['client-request-id'] = self._call_context['log_context']['correlation_id']
     headers['return-client-request-id'] = 'true'
 
     headers[AdalIdParameters.SKU] = AdalIdParameters.PYTHON_SKU
-    headers[AdalIdParameters.VERSION] = ADAL_VERSION
+    headers[AdalIdParameters.VERSION] = adal.__version__
     headers[AdalIdParameters.OS] = sys.platform
     headers[AdalIdParameters.CPU] = 'x64' if platform.architecture()[0] == '64bit' else 'x86'
 
@@ -121,26 +108,3 @@ def copy_url(url_source):
         return urlparse(url_source.geturl())
     else:
         return urlparse(url_source)
-
-def convert_urlsafe_to_regular_b64encoded_string(urlsafe):
-    return urlsafe.replace('-', '+').replace('_', '/')
-
-def base64_decode_string_urlsafe(to_decode):
-    padded = pad_string_for_base64(to_decode)
-    b64 = convert_urlsafe_to_regular_b64encoded_string(padded)
-    return base64.b64decode(b64)
-
-def base64_encode_string_urlsafe(to_encode):
-    b64 = base64.b64encode(to_encode)
-    converted = convert_regular_to_urlsafe_b64encoded_string(b64)
-    return converted
-
-def pad_string_for_base64(input):
-    # data may not be properly padded. Add padding
-    padding_to_add = 4 - len(input) % 4
-
-    # if we say we need 4 padding, we don't really need padding
-    if not padding_to_add == 4:
-        input += '=' * padding_to_add
-
-    return input

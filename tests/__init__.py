@@ -1,4 +1,4 @@
-#-------------------------------------------------------------------------
+﻿#-------------------------------------------------------------------------
 #
 # Copyright Microsoft Open Technologies, Inc.
 #
@@ -24,15 +24,12 @@ import os
 
 if sys.version_info[:2] < (2, 7, ):
     try:
-        import unittest2
         from unittest2 import TestLoader, TextTestRunner
-
     except ImportError:
         raise ImportError("The ADAL test suite requires the unittest2 "
                           "package to run on Python 2.6 and below.\n"
                           "Please install this package to continue.")
 else:
-    import unittest
     from unittest import TestLoader, TextTestRunner
 
 if sys.version_info[:2] >= (3, 3, ):

@@ -27,11 +27,10 @@ from . import log
 from .log import Logger
 from . import authentication_parameters
 
-from . import util
 from adal.token_request import TokenRequest
 from adal import argument
 
-util.adal_init()
+__version__ = '0.1.0'
 
 '''
     Note:

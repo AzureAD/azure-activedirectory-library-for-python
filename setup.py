@@ -19,10 +19,10 @@ from setuptools import setup
 setup(
     name='adal',
     version='0.1.0',
-    description='TODO',
-    license='TODO',
-    author='TODO',
-    author_email='TODO',
+    description='The ADAL for Python library makes it easy for python application to authenticate to Azure Active Directory (AAD) in order to access AAD protected web resources.',
+    license='Apache 2',
+    author='Microsoft Open Technologies Inc',
+    author_email='msopentech@microsoft.com',
     url='https://github.com/AzureAD/azure-activedirectory-library-for-python-priv',
     classifiers=[
         'Development Status :: 3 - Alpha',
@@ -32,7 +32,7 @@ setup(
         'Programming Language :: Python :: 3',
         'Programming Language :: Python :: 3.3',
         'Programming Language :: Python :: 3.4',
-        'License :: OSI Approved :: TODO',
+        'License :: OSI Approved :: MIT License',  'License :: OSI Approved :: Apache Software License'
     ],
     packages=['adal'],
     install_requires=[

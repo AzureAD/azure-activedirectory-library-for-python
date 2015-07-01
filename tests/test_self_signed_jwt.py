@@ -10,7 +10,7 @@ try:
     import unittest2 as unittest
 except ImportError:
     import unittest
-    
+
 try:
     from unittest import mock
 except ImportError:
@@ -38,7 +38,7 @@ class TestSelfSignedJwt(unittest.TestCase):
 
         jwt = ssjwt.create(cert, thumbprint)
         return jwt
-    
+
     def _create_jwt_and_match_expected_err(self, testCert, thumbprint):
         with self.assertRaises(Exception):
             self._create_jwt(testCert, thumbprint)
@@ -68,7 +68,7 @@ class TestSelfSignedJwt(unittest.TestCase):
     def test_create_jwt_invalid_thumbprint_wrong_size(self):
         thumbprint = 'C1:5D:EA:86:56:AD:DF:67:BE:80:31:D8:5E:BD:DC:5A:D6:C4:36:E7:AA'
         self._create_jwt_and_match_expected_err(self.testCert, thumbprint)
-    
+
     def test_create_jwt_invalid_thumbprint_invalid_char(self):
         thumbprint = 'C1:5D:EA:86:56:AD:DF:67:BE:80:31:D8:5E:BD:DC:5A:D6:C4:36:Ez'
         self._create_jwt_and_match_expected_err(self.testCert, thumbprint)

@@ -23,18 +23,16 @@
 import requests
 
 from .constants import AADConstants
-
-from . import constants
 from . import log
 from . import util
 
 try:
-    from urllib.parse import quote, unquote
-    from urllib.parse import urlparse, urlsplit
+    from urllib.parse import quote
+    from urllib.parse import urlparse
 
 except ImportError:
-    from urllib import quote, unquote
-    from urlparse import urlparse, urlsplit
+    from urllib import quote
+    from urlparse import urlparse
 
 class Authority(object):
 
@@ -52,15 +50,11 @@ class Authority(object):
         self._parse_authority()
 
         self._authorization_endpoint = None
-        self._token_endpoint = None
+        self.token_endpoint = None
 
     @property
     def url(self):
         return self._url.geturl()
-
-    @property
-    def token_endpoint(self):
-        return self._token_endpoint
 
     def _validate_authority_url(self):
 
@@ -87,7 +81,7 @@ class Authority(object):
         self._log.debug("Performing static instance discovery")
 
         try:
-            host_index = AADConstants.WELL_KNOWN_AUTHORITY_HOSTS.index(self._url.hostname)
+            AADConstants.WELL_KNOWN_AUTHORITY_HOSTS.index(self._url.hostname)
         except ValueError:
             return False
 
@@ -152,14 +146,14 @@ class Authority(object):
         else:
             self._perform_dynamic_instance_discovery(callback)
 
-    def _get_oauth_endpoints(self, tenant_discovery_endpoint, callback):
+    def _get_oauth_endpoints(self, callback):
 
-        if self._token_endpoint:
+        if self.token_endpoint:
             callback(None)
             return
 
         else:
-            self._token_endpoint = self._url.geturl() + AADConstants.TOKEN_ENDPOINT_PATH
+            self.token_endpoint = self._url.geturl() + AADConstants.TOKEN_ENDPOINT_PATH
             callback(None)
             return
 
@@ -171,17 +165,17 @@ class Authority(object):
         if not self._validated:
             self._log.debug("Performing instance discovery: {0}".format(self._url.geturl()))
 
-            def _callback(err, tenant_discovery_endpoint):
+            def _callback(err, _):
                 if err:
                     callback(err)
                 else:
                     self._validated = True
-                    self._get_oauth_endpoints(tenant_discovery_endpoint, callback)
+                    self._get_oauth_endpoints(callback)
                     return
 
             self._validate_via_instance_discovery(_callback)
 
         else:
             self._log.debug("Instance discovery/validation has either already been completed or is turned off: {0}".format(self._url.geturl()))
-            self._get_oauth_endpoints(None, callback)
+            self._get_oauth_endpoints(callback)
             return

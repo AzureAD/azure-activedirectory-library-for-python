@@ -166,6 +166,18 @@ class XmlNamespaces(object):
 
     }
 
+class MexNamespaces(object):
+    TRANSPORT_BINDING_XPATH = 'wsp:ExactlyOne/wsp:All/sp:TransportBinding'
+    TRANSPORT_BINDING_2005_XPATH = 'wsp:ExactlyOne/wsp:All/sp2005:TransportBinding'
+
+    SOAP_ACTION_XPATH = 'wsdl:operation/soap12:operation'
+    RST_SOAP_ACTION = 'http://docs.oasis-open.org/ws-sx/ws-trust/200512/RST/Issue'
+    SOAP_TRANSPORT_XPATH = 'soap12:binding'
+    SOAP_HTTP_TRANSPORT_VALUE = 'http://schemas.xmlsoap.org/soap/http'
+
+    PORT_XPATH = 'wsdl:service/wsdl:port'
+    ADDRESS_XPATH = 'wsa10:EndpointReference/wsa10:Address'
+
 
 class Cache(object):
 

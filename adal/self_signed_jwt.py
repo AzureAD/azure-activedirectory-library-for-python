@@ -68,7 +68,7 @@ class SelfSignedJwt(object):
     def _create_payload(self):
 
         now = self._get_date_now()
-        minutes = datetime.timedelta(0,0,0,0,Jwt.SELF_SIGNED_JWT_LIFETIME)
+        minutes = datetime.timedelta(0, 0, 0, 0, Jwt.SELF_SIGNED_JWT_LIFETIME)
         expires = now + minutes
 
         self._log.debug('Creating self signed JWT payload. Expires: {0} NotBefore: {1}'.format(expires, now))
@@ -105,14 +105,14 @@ class SelfSignedJwt(object):
 
         # Strip '-----BEGIN RSA PRIVATE KEY-----' and '-----END RSA PRIVATE KEY-----'
         cert_string = "".join(certificate.strip().split("\n")[1:-1])
-        cert_string_64=base64.urlsafe_b64encode(cert_string.encode())
+        cert_string_64 = base64.urlsafe_b64encode(cert_string.encode())
 
         encoded_jwt = self._encode_jwt(payload, cert_string_64, header)
         self._raise_on_invalid_jwt_signature(encoded_jwt)
         return encoded_jwt
 
     def _encode_jwt(self, payload, certificate, header):
-        return jwt.encode(payload, certificate, headers = header).decode()
+        return jwt.encode(payload, certificate, headers=header).decode()
 
     def _reduce_thumbprint(self, thumbprint):
 
@@ -124,5 +124,5 @@ class SelfSignedJwt(object):
         thumbprint = self._reduce_thumbprint(thumbprint)
         header = self._create_header(thumbprint)
         payload = self._create_payload()
-        jwt = self._sign_jwt(header, payload, certificate)
-        return jwt
+        signed_jwt = self._sign_jwt(header, payload, certificate)
+        return signed_jwt

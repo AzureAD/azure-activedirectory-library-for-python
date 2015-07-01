@@ -37,51 +37,31 @@ from . import util
 
 USER_REALM_PATH_TEMPLATE = 'common/UserRealm/<user>'
 
-AccountType = constants.UserRealm.account_type
-FederationProtocolType = constants.UserRealm.federation_protocol_type
+ACCOUNT_TYPE = constants.UserRealm.account_type
+FEDERATION_PROTOCOL_TYPE = constants.UserRealm.federation_protocol_type
 
 
 class UserRealm(object):
 
-    def __init__(self, call_context, user_principle, authority):
+    def __init__(self, call_context, user_principle, authority_url):
 
         self._log = log.Logger("UserRealm", call_context['log_context'])
         self._call_context = call_context
-        self._api_version = '1.0'
-        self._federation_protocol = None
-        self._account_type = None
-        self._federation_metadata_url = None
-        self._federation_active_auth_url = None
+        self.api_version = '1.0'
+        self.federation_protocol = None
+        self.account_type = None
+        self.federation_metadata_url = None
+        self.federation_active_auth_url = None
         self._user_principle = user_principle
-        self._authority = authority
-
-    @property
-    def api_version(self):
-        return self._api_version
-
-    @property
-    def federation_protocol(self):
-        return self._federation_protocol
-
-    @property
-    def account_type(self):
-        return self._account_type
-
-    @property
-    def federation_metadata_url(self):
-        return self._federation_metadata_url
-
-    @property
-    def federation_active_auth_url(self):
-        return self._federation_active_auth_url
+        self._authority_url = authority_url
 
     def _get_user_realm_url(self):
 
-        user_realm_url = list(util.copy_url(self._authority))
+        user_realm_url = list(util.copy_url(self._authority_url))
         url_encoded_user = quote(self._user_principle, safe='~()*!.\'')
         user_realm_url[2] = '/' + USER_REALM_PATH_TEMPLATE.replace('<user>', url_encoded_user)
 
-        user_realm_query = {'api-version':self._api_version}
+        user_realm_query = {'api-version':self.api_version}
         user_realm_url[4] = urlencode(user_realm_query)
         user_realm_url = util.copy_url(urlunparse(user_realm_url))
 
@@ -98,10 +78,10 @@ class UserRealm(object):
         return value if value in constants.values() else False
 
     def _validate_account_type(self, type):
-        return self._validate_constant_value(AccountType, type)
+        return self._validate_constant_value(ACCOUNT_TYPE, type)
 
     def _validate_federation_protocol(self, protocol):
-        return self._validate_constant_value(FederationProtocolType, protocol)
+        return self._validate_constant_value(FEDERATION_PROTOCOL_TYPE, protocol)
 
     def _log_parsed_response(self):
 
@@ -126,18 +106,18 @@ class UserRealm(object):
         if not account_type:
             callback(self._log.create_error('Cannot parse account_type: {0}'.format(account_type)))
             return
-        self._account_type = account_type
+        self.account_type = account_type
 
-        if self._account_type == AccountType['Federated']:
+        if self.account_type == ACCOUNT_TYPE['Federated']:
             protocol = self._validate_federation_protocol(response['federation_protocol'])
 
             if not protocol:
                 callback(self._log.create_error('Cannot parse federation protocol: {0}'.format(protocol)))
                 return
 
-            self._federation_protocol = protocol
-            self._federation_metadata_url = response['federation_metadata_url']
-            self._federation_active_auth_url = response['federation_active_auth_url']
+            self.federation_protocol = protocol
+            self.federation_metadata_url = response['federation_metadata_url']
+            self.federation_active_auth_url = response['federation_active_auth_url']
 
         self._log_parsed_response()
         callback(None)

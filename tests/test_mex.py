@@ -53,7 +53,7 @@ class Test_Mex(unittest.TestCase):
             self.assertEqual(err.args[0], 'Mex Get request returned http error: 500 and server response: HTTPretty :)')
 
         mex.discover(verify)
-    
+
     @httpretty.activate
     def _happyPathTest(self, file_name, expectedUrl):
         mexDocPath = os.path.join(os.getcwd(), 'tests', 'mex', file_name)
@@ -81,6 +81,6 @@ class Test_Mex(unittest.TestCase):
             self.assertTrue(err)
 
         mex.discover(verify)
-        
+
 if __name__ == '__main__':
     unittest.main()

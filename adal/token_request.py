@@ -31,12 +31,12 @@ from . import wstrust_request
 from functools import partial
 from base64 import b64encode
 
-OAuth2Parameters = constants.OAuth2.Parameters
-TokenResponseFields = constants.TokenResponseFields
-OAuth2GrantType = constants.OAuth2.GrantType
-OAuth2Scope = constants.OAuth2.Scope
-Saml = constants.Saml
-AccountType = constants.UserRealm.account_type
+OAUTH2_PARAMETERS = constants.OAuth2.Parameters
+TOKEN_RESPONSE_FIELDS = constants.TokenResponseFields
+OAUTH2_GRANT_TYPE = constants.OAuth2.GrantType
+OAUTH2_SCOPE = constants.OAuth2.Scope
+SAML = constants.Saml
+ACCOUNT_TYPE = constants.UserRealm.account_type
 
 def add_parameter_if_available(parameters, key, value):
     if value:
@@ -60,7 +60,7 @@ class TokenRequest(object):
         self._user_realm = None
 
     def _create_user_realm_request(self, username):
-        return user_realm.UserRealm(self._call_context, username, self._authentication_context.authority)
+        return user_realm.UserRealm(self._call_context, username, self._authentication_context.authority.url)
 
     def _create_mex(self, mex_endpoint):
         return mex.Mex(self._call_context, mex_endpoint)
@@ -69,10 +69,10 @@ class TokenRequest(object):
         return wstrust_request.WSTrustRequest(self._call_context, wstrust_endpoint, applies_to)
 
     def _create_oauth2_client(self):
-        return oauth2_client.OAuth2Client(self._call_context, self._authentication_context._authority.token_endpoint)
+        return oauth2_client.OAuth2Client(self._call_context, self._authentication_context.authority.token_endpoint)
 
     def _create_self_signed_jwt(self):
-        return self_signed_jwt.SelfSignedJwt(self._call_context, self._authentication_context._authority, self._client_id)
+        return self_signed_jwt.SelfSignedJwt(self._call_context, self._authentication_context.authority, self._client_id)
 
     def _oauth_get_token(self, oauth_parameters, callback):
         client = self._create_oauth2_client()
@@ -80,11 +80,11 @@ class TokenRequest(object):
 
     def _get_token_with_token_response(self, entry, resource, callback):
         self._log.debug("called to refresh a token from the cache")
-        refresh_token = entry[TokenResponseFields.REFRESH_TOKEN]
+        refresh_token = entry[TOKEN_RESPONSE_FIELDS.REFRESH_TOKEN]
         self._get_token_with_refresh_token(refresh_token, resource, None, callback)
 
     def _create_cache_query(self):
-        query = {'clientId':self._client_id }
+        query = {'clientId' : self._client_id }
         if self._user_id:
             query['userId'] = self._user_id
         else:
@@ -107,37 +107,37 @@ class TokenRequest(object):
     def _create_oauth_parameters(self, grant_type):
 
         oauth_parameters = {}
-        oauth_parameters[OAuth2Parameters.GRANT_TYPE] = grant_type
+        oauth_parameters[OAUTH2_PARAMETERS.GRANT_TYPE] = grant_type
 
-        if (OAuth2GrantType.AUTHORIZATION_CODE != grant_type and
-            OAuth2GrantType.CLIENT_CREDENTIALS != grant_type and
-            OAuth2GrantType.REFRESH_TOKEN != grant_type):
+        if (OAUTH2_GRANT_TYPE.AUTHORIZATION_CODE != grant_type and
+            OAUTH2_GRANT_TYPE.CLIENT_CREDENTIALS != grant_type and
+            OAUTH2_GRANT_TYPE.REFRESH_TOKEN != grant_type):
 
-            oauth_parameters[OAuth2Parameters.SCOPE] = OAuth2Scope.OPENID
+            oauth_parameters[OAUTH2_PARAMETERS.SCOPE] = OAUTH2_SCOPE.OPENID
 
-        add_parameter_if_available(oauth_parameters, OAuth2Parameters.CLIENT_ID, self._client_id)
-        add_parameter_if_available(oauth_parameters, OAuth2Parameters.RESOURCE, self._resource)
-        add_parameter_if_available(oauth_parameters, OAuth2Parameters.REDIRECT_URI, self._redirect_uri)
+        add_parameter_if_available(oauth_parameters, OAUTH2_PARAMETERS.CLIENT_ID, self._client_id)
+        add_parameter_if_available(oauth_parameters, OAUTH2_PARAMETERS.RESOURCE, self._resource)
+        add_parameter_if_available(oauth_parameters, OAUTH2_PARAMETERS.REDIRECT_URI, self._redirect_uri)
 
         return oauth_parameters
 
     def _get_token_username_password_managed(self, username, password, callback):
         self._log.debug('Acquiring token with username password for managed user')
 
-        oauth_parameters = self._create_oauth_parameters(OAuth2GrantType.PASSWORD)
+        oauth_parameters = self._create_oauth_parameters(OAUTH2_GRANT_TYPE.PASSWORD)
 
-        oauth_parameters[OAuth2Parameters.PASSWORD] = password
-        oauth_parameters[OAuth2Parameters.USERNAME] = username
+        oauth_parameters[OAUTH2_PARAMETERS.PASSWORD] = password
+        oauth_parameters[OAUTH2_PARAMETERS.USERNAME] = username
 
         self._oauth_get_token(oauth_parameters, callback)
 
     def _get_saml_grant_type(self, wstrust_response):
         token_type = wstrust_response.token_type
-        if token_type == Saml.TokenTypeV1:
-            return OAuth2GrantType.SAML1
+        if token_type == SAML.TokenTypeV1:
+            return OAUTH2_GRANT_TYPE.SAML1
 
-        elif token_type == Saml.TokenTypeV2:
-            return OAuth2GrantType.SAML2
+        elif token_type == SAML.TokenTypeV2:
+            return OAUTH2_GRANT_TYPE.SAML2
 
         else:
             raise self._log.create_error("RSTR returned unknown token type: {0}".format(token_type))
@@ -150,7 +150,7 @@ class TokenRequest(object):
             grant_type = self._get_saml_grant_type(wstrust_response)
             assertion = b64encode(wstrust_response.token)
             oauth_parameters = self._create_oauth_parameters(grant_type)
-            oauth_parameters[OAuth2Parameters.ASSERTION] = assertion
+            oauth_parameters[OAUTH2_PARAMETERS.ASSERTION] = assertion
 
         except Exception as exp:
             callback(exp)
@@ -201,7 +201,7 @@ class TokenRequest(object):
         else:
             mex_endpoint = self._user_realm.federation_metadata_url
             self._log.debug("Attempting mex at: {0}".format(mex_endpoint))
-            mex = self._create_mex(mex_endpoint)
+            mex_instance = self._create_mex(mex_endpoint)
 
             def _callback(mex_err, _=None):
                 if mex_err:
@@ -211,10 +211,10 @@ class TokenRequest(object):
                         callback(self._create_adwstrust_endpoint_error())
                         return
                 else:
-                    wstrust_endpoint = mex.username_password_url
+                    wstrust_endpoint = mex_instance.username_password_url
                 self._perform_username_password_for_access_token_exchange(wstrust_endpoint, username, password, callback)
                 return
-            mex.discover(_callback)
+            mex_instance.discover(_callback)
 
     def _get_token_with_username_password(self, username, password, callback):
 
@@ -224,15 +224,15 @@ class TokenRequest(object):
         def _callback(get_token_complete_callback):
             self._user_realm = self._create_user_realm_request(username)
 
-            def _call(err, response=None):
+            def _call(err, _=None):
                 if err:
                     get_token_complete_callback(err)
                     return
 
-                if self._user_realm.account_type == AccountType['Managed']:
+                if self._user_realm.account_type == ACCOUNT_TYPE['Managed']:
                     self._get_token_username_password_managed(username, password, get_token_complete_callback)
                     return
-                elif self._user_realm.account_type == AccountType['Federated']:
+                elif self._user_realm.account_type == ACCOUNT_TYPE['Federated']:
                     self._get_token_username_password_federated(username, password, get_token_complete_callback)
                     return
                 else:
@@ -247,8 +247,8 @@ class TokenRequest(object):
         self._log.info("Getting token with client credentials.")
 
         def _callback(get_token_complete_callback):
-            oauth_parameters = self._create_oauth_parameters(OAuth2GrantType.CLIENT_CREDENTIALS)
-            oauth_parameters[OAuth2Parameters.CLIENT_SECRET] = client_secret
+            oauth_parameters = self._create_oauth_parameters(OAUTH2_GRANT_TYPE.CLIENT_CREDENTIALS)
+            oauth_parameters[OAUTH2_PARAMETERS.CLIENT_SECRET] = client_secret
             self._oauth_get_token(oauth_parameters, get_token_complete_callback)
 
         self._get_token(callback, _callback)
@@ -257,9 +257,9 @@ class TokenRequest(object):
 
         self._log.info("Getting token with auth code.")
 
-        oauth_parameters = self._create_oauth_parameters(OAuth2GrantType.AUTHORIZATION_CODE)
-        oauth_parameters[OAuth2Parameters.CODE] = authorization_code
-        oauth_parameters[OAuth2Parameters.CLIENT_SECRET] = client_secret
+        oauth_parameters = self._create_oauth_parameters(OAUTH2_GRANT_TYPE.AUTHORIZATION_CODE)
+        oauth_parameters[OAUTH2_PARAMETERS.CODE] = authorization_code
+        oauth_parameters[OAUTH2_PARAMETERS.CLIENT_SECRET] = client_secret
 
         self._oauth_get_token(oauth_parameters, callback)
 
@@ -267,18 +267,18 @@ class TokenRequest(object):
 
         self._log.info("Getting a new token from a refresh token")
 
-        oauth_parameters = self._create_oauth_parameters(OAuth2GrantType.REFRESH_TOKEN)
+        oauth_parameters = self._create_oauth_parameters(OAUTH2_GRANT_TYPE.REFRESH_TOKEN)
 
         if resource:
-            oauth_parameters[OAuth2Parameters.RESOURCE] = resource
+            oauth_parameters[OAUTH2_PARAMETERS.RESOURCE] = resource
 
         if client_secret:
-            oauth_parameters[OAuth2Parameters.CLIENT_SECRET] = client_secret
+            oauth_parameters[OAUTH2_PARAMETERS.CLIENT_SECRET] = client_secret
 
-        oauth_parameters[OAuth2Parameters.REFRESH_TOKEN] = refresh_token
+        oauth_parameters[OAUTH2_PARAMETERS.REFRESH_TOKEN] = refresh_token
         self._oauth_get_token(oauth_parameters, callback)
 
-    def _create_jwt(self, authority_url, certificate, thumbprint):
+    def _create_jwt(self, certificate, thumbprint):
 
         ssj = self._create_self_signed_jwt()
         jwt = ssj.create(certificate, thumbprint)
@@ -302,17 +302,15 @@ class TokenRequest(object):
 
         self._log.info("Getting a token via certificate.")
 
-        authority_url = self._authentication_context._authority
-
         try:
-            jwt = self._create_jwt(authority_url, certificate, thumbprint)
+            jwt = self._create_jwt(certificate, thumbprint)
         except Exception as exp:
             callback(exp, None)
             return
 
-        oauth_parameters = self._create_oauth_parameters(OAuth2GrantType.CLIENT_CREDENTIALS)
-        oauth_parameters[OAuth2Parameters.CLIENT_ASSERTION_TYPE] = OAuth2GrantType.JWT_BEARER
-        oauth_parameters[OAuth2Parameters.CLIENT_ASSERTION] = jwt
+        oauth_parameters = self._create_oauth_parameters(OAUTH2_GRANT_TYPE.CLIENT_CREDENTIALS)
+        oauth_parameters[OAUTH2_PARAMETERS.CLIENT_ASSERTION_TYPE] = OAUTH2_GRANT_TYPE.JWT_BEARER
+        oauth_parameters[OAUTH2_PARAMETERS.CLIENT_ASSERTION] = jwt
 
         def _callback(get_token_complete_callback):
             self._oauth_get_token(oauth_parameters, get_token_complete_callback)

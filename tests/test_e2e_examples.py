@@ -34,7 +34,7 @@ try:
     from tests.config import ACQUIRE_TOKEN_WITH_USERNAME_PASSWORD as user_pass_params
     from tests.config import ACQUIRE_TOKEN_WITH_CLIENT_CREDENTIALS as client_cred_params
 except:
-    raise Exception("Author a config.py with values for the tests.  This file is not checked in.")
+    raise Exception("Author a config.py with values for the tests. See config_sample.py for details.")
 
 class TestE2EExamples(unittest.TestCase):
 

@@ -132,7 +132,7 @@ class TestAuthority(unittest.TestCase):
     def test_http_error(self):
         util.setup_expected_instance_discovery_request(500, cp['authorityHosts']['global'], None, self.nonHardCodedAuthorizeEndpoint)
 
-        with self.assertRaisesRegex(Exception, '500'):
+        with self.assertRaisesRegexp(Exception, '500'):
             token_response = adal.acquire_token_with_client_credentials(
                 self.nonHardCodedAuthority, cp['clientId'], cp['clientSecret'], cp['resource'])
 
@@ -141,7 +141,7 @@ class TestAuthority(unittest.TestCase):
         returnDoc = { 'error' : 'invalid_instance', 'error_description' : 'the instance was invalid' }
         util.setup_expected_instance_discovery_request(400, cp['authorityHosts']['global'], returnDoc, self.nonHardCodedAuthorizeEndpoint)
 
-        with self.assertRaisesRegex(Exception, 'instance was invalid'):
+        with self.assertRaisesRegexp(Exception, 'instance was invalid'):
             token_response = adal.acquire_token_with_client_credentials(
                 self.nonHardCodedAuthority, cp['clientId'], cp['clientSecret'], cp['resource'])
 
@@ -170,12 +170,12 @@ class TestAuthority(unittest.TestCase):
 
     @httpretty.activate
     def test_bad_url_not_https(self):
-        with self.assertRaisesRegex(ValueError, "The authority url must be an https endpoint\."):
+        with self.assertRaisesRegexp(ValueError, "The authority url must be an https endpoint\."):
             context = AuthenticationContext('http://this.is.not.https.com/mytenant.com')
 
     @httpretty.activate
     def test_bad_url_has_query(self):
-        with self.assertRaisesRegex(ValueError, "The authority url must not have a query string\."):
+        with self.assertRaisesRegexp(ValueError, "The authority url must not have a query string\."):
             context = AuthenticationContext(cp['authorityTenant'] + '?this=should&not=be&here=foo')
 
     @httpretty.activate

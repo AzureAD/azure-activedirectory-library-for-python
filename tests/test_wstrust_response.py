@@ -69,7 +69,7 @@ class Test_wstrustresponse(unittest.TestCase):
         wstrustResponse = WSTrustResponse(_call_context, errorResponse)
 
         exception_text = "Server returned error in RSTR - ErrorCode: RequestFailed : FaultMessage: MSIS3127: The specified request failed"
-        with self.assertRaisesRegex(Exception, exception_text) as cm:
+        with self.assertRaisesRegexp(Exception, exception_text) as cm:
             wstrustResponse.parse()
 
     def test_token_parsing_happy_path(self):
@@ -83,17 +83,17 @@ class Test_wstrustresponse(unittest.TestCase):
         self.assertEqual('1TIu064jGEmmf+hnI+F0Jg==', attribute_values[1].text)
 
     def test_rstr_none(self):
-        with self.assertRaisesRegex(Exception, 'Received empty RSTR response body.') as cm:
+        with self.assertRaisesRegexp(Exception, 'Received empty RSTR response body.') as cm:
             wstrustResponse = WSTrustResponse(_call_context, None)
             wstrustResponse.parse()
 
     def test_rstr_empty_string(self):
-        with self.assertRaisesRegex(Exception, 'Received empty RSTR response body.') as cm:
+        with self.assertRaisesRegexp(Exception, 'Received empty RSTR response body.') as cm:
             wstrustResponse = WSTrustResponse(_call_context, '')
             wstrustResponse.parse()
 
     def test_rstr_unparseable_xml(self):
-        with self.assertRaisesRegex(Exception, 'Failed to parse RSTR in to DOM'):
+        with self.assertRaisesRegexp(Exception, 'Failed to parse RSTR in to DOM'):
             wstrustResponse = WSTrustResponse(_call_context, '<This is not parseable as an RSTR')
             wstrustResponse.parse()
 

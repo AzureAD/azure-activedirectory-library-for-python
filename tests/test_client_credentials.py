@@ -60,14 +60,14 @@ class TestClientCredentials(unittest.TestCase):
         )
 
     def test_no_arguments(self):
-        with self.assertRaisesRegex(Exception, "missing 2 required positional arguments:"):
+        with self.assertRaisesRegexp(Exception, "missing 2 required positional arguments:"):
             adal.acquire_token_with_client_credentials(None)
 
     @httpretty.activate
     def test_http_error(self):
         tokenRequest = util.setup_expected_client_cred_token_request_response(403)
 
-        with self.assertRaisesRegex(Exception, '403'):
+        with self.assertRaisesRegexp(Exception, '403'):
             adal.acquire_token_with_client_credentials(cp['authUrl'], cp['clientId'], cp['clientSecret'], cp['resource'])
 
     @httpretty.activate
@@ -80,7 +80,7 @@ class TestClientCredentials(unittest.TestCase):
 
         tokenRequest = util.setup_expected_client_cred_token_request_response(400, errorResponse)
 
-        with self.assertRaisesRegex(Exception, 'Get Token request returned http error: 400 and server response:'):
+        with self.assertRaisesRegexp(Exception, 'Get Token request returned http error: 400 and server response:'):
             adal.acquire_token_with_client_credentials(cp['authUrl'], cp['clientId'], cp['clientSecret'], cp['resource'])
 
     @httpretty.activate
@@ -153,13 +153,13 @@ class TestClientCredentials(unittest.TestCase):
     def test_cert_bad_cert(self):
         cert = 'gobbledy'
 
-        with self.assertRaisesRegex(Exception, "Error:Invalid Certificate: Expected Start of Certificate to be '-----BEGIN RSA PRIVATE KEY-----'"):
+        with self.assertRaisesRegexp(Exception, "Error:Invalid Certificate: Expected Start of Certificate to be '-----BEGIN RSA PRIVATE KEY-----'"):
             adal._acquire_token_with_client_certificate(cp['authorityTenant'], cp['clientId'], cert, cp['certHash'], cp['resource'])
 
     def test_cert_bad_thumbprint(self):
         thumbprint = 'gobbledy'
 
-        with self.assertRaisesRegex(Exception, 'thumbprint does not match a known format'):
+        with self.assertRaisesRegexp(Exception, 'thumbprint does not match a known format'):
             adal._acquire_token_with_client_certificate(cp['authorityTenant'], cp['clientId'], cp['cert'], thumbprint, cp['resource'])
 
 

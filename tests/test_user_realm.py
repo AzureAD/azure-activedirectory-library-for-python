@@ -39,17 +39,15 @@ try:
 except ImportError:
     import mock
 
-import adal
-from tests import util
-
-from tests.util import parameters as cp
-
 try:
     from urllib.parse import urlparse, quote
-
 except ImportError:
     from urlparse import urlparse
     from urllib import quote
+
+import adal
+from tests import util
+from tests.util import parameters as cp
 
 class TestUserRealm(unittest.TestCase):
 

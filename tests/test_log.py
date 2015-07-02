@@ -24,10 +24,9 @@
 # THE SOFTWARE.
 #
 #------------------------------------------------------------------------------
-
+import json
 import unittest
 from adal import log
-import json
 from tests import util
 from tests.util import parameters as cp
 

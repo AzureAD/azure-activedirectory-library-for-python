@@ -25,13 +25,12 @@
 #
 #------------------------------------------------------------------------------
 
+import random
 import requests
 
 from . import log
 from . import util
 from . import xmlutil
-
-import random
 
 try:
     from urllib.parse import quote, unquote

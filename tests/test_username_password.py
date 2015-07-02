@@ -28,16 +28,6 @@
 import sys
 import requests
 import httpretty
-from tests import util
-from adal.authentication_context import AuthenticationContext
-from adal.mex import Mex
-from adal.token_request import TokenRequest
-from adal.oauth2_client import OAuth2Client
-from adal.user_realm import UserRealm
-from adal.wstrust_response import WSTrustResponse
-from adal.wstrust_request import WSTrustRequest
-from adal import log
-from adal.authority import Authority
 
 try:
     import unittest2 as unittest
@@ -49,9 +39,19 @@ try:
 except ImportError:
     import mock
 
-import adal
 from tests import util
 from tests.util import parameters as cp
+
+import adal
+from adal.authentication_context import AuthenticationContext
+from adal.mex import Mex
+from adal.token_request import TokenRequest
+from adal.oauth2_client import OAuth2Client
+from adal.user_realm import UserRealm
+from adal.wstrust_response import WSTrustResponse
+from adal.wstrust_request import WSTrustRequest
+from adal import log
+from adal.authority import Authority
 
 try:
     from urllib.parse import urlparse, urlencode

@@ -28,9 +28,6 @@
 import sys
 import requests
 import httpretty
-from adal.authority import Authority
-from adal import log
-from adal.authentication_context import AuthenticationContext
 
 try:
     import unittest2 as unittest
@@ -43,8 +40,10 @@ except ImportError:
     import mock
 
 import adal
+from adal.authority import Authority
+from adal import log
+from adal.authentication_context import AuthenticationContext
 from tests import util
-
 from tests.util import parameters as cp
 
 try:

@@ -24,16 +24,17 @@
 # THE SOFTWARE.
 #
 #------------------------------------------------------------------------------
-
-import unittest
-from adal.wstrust_request import WSTrustRequest
-from adal.wstrust_response import WSTrustResponse
-import httpretty
 import os
+import unittest
+import httpretty
+
 try:
     from unittest import mock
 except ImportError:
     import mock
+
+from adal.wstrust_request import WSTrustRequest
+from adal.wstrust_response import WSTrustResponse
 
 TEST_CORRELATION_ID = 'test-correlation-id-123456789'
 wstrustEndpoint = 'https://test.wstrust.endpoint/'

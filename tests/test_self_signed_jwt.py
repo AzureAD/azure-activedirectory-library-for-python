@@ -29,9 +29,7 @@ import sys
 import requests
 import httpretty
 import json
-from adal.self_signed_jwt import SelfSignedJwt
 from datetime import datetime
-from adal.authority import Authority
 
 try:
     import unittest2 as unittest
@@ -44,6 +42,8 @@ except ImportError:
     import mock
 
 import adal
+from adal.authority import Authority
+from adal.self_signed_jwt import SelfSignedJwt
 from adal.authentication_context import AuthenticationContext
 from tests import util
 from tests.util import parameters as cp

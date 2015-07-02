@@ -30,19 +30,18 @@ import uuid
 import requests
 import re
 import json
+import base64
+
+try:
+    from urllib.parse import urlencode
+    from urllib.parse import urlparse
+except ImportError:
+    from urllib import urlencode
+    from urlparse import urlparse
 
 from . import log
 from . import util
 from .constants import OAuth2, TokenResponseFields, IdTokenFields
-import base64
-
-try:
-    from urllib.parse import quote, unquote, urlencode
-    from urllib.parse import urlparse, urlsplit
-
-except ImportError:
-    from urllib import quote, unquote, urlencode
-    from urlparse import urlparse, urlsplit
 
 TOKEN_RESPONSE_MAP = {
     OAuth2.ResponseParameters.TOKEN_TYPE : TokenResponseFields.TOKEN_TYPE,

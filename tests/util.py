@@ -27,24 +27,21 @@
 
 import os
 import re
-import adal
-
-from adal import log
-
+import json
+import time
+import httpretty
 from datetime import datetime, timedelta
 import dateutil.parser
-import time
-
-import httpretty
-import json
 
 try:
-    from urllib.parse import quote, unquote, urlencode
-    from urllib.parse import urlparse, urlsplit
+    from urllib.parse import urlencode
+    from urllib.parse import urlparse
 
 except ImportError:
-    from urllib import quote, unquote, urlencode
-    from urlparse import urlparse, urlsplit
+    from urllib import urlencode
+    from urlparse import urlparse
+
+from adal import log
 
 _dirname = os.path.dirname(__file__)
 

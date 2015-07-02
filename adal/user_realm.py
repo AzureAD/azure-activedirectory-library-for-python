@@ -24,17 +24,15 @@
 # THE SOFTWARE.
 #
 #------------------------------------------------------------------------------
+import json
+import requests
 
 try:
     from urllib.parse import quote, urlencode
-    from urllib.parse import urlparse, urlunparse
-
+    from urllib.parse import urlunparse
 except ImportError:
     from urllib import quote, urlencode
-    from urlparse import urlparse, urlunparse
-
-import json
-import requests
+    from urlparse import urlunparse
 
 from . import constants
 from . import log

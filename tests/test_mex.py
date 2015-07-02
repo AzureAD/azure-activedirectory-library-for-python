@@ -24,12 +24,11 @@
 # THE SOFTWARE.
 #
 #------------------------------------------------------------------------------
-
+import os
 import unittest
+import httpretty
 from tests import util
 from adal.mex import Mex
-import os
-import httpretty
 
 cp = util.parameters
 

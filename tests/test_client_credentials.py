@@ -26,16 +26,14 @@
 #------------------------------------------------------------------------------
 
 import unittest
+import json
+import httpretty
 
 import adal
 from adal.self_signed_jwt import SelfSignedJwt
 from adal.authentication_context import AuthenticationContext
 from tests import util
-
 from tests.util import parameters as cp
-import httpretty
-import json
-
 
 class TestClientCredentials(unittest.TestCase):
     def setUp(self):

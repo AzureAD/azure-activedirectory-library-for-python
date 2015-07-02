@@ -26,14 +26,15 @@
 #------------------------------------------------------------------------------
 
 import unittest
-from adal.wstrust_response import WSTrustResponse
 import os
-from adal.constants import XmlNamespaces, Errors
 
 try:
     from xml.etree import cElementTree as ET
 except ImportError:
     from xml.etree import ElementTree as ET
+
+from adal.constants import XmlNamespaces, Errors
+from adal.wstrust_response import WSTrustResponse
 
 _namespaces = XmlNamespaces.namespaces
 _call_context = {'log_context' : {'correlation-id':'test-corr-id'}}

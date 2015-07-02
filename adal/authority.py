@@ -27,10 +27,6 @@
 
 import requests
 
-from .constants import AADConstants
-from . import log
-from . import util
-
 try:
     from urllib.parse import quote
     from urllib.parse import urlparse
@@ -38,6 +34,10 @@ try:
 except ImportError:
     from urllib import quote
     from urlparse import urlparse
+
+from .constants import AADConstants
+from . import log
+from . import util
 
 class Authority(object):
 

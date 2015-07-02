@@ -25,15 +25,14 @@
 #
 #------------------------------------------------------------------------------
 
-import json
-import inspect
 import os
 import sys
+import json
+import inspect
 import base64
-
-from .constants import AdalIdParameters
 import platform
 
+from .constants import AdalIdParameters
 import adal
 
 try:

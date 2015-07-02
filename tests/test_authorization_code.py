@@ -41,7 +41,6 @@ except ImportError:
 
 import adal
 from tests import util
-
 from tests.util import parameters as cp
 
 try:

@@ -25,6 +25,9 @@
 #
 #------------------------------------------------------------------------------
 
+from functools import partial
+from base64 import b64encode
+
 from . import constants
 from . import log
 from . import mex
@@ -32,9 +35,6 @@ from . import oauth2_client
 from . import self_signed_jwt
 from . import user_realm
 from . import wstrust_request
-
-from functools import partial
-from base64 import b64encode
 
 OAUTH2_PARAMETERS = constants.OAuth2.Parameters
 TOKEN_RESPONSE_FIELDS = constants.TokenResponseFields

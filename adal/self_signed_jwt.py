@@ -25,10 +25,6 @@
 #
 #------------------------------------------------------------------------------
 
-from .constants import Jwt
-from .log import Logger
-
-from . import util
 import time
 import datetime
 import uuid
@@ -36,6 +32,9 @@ import jwt
 import base64
 import re
 
+from .constants import Jwt
+from .log import Logger
+from . import util
 
 class SelfSignedJwt(object):
 

@@ -1,66 +1,62 @@
-﻿#-------------------------------------------------------------------------
+﻿#------------------------------------------------------------------------------
 #
-# Copyright Microsoft Open Technologies, Inc.
+# Copyright (c) Microsoft Corporation. 
+# All rights reserved.
+# 
+# This code is licensed under the MIT License.
+# 
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files(the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and / or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions :
+# 
+# The above copyright notice and this permission notice shall be included in
+# all copies or substantial portions of the Software.
+# 
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+# THE SOFTWARE.
 #
-# All Rights Reserved
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-# http: *www.apache.org/licenses/LICENSE-2.0
-#
-# THIS CODE IS PROVIDED *AS IS* BASIS, WITHOUT WARRANTIES OR CONDITIONS
-# OF ANY KIND, EITHER EXPRESS OR IMPLIED, INCLUDING WITHOUT LIMITATION
-# ANY IMPLIED WARRANTIES OR CONDITIONS OF TITLE, FITNESS FOR A
-# PARTICULAR PURPOSE, MERCHANTABILITY OR NON-INFRINGEMENT.
-#
-# See the Apache License, Version 2.0 for the specific language
-# governing permissions and limitations under the License.
-#
-#--------------------------------------------------------------------------
+#------------------------------------------------------------------------------
 
 from datetime import datetime, timedelta
 import uuid
 import requests
 import re
 import json
-
-from . import constants
-from . import log
-from . import util
+import base64
 
 try:
-    from urllib.parse import quote, unquote, urlencode
-    from urllib.parse import urlparse, urlsplit
-
+    from urllib.parse import urlencode
+    from urllib.parse import urlparse
 except ImportError:
-    from urllib import quote, unquote, urlencode
-    from urlparse import urlparse, urlsplit
+    from urllib import urlencode
+    from urlparse import urlparse
 
-OAuth2Parameters = constants.OAuth2.Parameters;
-OAuth2ResponseParameters = constants.OAuth2.ResponseParameters;
-IdTokenMap = constants.OAuth2.IdTokenMap;
-TokenResponseFields = constants.TokenResponseFields;
-IdTokenFields = constants.IdTokenFields;
+from . import log
+from . import util
+from .constants import OAuth2, TokenResponseFields, IdTokenFields
 
-TOKEN_RESPONSE_MAP = {};
-TOKEN_RESPONSE_MAP[OAuth2ResponseParameters.TOKEN_TYPE] = TokenResponseFields.TOKEN_TYPE
-TOKEN_RESPONSE_MAP[OAuth2ResponseParameters.ACCESS_TOKEN] = TokenResponseFields.ACCESS_TOKEN
-TOKEN_RESPONSE_MAP[OAuth2ResponseParameters.REFRESH_TOKEN] = TokenResponseFields.REFRESH_TOKEN
-TOKEN_RESPONSE_MAP[OAuth2ResponseParameters.CREATED_ON] = TokenResponseFields.CREATED_ON
-TOKEN_RESPONSE_MAP[OAuth2ResponseParameters.EXPIRES_ON] = TokenResponseFields.EXPIRES_ON
-TOKEN_RESPONSE_MAP[OAuth2ResponseParameters.EXPIRES_IN] = TokenResponseFields.EXPIRES_IN
-TOKEN_RESPONSE_MAP[OAuth2ResponseParameters.RESOURCE] = TokenResponseFields.RESOURCE
-TOKEN_RESPONSE_MAP[OAuth2ResponseParameters.ERROR] = TokenResponseFields.ERROR
-TOKEN_RESPONSE_MAP[OAuth2ResponseParameters.ERROR_DESCRIPTION] = TokenResponseFields.ERROR_DESCRIPTION
+TOKEN_RESPONSE_MAP = {
+    OAuth2.ResponseParameters.TOKEN_TYPE : TokenResponseFields.TOKEN_TYPE,
+    OAuth2.ResponseParameters.ACCESS_TOKEN : TokenResponseFields.ACCESS_TOKEN,
+    OAuth2.ResponseParameters.REFRESH_TOKEN : TokenResponseFields.REFRESH_TOKEN,
+    OAuth2.ResponseParameters.CREATED_ON : TokenResponseFields.CREATED_ON,
+    OAuth2.ResponseParameters.EXPIRES_ON : TokenResponseFields.EXPIRES_ON,
+    OAuth2.ResponseParameters.EXPIRES_IN : TokenResponseFields.EXPIRES_IN,
+    OAuth2.ResponseParameters.RESOURCE : TokenResponseFields.RESOURCE,
+    OAuth2.ResponseParameters.ERROR : TokenResponseFields.ERROR,
+    OAuth2.ResponseParameters.ERROR_DESCRIPTION : TokenResponseFields.ERROR_DESCRIPTION,
+}
 
-def map_fields(in_obj, out_obj, map):
-
-    for key in in_obj.keys():
-        if map.get(key):
-            mapped = map[key]
-            out_obj[mapped] = in_obj[key]
+def map_fields(in_obj, map_to):
+    return dict((map_to[k], v) for k, v in in_obj.items() if k in map_to)
 
 class OAuth2Client(object):
 
@@ -72,7 +68,7 @@ class OAuth2Client(object):
     def _create_token_url(self):
         parameters = {}
         parameters['slice'] = 'testslice'
-        parameters[OAuth2Parameters.AAD_API_VERSION] = '1.0'
+        parameters[OAuth2.Parameters.AAD_API_VERSION] = '1.0'
 
         return urlparse('{}?{}'.format(self._token_endpoint, urlencode(parameters)))
 
@@ -85,6 +81,7 @@ class OAuth2Client(object):
             except KeyError:
                 # if the key isn't present we can just continue
                 pass
+    
     @classmethod
     def _crack_jwt(cls, jwt_token):
 
@@ -131,7 +128,7 @@ class OAuth2Client(object):
         extracted_values = {}
         extracted_values.update(self._get_user_id(id_token))
 
-        map_fields(id_token, extracted_values, IdTokenMap)
+        extracted_values = map_fields(id_token, OAuth2.IdTokenMap)
         return extracted_values
 
     def _parse_id_token(self, encoded_token):
@@ -143,7 +140,7 @@ class OAuth2Client(object):
         id_token = None
         try:
             b64_id_token = cracked_token['JWSPayload']
-            b64_decoded = util.base64_decode_string_urlsafe(b64_id_token)
+            b64_decoded = base64.urlsafe_b64decode(b64_id_token)
             if not b64_decoded:
                 self._log.warn('The returned id_token could not be base64 url safe decoded.')
                 return
@@ -163,44 +160,44 @@ class OAuth2Client(object):
 
         try:
             wire_response = json.loads(body)
-        except Exception as exp:
+        except Exception:
             raise ValueError('The token response returned from the server is unparseable as JSON')
 
         int_keys = [
-            OAuth2ResponseParameters.EXPIRES_ON,
-            OAuth2ResponseParameters.EXPIRES_IN,
-            OAuth2ResponseParameters.CREATED_ON
+            OAuth2.ResponseParameters.EXPIRES_ON,
+            OAuth2.ResponseParameters.EXPIRES_IN,
+            OAuth2.ResponseParameters.CREATED_ON
           ]
 
         self._parse_optional_ints(wire_response, int_keys)
 
-        expires_in = wire_response.get(OAuth2ResponseParameters.EXPIRES_IN)
+        expires_in = wire_response.get(OAuth2.ResponseParameters.EXPIRES_IN)
         if expires_in:
             now = datetime.now()
             soon = timedelta(seconds=expires_in)
-            wire_response[OAuth2ResponseParameters.EXPIRES_ON] = str(now + soon)
+            wire_response[OAuth2.ResponseParameters.EXPIRES_ON] = str(now + soon)
 
-        created_on = wire_response.get(OAuth2ResponseParameters.CREATED_ON)
+        created_on = wire_response.get(OAuth2.ResponseParameters.CREATED_ON)
         if created_on:
             temp_date = datetime.fromtimestamp(created_on)
-            wire_response[OAuth2ResponseParameters.CREATED_ON] = str(temp_date)
+            wire_response[OAuth2.ResponseParameters.CREATED_ON] = str(temp_date)
 
-        if not wire_response.get(OAuth2ResponseParameters.TOKEN_TYPE):
+        if not wire_response.get(OAuth2.ResponseParameters.TOKEN_TYPE):
             raise self._log.create_error('wire_response is missing token_type')
 
-        if not wire_response.get(OAuth2ResponseParameters.ACCESS_TOKEN):
+        if not wire_response.get(OAuth2.ResponseParameters.ACCESS_TOKEN):
             raise self._log.create_error('wire_response is missing access_token')
 
-        map_fields(wire_response, token_response, TOKEN_RESPONSE_MAP)
+        token_response = map_fields(wire_response, TOKEN_RESPONSE_MAP)
 
-        if wire_response.get(OAuth2ResponseParameters.ID_TOKEN):
-            id_token = self._parse_id_token(wire_response[OAuth2ResponseParameters.ID_TOKEN])
+        if wire_response.get(OAuth2.ResponseParameters.ID_TOKEN):
+            id_token = self._parse_id_token(wire_response[OAuth2.ResponseParameters.ID_TOKEN])
             if id_token:
                 token_response.update(id_token)
 
         return token_response
 
-    def _handle_get_token_response(self, response, body, callback):
+    def _handle_get_token_response(self, body, callback):
 
         token_response = None
         try:
@@ -237,11 +234,9 @@ class OAuth2Client(object):
                 return
 
             else:
-                self._handle_get_token_response(resp, resp.text, callback)
+                self._handle_get_token_response(resp.text, callback)
 
         except Exception as exp:
-            import sys
-            _1, _2, _3 = sys.exc_info()
             self._log.error("{0} request failed".format(operation), exp)
             callback(exp, None)
             return

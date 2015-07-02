@@ -1,40 +1,43 @@
-﻿#-------------------------------------------------------------------------
+﻿#------------------------------------------------------------------------------
 #
-# Copyright Microsoft Open Technologies, Inc.
+# Copyright (c) Microsoft Corporation. 
+# All rights reserved.
+# 
+# This code is licensed under the MIT License.
+# 
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files(the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and / or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions :
+# 
+# The above copyright notice and this permission notice shall be included in
+# all copies or substantial portions of the Software.
+# 
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+# THE SOFTWARE.
 #
-# All Rights Reserved
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-# http: *www.apache.org/licenses/LICENSE-2.0
-#
-# THIS CODE IS PROVIDED *AS IS* BASIS, WITHOUT WARRANTIES OR CONDITIONS
-# OF ANY KIND, EITHER EXPRESS OR IMPLIED, INCLUDING WITHOUT LIMITATION
-# ANY IMPLIED WARRANTIES OR CONDITIONS OF TITLE, FITNESS FOR A
-# PARTICULAR PURPOSE, MERCHANTABILITY OR NON-INFRINGEMENT.
-#
-# See the Apache License, Version 2.0 for the specific language
-# governing permissions and limitations under the License.
-#
-#--------------------------------------------------------------------------
+#------------------------------------------------------------------------------
 
 import requests
 
-from .constants import AADConstants
-
-from . import constants
-from . import log
-from . import util
-
 try:
-    from urllib.parse import quote, unquote
-    from urllib.parse import urlparse, urlsplit
+    from urllib.parse import quote
+    from urllib.parse import urlparse
 
 except ImportError:
-    from urllib import quote, unquote
-    from urlparse import urlparse, urlsplit
+    from urllib import quote
+    from urlparse import urlparse
+
+from .constants import AADConstants
+from . import log
+from . import util
 
 class Authority(object):
 
@@ -52,15 +55,11 @@ class Authority(object):
         self._parse_authority()
 
         self._authorization_endpoint = None
-        self._token_endpoint = None
+        self.token_endpoint = None
 
     @property
     def url(self):
         return self._url.geturl()
-
-    @property
-    def token_endpoint(self):
-        return self._token_endpoint
 
     def _validate_authority_url(self):
 
@@ -87,7 +86,7 @@ class Authority(object):
         self._log.debug("Performing static instance discovery")
 
         try:
-            host_index = AADConstants.WELL_KNOWN_AUTHORITY_HOSTS.index(self._url.hostname)
+            AADConstants.WELL_KNOWN_AUTHORITY_HOSTS.index(self._url.hostname)
         except ValueError:
             return False
 
@@ -152,14 +151,14 @@ class Authority(object):
         else:
             self._perform_dynamic_instance_discovery(callback)
 
-    def _get_oauth_endpoints(self, tenant_discovery_endpoint, callback):
+    def _get_oauth_endpoints(self, callback):
 
-        if self._token_endpoint:
+        if self.token_endpoint:
             callback(None)
             return
 
         else:
-            self._token_endpoint = self._url.geturl() + AADConstants.TOKEN_ENDPOINT_PATH
+            self.token_endpoint = self._url.geturl() + AADConstants.TOKEN_ENDPOINT_PATH
             callback(None)
             return
 
@@ -171,17 +170,17 @@ class Authority(object):
         if not self._validated:
             self._log.debug("Performing instance discovery: {0}".format(self._url.geturl()))
 
-            def _callback(err, tenant_discovery_endpoint):
+            def _callback(err, _):
                 if err:
                     callback(err)
                 else:
                     self._validated = True
-                    self._get_oauth_endpoints(tenant_discovery_endpoint, callback)
+                    self._get_oauth_endpoints(callback)
                     return
 
             self._validate_via_instance_discovery(_callback)
 
         else:
             self._log.debug("Instance discovery/validation has either already been completed or is turned off: {0}".format(self._url.geturl()))
-            self._get_oauth_endpoints(None, callback)
+            self._get_oauth_endpoints(callback)
             return

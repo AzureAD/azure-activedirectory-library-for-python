@@ -1,31 +1,33 @@
-﻿#-------------------------------------------------------------------------
+﻿#------------------------------------------------------------------------------
 #
-# Copyright Microsoft Open Technologies, Inc.
+# Copyright (c) Microsoft Corporation. 
+# All rights reserved.
+# 
+# This code is licensed under the MIT License.
+# 
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files(the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and / or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions :
+# 
+# The above copyright notice and this permission notice shall be included in
+# all copies or substantial portions of the Software.
+# 
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+# THE SOFTWARE.
 #
-# All Rights Reserved
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-# http: *www.apache.org/licenses/LICENSE-2.0
-#
-# THIS CODE IS PROVIDED *AS IS* BASIS, WITHOUT WARRANTIES OR CONDITIONS
-# OF ANY KIND, EITHER EXPRESS OR IMPLIED, INCLUDING WITHOUT LIMITATION
-# ANY IMPLIED WARRANTIES OR CONDITIONS OF TITLE, FITNESS FOR A
-# PARTICULAR PURPOSE, MERCHANTABILITY OR NON-INFRINGEMENT.
-#
-# See the Apache License, Version 2.0 for the specific language
-# governing permissions and limitations under the License.
-#
-#--------------------------------------------------------------------------
+#------------------------------------------------------------------------------
 
 import sys
 import requests
 import httpretty
-from adal.authority import Authority
-from adal import log
-from adal.authentication_context import AuthenticationContext
 
 try:
     import unittest2 as unittest
@@ -38,8 +40,10 @@ except ImportError:
     import mock
 
 import adal
+from adal.authority import Authority
+from adal import log
+from adal.authentication_context import AuthenticationContext
 from tests import util
-
 from tests.util import parameters as cp
 
 try:
@@ -73,22 +77,22 @@ class TestAuthority(unittest.TestCase):
     @httpretty.activate
     def test_success_dynamic_instance_discovery(self):
         instanceDiscoveryRequest = util.setup_expected_instance_discovery_request(
-            200, 
+            200,
             cp['authorityHosts']['global'],
-            {'tenant_discovery_endpoint' : 'http://foobar'}, 
+            {'tenant_discovery_endpoint' : 'http://foobar'},
             self.nonHardCodedAuthorizeEndpoint
         )
 
         responseOptions = { 'authority' : self.nonHardCodedAuthority}
         response = util.create_response(responseOptions)
         wireResponse = response['wireResponse']
-        
+
         util.setup_expected_client_cred_token_request_response(200, wireResponse, self.nonHardCodedAuthority)
 
         token_response = adal.acquire_token_with_client_credentials(
             self.nonHardCodedAuthority, cp['clientId'], cp['clientSecret'], response['resource'])
         self.assertTrue(
-            util.is_match_token_response(response['cachedResponse'], token_response), 
+            util.is_match_token_response(response['cachedResponse'], token_response),
             'The response does not match what was expected.: ' + str(token_response)
         )
 
@@ -106,11 +110,11 @@ class TestAuthority(unittest.TestCase):
             hardCodedAuthority, cp['clientId'], cp['clientSecret'], response['resource'])
 
         self.assertTrue(
-            util.is_match_token_response(response['cachedResponse'], token_response), 
+            util.is_match_token_response(response['cachedResponse'], token_response),
             'The response does not match what was expected.: ' + str(token_response)
         )
 
-    
+
     @httpretty.activate
     def test_success_static_instance_discovery(self):
         def callback(err):
@@ -124,10 +128,10 @@ class TestAuthority(unittest.TestCase):
 
 
     @httpretty.activate
-    def test_http_error(self):      
+    def test_http_error(self):
         util.setup_expected_instance_discovery_request(500, cp['authorityHosts']['global'], None, self.nonHardCodedAuthorizeEndpoint)
 
-        with self.assertRaisesRegex(Exception, '500'):
+        with self.assertRaisesRegexp(Exception, '500'):
             token_response = adal.acquire_token_with_client_credentials(
                 self.nonHardCodedAuthority, cp['clientId'], cp['clientSecret'], cp['resource'])
 
@@ -136,47 +140,47 @@ class TestAuthority(unittest.TestCase):
         returnDoc = { 'error' : 'invalid_instance', 'error_description' : 'the instance was invalid' }
         util.setup_expected_instance_discovery_request(400, cp['authorityHosts']['global'], returnDoc, self.nonHardCodedAuthorizeEndpoint)
 
-        with self.assertRaisesRegex(Exception, 'instance was invalid'):
+        with self.assertRaisesRegexp(Exception, 'instance was invalid'):
             token_response = adal.acquire_token_with_client_credentials(
                 self.nonHardCodedAuthority, cp['clientId'], cp['clientSecret'], cp['resource'])
 
     @httpretty.activate
     def test_validation_off(self):
         instanceDiscoveryRequest = util.setup_expected_instance_discovery_request(
-            200, 
+            200,
             cp['authorityHosts']['global'],
-            {'tenant_discovery_endpoint' : 'http://foobar'}, 
+            {'tenant_discovery_endpoint' : 'http://foobar'},
             self.nonHardCodedAuthorizeEndpoint
         )
 
         responseOptions = { 'authority' : self.nonHardCodedAuthority}
         response = util.create_response(responseOptions)
         wireResponse = response['wireResponse']
-        
+
         util.setup_expected_client_cred_token_request_response(200, wireResponse, self.nonHardCodedAuthority)
 
         token_response = adal.acquire_token_with_client_credentials(
             self.nonHardCodedAuthority, cp['clientId'], cp['clientSecret'], response['resource'], validate_authority = False)
         self.assertTrue(
-            util.is_match_token_response(response['cachedResponse'], token_response), 
+            util.is_match_token_response(response['cachedResponse'], token_response),
             'The response does not match what was expected.: ' + str(token_response)
         )
 
 
     @httpretty.activate
     def test_bad_url_not_https(self):
-        with self.assertRaisesRegex(ValueError, "The authority url must be an https endpoint\."): 
+        with self.assertRaisesRegexp(ValueError, "The authority url must be an https endpoint\."):
             context = AuthenticationContext('http://this.is.not.https.com/mytenant.com')
 
     @httpretty.activate
     def test_bad_url_has_query(self):
-        with self.assertRaisesRegex(ValueError, "The authority url must not have a query string\."): 
+        with self.assertRaisesRegexp(ValueError, "The authority url must not have a query string\."):
             context = AuthenticationContext(cp['authorityTenant'] + '?this=should&not=be&here=foo')
 
     @httpretty.activate
     def test_url_extra_path_elements(self):
-        util.setup_expected_instance_discovery_request(200, 
-            cp['authorityHosts']['global'], 
+        util.setup_expected_instance_discovery_request(200,
+            cp['authorityHosts']['global'],
             {
                 'tenant_discovery_endpoint' : 'http://foobar'
             },
@@ -185,7 +189,7 @@ class TestAuthority(unittest.TestCase):
         authority_url = self.nonHardCodedAuthority + '/extra/path'
         authority = Authority(authority_url, True)
         obj = util.create_empty_adal_object()
-        
+
         def callback(err):
             if err:
                 self.assertFalse(err, 'Received unexpected error: ' + err.args[0])

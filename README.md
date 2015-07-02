@@ -14,9 +14,9 @@ The ADAL for python library makes it easy for python applications to authenticat
 ```python
 import adal
 token_response = adal.acquire_token_with_username_password(
-	'https://login.windows.net/ACTIVE_DIRECTORY_TENANT.onmicrosoft.com', 
-	'username@ACTIVE_DIRECTORY_TENANT.onmicrosoft.com', 
-	'password'
+    'https://login.windows.net/ACTIVE_DIRECTORY_TENANT.onmicrosoft.com', 
+    'username@ACTIVE_DIRECTORY_TENANT.onmicrosoft.com', 
+    'password'
 )
 ```
 
@@ -60,9 +60,9 @@ New-AzureRoleAssignment -ServicePrincipalName http://PythonSDK -RoleDefinitionNa
 ```python
 import adal
 token_response = adal.acquire_token_with_username_password(
-	'https://login.windows.net/ACTIVE_DIRECTORY_TENANT.onmicrosoft.com', 
-	'username@ACTIVE_DIRECTORY_TENANT.onmicrosoft.com', 
-	'password'
+    'https://login.windows.net/ACTIVE_DIRECTORY_TENANT.onmicrosoft.com', 
+    'username@ACTIVE_DIRECTORY_TENANT.onmicrosoft.com', 
+    'password'
 
 # Use returned refresh token to acquire a new token.
 refresh_token = token_response['refreshToken']
@@ -80,7 +80,7 @@ We recommend you use the "adal" tag so we can see it! Here is the latest Q&A on 
 
 ## Contributing
 
-All code is licensed under the Apache 2.0 license and we triage actively on GitHub. We enthusiastically welcome contributions and feedback. You can clone the repo and start contributing now. 
+All code is licensed under the MIT license and we triage actively on GitHub. We enthusiastically welcome contributions and feedback. You can clone the repo and start contributing now. 
 
 ## Quick Start
 

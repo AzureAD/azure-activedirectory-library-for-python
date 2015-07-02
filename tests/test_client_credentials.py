@@ -1,14 +1,39 @@
-﻿import unittest
+﻿#------------------------------------------------------------------------------
+#
+# Copyright (c) Microsoft Corporation. 
+# All rights reserved.
+# 
+# This code is licensed under the MIT License.
+# 
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files(the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and / or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions :
+# 
+# The above copyright notice and this permission notice shall be included in
+# all copies or substantial portions of the Software.
+# 
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+# THE SOFTWARE.
+#
+#------------------------------------------------------------------------------
+
+import unittest
+import json
+import httpretty
 
 import adal
 from adal.self_signed_jwt import SelfSignedJwt
 from adal.authentication_context import AuthenticationContext
 from tests import util
-
 from tests.util import parameters as cp
-import httpretty
-import json
-
 
 class TestClientCredentials(unittest.TestCase):
     def setUp(self):
@@ -28,21 +53,21 @@ class TestClientCredentials(unittest.TestCase):
         token_response = adal.acquire_token_with_client_credentials(
             cp['authUrl'], cp['clientId'], cp['clientSecret'], response['resource'])
         self.assertTrue(
-            util.is_match_token_response(response['cachedResponse'], token_response), 
+            util.is_match_token_response(response['cachedResponse'], token_response),
             'The response does not match what was expected.: ' + str(token_response)
         )
-    
+
     def test_no_arguments(self):
-        with self.assertRaisesRegex(Exception, "missing 2 required positional arguments:"):
+        with self.assertRaisesRegexp(Exception, "missing 2 required positional arguments:"):
             adal.acquire_token_with_client_credentials(None)
-            
+
     @httpretty.activate
     def test_http_error(self):
         tokenRequest = util.setup_expected_client_cred_token_request_response(403)
 
-        with self.assertRaisesRegex(Exception, '403'):
+        with self.assertRaisesRegexp(Exception, '403'):
             adal.acquire_token_with_client_credentials(cp['authUrl'], cp['clientId'], cp['clientSecret'], cp['resource'])
-            
+
     @httpretty.activate
     def test_oauth_error(self):
         errorResponse = {
@@ -52,8 +77,8 @@ class TestClientCredentials(unittest.TestCase):
         }
 
         tokenRequest = util.setup_expected_client_cred_token_request_response(400, errorResponse)
-    
-        with self.assertRaisesRegex(Exception, 'Get Token request returned http error: 400 and server response:'):
+
+        with self.assertRaisesRegexp(Exception, 'Get Token request returned http error: 400 and server response:'):
             adal.acquire_token_with_client_credentials(cp['authUrl'], cp['clientId'], cp['clientSecret'], cp['resource'])
 
     @httpretty.activate
@@ -82,7 +107,7 @@ class TestClientCredentials(unittest.TestCase):
             self.assertIn('not found', err.args[0], 'Returned error did not contain expected message: ' + err.args[0])
 
         context.acquire_token(cp['resource'], 'unknownUser', cp['clientId'], callback)
-        
+
     def update_self_signed_jwt_stubs():
         '''
         function updateSelfSignedJwtStubs() {
@@ -106,6 +131,7 @@ class TestClientCredentials(unittest.TestCase):
         '''
         raise NotImplementedError()
 
+    @unittest.skip('https://github.com/AzureAD/azure-activedirectory-library-for-python-priv/issues/20')
     # TODO TODO: setupExpectedClientAssertionTokenRequestResponse, updateSelfSignedJwtStubs
     @httpretty.activate
     def test_cert_happy_path(self):
@@ -125,13 +151,13 @@ class TestClientCredentials(unittest.TestCase):
     def test_cert_bad_cert(self):
         cert = 'gobbledy'
 
-        with self.assertRaisesRegex(Exception, "Error:Invalid Certificate: Expected Start of Certificate to be '-----BEGIN RSA PRIVATE KEY-----'"):
+        with self.assertRaisesRegexp(Exception, "Error:Invalid Certificate: Expected Start of Certificate to be '-----BEGIN RSA PRIVATE KEY-----'"):
             adal._acquire_token_with_client_certificate(cp['authorityTenant'], cp['clientId'], cert, cp['certHash'], cp['resource'])
-        
+
     def test_cert_bad_thumbprint(self):
         thumbprint = 'gobbledy'
 
-        with self.assertRaisesRegex(Exception, 'thumbprint does not match a known format'):
+        with self.assertRaisesRegexp(Exception, 'thumbprint does not match a known format'):
             adal._acquire_token_with_client_certificate(cp['authorityTenant'], cp['clientId'], cp['cert'], thumbprint, cp['resource'])
 
 

@@ -1,27 +1,33 @@
-﻿#-------------------------------------------------------------------------
+﻿#------------------------------------------------------------------------------
 #
-# Copyright Microsoft Open Technologies, Inc.
+# Copyright (c) Microsoft Corporation. 
+# All rights reserved.
+# 
+# This code is licensed under the MIT License.
+# 
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files(the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and / or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions :
+# 
+# The above copyright notice and this permission notice shall be included in
+# all copies or substantial portions of the Software.
+# 
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+# THE SOFTWARE.
 #
-# All Rights Reserved
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-# http: *www.apache.org/licenses/LICENSE-2.0
-#
-# THIS CODE IS PROVIDED *AS IS* BASIS, WITHOUT WARRANTIES OR CONDITIONS
-# OF ANY KIND, EITHER EXPRESS OR IMPLIED, INCLUDING WITHOUT LIMITATION
-# ANY IMPLIED WARRANTIES OR CONDITIONS OF TITLE, FITNESS FOR A
-# PARTICULAR PURPOSE, MERCHANTABILITY OR NON-INFRINGEMENT.
-#
-# See the Apache License, Version 2.0 for the specific language
-# governing permissions and limitations under the License.
-#
-#--------------------------------------------------------------------------
+#------------------------------------------------------------------------------
 
 import logging
 import uuid
+import traceback
 
 LEVEL_STRING_MAP = {
     0: 'ERROR:',
@@ -31,10 +37,10 @@ LEVEL_STRING_MAP = {
     }
 
 class LOGGING_LEVEL:
-    ERROR   = 0
-    WARN    = 1
-    INFO    = 2
-    DEBUG   = 3
+    ERROR = 0
+    WARN = 1
+    INFO = 2
+    DEBUG = 3
 
 LEVEL_PY_MAP = {
     LOGGING_LEVEL.ERROR  : 40,
@@ -44,8 +50,7 @@ LEVEL_PY_MAP = {
     }
 
 def create_log_context(correlation_id = None):
-    id = correlation_id if correlation_id else str(uuid.uuid4())
-    return {'correlation_id':id}
+    return {'correlation_id' : correlation_id or str(uuid.uuid4())}
 
 def set_logging_options(options={}):
     logger = logging.getLogger('python_adal')
@@ -75,20 +80,16 @@ class Logger(object):
             raise AttributeError('Logger: log_context is a required parameter')
 
         self._component_name = component_name
-        self._log_context = log_context
+        self.log_context = log_context
         self._logging = logging.getLogger('python_adal')
-
-    @property
-    def context(self):
-        return self._log_context
 
     def log_message(self, level, message, error=None):
 
-        correlation_id = self._log_context.get("correlation_id", "<no correlation id>")
+        correlation_id = self.log_context.get("correlation_id", "<no correlation id>")
 
         formatted = "{0} - {1}: {2} {3}".format(correlation_id, self._component_name, LEVEL_STRING_MAP[level], message)
         if error:
-            formatted += "\nStack:\n{0}".format("Stack trace goes here") #TODO
+            formatted += "\nStack:\n{0}".format(traceback.format_stack())
 
         return formatted
 

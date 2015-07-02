@@ -1,61 +1,48 @@
-﻿#-------------------------------------------------------------------------
+﻿#------------------------------------------------------------------------------
 #
-# Copyright Microsoft Open Technologies, Inc.
+# Copyright (c) Microsoft Corporation. 
+# All rights reserved.
+# 
+# This code is licensed under the MIT License.
+# 
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files(the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and / or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions :
+# 
+# The above copyright notice and this permission notice shall be included in
+# all copies or substantial portions of the Software.
+# 
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+# THE SOFTWARE.
 #
-# All Rights Reserved
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-# http: *www.apache.org/licenses/LICENSE-2.0
-#
-# THIS CODE IS PROVIDED *AS IS* BASIS, WITHOUT WARRANTIES OR CONDITIONS
-# OF ANY KIND, EITHER EXPRESS OR IMPLIED, INCLUDING WITHOUT LIMITATION
-# ANY IMPLIED WARRANTIES OR CONDITIONS OF TITLE, FITNESS FOR A
-# PARTICULAR PURPOSE, MERCHANTABILITY OR NON-INFRINGEMENT.
-#
-# See the Apache License, Version 2.0 for the specific language
-# governing permissions and limitations under the License.
-#
-#--------------------------------------------------------------------------
+#------------------------------------------------------------------------------
 
-import json
-import inspect
-import os
 import sys
-import base64
-
-from .constants import AdalIdParameters
 import platform
 
+from .constants import AdalIdParameters
+import adal
+
 try:
-    from urllib.parse import quote, unquote
-    from urllib.parse import urlparse, urlsplit
+
+    from urllib.parse import urlparse
 
 except ImportError:
-    from urllib import quote, unquote
-    from urlparse import urlparse, urlsplit
 
-global ADAL_VERSION
-
-def load_adal_version():
-    global ADAL_VERSION
-
-    # TODO: this used to load from package.json, which we obviously won't use
-    # either simplify or change to load from somewhere else
-    # we'll probably want adal.__version__ to be set
-    ADAL_VERSION = '0.1.0'
-
-def adal_init():
-    load_adal_version()
+    from urlparse import urlparse
 
 def is_http_success(status_code):
     return status_code >= 200 and status_code < 300
 
 def add_default_request_headers(self, options):
-    global ADAL_VERSION
-
     if not options.get('headers'):
         options['headers'] = {}
 
@@ -63,11 +50,11 @@ def add_default_request_headers(self, options):
     if not headers.get('Accept-Charset'):
         headers['Accept-Charset'] = 'utf-8'
 
-    headers['client-request-id'] = self._call_context['log_context']['correlation_id'];
+    headers['client-request-id'] = self._call_context['log_context']['correlation_id']
     headers['return-client-request-id'] = 'true'
 
     headers[AdalIdParameters.SKU] = AdalIdParameters.PYTHON_SKU
-    headers[AdalIdParameters.VERSION] = ADAL_VERSION
+    headers[AdalIdParameters.VERSION] = adal.__version__
     headers[AdalIdParameters.OS] = sys.platform
     headers[AdalIdParameters.CPU] = 'x64' if platform.architecture()[0] == '64bit' else 'x86'
 
@@ -90,57 +77,8 @@ def log_return_correlation_id(log, operation_message, response):
     if response and response.headers and response.headers.get('client-request-id'):
         log.info("{0} Server returned this correlation_id: {1}".format(operation_message, response.headers['client-request-id']))
 
-#def create_request_handler(operation_message, log, error_callback, success_callback):
-
-#    def req_handler(err, response, body):
-#        log_return_correlation_id(log, operation_message, response)
-#        if err:
-#            log.error("{0} request failed with {1}".format(operation_message, err))
-#            error_callback(err)
-#            return
-
-#        if not is_http_success(response.status_code):
-#            return_error_string = "{0} request returned http error: {1}".format(operation_message, response.status_code)
-#            error_response = ""
-#            if body:
-#                return_error_string += " and server response: {0}".format(body)
-#                try:
-#                    error_response = json.loads(body)
-#                except:
-#                    pass
-
-#            error_callback(log.create_error(return_error_string), error_response)
-#            return
-
-#        success_callback(response, body)
-
-#    return req_handler
-
 def copy_url(url_source):
     if hasattr(url_source, 'geturl'):
         return urlparse(url_source.geturl())
     else:
         return urlparse(url_source)
-
-def convert_urlsafe_to_regular_b64encoded_string(urlsafe):
-    return urlsafe.replace('-', '+').replace('_', '/')
-
-def base64_decode_string_urlsafe(to_decode):
-    padded = pad_string_for_base64(to_decode)
-    b64 = convert_urlsafe_to_regular_b64encoded_string(padded)
-    return base64.b64decode(b64)
-
-def base64_encode_string_urlsafe(to_encode):
-    b64 = base64.b64encode(to_encode)
-    converted = convert_regular_to_urlsafe_b64encoded_string(b64)
-    return converted
-
-def pad_string_for_base64(input):
-    # data may not be properly padded. Add padding
-    padding_to_add = 4 - len(input) % 4
-
-    # if we say we need 4 padding, we don't really need padding
-    if not padding_to_add == 4:
-        input += '=' * padding_to_add
-
-    return input

@@ -13,8 +13,8 @@
     <OutputPath>.</OutputPath>
     <Name>adal</Name>
     <RootNamespace>adal</RootNamespace>
-    <InterpreterId>{ffb82c48-90d8-4438-b920-50f90148b4d6}</InterpreterId>
-    <InterpreterVersion>3.4</InterpreterVersion>
+    <InterpreterId>{035af01c-b03d-490d-8832-e92e10c726f3}</InterpreterId>
+    <InterpreterVersion>2.7</InterpreterVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
     <DebugSymbols>true</DebugSymbols>
@@ -106,7 +106,6 @@
     <Content Include="README.md" />
     <Content Include="requirements.txt" />
     <Content Include="setup.cfg" />
-    <Content Include="tests\data\cover" />
     <Content Include="tests\data\self-signed-cert.pem" />
     <Content Include="tests\mex\address.insecure.xml" />
     <Content Include="tests\mex\archan.us.mex.xml" />

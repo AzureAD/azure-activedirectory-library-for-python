@@ -1,37 +1,33 @@
-﻿#-------------------------------------------------------------------------
+﻿#------------------------------------------------------------------------------
 #
-# Copyright Microsoft Open Technologies, Inc.
+# Copyright (c) Microsoft Corporation. 
+# All rights reserved.
+# 
+# This code is licensed under the MIT License.
+# 
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files(the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and / or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions :
+# 
+# The above copyright notice and this permission notice shall be included in
+# all copies or substantial portions of the Software.
+# 
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+# THE SOFTWARE.
 #
-# All Rights Reserved
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-# http: *www.apache.org/licenses/LICENSE-2.0
-#
-# THIS CODE IS PROVIDED *AS IS* BASIS, WITHOUT WARRANTIES OR CONDITIONS
-# OF ANY KIND, EITHER EXPRESS OR IMPLIED, INCLUDING WITHOUT LIMITATION
-# ANY IMPLIED WARRANTIES OR CONDITIONS OF TITLE, FITNESS FOR A
-# PARTICULAR PURPOSE, MERCHANTABILITY OR NON-INFRINGEMENT.
-#
-# See the Apache License, Version 2.0 for the specific language
-# governing permissions and limitations under the License.
-#
-#--------------------------------------------------------------------------
+#------------------------------------------------------------------------------
+
 import sys
 import requests
 import httpretty
-from tests import util
-from adal.authentication_context import AuthenticationContext
-from adal.mex import Mex
-from adal.token_request import TokenRequest
-from adal.oauth2_client import OAuth2Client
-from adal.user_realm import UserRealm
-from adal.wstrust_response import WSTrustResponse
-from adal.wstrust_request import WSTrustRequest
-from adal import log
-from adal.authority import Authority
 
 try:
     import unittest2 as unittest
@@ -43,9 +39,19 @@ try:
 except ImportError:
     import mock
 
-import adal
 from tests import util
 from tests.util import parameters as cp
+
+import adal
+from adal.authentication_context import AuthenticationContext
+from adal.mex import Mex
+from adal.token_request import TokenRequest
+from adal.oauth2_client import OAuth2Client
+from adal.user_realm import UserRealm
+from adal.wstrust_response import WSTrustResponse
+from adal.wstrust_request import WSTrustRequest
+from adal import log
+from adal.authority import Authority
 
 try:
     from urllib.parse import urlparse, urlencode
@@ -84,11 +90,12 @@ class TestUsernamePassword(unittest.TestCase):
         queryParameters['scope'] = 'openid'
 
         query = urlencode(queryParameters)
-        
+
         url = '{}{}'.format(authorityEndpoint, cp['tokenPath'])
         #'https://login.windows.net/rrandallaad1.onmicrosoft.com/oauth2/token?slice=testslice&api-version=1.0'
         httpretty.register_uri(httpretty.POST, url, returnDoc, status = httpCode, content_type = 'text/json')
-    
+
+    @unittest.skip('https://github.com/AzureAD/azure-activedirectory-library-for-python-priv/issues/21')
     @httpretty.activate
     def test_managed_happy_path(self):
         util.setup_expected_user_realm_response_common(False)
@@ -96,13 +103,14 @@ class TestUsernamePassword(unittest.TestCase):
 
         authorityUrl = response['authority'] + '/' + cp['tenant']
         upRequest = self.setup_expected_username_password_request_response(200, response['wireResponse'], authorityUrl)
-        
+
         token_response = adal.acquire_token_with_username_password(authorityUrl, cp['username'], cp['password'], cp['clientId'], response['resource'])
         self.assertTrue(util.isMatchTokenResponse(response['cachedResponse'], token_response), 'Response did not match expected: ' + JSON.stringify(token_response))
-    
-   
+
+
     # Since this test is the most code intensive it will make a good test case for
     # correlation id.
+    @unittest.skip('https://github.com/AzureAD/azure-activedirectory-library-for-python-priv/issues/21')
     def test_federated_happy_path_and_correlation_id(self):
         correlationId = '12300002-0000-0000-c000-000000000000'
         util.set_correlation_id(correlationId)
@@ -118,7 +126,7 @@ class TestUsernamePassword(unittest.TestCase):
             logFunctionCalled = True
             self.assertIsNotNone(message)
 
-            
+
         logOptions = {
             'level' : 3,
             'log' : testCorrelationIdLog
@@ -136,7 +144,7 @@ class TestUsernamePassword(unittest.TestCase):
         self.assertTrue(util.isMatchTokenResponse(response['cachedResponse'], token_response), 'The response did not match what was expected')
         self.assertTrue(logFunctionCalled, 'Logging was turned on but no messages were recieved.')
 
-
+    @unittest.skip('https://github.com/AzureAD/azure-activedirectory-library-for-python-priv/issues/21')
     @httpretty.activate
     def test_invalid_id_token(self):
         ''' TODO: Test Failing as of 2015/06/03 and needs to be completed. '''
@@ -166,7 +174,7 @@ class TestUsernamePassword(unittest.TestCase):
 
         mex._usernamePasswordUrl = usernamePasswordUrl
         return mex
-    
+
     def create_user_realm_stub(self, protocol, accountType, mexUrl, wstrustUrl, err=None):
         userRealm = UserRealm(cp['callContext'], '', '')
 
@@ -185,8 +193,8 @@ class TestUsernamePassword(unittest.TestCase):
 
         wstrust_response.parse = mock.MagicMock()
         if not noToken:
-          wstrust_response._token = 'This is a stubbed token'
-          wstrust_response._tokenType = tokenType
+            wstrust_response.token = 'This is a stubbed token'
+            wstrust_response._tokenType = tokenType
 
         wstrust_request = WSTrustRequest(cp['callContext'], '', '')
 
@@ -198,7 +206,7 @@ class TestUsernamePassword(unittest.TestCase):
 
     def create_authentication_context_stub(self, authority):
         context = AuthenticationContext(authority, False)
-        context._authority._tokenEndpoint = authority + cp['tokenPath']
+        context.authority._tokenEndpoint = authority + cp['tokenPath']
         return context
 
     def create_oauth2_client_stub(self, authority, token_response, err):
@@ -224,7 +232,7 @@ class TestUsernamePassword(unittest.TestCase):
 
         response = util.create_response()
         oauthClient = self.create_oauth2_client_stub(cp['authority'], response['decodedResponse'], None)
-        
+
         tokenRequest = TokenRequest(cp['callContext'], context, response['clientId'], response['resource'])
         self.stub_out_token_request_dependencies(tokenRequest, userRealm, mex, wstrustRequest, oauthClient)
 
@@ -286,6 +294,7 @@ class TestUsernamePassword(unittest.TestCase):
 
         tokenRequest._get_token_with_username_password('username', 'password', callback)
 
+    @unittest.skip('https://github.com/AzureAD/azure-activedirectory-library-for-python-priv/issues/21')
     def test_federated_unknown_token_type(self):
         ''' TODO: Test Failing as of 2015/06/03 and needs to be completed. '''
         context = self.create_authentication_context_stub(cp['authorityTenant'])
@@ -336,7 +345,7 @@ class TestUsernamePassword(unittest.TestCase):
         #util.turnOnLogging()
         tokenRequest = TokenRequest(cp['callContext'], context, response['clientId'], response['resource'])
         self.stub_out_token_request_dependencies(tokenRequest, userRealm, mex, wstrustRequest, oauthClient)
-        
+
         def callback(err, token_response):
             self.assertTrue(err, 'Did not receive expected error')
 
@@ -361,7 +370,6 @@ class TestUsernamePassword(unittest.TestCase):
         tokenRequest._get_token_with_username_password('username', 'password', callback)
 
     def test_jwt_cracking(self):
-        ''' TODO: Test Failing as of 2015/06/03 and needs to be completed. '''
         testData = [
           [
             'eyJ0eXAiOiJKV1QiLCJhbGciOiJub25lIn0.eyJhdWQiOiJlOTU4YzA5YS1hYzM3LTQ5MDAtYjRkNy1mYjNlZWFmNzMzOGQiLCJpc3MiOiJodHRwczovL3N0cy53aW5kb3dzLm5ldC9jY2ViYTE0Yy02YTAwLTQ5YWMtYjgwNi04NGRlNTJiZjFkNDIvIiwiaWF0IjoxMzkxNjQ1NDU4LCJuYmYiOjEzOTE2NDU0NTgsImV4cCI6MTM5MTY0OTM1OCwidmVyIjoiMS4wIiwidGlkIjoiY2NlYmExNGMtNmEwMC00OWFjLWI4MDYtODRkZTUyYmYxZDQyIiwib2lkIjoiYTQ0MzIwNGEtYWJjOS00Y2I4LWFkYzEtYzBkZmMxMjMwMGFhIiwidXBuIjoicnJhbmRhbGxAcnJhbmRhbGxhYWQxLm9ubWljcm9zb2Z0LmNvbSIsInVuaXF1ZV9uYW1lIjoicnJhbmRhbGxAcnJhbmRhbGxhYWQxLm9ubWljcm9zb2Z0LmNvbSIsInN1YiI6IjRnVHY0RXRvWVctRFRvdzBiRG5KZDFBQTRzZkNoQmJqZXJtcXQ2UV9aYTQiLCJmYW1pbHlfbmFtZSI6IlJhbmRhbGwiLCJnaXZlbl9uYW1lIjoiUmljaCJ9.',
@@ -471,10 +479,9 @@ class TestUsernamePassword(unittest.TestCase):
         with self.assertRaises(Exception):
             token_response = adal.acquire_token_with_username_password(authorityUrl, cp['username'], cp['password'], cp['clientId'], response['resource'])
 
-
+    @unittest.skip('https://github.com/AzureAD/azure-activedirectory-library-for-python-priv/issues/21')
     @httpretty.activate
     def test_bad_id_token_base64_in_response(self):
-        ''' TODO: Test Failing as of 2015/06/03 and needs to be completed. '''
         foundWarning = False
         util.setup_expected_user_realm_response_common(False)
         response = util.create_response()

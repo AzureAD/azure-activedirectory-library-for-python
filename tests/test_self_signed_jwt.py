@@ -1,22 +1,49 @@
-﻿import sys
+﻿#------------------------------------------------------------------------------
+#
+# Copyright (c) Microsoft Corporation. 
+# All rights reserved.
+# 
+# This code is licensed under the MIT License.
+# 
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files(the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and / or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions :
+# 
+# The above copyright notice and this permission notice shall be included in
+# all copies or substantial portions of the Software.
+# 
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+# THE SOFTWARE.
+#
+#------------------------------------------------------------------------------
+
+import sys
 import requests
 import httpretty
 import json
-from adal.self_signed_jwt import SelfSignedJwt
 from datetime import datetime
-from adal.authority import Authority
 
 try:
     import unittest2 as unittest
 except ImportError:
     import unittest
-    
+
 try:
     from unittest import mock
 except ImportError:
     import mock
 
 import adal
+from adal.authority import Authority
+from adal.self_signed_jwt import SelfSignedJwt
 from adal.authentication_context import AuthenticationContext
 from tests import util
 from tests.util import parameters as cp
@@ -38,7 +65,7 @@ class TestSelfSignedJwt(unittest.TestCase):
 
         jwt = ssjwt.create(cert, thumbprint)
         return jwt
-    
+
     def _create_jwt_and_match_expected_err(self, testCert, thumbprint):
         with self.assertRaises(Exception):
             self._create_jwt(testCert, thumbprint)
@@ -68,7 +95,7 @@ class TestSelfSignedJwt(unittest.TestCase):
     def test_create_jwt_invalid_thumbprint_wrong_size(self):
         thumbprint = 'C1:5D:EA:86:56:AD:DF:67:BE:80:31:D8:5E:BD:DC:5A:D6:C4:36:E7:AA'
         self._create_jwt_and_match_expected_err(self.testCert, thumbprint)
-    
+
     def test_create_jwt_invalid_thumbprint_invalid_char(self):
         thumbprint = 'C1:5D:EA:86:56:AD:DF:67:BE:80:31:D8:5E:BD:DC:5A:D6:C4:36:Ez'
         self._create_jwt_and_match_expected_err(self.testCert, thumbprint)

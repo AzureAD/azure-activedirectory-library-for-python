@@ -25,23 +25,19 @@
 #
 #------------------------------------------------------------------------------
 
-import os
 import sys
-import json
-import inspect
-import base64
 import platform
 
 from .constants import AdalIdParameters
 import adal
 
 try:
-    from urllib.parse import quote, unquote
-    from urllib.parse import urlparse, urlsplit
+
+    from urllib.parse import urlparse
 
 except ImportError:
-    from urllib import quote, unquote
-    from urlparse import urlparse, urlsplit
+
+    from urlparse import urlparse
 
 def is_http_success(status_code):
     return status_code >= 200 and status_code < 300
@@ -80,32 +76,6 @@ def create_request_options(self, *options):
 def log_return_correlation_id(log, operation_message, response):
     if response and response.headers and response.headers.get('client-request-id'):
         log.info("{0} Server returned this correlation_id: {1}".format(operation_message, response.headers['client-request-id']))
-
-#def create_request_handler(operation_message, log, error_callback, success_callback):
-
-#    def req_handler(err, response, body):
-#        log_return_correlation_id(log, operation_message, response)
-#        if err:
-#            log.error("{0} request failed with {1}".format(operation_message, err))
-#            error_callback(err)
-#            return
-
-#        if not is_http_success(response.status_code):
-#            return_error_string = "{0} request returned http error: {1}".format(operation_message, response.status_code)
-#            error_response = ""
-#            if body:
-#                return_error_string += " and server response: {0}".format(body)
-#                try:
-#                    error_response = json.loads(body)
-#                except:
-#                    pass
-
-#            error_callback(log.create_error(return_error_string), error_response)
-#            return
-
-#        success_callback(response, body)
-
-#    return req_handler
 
 def copy_url(url_source):
     if hasattr(url_source, 'geturl'):

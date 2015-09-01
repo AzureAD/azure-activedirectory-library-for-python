@@ -27,6 +27,7 @@
 
 import sys
 import platform
+import base64
 
 from .constants import AdalIdParameters
 import adal
@@ -82,3 +83,11 @@ def copy_url(url_source):
         return urlparse(url_source.geturl())
     else:
         return urlparse(url_source)
+
+# urlsafe_b64decode requires correct padding.  AAD does not include padding so
+# the string needs to be correctly padded before decoding.
+def base64_urlsafe_decode(b64string):
+    b64string += '=' * (4 - ((len(b64string) % 4)))
+
+    return base64.urlsafe_b64decode(b64string)
+

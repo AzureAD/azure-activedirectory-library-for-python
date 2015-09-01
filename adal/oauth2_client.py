@@ -30,7 +30,6 @@ import uuid
 import requests
 import re
 import json
-import base64
 
 try:
     from urllib.parse import urlencode
@@ -140,7 +139,7 @@ class OAuth2Client(object):
         id_token = None
         try:
             b64_id_token = cracked_token['JWSPayload']
-            b64_decoded = base64.urlsafe_b64decode(b64_id_token)
+            b64_decoded = util.base64_urlsafe_decode(b64_id_token)
             if not b64_decoded:
                 self._log.warn('The returned id_token could not be base64 url safe decoded.')
                 return

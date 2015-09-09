@@ -56,7 +56,8 @@ from adal.authority import Authority
 try:
     from urllib.parse import urlparse, urlencode
 except ImportError:
-    from urlparse import urlparse, urlencode
+    from urllib import urlencode
+    from urlparse import urlparse
 
 class TestUsernamePassword(unittest.TestCase):
 

@@ -57,10 +57,6 @@ class TestClientCredentials(unittest.TestCase):
             'The response does not match what was expected.: ' + str(token_response)
         )
 
-    def test_no_arguments(self):
-        with self.assertRaisesRegexp(Exception, "missing 2 required positional arguments:"):
-            adal.acquire_token_with_client_credentials(None)
-
     @httpretty.activate
     def test_http_error(self):
         tokenRequest = util.setup_expected_client_cred_token_request_response(403)

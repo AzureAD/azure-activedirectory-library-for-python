@@ -74,7 +74,7 @@ class Test_wstrustresponse(unittest.TestCase):
             wstrustResponse.parse()
 
     def test_token_parsing_happy_path(self):
-        wstrustResponse = WSTrustResponse(_call_context, open(os.getcwd() + r"\tests\wstrust\RSTR.xml").read())
+        wstrustResponse = WSTrustResponse(_call_context, open(os.path.join(os.getcwd(), 'tests', 'wstrust', 'RSTR.xml')).read())
         wstrustResponse.parse()
 
         self.assertEqual(wstrustResponse.token_type, 'urn:oasis:names:tc:SAML:1.0:assertion', 'TokenType did not match expected value: ' + wstrustResponse.token_type)

@@ -47,7 +47,7 @@ class Test_wstrust_request(unittest.TestCase):
         username = 'test_username'
         password = 'test_password'
         appliesTo = 'test_appliesTo'
-        templateRST = open(os.getcwd() + r'\tests\wstrust\RST.xml', mode='r').read()
+        templateRST = open(os.path.join(os.getcwd(), 'tests', 'wstrust', 'RST.xml'), mode='r').read()
         rst = templateRST \
             .replace('%USERNAME%', username) \
             .replace('%PASSWORD%', password) \
@@ -74,7 +74,7 @@ class Test_wstrust_request(unittest.TestCase):
         username = 'test_username'
         password = 'test_password'
         appliesTo = 'test_appliesTo'
-        templateRST = open(os.getcwd() + r'\tests\wstrust\RST.xml', mode='r').read()
+        templateRST = open(os.path.join(os.getcwd(), 'tests', 'wstrust', 'RST.xml'), mode='r').read()
         rst = templateRST \
             .replace('%USERNAME%', username) \
             .replace('%PASSWORD%', password) \

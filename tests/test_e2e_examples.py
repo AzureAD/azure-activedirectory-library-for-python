@@ -40,7 +40,7 @@ class TestE2EExamples(unittest.TestCase):
 
     def setUp(self):
         self.assertIsNotNone(user_pass_params['password'], "This test cannot work without you adding a password")
-        return super().setUp()
+        return super(TestE2EExamples, self).setUp()
 
     def test_acquire_token_with_user_pass_defaults(self):
         authority = user_pass_params['authorityHostUrl'] + '/' + user_pass_params['tenant']

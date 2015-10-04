@@ -4,6 +4,9 @@
 
 The ADAL for python library makes it easy for python applications to authenticate to AAD in order to access AAD protected web resources.
 
+# Note
+This is an early, pre-release version of the library.  It does not yet have support for any kind of caching.
+
 ## Usage
 
 ### Acquire Token with Username & Password

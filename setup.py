@@ -48,6 +48,7 @@ setup(
     description='The ADAL for Python library makes it easy for python application to authenticate to Azure Active Directory (AAD) in order to access AAD protected web resources.',
     license='MIT',
     author='Microsoft Corporation',
+    author_email='nugetaad@microsoft.com',
     url='https://github.com/AzureAD/azure-activedirectory-library-for-python',
     classifiers=[
         'Development Status :: 3 - Alpha',

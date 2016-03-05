@@ -45,14 +45,29 @@ token_response = adal.acquire_token_with_client_credentials(
 ```
 
 If you are using this with the Azure SDK, you will need to give the PythonSDK application we have access.
-From powershell you can execute the following:
+From PowerShell, you can execute the following:
 
 ```powershell
-Switch-AzureMode -Name AzureResourceManager
-Add-AzureAccount # This will pop up a login dialog
-# Look at the subscriptions returned and put one on the line below
-Select-AzureSubscription -SubscriptionId ABCDEFGH-1234-1234-1234-ABCDEFGH
-New-AzureRoleAssignment -ServicePrincipalName http://PythonSDK -RoleDefinitionName Contributor
+### Install the Azure Resource Manager (ARM) PowerShell module from the PowerShell Gallery
+Install-Module -Name AzureRm
+
+### Install the AzureRm child modules (this may take a few minutes)
+Install-AzureRm
+
+### Authenticate to Microsoft Azure (an authentication dialog will open)
+$null = Login-AzureRmAccount
+
+### List out the Microsoft Azure subscriptions available to your account
+Get-AzureRmSubscription | Format-Table -AutoSize
+
+### Select the Microsoft Azure subscription you want to manipulate
+Set-AzureRmContext -SubscriptionId ABCDEFGH-1234-1234-1234-ABCDEFGH
+
+### List out the Azure Active Directory (AAD) Service Principals in your AAD tenant
+Get-AzureRmADServicePrincipal | Sort-Object -Property DisplayName
+
+### Assign the "contributor" role to your Azure Active Directory (AAD) Service Principal
+New-AzureRmRoleAssignment -ServicePrincipalName http://PythonSDK -RoleDefinitionName Contributor
 ```
 
 ### Acquire Token with Refresh Token

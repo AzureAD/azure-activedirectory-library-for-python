@@ -40,6 +40,8 @@ OAUTH2_PARAMETERS = constants.OAuth2.Parameters
 TOKEN_RESPONSE_FIELDS = constants.TokenResponseFields
 OAUTH2_GRANT_TYPE = constants.OAuth2.GrantType
 OAUTH2_SCOPE = constants.OAuth2.Scope
+#TODO: rename this for more general
+OAUTH2_DEVICE_CODE_RESPONSE_PARAMETERS = constants.OAuth2.DeviceCodeResponseParameters 
 SAML = constants.Saml
 ACCOUNT_TYPE = constants.UserRealm.account_type
 
@@ -74,7 +76,7 @@ class TokenRequest(object):
         return wstrust_request.WSTrustRequest(self._call_context, wstrust_endpoint, applies_to)
 
     def _create_oauth2_client(self):
-        return oauth2_client.OAuth2Client(self._call_context, self._authentication_context.authority.token_endpoint)
+        return oauth2_client.OAuth2Client(self._call_context, self._authentication_context.authority)
 
     def _create_self_signed_jwt(self):
         return self_signed_jwt.SelfSignedJwt(self._call_context, self._authentication_context.authority, self._client_id)
@@ -116,7 +118,8 @@ class TokenRequest(object):
 
         if (OAUTH2_GRANT_TYPE.AUTHORIZATION_CODE != grant_type and
             OAUTH2_GRANT_TYPE.CLIENT_CREDENTIALS != grant_type and
-            OAUTH2_GRANT_TYPE.REFRESH_TOKEN != grant_type):
+            OAUTH2_GRANT_TYPE.REFRESH_TOKEN != grant_type and
+            OAUTH2_GRANT_TYPE.DEVICE_CODE != grant_type):
 
             oauth_parameters[OAUTH2_PARAMETERS.SCOPE] = OAUTH2_SCOPE.OPENID
 
@@ -321,3 +324,23 @@ class TokenRequest(object):
             self._oauth_get_token(oauth_parameters, get_token_complete_callback)
 
         self._get_token(callback, _callback)
+
+    def get_token_with_device_code(self, user_code_info, callback):
+        self._log.info("Getting a token via device code")
+
+        oauth_parameters = self._create_oauth_parameters(OAUTH2_GRANT_TYPE.DEVICE_CODE)
+        oauth_parameters[OAUTH2_PARAMETERS.CODE] = user_code_info[OAUTH2_DEVICE_CODE_RESPONSE_PARAMETERS.DEVICE_CODE]
+
+        interval = user_code_info[OAUTH2_DEVICE_CODE_RESPONSE_PARAMETERS.INTERVAL]
+        expires_in = user_code_info[OAUTH2_DEVICE_CODE_RESPONSE_PARAMETERS.EXPIRES_IN]
+
+        if interval <= 0:
+            callback('invalid refresh interval')
+        client = self._create_oauth2_client()
+        self._polling_client = client
+
+        token_response = client.get_token_with_polling(oauth_parameters, interval, expires_in)
+        callback(None, token_response)
+
+    def _cancel_token_request_with_device_code(self):
+        self._polling_client.cancel_polling_request()

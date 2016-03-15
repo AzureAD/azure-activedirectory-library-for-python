@@ -56,6 +56,7 @@ class Authority(object):
 
         self._authorization_endpoint = None
         self.token_endpoint = None
+        self.device_code_endpoint = None
 
     @property
     def url(self):
@@ -153,12 +154,12 @@ class Authority(object):
 
     def _get_oauth_endpoints(self, callback):
 
-        if self.token_endpoint:
+        if self.token_endpoint and self.device_code_endpoint:
             callback(None)
             return
-
         else:
             self.token_endpoint = self._url.geturl() + AADConstants.TOKEN_ENDPOINT_PATH
+            self.device_code_endpoint = self._url.geturl() + AADConstants.DEVICE_ENDPOINT_PATH
             callback(None)
             return
 

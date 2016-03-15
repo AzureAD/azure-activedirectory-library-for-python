@@ -26,10 +26,12 @@
 #------------------------------------------------------------------------------
 
 from datetime import datetime, timedelta
+import math
 import uuid
 import requests
 import re
 import json
+import time
 
 try:
     from urllib.parse import urlencode
@@ -54,22 +56,39 @@ TOKEN_RESPONSE_MAP = {
     OAuth2.ResponseParameters.ERROR_DESCRIPTION : TokenResponseFields.ERROR_DESCRIPTION,
 }
 
+#DEVICE_CODE_RESPONSE_MAP = {
+#    OAuth2.DeviceCodeResponseParameters.DEVICE_CODE: UserCodeResponseFields.DEVICE_CODE,
+#    OAuth2.DeviceCodeResponseParameters.: UserCodeResponseFields.,
+#    OAuth2.DeviceCodeResponseParameters.: UserCodeResponseFields.,
+#    OAuth2.DeviceCodeResponseParameters.: UserCodeResponseFields.,
+#    OAuth2.DeviceCodeResponseParameters.: UserCodeResponseFields.,
+#    OAuth2.DeviceCodeResponseParameters.: UserCodeResponseFields.,
+#    OAuth2.DeviceCodeResponseParameters.: UserCodeResponseFields.,
+#    OAuth2.DeviceCodeResponseParameters.: UserCodeResponseFields.,
+#}
+
 def map_fields(in_obj, map_to):
     return dict((map_to[k], v) for k, v in in_obj.items() if k in map_to)
 
 class OAuth2Client(object):
 
-    def __init__(self, call_context, authority_token_endpoint):
-        self._token_endpoint = authority_token_endpoint
+    def __init__(self, call_context, authority):
+        self._token_endpoint = authority.token_endpoint
+        self._device_code_endpoint = authority.device_code_endpoint
         self._log = log.Logger("OAuth2Client", call_context['log_context'])
         self._call_context = call_context
+        self._cancelPollingRequest = False
 
     def _create_token_url(self):
         parameters = {}
-        parameters['slice'] = 'testslice'
         parameters[OAuth2.Parameters.AAD_API_VERSION] = '1.0'
 
         return urlparse('{}?{}'.format(self._token_endpoint, urlencode(parameters)))
+
+    def _create_device_code_url(self):
+        parameters = {}
+        parameters[OAuth2.Parameters.AAD_API_VERSION] = '1.0'
+        return urlparse('{}?{}'.format(self._device_code_endpoint, urlencode(parameters)))
 
     def _parse_optional_ints(self, obj, keys):
         for key in keys:
@@ -123,11 +142,9 @@ class OAuth2Client(object):
         return user_id_vals
 
     def _extract_token_values(self, id_token):
-
         extracted_values = {}
-        extracted_values.update(self._get_user_id(id_token))
-
         extracted_values = map_fields(id_token, OAuth2.IdTokenMap)
+        extracted_values.update(self._get_user_id(id_token))
         return extracted_values
 
     def _parse_id_token(self, encoded_token):
@@ -196,6 +213,34 @@ class OAuth2Client(object):
 
         return token_response
 
+    def _validate_device_code_response(self, body):
+
+        wire_response = None
+        device_code_response = {}
+
+        try:
+            wire_response = json.loads(body)
+        except Exception:
+            raise ValueError('The device code response returned from the server is unparseable as JSON')
+
+        int_keys = [
+            OAuth2.DeviceCodeResponseParameters.EXPIRES_IN,
+            OAuth2.DeviceCodeResponseParameters.INTERVAL
+          ]
+
+        self._parse_optional_ints(wire_response, int_keys)
+
+        if not wire_response.get(OAuth2.DeviceCodeResponseParameters.EXPIRES_IN):
+            raise self._log.create_error('wire_response is missing expires_in')
+
+        if not wire_response.get(OAuth2.DeviceCodeResponseParameters.DEVICE_CODE):
+            raise self._log.create_error('wire_response is missing device_code')
+
+        if not wire_response.get(OAuth2.DeviceCodeResponseParameters.USER_CODE):
+            raise self._log.create_error('wire_response is missing user_code')
+
+        return wire_response
+
     def _handle_get_token_response(self, body, callback):
 
         token_response = None
@@ -206,6 +251,18 @@ class OAuth2Client(object):
             callback(exp, None)
 
         callback(None, token_response)
+
+    def _handle_get_device_code_response(self, body, callback):
+
+        device_code_response = None
+        try:
+            device_code_response = self._validate_device_code_response(body)
+        except Exception as exp:
+            self._log.error('Error validating get user vcode response', e)
+            callback(e)
+            return
+
+        callback(None, device_code_response);
 
     def get_token(self, oauth_parameters, callback):
 
@@ -239,3 +296,83 @@ class OAuth2Client(object):
             self._log.error("{0} request failed".format(operation), exp)
             callback(exp, None)
             return
+
+    def get_user_code_info(self, oauth_parameters, callback):
+        device_code_url=self._create_device_code_url()
+        url_encoded_code_request = urlencode(oauth_parameters)
+
+        post_options = util.create_request_options(self, {'headers' : {'content-type': 'application/x-www-form-urlencoded'}})
+        operation = "Get Device Code"
+        
+        try:
+            resp = requests.post(device_code_url.geturl(), data=url_encoded_code_request, headers=post_options['headers'])
+            util.log_return_correlation_id(self._log, operation, resp)
+
+            if not util.is_http_success(resp.status_code):
+                return_error_string = "{0} request returned http error: {1}".format(operation, resp.status_code)
+                error_response = ""
+                if resp.text:
+                    return_error_string += " and server response: {0}".format(resp.text)
+                    try:
+                        error_response = resp.json()
+                    except:
+                        pass
+
+                callback(self._log.create_error(return_error_string), error_response)
+                return
+
+            else:
+                self._handle_get_device_code_response(resp.text, callback)
+
+        except Exception as exp:
+            self._log.error("{0} request failed".format(operation), exp)
+            callback(exp, None)
+            return
+
+    def get_token_with_polling(self, oauth_parameters, refresh_internal, expires_in):
+        token_response = {}
+
+        token_url = self._create_token_url()
+        url_encoded_code_request = urlencode(oauth_parameters)
+
+        post_options = util.create_request_options(self, {'headers' : {'content-type': 'application/x-www-form-urlencoded'}})
+        operation = "Get token with device code"
+
+        max_times_for_retry = math.floor(expires_in/refresh_internal)
+        for _ in range(int(max_times_for_retry)):
+            if self._cancelPollingRequest:
+                raise ValueError('Polling_Request_Cancelled') #TODO: ask rich for the exception types
+
+            resp = requests.post(token_url.geturl(), data=url_encoded_code_request, headers=post_options['headers'])
+            util.log_return_correlation_id(self._log, operation, resp)
+
+            # 2 possible bugs found during porting
+            #1. https://github.com/AzureAD/azure-activedirectory-library-for-nodejs/blob/master/lib/oauth2client.js#L363, 
+            #  the condition should be the opposite
+            #2. https://github.com/AzureAD/azure-activedirectory-library-for-nodejs/blob/master/lib/oauth2client.js#L411
+            #  the field naming is wrong, should use the counter part's name with "_" 
+            # confirm whether the if logic is right
+            wire_response = {} 
+            if not util.is_http_success(resp.status_code):
+                wire_response = json.loads(resp.text) # on error, the body should be json already 
+
+            error = wire_response.get(OAuth2.DeviceCodeResponseParameters.ERROR)
+            if error:
+                if error == 'authorization_pending':
+                    time.sleep(refresh_internal)
+                    continue
+                else:
+                    raise ValueError(error)
+            else:
+                try:
+                    token_response = self._validate_token_response(resp.text)
+                except Exception as exp:
+                    self._log.error("Error validating get token response", exp)
+                    raise exp
+                return token_response
+
+        raise TimeoutError()
+
+    def cancelPollingRequest(self):
+        self._cancelPollingRequest = True
+

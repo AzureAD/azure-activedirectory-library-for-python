@@ -32,6 +32,7 @@ from . import log
 from .log import Logger
 from . import authentication_parameters
 
+from adal.code_request import CodeRequest
 from adal.token_request import TokenRequest
 from adal import argument
 
@@ -108,6 +109,57 @@ def acquire_token_with_username_password(
         context.token_request._get_token_with_username_password(username, password, callback)
 
     context._acquire_token(callback, token_func)
+    return token_responses[0]
+
+def acquire_user_code(
+    authority,
+    resource=None,
+    language=None,
+    client_id=None,
+    validate_authority=True):
+
+    resource = resource or _DefaultValues.resource
+    client_id = client_id or _DefaultValues.client_id
+
+    argument.validate_string_param(authority, 'authority')
+    argument.validate_string_param(resource, 'resource')
+    
+    context = AuthenticationContext(authority, validate_authority)
+    code_responses = []
+
+    def callback(err, code_response):
+        if err:
+            raise Exception('Error:{} token_response:{}'.format(err, code_response))
+        code_responses.append(code_response)
+    
+    def code_func(context):
+        context.code_request = CodeRequest(context._call_context, context, client_id, resource)
+        context.code_request.get_user_code_info(language, callback)
+ 
+    context.acquire_user_code(callback, code_func)
+    return code_responses[0]
+
+def acquire_token_with_device_code(
+    authority,
+    user_code_info,
+    resource=None,
+    client_id=None,
+    validate_authority=True):
+
+    resource = resource or _DefaultValues.resource
+    client_id = client_id or _DefaultValues.client_id
+
+    argument.validate_user_code_info(user_code_info)
+
+    context = AuthenticationContext(authority, validate_authority)
+    token_responses = []
+
+    def callback(err ,token_response):
+        if err:
+            raise Exception('Error:{} token_response:{}'.format(err, token_response))
+        token_responses.append(token_response)
+
+    context.acquire_token_with_device_code(resource, user_code_info, client_id, callback)
     return token_responses[0]
 
 def acquire_token_with_client_credentials(

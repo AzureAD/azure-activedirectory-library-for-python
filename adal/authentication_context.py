@@ -29,6 +29,7 @@ from .authority import Authority
 from . import argument
 from .token_request import TokenRequest
 from . import log
+from .constants import OAuth2DeviceCodeResponseParameters
 
 
 GLOBAL_ADAL_OPTIONS = {}
@@ -45,7 +46,7 @@ class AuthenticationContext(object):
         self._oauth2client = None
         self._correlation_id = None
         self._call_context = {'options': GLOBAL_ADAL_OPTIONS}
-
+        self._token_requests_with_user_code = {}
 
     @property
     def options(self):
@@ -82,3 +83,35 @@ class AuthenticationContext(object):
             self.token_request.get_token_from_cache_with_refresh(user_id, callback)
 
         self._acquire_token(callback, token_func)
+
+    def acquire_user_code(self, callback, code_function):
+        self._call_context['log_context'] = log.create_log_context(self._correlation_id)
+        
+        def _callback(err, code_response=None):
+            if err:
+                callback(err, code_response)
+                return
+            code_function(self)
+
+        self.authority.validate(self._call_context, _callback)
+
+    def acquire_token_with_device_code(self, resource, user_code_info, client_id, callback):
+        self._call_context['log_context'] = log.create_log_context(self._correlation_id)
+
+        def token_func(self):
+            token_request = TokenRequest(self._call_context, self, client_id, resource)
+            self._token_requests_with_user_code[user_code_info[OAuth2DeviceCodeResponseParameters.DEVICE_CODE]] = token_request 
+            token_request.get_token_with_device_code(user_code_info, callback)
+
+        self._acquire_token(callback, token_func)
+
+    def cancel_request_to_get_token_with_device_code(self, user_code_info):
+        argument.validate_user_code_info(user_code_info)
+        
+        key = user_code_info[OAuth2DeviceCodeResponseParameters.DEVICE_CODE]
+        request = self._token_requests_with_user_code.get(key)
+        if  not request:
+            raise ValueError('No acquire_token_with_device_code existed to be cancelled')
+
+        request._cancel_token_request_with_device_code()
+        self._token_requests_with_user_code.pop(key, None)

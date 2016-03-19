@@ -13,8 +13,8 @@
     <OutputPath>.</OutputPath>
     <Name>adal</Name>
     <RootNamespace>adal</RootNamespace>
-    <InterpreterId>{035af01c-b03d-490d-8832-e92e10c726f3}</InterpreterId>
-    <InterpreterVersion>2.7</InterpreterVersion>
+    <InterpreterId>{4e6b690d-870d-4e48-b24e-ba6f9fe36da5}</InterpreterId>
+    <InterpreterVersion>3.5</InterpreterVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
     <DebugSymbols>true</DebugSymbols>
@@ -37,6 +37,9 @@
     <Compile Include="adal\authority.py">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="adal\cache_driver.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="adal\constants.py">
       <SubType>Code</SubType>
     </Compile>
@@ -50,6 +53,9 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="adal\self_signed_jwt.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="adal\token_cache.py">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="adal\token_request.py">
@@ -126,28 +132,6 @@
     <Content Include="tests\wstrust\RSTR.xml" />
   </ItemGroup>
   <ItemGroup>
-    <Interpreter Include="env27\">
-      <Id>{035af01c-b03d-490d-8832-e92e10c726f3}</Id>
-      <BaseInterpreter>{2af0f10d-7135-4994-9156-5d01c9c11b7e}</BaseInterpreter>
-      <Version>2.7</Version>
-      <Description>env27 (Python 2.7)</Description>
-      <InterpreterPath>Scripts\python.exe</InterpreterPath>
-      <WindowsInterpreterPath>Scripts\pythonw.exe</WindowsInterpreterPath>
-      <LibraryPath>Lib\</LibraryPath>
-      <PathEnvironmentVariable>PYTHONPATH</PathEnvironmentVariable>
-      <Architecture>X86</Architecture>
-    </Interpreter>
-    <Interpreter Include="env34\">
-      <Id>{ffb82c48-90d8-4438-b920-50f90148b4d6}</Id>
-      <BaseInterpreter>{2af0f10d-7135-4994-9156-5d01c9c11b7e}</BaseInterpreter>
-      <Version>3.4</Version>
-      <Description>env34 (Python 3.4)</Description>
-      <InterpreterPath>Scripts\python.exe</InterpreterPath>
-      <WindowsInterpreterPath>Scripts\pythonw.exe</WindowsInterpreterPath>
-      <LibraryPath>Lib\</LibraryPath>
-      <PathEnvironmentVariable>PYTHONPATH</PathEnvironmentVariable>
-      <Architecture>X86</Architecture>
-    </Interpreter>
     <Interpreter Include="env35\">
       <Id>{4e6b690d-870d-4e48-b24e-ba6f9fe36da5}</Id>
       <BaseInterpreter>{2af0f10d-7135-4994-9156-5d01c9c11b7e}</BaseInterpreter>

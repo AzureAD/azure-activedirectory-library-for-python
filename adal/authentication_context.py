@@ -28,6 +28,7 @@
 from .authority import Authority
 from . import argument
 from .token_request import TokenRequest
+from .token_cache import TokenCache
 from . import log
 from .constants import OAuth2DeviceCodeResponseParameters
 
@@ -36,7 +37,7 @@ GLOBAL_ADAL_OPTIONS = {}
 
 class AuthenticationContext(object):
 
-    def __init__(self, authority, validate_authority=None):
+    def __init__(self, authority, validate_authority=None, cache=None):
 
         validate = validate_authority
         if not validate_authority:
@@ -47,6 +48,7 @@ class AuthenticationContext(object):
         self._correlation_id = None
         self._call_context = {'options': GLOBAL_ADAL_OPTIONS}
         self._token_requests_with_user_code = {}
+        self.cache = cache or TokenCache()
 
     @property
     def options(self):

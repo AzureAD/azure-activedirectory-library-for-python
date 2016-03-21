@@ -47,6 +47,7 @@ except ImportError:
 
 from .constants import XmlNamespaces
 from .constants import MexNamespaces
+from .token_request_error import MexDiscoverError, MexParseError
 
 class Mex(object):
 
@@ -61,7 +62,7 @@ class Mex(object):
         self.username_password_url = None
         self._log.debug("Mex created with url: {0}".format(self._url))
 
-    def discover(self, callback):
+    def discover(self):
 
         self._log.debug("Retrieving mex at: {0}".format(self._url))
         options = util.create_request_options(self, {'headers': {'Content-Type': 'application/soap+xml'}})
@@ -81,8 +82,7 @@ class Mex(object):
                     except:
                         pass
 
-                callback(self._log.create_error(return_error_string), error_response)
-                return
+                raise MexDiscoverError(self._log.create_error(return_error_string), error_response)
 
             else:
                 try:
@@ -90,18 +90,16 @@ class Mex(object):
                     #options = {'errorHandler':self._log.error}
                     self._dom = ET.fromstring(self._mex_doc)
                     self._parents = {c:p for p in self._dom.iter() for c in p}
-                    self._parse(callback)
-
-                except Exception as err:
-                    self._log.error('Failed to parse mex response in to DOM', err)
-                    callback(err, None)
-                    return
+                    self._parse()
+                except MexParseError as exp:
+                    self._log.error('Failed to parse mex response in to DOM', exp)
+                    raise exp
                 return
             return
 
-        except Exception as err:
-            self._log.error("{0} request failed".format(operation), err)
-            callback(err, None)
+        except Exception as exp:
+            self._log.error("{0} request failed".format(operation), exp)
+            raise exp
 
     def _check_policy(self, policy_node):
         policy_id = policy_node.attrib["{{{}}}Id".format(XmlNamespaces.namespaces['wsu'])]
@@ -218,22 +216,19 @@ class Mex(object):
         random.shuffle(matching_policies)
         self.username_password_url = matching_policies[0]['url']
 
-    def _parse(self, callback):
+    def _parse(self):
 
         policies = self._select_username_password_polices()
         if not policies:
-            callback(self._log.create_error("No matching policies."))
-            return
+            raise MexParseError(self._log.create_error("No matching policies."))
+            
 
         bindings = self._get_matching_bindings(policies)
         if not bindings:
-            callback(self._log.create_error("No matching bindings."))
-            return
+            raise MexParseError(self._log.create_error("No matching bindings."))
 
         self._get_ports_for_policy_bindings(bindings, policies)
         self._select_single_matching_policy(policies)
 
-        if self._url:
-            callback(None)
-        else:
-            callback(self._log.create_error("No ws-trust endpoints match requirements."))
+        if not self._url:
+            raise MexParseError(self._log.create_error("No ws-trust endpoints match requirements."))

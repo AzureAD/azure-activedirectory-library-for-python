@@ -1,0 +1,7 @@
+token entry file naming, and referencing (can't use . like js). Also do not duplicate the file nam constants
+ask rich about the exception raising, and related error log, and adal specifc exceptions
+port over the tokencache 
+get rid of the __init__
+refactoring out the common token steps in token_request.py say:
+    a. Look for it cache
+    b. common logging after the token request

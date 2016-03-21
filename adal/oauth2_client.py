@@ -43,6 +43,7 @@ except ImportError:
 from . import log
 from . import util
 from .constants import OAuth2, TokenResponseFields, IdTokenFields
+from .token_request_error import TokenRequestError
 
 TOKEN_RESPONSE_MAP = {
     OAuth2.ResponseParameters.TOKEN_TYPE : TokenResponseFields.TOKEN_TYPE,
@@ -69,6 +70,7 @@ TOKEN_RESPONSE_MAP = {
 
 def map_fields(in_obj, map_to):
     return dict((map_to[k], v) for k, v in in_obj.items() if k in map_to)
+
 
 class OAuth2Client(object):
 
@@ -241,30 +243,29 @@ class OAuth2Client(object):
 
         return wire_response
 
-    def _handle_get_token_response(self, body, callback):
+    def _handle_get_token_response(self, body):
 
         token_response = None
         try:
             token_response = self._validate_token_response(body)
         except Exception as exp:
             self._log.error("Error validating get token response", exp)
-            callback(exp, None)
+            raise exp
 
-        callback(None, token_response)
+        return token_response
 
-    def _handle_get_device_code_response(self, body, callback):
+    def _handle_get_device_code_response(self, body):
 
         device_code_response = None
         try:
             device_code_response = self._validate_device_code_response(body)
         except Exception as exp:
             self._log.error('Error validating get user vcode response', e)
-            callback(e)
-            return
+            raise exp
 
-        callback(None, device_code_response);
+        return device_code_response
 
-    def get_token(self, oauth_parameters, callback):
+    def get_token(self, oauth_parameters):
 
         token_url = self._create_token_url()
         url_encoded_token_request = urlencode(oauth_parameters)
@@ -286,18 +287,15 @@ class OAuth2Client(object):
                     except:
                         pass
 
-                callback(self._log.create_error(return_error_string), error_response)
-                return
-
+                raise TokenRequestError(self._log.create_error(return_error_string), error_response)
             else:
-                self._handle_get_token_response(resp.text, callback)
+                self._handle_get_token_response(resp.text)
 
         except Exception as exp:
             self._log.error("{0} request failed".format(operation), exp)
-            callback(exp, None)
-            return
+            raise exp
 
-    def get_user_code_info(self, oauth_parameters, callback):
+    def get_user_code_info(self, oauth_parameters):
         device_code_url=self._create_device_code_url()
         url_encoded_code_request = urlencode(oauth_parameters)
 
@@ -318,16 +316,14 @@ class OAuth2Client(object):
                     except:
                         pass
 
-                callback(self._log.create_error(return_error_string), error_response)
-                return
+                raise TokenRequestError(self._log.create_error(return_error_string), error_response)
 
             else:
-                self._handle_get_device_code_response(resp.text, callback)
+                self._handle_get_device_code_response(resp.text)
 
         except Exception as exp:
             self._log.error("{0} request failed".format(operation), exp)
-            callback(exp, None)
-            return
+            raise exp
 
     def get_token_with_polling(self, oauth_parameters, refresh_internal, expires_in):
         token_response = {}

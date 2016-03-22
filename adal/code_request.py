@@ -13,9 +13,10 @@ class CodeRequest(object):
         self._client_id = client_id
         self._resource = resource
 
-    def _get_user_code_info(self, oauth_parameters, callback):
+    def _get_user_code_info(self, oauth_parameters):
         client = self._create_oauth2_client()
-        client.get_user_code_info(oauth_parameters, callback)
+        code = client.get_user_code_info(oauth_parameters)
+        return code
 
     def _create_oauth2_client(self):
         return oauth2_client.OAuth2Client(
@@ -28,11 +29,11 @@ class CodeRequest(object):
             OAUTH2_PARAMETERS.RESOURCE: self._resource
         }
 
-    def get_user_code_info(self, language, callback):
+    def get_user_code_info(self, language):
         self._log.info('Getting user code info.')
 
         oauth_parameters = self._create_oauth_parameters()
         if language:
             oauth_parameters[OAUTH2_PARAMETERS.LANGUAGE] = language
 
-        self._get_user_code_info(oauth_parameters, callback)
+        return self._get_user_code_info(oauth_parameters)

@@ -35,11 +35,6 @@ def validate_string_param(value, name):
     if not isinstance(value, str):
         raise TypeError("The {0} parameter must be of type str".format(name))
 
-def validate_callback_type(callback):
-
-    if not callback or not hasattr(callback, '__call__'):
-        raise ValueError("acquireToken requires a function callback parameter")
-
 def validate_user_code_info(user_code_info):
     if not user_code_info:
         raise ValueError("the user_code_info parameter is required")

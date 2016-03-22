@@ -35,7 +35,8 @@ from . import oauth2_client
 from . import self_signed_jwt
 from . import user_realm
 from . import wstrust_request
-from .token_request_error import TokenRequestError, MexDiscoverError
+from .token_request_error import TokenRequestError, MexDiscoverError, DeviceCodeRequestError
+from .cache_driver import CacheDriver
 
 OAUTH2_PARAMETERS = constants.OAuth2.Parameters
 TOKEN_RESPONSE_FIELDS = constants.TokenResponseFields
@@ -88,45 +89,24 @@ class TokenRequest(object):
 
     def _create_cache_driver(self):
         return CacheDriver(
-            self._callContext,
-            self._authenticationContext.authority,
+            self._call_context,
+            self._authentication_context.authority,
             self._resource,
-            self._clientId,
-            self._authenticationContext.cache,
+            self._client_id,
+            self._authentication_context.cache,
             self._get_token_with_token_response
         )
 
-    def _find_token_from_cache():
+    def _find_token_from_cache(self):
         self._cache_driver = self._create_cache_driver()
         cache_query = self._create_cache_query()
         token = self._cache_driver.find(cache_query)
-        return token  
+        return token
 
-#        , function(err, token) {
-#    if (err) {
-#      self._log.warn('Attempt to look for token in cache resulted in Error: ' + err.stack);
-#    }
-
-#    if (!token) {
-#      self._log.verbose('No appropriate cached token found.');
-#      getTokenFunc.call(self, function(err, tokenResponse) {
-#        if (err) {
-#          self._log.verbose('getTokenFunc returned with err');
-#          callback(err, tokenResponse);
-#          return;
-#        }
-
-#        self._log.verbose('Successfully retrieved token from authority');
-#        self._cacheDriver.add(tokenResponse, function() {
-#          callback(null, tokenResponse);
-#        });
-#      });
-#    } else {
-#      self._log.info('Returning cached token.');
-#      callback(err, token);
-#    }
-#  });
-#};
+    def _add_token_into_cache(self, token):
+        cache_driver = self._create_cache_driver()
+        self._log.verbose('Storing retrieved token into cache')
+        cache_driver.add(token)
 
     def _get_token_with_token_response(self, entry, resource):
         self._log.debug("called to refresh a token from the cache")
@@ -134,7 +114,7 @@ class TokenRequest(object):
         self._get_token_with_refresh_token(refresh_token, resource, None)
 
     def _create_cache_query(self):
-        query = {'clientId' : self._client_id }
+        query = {'clientId' : self._client_id}
         if self._user_id:
             query['userId'] = self._user_id
         else:
@@ -142,17 +122,17 @@ class TokenRequest(object):
 
         return query
 
-    def _get_token(self, get_token_func):
-        def _call(err, token_response=None):
-            if err:
-                self._log.warn("get_token_func returned with err")
-                callback(err, token_response)
-                return
+    #def _get_token(self, get_token_func):
+    #    def _call(err, token_response=None):
+    #        if err:
+    #            self._log.warn("get_token_func returned with err")
+    #            callback(err, token_response)
+    #            return
 
-            self._log.debug("Successfully retrieved token from authority.")
-            callback(None, token_response)
+    #        self._log.debug("Successfully retrieved token from authority.")
+    #        callback(None, token_response)
 
-        get_token_func(_call)
+    #    get_token_func(_call)
 
     def _create_oauth_parameters(self, grant_type):
 
@@ -211,7 +191,7 @@ class TokenRequest(object):
 
         try:
             wstrust_response = wstrust.acquire_token(username, password)
-            return token_response
+            return wstrust_response
         except TokenRequestError as exp:
             error_msg = exp.error_msg
             if not error_msg:
@@ -242,9 +222,9 @@ class TokenRequest(object):
             wstrust_endpoint = None
              
             try:
-                mex_instance.discover(_callback)
+                mex_instance.discover()
                 wstrust_endpoint = mex_instance.username_password_url
-            except MexDiscoverError as exp:
+            except:
                 self._log.warn("MEX exchange failed.  Attempting fallback to AAD supplied endpoint.")
                 wstrust_endpoint = self._user_realm.federation_active_auth_url
                 if not wstrust_endpoint:
@@ -253,52 +233,53 @@ class TokenRequest(object):
             token = self._perform_username_password_for_access_token_exchange(wstrust_endpoint, username, password)
             return token
 
-    # this is a public method
-    def _get_token_with_username_password(self, username, password):
-        try:
-            token = self._find_token_from_cache()
-            return token
-        except Exception as exp:
-            #TODO: ensure we dump out the stacks
-            self._log.warn('Attempt to look for token in cache resulted in Error: {}'.format(exp));
-
+    def get_token_with_username_password(self, username, password):
         self._log.info("Acquiring token with username password.")
         self._user_id = username
-        
+        try:
+            token = self._find_token_from_cache()
+            if token:
+                return token
+        except Exception as exp:
+            #TODO: ensure we dump out the stacks
+            self._log.warn('Attempt to look for token in cache resulted in Error: {}'.format(exp))
+ 
         self._user_realm = self._create_user_realm_request(username)
         self._user_realm.discover()
 
         try:
             if self._user_realm.account_type == ACCOUNT_TYPE['Managed']:
-                token = self._get_token_username_password_managed(username, password, get_token_complete_callback)
-                return token
+                token = self._get_token_username_password_managed(username, password)
             elif self._user_realm.account_type == ACCOUNT_TYPE['Federated']:
-                self._get_token_username_password_federated(username, password, get_token_complete_callback)
-                return token
+                token = self._get_token_username_password_federated(username, password)
             else:
                 raise TokenRequestError(self._log.create_error("Server returned an unknown AccountType: {0}".format(self._user_realm.account_type)))
             self._log.debug("Successfully retrieved token from authority.")
         except Exception as exp:
             self._log.warn("get_token_func returned with err")
             raise exp
+        
+        self._cache_driver.add(token)
+        return token
 
     # this is public method
-    def _get_token_with_client_credentials(self, client_secret):
+    def get_token_with_client_credentials(self, client_secret):
         self._log.info("Getting token with client credentials.")
         try:
             token = self._find_token_from_cache()
             return token
         except Exception as exp:
             #TODO: ensure we dump out the stacks
-            self._log.warn('Attempt to look for token in cache resulted in Error: {}'.format(exp));
+            self._log.warn('Attempt to look for token in cache resulted in Error: {}'.format(exp))
 
         oauth_parameters = self._create_oauth_parameters(OAUTH2_GRANT_TYPE.CLIENT_CREDENTIALS)
         oauth_parameters[OAUTH2_PARAMETERS.CLIENT_SECRET] = client_secret
 
         token = self._oauth_get_token(oauth_parameters)
+        self._cache_driver.add(token)
         return token
 
-    def _get_token_with_authorization_code(self, authorization_code, client_secret):
+    def get_token_with_authorization_code(self, authorization_code, client_secret):
 
         self._log.info("Getting token with auth code.")
 
@@ -307,6 +288,7 @@ class TokenRequest(object):
         oauth_parameters[OAUTH2_PARAMETERS.CLIENT_SECRET] = client_secret
 
         token = self._oauth_get_token(oauth_parameters)
+        self._cache_driver.add(token)
         return token
 
     def _get_token_with_refresh_token(self, refresh_token, resource, client_secret):
@@ -328,7 +310,7 @@ class TokenRequest(object):
         token = self._get_token_with_refresh_token(refresh_token, None, client_secret)
         return token
 
-    def get_token_from_cache_with_refresh(self, user_id, callback):
+    def get_token_from_cache_with_refresh(self, user_id):
         self._log.info("Getting token from cache with refresh if necessary.")
         self._user_id = user_id
         token = self._find_token_from_cache()
@@ -344,30 +326,25 @@ class TokenRequest(object):
 
         return jwt    
     
-    def get_token_with_certificate(self, certificate, thumbprint, callback):
+    def get_token_with_certificate(self, certificate, thumbprint):
 
         self._log.info("Getting a token via certificate.")
 
-        try:
-            jwt = self._create_jwt(certificate, thumbprint)
-        except Exception as exp:
-            callback(exp, None)
-            return
+        jwt = self._create_jwt(certificate, thumbprint)
 
         oauth_parameters = self._create_oauth_parameters(OAUTH2_GRANT_TYPE.CLIENT_CREDENTIALS)
         oauth_parameters[OAUTH2_PARAMETERS.CLIENT_ASSERTION_TYPE] = OAUTH2_GRANT_TYPE.JWT_BEARER
         oauth_parameters[OAUTH2_PARAMETERS.CLIENT_ASSERTION] = jwt
 
-        def _callback(get_token_complete_callback):
-            self._oauth_get_token(oauth_parameters, get_token_complete_callback)
-
+        token = None
         try:
             token = self._find_token_from_cache()
-            callback(None, token)
-        except Exception as exp: #catch specific exception
-            self._oauth_get_token(oauth_parameters, callback)
+        except: #catch specific exception
+            token = self._oauth_get_token(oauth_parameters)
 
-    def get_token_with_device_code(self, user_code_info, callback):
+        return token
+
+    def get_token_with_device_code(self, user_code_info):
         self._log.info("Getting a token via device code")
 
         oauth_parameters = self._create_oauth_parameters(OAUTH2_GRANT_TYPE.DEVICE_CODE)
@@ -377,12 +354,15 @@ class TokenRequest(object):
         expires_in = user_code_info[OAUTH2_DEVICE_CODE_RESPONSE_PARAMETERS.EXPIRES_IN]
 
         if interval <= 0:
-            callback('invalid refresh interval')
+            raise DeviceCodeRequestError('invalid refresh interval')
+
         client = self._create_oauth2_client()
         self._polling_client = client
 
-        token_response = client.get_token_with_polling(oauth_parameters, interval, expires_in)
-        callback(None, token_response)
+        token = client.get_token_with_polling(oauth_parameters, interval, expires_in)
+        self._add_token_into_cache(token)
+
+        return token
 
     def _cancel_token_request_with_device_code(self):
         self._polling_client.cancel_polling_request()

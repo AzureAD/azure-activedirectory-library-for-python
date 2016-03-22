@@ -32,25 +32,7 @@ from . import log
 from .log import Logger
 from . import authentication_parameters
 
-from adal.code_request import CodeRequest
-from adal.token_request import TokenRequest
-from adal import argument
-
 __version__ = '0.1.0'
-
-'''
-    Note:
-        At the time of authoring the Azure Portal does not provide an easy way to enable Azure
-        Resource Management permissions to the Application we use for this authentication.  Using
-        the powershell commandlets you can run the following commands to enable the permissions.
-            Switch-AzureMode -Name AzureResourceManager
-            Add-AzureAccount # This will pop up a login dialog
-             # Look at the subscriptions returned and put one on the line below
-            Select-AzureSubscription -SubscriptionId ABCDEFGH-1234-1234-1234-ABCDEFGH
-            New-AzureRoleAssignment -ServicePrincipalName http://PythonSDK -RoleDefinitionName Contributor
-
-            TODO: We should provide the code to do this using the XPlat CLI
-'''
 
 
 def acquire_token_with_username_password(
@@ -90,26 +72,9 @@ def acquire_token_with_username_password(
     resource = resource or _DefaultValues.resource
     client_id = client_id or _DefaultValues.client_id
 
-    argument.validate_string_param(authority, 'authority')
-    argument.validate_string_param(client_id, 'client_id')
-    argument.validate_string_param(username, 'username')
-    argument.validate_string_param(password, 'password')
-    argument.validate_string_param(resource, 'resource')
-
     context = AuthenticationContext(authority, validate_authority)
-    token_responses = []
-
-    def callback(err, token_response):
-        if err:
-            raise Exception("Error:{} token_response:{}".format(err, token_response))
-        token_responses.append(token_response)
-
-    def token_func(context):
-        context.token_request = TokenRequest(context._call_context, context, client_id, resource)
-        context.token_request._get_token_with_username_password(username, password, callback)
-
-    context._acquire_token(callback, token_func)
-    return token_responses[0]
+    token = context.acquire_token_with_username_password(resource, username, password, client_id)
+    return token
 
 def acquire_user_code(
     authority,
@@ -121,23 +86,9 @@ def acquire_user_code(
     resource = resource or _DefaultValues.resource
     client_id = client_id or _DefaultValues.client_id
 
-    argument.validate_string_param(authority, 'authority')
-    argument.validate_string_param(resource, 'resource')
-    
     context = AuthenticationContext(authority, validate_authority)
-    code_responses = []
-
-    def callback(err, code_response):
-        if err:
-            raise Exception('Error:{} token_response:{}'.format(err, code_response))
-        code_responses.append(code_response)
-    
-    def code_func(context):
-        context.code_request = CodeRequest(context._call_context, context, client_id, resource)
-        context.code_request.get_user_code_info(language, callback)
- 
-    context.acquire_user_code(callback, code_func)
-    return code_responses[0]
+    code = context.acquire_user_code(resource, client_id, language)
+    return code
 
 def acquire_token_with_device_code(
     authority,
@@ -149,18 +100,9 @@ def acquire_token_with_device_code(
     resource = resource or _DefaultValues.resource
     client_id = client_id or _DefaultValues.client_id
 
-    argument.validate_user_code_info(user_code_info)
-
     context = AuthenticationContext(authority, validate_authority)
-    token_responses = []
-
-    def callback(err ,token_response):
-        if err:
-            raise Exception('Error:{} token_response:{}'.format(err, token_response))
-        token_responses.append(token_response)
-
-    context.acquire_token_with_device_code(resource, user_code_info, client_id, callback)
-    return token_responses[0]
+    token = context.acquire_token_with_device_code(resource, user_code_info, client_id)
+    return token
 
 def acquire_token_with_client_credentials(
     authority,
@@ -195,26 +137,9 @@ def acquire_token_with_client_credentials(
         'tokenType'.
     '''
     resource = resource or _DefaultValues.resource
-
-    argument.validate_string_param(authority, 'authority')
-    argument.validate_string_param(client_id, 'client_id')
-    argument.validate_string_param(client_secret, 'client_secret')
-    argument.validate_string_param(resource, 'resource')
-
     context = AuthenticationContext(authority, validate_authority)
-    token_responses = []
-
-    def callback(err, token_response):
-        if err:
-            raise Exception("Error:{} token_response:{}".format(err, token_response))
-        token_responses.append(token_response)
-
-    def token_func(context, extra=None):
-        context.token_request = TokenRequest(context._call_context, context, client_id, resource)
-        context.token_request._get_token_with_client_credentials(client_secret, callback)
-
-    context._acquire_token(callback, token_func)
-    return token_responses[0]
+    token = context.acquire_token_with_client_credentials(resource, client_id, client_secret)
+    return token
 
 def _acquire_token_with_authorization_code(
     authority,
@@ -258,31 +183,9 @@ def _acquire_token_with_authorization_code(
     '''
     resource = resource or _DefaultValues.resource
 
-    argument.validate_string_param(authority, 'authority')
-    argument.validate_string_param(client_id, 'client_id')
-    argument.validate_string_param(client_secret, 'client_secret')
-    argument.validate_string_param(authorization_code, 'authorization_code')
-    argument.validate_string_param(redirect_uri, 'redirect_uri')
-    argument.validate_string_param(resource, 'resource')
-
     context = AuthenticationContext(authority, validate_authority)
-    token_responses = []
-
-    def callback(err, token_response):
-        if err:
-            raise Exception("Error:{} token_response:{}".format(err, token_response))
-        token_responses.append(token_response)
-
-    def token_func(context):
-        context.token_request = TokenRequest(
-            context._call_context, context, client_id, resource, redirect_uri
-        )
-        context.token_request._get_token_with_authorization_code(
-            authorization_code, client_secret, callback
-        )
-
-    context._acquire_token(callback, token_func)
-    return token_responses[0]
+    token = context.acquire_token_with_authorization_code(authorization_code, redirect_uri, resource, client_id, client_secret)
+    return token
 
 def acquire_token_with_refresh_token(
     authority,
@@ -321,27 +224,11 @@ def acquire_token_with_refresh_token(
     client_id = client_id or _DefaultValues.client_id
     resource = resource or _DefaultValues.resource
 
-    argument.validate_string_param(authority, 'authority')
-    argument.validate_string_param(refresh_token, 'refresh_token')
-    argument.validate_string_param(client_id, 'client_id')
-    argument.validate_string_param(resource, 'resource')
-
     context = AuthenticationContext(authority, validate_authority)
-    token_responses = []
+    token = context.acquire_token_with_refresh_token(refresh_token, client_id, client_secret, resource)
+    return token
 
-    def callback(err, token_response):
-        if err:
-            raise Exception("Error:{} token_response:{}".format(err, token_response))
-        token_responses.append(token_response)
-
-    def token_func(context):
-        context.token_request = TokenRequest(context._call_context, context, client_id, resource)
-        context.token_request.get_token_with_refresh_token(refresh_token, client_secret, callback)
-
-    context._acquire_token(callback, token_func)
-    return token_responses[0]
-
-def _acquire_token_with_client_certificate(
+def acquire_token_with_client_certificate(
     authority,
     client_id,
     certificate,
@@ -380,26 +267,9 @@ def _acquire_token_with_client_certificate(
     '''
     resource = resource or _DefaultValues.resource
 
-    argument.validate_string_param(authority, 'authority')
-    argument.validate_string_param(client_id, 'client_id')
-    argument.validate_string_param(certificate, 'certificate')
-    argument.validate_string_param(thumbprint, 'thumbprint')
-    argument.validate_string_param(resource, 'resource')
-
     context = AuthenticationContext(authority, validate_authority)
-    token_responses = []
-
-    def callback(err, token_response):
-        if err:
-            raise Exception("Error:{} token_response:{}".format(err, token_response))
-        token_responses.append(token_response)
-
-    def token_func(context):
-        context.token_request = TokenRequest(context._call_context, context, client_id, resource)
-        context.token_request.get_token_with_certificate(certificate, thumbprint, callback)
-
-    context._acquire_token(callback, token_func)
-    return token_responses[0]
+    token = context.acquire_token_with_client_certificate(resource, client_id, certificate, thumbprint)
+    return token
 
 class _DefaultValues:
     resource = 'https://management.core.windows.net/'

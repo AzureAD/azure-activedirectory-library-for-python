@@ -79,7 +79,7 @@ class OAuth2Client(object):
         self._device_code_endpoint = authority.device_code_endpoint
         self._log = log.Logger("OAuth2Client", call_context['log_context'])
         self._call_context = call_context
-        self._cancelPollingRequest = False
+        self._cancel_polling_request = False
 
     def _create_token_url(self):
         parameters = {}
@@ -218,7 +218,7 @@ class OAuth2Client(object):
     def _validate_device_code_response(self, body):
 
         wire_response = None
-        device_code_response = {}
+        #device_code_response = {}
 
         try:
             wire_response = json.loads(body)
@@ -241,6 +241,7 @@ class OAuth2Client(object):
         if not wire_response.get(OAuth2.DeviceCodeResponseParameters.USER_CODE):
             raise self._log.create_error('wire_response is missing user_code')
 
+        #we skip the field naming mapping
         return wire_response
 
     def _handle_get_token_response(self, body):
@@ -260,7 +261,7 @@ class OAuth2Client(object):
         try:
             device_code_response = self._validate_device_code_response(body)
         except Exception as exp:
-            self._log.error('Error validating get user vcode response', e)
+            self._log.error('Error validating get user vcode response', exp)
             raise exp
 
         return device_code_response
@@ -277,7 +278,10 @@ class OAuth2Client(object):
             resp = requests.post(token_url.geturl(), data=url_encoded_token_request, headers=post_options['headers'])
             util.log_return_correlation_id(self._log, operation, resp)
 
-            if not util.is_http_success(resp.status_code):
+            if util.is_http_success(resp.status_code):
+                token = self._handle_get_token_response(resp.text)
+                return token
+            else:
                 return_error_string = "{0} request returned http error: {1}".format(operation, resp.status_code)
                 error_response = ""
                 if resp.text:
@@ -288,15 +292,13 @@ class OAuth2Client(object):
                         pass
 
                 raise TokenRequestError(self._log.create_error(return_error_string), error_response)
-            else:
-                self._handle_get_token_response(resp.text)
 
         except Exception as exp:
             self._log.error("{0} request failed".format(operation), exp)
             raise exp
 
     def get_user_code_info(self, oauth_parameters):
-        device_code_url=self._create_device_code_url()
+        device_code_url = self._create_device_code_url()
         url_encoded_code_request = urlencode(oauth_parameters)
 
         post_options = util.create_request_options(self, {'headers' : {'content-type': 'application/x-www-form-urlencoded'}})
@@ -336,7 +338,7 @@ class OAuth2Client(object):
 
         max_times_for_retry = math.floor(expires_in/refresh_internal)
         for _ in range(int(max_times_for_retry)):
-            if self._cancelPollingRequest:
+            if self._cancel_polling_request:
                 raise ValueError('Polling_Request_Cancelled') #TODO: ask rich for the exception types
 
             resp = requests.post(token_url.geturl(), data=url_encoded_code_request, headers=post_options['headers'])
@@ -369,6 +371,6 @@ class OAuth2Client(object):
 
         raise TimeoutError()
 
-    def cancelPollingRequest(self):
-        self._cancelPollingRequest = True
+    def cancel_polling_request(self):
+        self._cancel_polling_request = True
 

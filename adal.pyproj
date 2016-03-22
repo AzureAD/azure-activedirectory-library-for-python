@@ -40,6 +40,7 @@
     <Compile Include="adal\cache_driver.py">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="adal\code_request.py" />
     <Compile Include="adal\constants.py">
       <SubType>Code</SubType>
     </Compile>
@@ -113,6 +114,7 @@
     <Content Include=".gitignore" />
     <Content Include="adal\TODOs.txt" />
     <Content Include="LICENSE" />
+    <Content Include="pylintrc" />
     <Content Include="README.md" />
     <Content Include="requirements.txt" />
     <Content Include="setup.cfg" />

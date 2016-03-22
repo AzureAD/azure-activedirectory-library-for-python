@@ -21,4 +21,4 @@ class TokenCache(object):
 
     def add(self, entries):
         self.remove(entries)
-        self._entries.append(entries)
+        self._entries.extend(entries)

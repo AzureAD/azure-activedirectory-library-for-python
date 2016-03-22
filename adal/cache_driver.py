@@ -1,5 +1,6 @@
 import copy
 import datetime
+import hashlib
 import json
 
 from .constants import TokenResponseFields, Misc
@@ -9,15 +10,19 @@ METADATA_CLIENTID = '_clientId'
 METADATA_AUTHORITY = '_authority'
 
 def _create_token_hash(token):
-    raise NotImplementedError()
+    return token
+    #todo: find the right method to hash
+    #m = hashlib.sha256()
+    #m.update(token.encode('utf-8'))
+    #return m.digest('base64')
 
 def _create_token_id_message(entry):
     access_token_hash = _create_token_hash(entry[TokenResponseFields.ACCESS_TOKEN])
-    message = 'AccessTokenId: ' + accessTokenHash
+    message = 'AccessTokenId: ' + access_token_hash
     if entry[TokenResponseFields.REFRESH_TOKEN]:
-        refreshTokenHash = _create_token_hash(entry[TokenResponseFields.REFRESH_TOKEN])
-        message += ', RefreshTokenId: ' + refreshTokenHash;
-    return message;
+        refresh_token_hash = _create_token_hash(entry[TokenResponseFields.REFRESH_TOKEN])
+        message += ', RefreshTokenId: ' + refresh_token_hash
+    return message
 
 class CacheDriver(object):
     def __init__(self, call_context, authority, resource, client_id, cache, refresh_function):
@@ -29,17 +34,17 @@ class CacheDriver(object):
         self._cache = cache
         self._refresh_function = refresh_function
     
-    def _find (self, query):
-        self._cache.find(query)
+    def _find(self, query):
+        return self._cache.find(query)
 
     def _get_potential_entries(self, query):
-      potential_rntries_query = {};
+      potential_entries_query = {}
 
-      if query.client_id:
-        potential_entries_query[METADATA_CLIENTID] = query[client_id]
+      if query.get('clientId'):
+        potential_entries_query[METADATA_CLIENTID] = query['clientId']
       
-      if query.user_id:
-        potential_entries_query[TokenResponseFields.USER_ID] = query.userId
+      if query.get('userId'):
+        potential_entries_query[TokenResponseFields.USER_ID] = query['userId']
 
       self._log.debug('Looking for potential cache entries:')
       self._log.debug(json.dumps(potential_entries_query))
@@ -91,7 +96,7 @@ class CacheDriver(object):
         new_entry = copy.deepcopy(entry)
         new_entry.update(refresh_response)
 
-        if entry['isMRRT'] and self_authority != entry[METADATA_AUTHORITY]:
+        if entry['isMRRT'] and self._authority != entry[METADATA_AUTHORITY]:
             new_entry[METADATA_AUTHORITY] = self._authority
 
         self._log.debug('Created new cache entry from refresh response.')
@@ -144,7 +149,7 @@ class CacheDriver(object):
             return None
 
     def remove(self, entry):
-        self._log('Removing entry.')
+        self._log.debug('Removing entry.')
         self._cache.remove([entry])
 
     def _remove_many(self, entries):
@@ -189,7 +194,7 @@ class CacheDriver(object):
         entry[METADATA_AUTHORITY] = self._authority
 
     def add(self, entry):
-        self._log.debug('Adding entry, ' + createTokenIdMessage(entry))
+        self._log.debug('Adding entry, ' + _create_token_id_message(entry))
         self._argument_entry_with_cached_metadata(entry)
         self._update_refresh_tokens(entry)
         self._cache.add([entry])

@@ -1,5 +1,5 @@
-import copy
-import datetime
+﻿import copy
+from datetime import datetime, timedelta
 import hashlib
 import json
 
@@ -67,7 +67,7 @@ class CacheDriver(object):
         potential_entries = self._get_potential_entries(query)
         if potential_entries:
             resource_tenant_sepcific_entries = [
-                x for x in potential_entries if x['resource'] == self._resource and x['authority'] == self._authority]
+                x for x in potential_entries if x['resource'] == self._resource and x['_authority'] == self._authority] # use constant for '_authority' and '_resource'
 
             if not resource_tenant_sepcific_entries:
                 self._log.debug('No resource specific cache entries found.')
@@ -121,16 +121,16 @@ class CacheDriver(object):
         return new_entry
 
     def _refresh_entry_if_necessary(self, entry, is_resource_specific):
-        expiry_date = entry[TokenResponseFields.EXPIRES_ON]
+        expiry_date = datetime.strptime(entry[TokenResponseFields.EXPIRES_ON], '%Y-%m-%d %H:%M:%S.%f') #get clear on local time and time saving mode
 
         # Add some buffer in to the time comparison to account for clock skew or latency.
-        now_plus_buffer = datetime.datetime.now() + datetime.timedelta(minutes=Misc.CLOCK_BUFFER)
+        now_plus_buffer = datetime.now() + timedelta(minutes=Misc.CLOCK_BUFFER)
 
         if is_resource_specific and now_plus_buffer > expiry_date:
             self._log.info('Cached token is expired.  Refreshing: {}'.format(expiry_date))
             new_entry = self._refresh_expired_entry(entry)
             return new_entry
-        elif (not is_resource_specific) and entry['isMRRT']:
+        elif (not is_resource_specific) and entry.get('isMRRT'):
             self._log.info('Acquiring new access token from MRRT token.')
             new_entry = self._acquire_new_token_from_mrrt(entry)
             return new_entry

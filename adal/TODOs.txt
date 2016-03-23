@@ -10,3 +10,7 @@ consolidate exception types, rename with AAD, and see it has good pattern
 authentication_parameters.py has callback, lots of them
 
 merge 2 pylintrc files
+
+consider the field access safeness
+
+token normalization such as 'userId'

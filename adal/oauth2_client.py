@@ -339,12 +339,12 @@ class OAuth2Client(object):
         max_times_for_retry = math.floor(expires_in/refresh_internal)
         for _ in range(int(max_times_for_retry)):
             if self._cancel_polling_request:
-                raise ValueError('Polling_Request_Cancelled') #TODO: ask rich for the exception types
+                raise TokenRequestError('Polling_Request_Cancelled')
 
             resp = requests.post(token_url.geturl(), data=url_encoded_code_request, headers=post_options['headers'])
             util.log_return_correlation_id(self._log, operation, resp)
 
-            # 2 possible bugs found during porting
+            # 2 possible node bugs found during porting
             #1. https://github.com/AzureAD/azure-activedirectory-library-for-nodejs/blob/master/lib/oauth2client.js#L363, 
             #  the condition should be the opposite
             #2. https://github.com/AzureAD/azure-activedirectory-library-for-nodejs/blob/master/lib/oauth2client.js#L411

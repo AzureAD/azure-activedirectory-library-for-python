@@ -42,7 +42,6 @@ OAUTH2_PARAMETERS = constants.OAuth2.Parameters
 TOKEN_RESPONSE_FIELDS = constants.TokenResponseFields
 OAUTH2_GRANT_TYPE = constants.OAuth2.GrantType
 OAUTH2_SCOPE = constants.OAuth2.Scope
-#TODO: rename this for more general
 OAUTH2_DEVICE_CODE_RESPONSE_PARAMETERS = constants.OAuth2.DeviceCodeResponseParameters 
 SAML = constants.Saml
 ACCOUNT_TYPE = constants.UserRealm.account_type
@@ -90,7 +89,7 @@ class TokenRequest(object):
     def _create_cache_driver(self):
         return CacheDriver(
             self._call_context,
-            self._authentication_context.authority.url, # TODO: do not sniff the url
+            self._authentication_context.authority.url,
             self._resource,
             self._client_id,
             self._authentication_context.cache,
@@ -242,8 +241,7 @@ class TokenRequest(object):
             if token:
                 return token
         except Exception as exp:
-            #TODO: ensure we dump out the stacks
-            self._log.warn('Attempt to look for token in cache resulted in Error: {}'.format(exp))
+            self._log.warn('Attempt to look for token in cache resulted in Error: {}'.format(exp), True)
  
         self._user_realm = self._create_user_realm_request(username)
         self._user_realm.discover()
@@ -271,8 +269,7 @@ class TokenRequest(object):
             if token:
                 return token
         except Exception as exp:
-            #TODO: ensure we dump out the stacks
-            self._log.warn('Attempt to look for token in cache resulted in Error: {}'.format(exp))
+            self._log.warn('Attempt to look for token in cache resulted in Error: {}'.format(exp), True)
 
         oauth_parameters = self._create_oauth_parameters(OAUTH2_GRANT_TYPE.CLIENT_CREDENTIALS)
         oauth_parameters[OAUTH2_PARAMETERS.CLIENT_SECRET] = client_secret

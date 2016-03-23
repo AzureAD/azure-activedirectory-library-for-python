@@ -90,7 +90,7 @@ class TokenRequest(object):
     def _create_cache_driver(self):
         return CacheDriver(
             self._call_context,
-            self._authentication_context.authority,
+            self._authentication_context.authority.url, # TODO: do not sniff the url
             self._resource,
             self._client_id,
             self._authentication_context.cache,
@@ -105,13 +105,14 @@ class TokenRequest(object):
 
     def _add_token_into_cache(self, token):
         cache_driver = self._create_cache_driver()
-        self._log.verbose('Storing retrieved token into cache')
+        self._log.debug('Storing retrieved token into cache')
         cache_driver.add(token)
 
     def _get_token_with_token_response(self, entry, resource):
         self._log.debug("called to refresh a token from the cache")
         refresh_token = entry[TOKEN_RESPONSE_FIELDS.REFRESH_TOKEN]
-        self._get_token_with_refresh_token(refresh_token, resource, None)
+        token = self._get_token_with_refresh_token(refresh_token, resource, None)
+        return token
 
     def _create_cache_query(self):
         query = {'clientId' : self._client_id}
@@ -267,7 +268,8 @@ class TokenRequest(object):
         self._log.info("Getting token with client credentials.")
         try:
             token = self._find_token_from_cache()
-            return token
+            if token:
+                return token
         except Exception as exp:
             #TODO: ensure we dump out the stacks
             self._log.warn('Attempt to look for token in cache resulted in Error: {}'.format(exp))

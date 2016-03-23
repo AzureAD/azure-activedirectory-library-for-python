@@ -159,7 +159,7 @@ class AuthenticationContext(object):
         token = self._acquire_token(token_func)
         return token
 
-    def acquire_user_code(self, resource, client_id, language):
+    def acquire_user_code(self, resource, client_id, language=None):
         self._call_context['log_context'] = log.create_log_context(self._correlation_id)
         self.authority.validate(self._call_context)
         code_request = CodeRequest(self._call_context, self, client_id, resource)
@@ -170,7 +170,7 @@ class AuthenticationContext(object):
         self._call_context['log_context'] = log.create_log_context(self._correlation_id)
 
         def token_func(self):
-            token_request = CodeRequest(self._call_context, self, client_id, resource)
+            token_request = TokenRequest(self._call_context, self, client_id, resource)
             self._token_requests_with_user_code[user_code_info[OAuth2DeviceCodeResponseParameters.DEVICE_CODE]] = token_request 
             token = token_request.get_token_with_device_code(user_code_info)
             return token

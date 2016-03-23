@@ -16,8 +16,10 @@ class TokenCache(object):
         return entries
 
     def remove(self, entries):
-        matches = self.find(entries)
-        return [x for x in self._entries if x not in matches]
+        matches = []
+        for e in entries:
+            matches += self.find(e)
+        self._entries = [x for x in self._entries if x not in matches]
 
     def add(self, entries):
         self.remove(entries)

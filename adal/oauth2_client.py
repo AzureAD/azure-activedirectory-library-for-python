@@ -308,7 +308,10 @@ class OAuth2Client(object):
             resp = requests.post(device_code_url.geturl(), data=url_encoded_code_request, headers=post_options['headers'])
             util.log_return_correlation_id(self._log, operation, resp)
 
-            if not util.is_http_success(resp.status_code):
+            if util.is_http_success(resp.status_code):
+                code = self._handle_get_device_code_response(resp.text)
+                return code
+            else:
                 return_error_string = "{0} request returned http error: {1}".format(operation, resp.status_code)
                 error_response = ""
                 if resp.text:
@@ -319,9 +322,6 @@ class OAuth2Client(object):
                         pass
 
                 raise TokenRequestError(self._log.create_error(return_error_string), error_response)
-
-            else:
-                self._handle_get_device_code_response(resp.text)
 
         except Exception as exp:
             self._log.error("{0} request failed".format(operation), exp)

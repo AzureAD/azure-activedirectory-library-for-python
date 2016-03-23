@@ -19,7 +19,7 @@ def _create_token_hash(token):
 def _create_token_id_message(entry):
     access_token_hash = _create_token_hash(entry[TokenResponseFields.ACCESS_TOKEN])
     message = 'AccessTokenId: ' + access_token_hash
-    if entry[TokenResponseFields.REFRESH_TOKEN]:
+    if entry.get(TokenResponseFields.REFRESH_TOKEN):
         refresh_token_hash = _create_token_hash(entry[TokenResponseFields.REFRESH_TOKEN])
         message += ', RefreshTokenId: ' + refresh_token_hash
     return message
@@ -157,7 +157,7 @@ class CacheDriver(object):
         self._cache.remove(entries)
 
     def _add_many(self, entries):
-        self._log.debug('Add many:' + len(entries))
+        self._log.debug('Add many:{}'.format(len(entries)))
         self._cache.add(entries)
 
     @staticmethod
@@ -166,7 +166,7 @@ class CacheDriver(object):
 
     def _update_refresh_tokens(self, entry):
         if CacheDriver._is_mrrt(entry):
-            mrrt_tokens = self._find_mrrt_tokens_for_user(entry['userId'])
+            mrrt_tokens = self._find_mrrt_tokens_for_user(entry.get('userId'))
             if mrrt_tokens:
                self._log.debug('Updating {} cached refresh tokens'.format(len(mrrt_tokens)))
                self._remove_many(mrrt_tokens)

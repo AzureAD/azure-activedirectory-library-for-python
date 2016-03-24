@@ -33,9 +33,6 @@ class CacheDriver(object):
         self._client_id = client_id
         self._cache = cache
         self._refresh_function = refresh_function
-    
-    def _find(self, query):
-        return self._cache.find(query)
 
     def _get_potential_entries(self, query):
       potential_entries_query = {}
@@ -48,12 +45,12 @@ class CacheDriver(object):
 
       self._log.debug('Looking for potential cache entries:')
       self._log.debug(json.dumps(potential_entries_query))
-      entries = self._find(potential_entries_query)
+      entries = self._cache.find(potential_entries_query)
       self._log.debug('Found {} potential entries.'.format(len(entries)))
       return entries
     
     def _find_mrrt_tokens_for_user(self, user):
-        entries = self._find({
+        entries = self._cache.find({
             'isMRRT': True,
             'userId': user,
             '_clientId' : self._client_id            

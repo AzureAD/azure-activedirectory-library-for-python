@@ -15,4 +15,6 @@ consider the field access safeness
 
 token normalization such as 'userId'
 
-expose same set of properties from for authority
+expose same set of properties say, for authority: 
+    d:\sdk\adal-python\adal\oauth2_client.py::def _get_user_id(self, id_token):
+

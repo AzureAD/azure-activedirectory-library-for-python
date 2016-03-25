@@ -70,7 +70,7 @@ class AuthenticationContext(object):
         argument.validate_string_param(resource, 'resource')
         argument.validate_string_param(client_id, 'client_id')
 
-        def token_func(self): #make sure this 'self' works
+        def token_func(self):
             token_request = TokenRequest(self._call_context, self, client_id, resource)
             token = token_request.get_token_from_cache_with_refresh(user_id)
             return token

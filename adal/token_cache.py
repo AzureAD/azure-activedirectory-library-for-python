@@ -85,5 +85,3 @@ class TokenCache(object):
                (client_id is None or _string_cmp(client_id, v.get(TokenResponseFields._CLIENT_ID))):
                 matches.append(v)
         return matches
-
-                 

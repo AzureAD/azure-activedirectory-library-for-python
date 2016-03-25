@@ -207,7 +207,6 @@ class OAuth2Client(object):
     def _validate_device_code_response(self, body):
 
         wire_response = None
-        #device_code_response = {}
 
         try:
             wire_response = json.loads(body)
@@ -230,7 +229,7 @@ class OAuth2Client(object):
         if not wire_response.get(OAuth2.DeviceCodeResponseParameters.USER_CODE):
             raise self._log.create_error('wire_response is missing user_code')
 
-        #we skip the field naming mapping
+        #skip field naming tweak, becasue names from wire are python style already
         return wire_response
 
     def _handle_get_token_response(self, body):
@@ -333,12 +332,6 @@ class OAuth2Client(object):
             resp = requests.post(token_url.geturl(), data=url_encoded_code_request, headers=post_options['headers'])
             util.log_return_correlation_id(self._log, operation, resp)
 
-            # 2 possible node bugs found during porting
-            #1. https://github.com/AzureAD/azure-activedirectory-library-for-nodejs/blob/master/lib/oauth2client.js#L363, 
-            #  the condition should be the opposite
-            #2. https://github.com/AzureAD/azure-activedirectory-library-for-nodejs/blob/master/lib/oauth2client.js#L411
-            #  the field naming is wrong, should use the counter part's name with "_" 
-            # confirm whether the if logic is right
             wire_response = {} 
             if not util.is_http_success(resp.status_code):
                 wire_response = json.loads(resp.text) # on error, the body should be json already 

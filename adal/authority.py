@@ -144,9 +144,7 @@ class Authority(object):
 
     def _get_oauth_endpoints(self):
 
-        if self.token_endpoint and self.device_code_endpoint:
-            pass #get the logic better
-        else:
+        if (not self.token_endpoint) or (not self.device_code_endpoint):
             self.token_endpoint = self._url.geturl() + AADConstants.TOKEN_ENDPOINT_PATH
             self.device_code_endpoint = self._url.geturl() + AADConstants.DEVICE_ENDPOINT_PATH
 

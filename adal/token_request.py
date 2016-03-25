@@ -328,9 +328,12 @@ class TokenRequest(object):
         token = None
         try:
             token = self._find_token_from_cache()
-        except: #catch specific exception
-            token = self._oauth_get_token(oauth_parameters)
-
+            if token:
+                return token
+        except Exception as exp: 
+            self._log.warn('Attempt to look for token in cache resulted in Error: {}'.format(exp), True)
+        
+        token = self._oauth_get_token(oauth_parameters)
         return token
 
     def get_token_with_device_code(self, user_code_info):

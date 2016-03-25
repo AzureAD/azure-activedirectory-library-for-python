@@ -125,17 +125,6 @@ class TokenResponseFields(object):
     _CLIENT_ID = '_clientId'
     IS_MRRT = 'isMRRT'
 
-#class UserCodeResponseFields(object):
-
-#    USER_CODE = "userCode"
-#    DEVICE_CODE = 'deviceCode'
-#    VERIFICATION_URL = 'verificationUrl'
-#    EXPIRES_IN = 'expiresIn'
-#    INTERVAL = 'interval'
-#    MESSAGE = 'message'
-#    ERROR = 'error'
-#    ERROR_DESCRIPTION = 'errorDescription'
-
 
 class IdTokenFields(object):
 

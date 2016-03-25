@@ -121,13 +121,7 @@ class AuthenticationContext(object):
         token = self._acquire_token(token_func)
         return token
 
-    def acquire_token_with_refresh_token(
-        self,
-        refresh_token,
-        client_id,
-        client_secret,
-        resource
-    ):
+    def acquire_token_with_refresh_token(self, refresh_token, client_id, client_secret, resource):
         argument.validate_string_param(refresh_token, 'refresh_token')
         argument.validate_string_param(client_id, 'client_id')
         argument.validate_string_param(resource, 'resource')
@@ -139,13 +133,7 @@ class AuthenticationContext(object):
         token = self._acquire_token(token_func)
         return token
 
-    def acquire_token_with_client_certificate(
-        self,
-        resource,
-        client_id,
-        certificate,
-        thumbprint
-    ):
+    def acquire_token_with_client_certificate(self, resource, client_id, certificate, thumbprint):
         argument.validate_string_param(resource, 'resource')
         argument.validate_string_param(client_id, 'client_id')
         argument.validate_string_param(certificate, 'certificate')
@@ -186,5 +174,5 @@ class AuthenticationContext(object):
         if  not request:
             raise ValueError('No acquire_token_with_device_code existed to be cancelled')
 
-        request._cancel_token_request_with_device_code()
+        request.cancel_token_request_with_device_code()
         self._token_requests_with_user_code.pop(key, None)

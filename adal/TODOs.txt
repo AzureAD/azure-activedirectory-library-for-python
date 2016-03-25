@@ -1,16 +1,3 @@
-token entry file naming, and referencing (can't use . like js). Also do not duplicate the file nam constants
-ask rich about the exception raising, and related error log, and adal specifc exceptions
-port over the tokencache 
-get rid of the __init__
-refactoring out the common token steps in token_request.py say:
-    a. Look for it cache
-    b. common logging after the token request
-fix up the naming of "token_response" when it should just be a "token"
-consolidate exception types, rename with AAD, and see it has good pattern
-authentication_parameters.py has callback, lots of them
-
-merge 2 pylintrc files
-
 consider the field access safeness
 
 expose same set of properties say, for authority: 
@@ -31,6 +18,12 @@ b. catch at root vs catch-rethrow?
 c. do not forget authentication_parameters.py
 d. test federated account
 e. get vs []
+g. boolean opeartor is different
+h. thread safety
+i. (DONE)right pattern for python exception
+j: test 'cancel_token_request_with_device_code'
+k. test sign in with thubmbprints
+
 
 ###### code snippet removed, but might need to bring some back for nicer logging???#####
     #def _get_token(self, get_token_func):
@@ -44,4 +37,22 @@ e. get vs []
     #        callback(None, token_response)
 
     #    get_token_func(_call)
+
+###################################
+[MESSAGES CONTROL]
+# For all codes, run 'pylint --list-msgs' or go to 'http://pylint-messages.wikidot.com/all-codes'
+# C0111 Missing docstring 
+# C0103 Invalid %s name "%s"
+# I0011 Warning locally suppressed using disable-msg
+# W0511 fixme
+# E1121: Too many positional arguments for function call
+# R0903: Too few public methods (%s/%s)
+# W0311: Bad indentation. Found %s %s, expected %s
+# R0913: Too many arguments (%s/%s)
+disable=C0111,C0103,C0303,C0301,I0011,W0511,E1121,R0903,W0311,R0913
+[DESIGN]
+# Maximum number of locals for function / method body
+max-locals=25
+# Maximum number of branch for function / method body
+max-branches=20
 

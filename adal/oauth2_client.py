@@ -43,7 +43,7 @@ except ImportError:
 from . import log
 from . import util
 from .constants import OAuth2, TokenResponseFields, IdTokenFields
-from .token_request_error import TokenRequestError
+from .adal_error import AdalError
 
 TOKEN_RESPONSE_MAP = {
     OAuth2.ResponseParameters.TOKEN_TYPE : TokenResponseFields.TOKEN_TYPE,
@@ -56,17 +56,6 @@ TOKEN_RESPONSE_MAP = {
     OAuth2.ResponseParameters.ERROR : TokenResponseFields.ERROR,
     OAuth2.ResponseParameters.ERROR_DESCRIPTION : TokenResponseFields.ERROR_DESCRIPTION,
 }
-
-#DEVICE_CODE_RESPONSE_MAP = {
-#    OAuth2.DeviceCodeResponseParameters.DEVICE_CODE: UserCodeResponseFields.DEVICE_CODE,
-#    OAuth2.DeviceCodeResponseParameters.: UserCodeResponseFields.,
-#    OAuth2.DeviceCodeResponseParameters.: UserCodeResponseFields.,
-#    OAuth2.DeviceCodeResponseParameters.: UserCodeResponseFields.,
-#    OAuth2.DeviceCodeResponseParameters.: UserCodeResponseFields.,
-#    OAuth2.DeviceCodeResponseParameters.: UserCodeResponseFields.,
-#    OAuth2.DeviceCodeResponseParameters.: UserCodeResponseFields.,
-#    OAuth2.DeviceCodeResponseParameters.: UserCodeResponseFields.,
-#}
 
 def map_fields(in_obj, map_to):
     return dict((map_to[k], v) for k, v in in_obj.items() if k in map_to)
@@ -185,7 +174,7 @@ class OAuth2Client(object):
             OAuth2.ResponseParameters.EXPIRES_ON,
             OAuth2.ResponseParameters.EXPIRES_IN,
             OAuth2.ResponseParameters.CREATED_ON
-          ]
+        ]
 
         self._parse_optional_ints(wire_response, int_keys)
 
@@ -228,7 +217,7 @@ class OAuth2Client(object):
         int_keys = [
             OAuth2.DeviceCodeResponseParameters.EXPIRES_IN,
             OAuth2.DeviceCodeResponseParameters.INTERVAL
-          ]
+        ]
 
         self._parse_optional_ints(wire_response, int_keys)
 
@@ -291,7 +280,7 @@ class OAuth2Client(object):
                     except:
                         pass
 
-                raise TokenRequestError(self._log.create_error(return_error_string), error_response)
+                raise AdalError(self._log.create_error(return_error_string), error_response)
 
         except Exception as exp:
             self._log.error("{0} request failed".format(operation), exp)
@@ -321,7 +310,7 @@ class OAuth2Client(object):
                     except:
                         pass
 
-                raise TokenRequestError(self._log.create_error(return_error_string), error_response)
+                raise AdalError(self._log.create_error(return_error_string), error_response)
 
         except Exception as exp:
             self._log.error("{0} request failed".format(operation), exp)
@@ -339,7 +328,7 @@ class OAuth2Client(object):
         max_times_for_retry = math.floor(expires_in/refresh_internal)
         for _ in range(int(max_times_for_retry)):
             if self._cancel_polling_request:
-                raise TokenRequestError('Polling_Request_Cancelled')
+                raise AdalError('Polling_Request_Cancelled')
 
             resp = requests.post(token_url.geturl(), data=url_encoded_code_request, headers=post_options['headers'])
             util.log_return_correlation_id(self._log, operation, resp)

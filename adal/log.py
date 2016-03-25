@@ -49,7 +49,7 @@ LEVEL_PY_MAP = {
     LOGGING_LEVEL.DEBUG  : 10
     }
 
-def create_log_context(correlation_id = None):
+def create_log_context(correlation_id=None):
     return {'correlation_id' : correlation_id or str(uuid.uuid4())}
 
 def set_logging_options(options={}):

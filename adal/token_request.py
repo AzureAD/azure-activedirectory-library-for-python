@@ -35,7 +35,7 @@ from . import oauth2_client
 from . import self_signed_jwt
 from . import user_realm
 from . import wstrust_request
-from .token_request_error import TokenRequestError, MexDiscoverError, DeviceCodeRequestError
+from .adal_error import AdalError
 from .cache_driver import CacheDriver
 
 OAUTH2_PARAMETERS = constants.OAuth2.Parameters
@@ -182,7 +182,7 @@ class TokenRequest(object):
         try:
             wstrust_response = wstrust.acquire_token(username, password)
             return wstrust_response
-        except TokenRequestError as exp:
+        except AdalError as exp:
             error_msg = exp.error_msg
             if not error_msg:
                 error_msg = "Unsuccessful RSTR.\n\terror code: {0}\n\tfaultMessage: {1}".format(exp.error_response.error_code, exp.error_response.fault_message)
@@ -201,7 +201,7 @@ class TokenRequest(object):
             self._log.warn("Unable to retrieve federationMetadataUrl from AAD.  Attempting fallback to AAD supplied endpoint.")
 
             if not self._user_realm.federation_active_auth_url:
-                raise TokenRequestError('AAD did not return a WSTrust endpoint.  Unable to proceed.')
+                raise AdalError('AAD did not return a WSTrust endpoint.  Unable to proceed.')
 
             token = self._perform_username_password_for_access_token_exchange(self._user_realm.federation_active_auth_url, username, password)
             return token
@@ -218,7 +218,7 @@ class TokenRequest(object):
                 self._log.warn("MEX exchange failed.  Attempting fallback to AAD supplied endpoint.")
                 wstrust_endpoint = self._user_realm.federation_active_auth_url
                 if not wstrust_endpoint:
-                    raise TokenRequestError('AAD did not return a WSTrust endpoint.  Unable to proceed.')
+                    raise AdalError('AAD did not return a WSTrust endpoint.  Unable to proceed.')
 
             token = self._perform_username_password_for_access_token_exchange(wstrust_endpoint, username, password)
             return token
@@ -242,7 +242,7 @@ class TokenRequest(object):
             elif self._user_realm.account_type == ACCOUNT_TYPE['Federated']:
                 token = self._get_token_username_password_federated(username, password)
             else:
-                raise TokenRequestError(self._log.create_error("Server returned an unknown AccountType: {0}".format(self._user_realm.account_type)))
+                raise AdalError(self._log.create_error("Server returned an unknown AccountType: {0}".format(self._user_realm.account_type)))
             self._log.debug("Successfully retrieved token from authority.")
         except Exception as exp:
             self._log.warn("get_token_func returned with err")
@@ -343,7 +343,7 @@ class TokenRequest(object):
         expires_in = user_code_info[OAUTH2_DEVICE_CODE_RESPONSE_PARAMETERS.EXPIRES_IN]
 
         if interval <= 0:
-            raise DeviceCodeRequestError('invalid refresh interval')
+            raise AdalError('invalid refresh interval')
 
         client = self._create_oauth2_client()
         self._polling_client = client
@@ -353,5 +353,5 @@ class TokenRequest(object):
 
         return token
 
-    def _cancel_token_request_with_device_code(self):
+    def cancel_token_request_with_device_code(self):
         self._polling_client.cancel_polling_request()

@@ -1,11 +1,14 @@
 ﻿import copy
-from datetime import datetime, timedelta
-from dateutil import parser
 import hashlib
 import json
+from datetime import datetime, timedelta
+from dateutil import parser
 
 from .constants import TokenResponseFields, Misc
 from . import log
+
+#surppress warnings: like accces to a protected member of "_AUTHORITY", etc
+# pylint: disable=W0212
 
 def _create_token_hash(token):
     return token
@@ -33,19 +36,19 @@ class CacheDriver(object):
         self._refresh_function = refresh_function
 
     def _get_potential_entries(self, query):
-      potential_entries_query = {}
+        potential_entries_query = {}
 
-      if query.get(TokenResponseFields._CLIENT_ID):
-        potential_entries_query[TokenResponseFields._CLIENT_ID] = query[TokenResponseFields._CLIENT_ID]
+        if query.get(TokenResponseFields._CLIENT_ID):
+            potential_entries_query[TokenResponseFields._CLIENT_ID] = query[TokenResponseFields._CLIENT_ID]
       
-      if query.get(TokenResponseFields.USER_ID):
-        potential_entries_query[TokenResponseFields.USER_ID] = query[TokenResponseFields.USER_ID]
+        if query.get(TokenResponseFields.USER_ID):
+            potential_entries_query[TokenResponseFields.USER_ID] = query[TokenResponseFields.USER_ID]
 
-      self._log.debug('Looking for potential cache entries:')
-      self._log.debug(json.dumps(potential_entries_query))
-      entries = self._cache.find(potential_entries_query)
-      self._log.debug('Found {} potential entries.'.format(len(entries)))
-      return entries
+        self._log.debug('Looking for potential cache entries:')
+        self._log.debug(json.dumps(potential_entries_query))
+        entries = self._cache.find(potential_entries_query)
+        self._log.debug('Found {} potential entries.'.format(len(entries)))
+        return entries
     
     def _find_mrrt_tokens_for_user(self, user):
         entries = self._cache.find({
@@ -61,10 +64,10 @@ class CacheDriver(object):
 
         potential_entries = self._get_potential_entries(query)
         if potential_entries:
-            resource_tenant_sepcific_entries = [
+            resource_tenant_specific_entries = [
                 x for x in potential_entries if x[TokenResponseFields.RESOURCE] == self._resource and x[TokenResponseFields._AUTHORITY] == self._authority]
 
-            if not resource_tenant_sepcific_entries:
+            if not resource_tenant_specific_entries:
                 self._log.debug('No resource specific cache entries found.')
 
                 #There are no resource specific entries.  Find an MRRT token.
@@ -74,9 +77,9 @@ class CacheDriver(object):
                     return_val = mrrt_tokens[0]
                 else:
                     self._log.debug('No MRRT tokens found.')
-            elif len(resource_tenant_sepcific_entries) == 1:
+            elif len(resource_tenant_specific_entries) == 1:
                 self._log.debug('Resource specific token found.')
-                return_val = resource_tenant_sepcific_entries[0]
+                return_val = resource_tenant_specific_entries[0]
                 is_resource_tenant_specific = True
             else:
                 raise ValueError('More than one token matches the criteria.  The result is ambiguous.')
@@ -164,13 +167,13 @@ class CacheDriver(object):
         if CacheDriver._is_mrrt(entry):
             mrrt_tokens = self._find_mrrt_tokens_for_user(entry.get(TokenResponseFields.USER_ID))
             if mrrt_tokens:
-               self._log.debug('Updating {} cached refresh tokens'.format(len(mrrt_tokens)))
-               self._remove_many(mrrt_tokens)
+                self._log.debug('Updating {} cached refresh tokens'.format(len(mrrt_tokens)))
+                self._remove_many(mrrt_tokens)
                
-               for t in mrrt_tokens:
-                   t[TokenResponseFields.REFRESH_TOKEN] = entry[TokenResponseFields.REFRESH_TOKEN]
+                for t in mrrt_tokens:
+                    t[TokenResponseFields.REFRESH_TOKEN] = entry[TokenResponseFields.REFRESH_TOKEN]
 
-               self._add_many(mrrt_tokens)
+                self._add_many(mrrt_tokens)
 
     @staticmethod
     def _entry_has_metadata(entry):

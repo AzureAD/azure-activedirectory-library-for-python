@@ -36,7 +36,7 @@ except ImportError:
     from urlparse import urlparse
 
 from .constants import AADConstants
-from .token_request_error import AuthorityValidationError
+from .adal_error import AdalError
 from . import log
 from . import util
 
@@ -128,14 +128,14 @@ class Authority(object):
                 except:
                     pass
 
-            raise AuthorityValidationError(self._log.create_error(return_error_string), error_response)
+            raise AdalError(self._log.create_error(return_error_string), error_response)
 
         else:
             discovery_resp = resp.json()
             if discovery_resp.get('tenant_discovery_endpoint'):
                 return discovery_resp['tenant_discovery_endpoint']
             else:
-                raise AuthorityValidationError(self._log.create_error('Failed to parse instance discovery response'))
+                raise AdalError(self._log.create_error('Failed to parse instance discovery response'))
 
     def _validate_via_instance_discovery(self):
         valid = self._perform_static_instance_discovery()

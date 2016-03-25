@@ -37,7 +37,7 @@ except ImportError:
 from . import constants
 from . import log
 from . import util
-from .token_request_error import UserRealmDiscoverError 
+from .adal_error import AdalError 
 
 USER_REALM_PATH_TEMPLATE = 'common/UserRealm/<user>'
 
@@ -103,18 +103,18 @@ class UserRealm(object):
         try:
             response = json.loads(body)
         except Exception as exp:
-            raise UserRealmDiscoverError(self._log.create_error('Parsing realm discovery response JSON failed: {0}'.format(body)))
+            raise AdalError(self._log.create_error('Parsing realm discovery response JSON failed: {0}'.format(body)))
 
         account_type = self._validate_account_type(response['account_type'])
         if not account_type:
-            raise UserRealmDiscoverError(self._log.create_error('Cannot parse account_type: {0}'.format(account_type)))
+            raise AdalError(self._log.create_error('Cannot parse account_type: {0}'.format(account_type)))
         self.account_type = account_type
 
         if self.account_type == ACCOUNT_TYPE['Federated']:
             protocol = self._validate_federation_protocol(response['federation_protocol'])
 
             if not protocol:
-                raise UserRealmDiscoverError(self._log.create_error('Cannot parse federation protocol: {0}'.format(protocol)))
+                raise AdalError(self._log.create_error('Cannot parse federation protocol: {0}'.format(protocol)))
 
             self.federation_protocol = protocol
             self.federation_metadata_url = response['federation_metadata_url']
@@ -142,7 +142,7 @@ class UserRealm(object):
                 except:
                     pass
 
-            raise UserRealmDiscoverError(self._log.create_error(return_error_string), error_response)
+            raise AdalError(self._log.create_error(return_error_string), error_response)
 
         else:
             self._parse_discovery_response(resp.text)

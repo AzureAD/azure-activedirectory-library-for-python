@@ -109,7 +109,7 @@ class WSTrustRequest(object):
 
         operation = "WS-Trust RST"
         try:
-            resp = requests.post(self._wstrust_endpoint_url, headers=options['headers'], data=rst, allow_redirects = True)
+            resp = requests.post(self._wstrust_endpoint_url, headers=options['headers'], data=rst, allow_redirects=True)
 
             util.log_return_correlation_id(self._log, operation, resp)
 

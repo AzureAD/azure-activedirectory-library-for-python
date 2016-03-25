@@ -24,6 +24,8 @@
 # THE SOFTWARE.
 #
 #------------------------------------------------------------------------------
+# Surppress warnings of 'Too few public methods'
+# pylint: disable=R0903
 
 class Errors:
     # Constants
@@ -167,13 +169,13 @@ class UserRealm(object):
         'WSFederation' : 'wstrust',
         'SAML2' : 'saml20',
         'Unknown' : 'unknown'
-      }
+    }
 
     account_type = {
         'Federated' : 'federated',
         'Managed' : 'managed',
         'Unknown' : 'unknown'
-      }
+    }
 
 
 class Saml(object):

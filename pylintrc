@@ -1,16 +1,116 @@
+[MASTER]
+
+profile=no
+ignore=.svn
+persistent=yes
+cache-size=500
+load-plugins=
+
 [MESSAGES CONTROL]
-# For all codes, run 'pylint --list-msgs' or go to 'http://pylint-messages.wikidot.com/all-codes'
-# C0111 Missing docstring 
-# C0103 Invalid %s name "%s"
-# I0011 Warning locally suppressed using disable-msg
-# W0511 fixme
-# E1121: Too many positional arguments for function call
-# R0903: Too few public methods (%s/%s)
-# W0311: Bad indentation. Found %s %s, expected %s
-# R0913: Too many arguments (%s/%s)
-disable=C0111,C0103,C0303,C0301,I0011,W0511,E1121,R0903,W0311,R0913
+
+#enable-checker=
+#disable-checker=design
+#enable-msg-cat=
+#disable-msg-cat=
+#enable-msg=
+
+# Disabled messages:
+# C0321: Multiple statements on a single line
+# W0105: String statement has no effect
+# W0142: Used * or ** magic
+# W0404: Reimport '<package>'
+# W0704: Except doesn't do anything Used when an except clause does nothing but "pass" 
+#        and there is no "else" clause.
+# I0011: Locally disabling (message)
+# R0921: Abstract class not referenced
+# C0111: missing-docstring
+# C0303: railing whitespace
+# C0301: Line too long
+disable=C0111,C0321,C0303,C0301,W0105,W0142,W0404,W0704,I0011,R0921
+
+[REPORTS]
+
+# Available formats are text, parseable, colorized, msvs (Visual Studio) and html
+output-format=msvs
+include-ids=yes
+files-output=no
+reports=yes
+
+# Python expression which should return a note less than 10 (10 is the highest
+# note).You have access to the variables errors warning, statement which
+# respectivly contain the number of errors / warnings messages and the total
+# number of statements analyzed. This is used by the global evaluation report
+# (R0004).
+evaluation=10.0 - ((float(5 * error + warning + refactor + convention) / statement) * 10)
+
+# Add a comment according to your evaluation note. This is used by the global
+# evaluation report (R0004).
+comment=no
+
+#enable-report=
+#disable-report=
+
+[BASIC]
+
+required-attributes=
+no-docstring-rgx=__.*__
+
+# Regular expression which should only match correct module names
+module-rgx=(([a-z_][a-z0-9_]*)|([A-Z][a-zA-Z0-9]+))$
+
+# Regular expression which should only match correct module level names
+const-rgx=(([A-Z_][A-Z1-9_]*)|(__.*__)|([a-z_][a-z0-9_]*))$
+
+# Regular expression which should only match correct class names
+class-rgx=[a-zA-Z0-9_]+$
+
+# Regular expression which should only match correct function names
+function-rgx=[a-zA-Z_][a-zA-Z0-9_]{2,30}$
+
+# Regular expression which should only match correct method names
+method-rgx=[a-z_][a-zA-Z0-9_]{2,50}$
+
+# Regular expression which should only match correct instance attribute names
+attr-rgx=[a-z_][a-z0-9_]{1,30}$
+
+# Regular expression which should only match correct argument names
+argument-rgx=[a-z_][a-z0-9_]{1,30}$
+
+# Regular expression which should only match correct variable names
+variable-rgx=[a-z_][a-zA-Z0-9_]{1,40}$
+
+# Regular expression which should only match correct list comprehension /
+# generator expression variable names
+inlinevar-rgx=[A-Za-z_][A-Za-z0-9_]*$
+
+# Good variable names which should always be accepted, separated by a comma
+good-names=i,j,k,ex,Run,_,x,y
+
+# Bad variable names which should always be refused, separated by a comma
+bad-names=foo,bar,baz,toto,tutu,tata
+
+# List of builtins function names that should not be used, separated by a comma
+bad-functions=filter,apply,input
+
 [DESIGN]
-# Maximum number of locals for function / method body
-max-locals=25
-# Maximum number of branch for function / method body
-max-branches=20
+
+max-args=10
+max-locals=30
+max-returns=6
+max-branchs=18
+max-statements=50
+max-parents=5
+max-attributes=15
+min-public-methods=1
+max-public-methods=20
+
+[FORMAT]
+
+max-line-length=120
+max-module-lines=1000
+indent-string='    '
+
+[SIMILARITIES]
+
+# Effectively disable similarity checking
+min-similarity-lines=10000

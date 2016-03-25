@@ -47,7 +47,7 @@ except ImportError:
 
 from .constants import XmlNamespaces
 from .constants import MexNamespaces
-from .token_request_error import MexDiscoverError, MexParseError
+from .adal_error import AdalError
 
 class Mex(object):
 
@@ -82,7 +82,7 @@ class Mex(object):
                     except:
                         pass
 
-                raise MexDiscoverError(self._log.create_error(return_error_string), error_response)
+                raise AdalError(self._log.create_error(return_error_string), error_response)
 
             else:
                 try:
@@ -91,7 +91,7 @@ class Mex(object):
                     self._dom = ET.fromstring(self._mex_doc)
                     self._parents = {c:p for p in self._dom.iter() for c in p}
                     self._parse()
-                except MexParseError as exp:
+                except AdalError as exp:
                     self._log.error('Failed to parse mex response in to DOM', exp)
                     raise exp
                 return
@@ -220,15 +220,15 @@ class Mex(object):
 
         policies = self._select_username_password_polices()
         if not policies:
-            raise MexParseError(self._log.create_error("No matching policies."))
+            raise AdalError(self._log.create_error("No matching policies."))
             
 
         bindings = self._get_matching_bindings(policies)
         if not bindings:
-            raise MexParseError(self._log.create_error("No matching bindings."))
+            raise AdalError(self._log.create_error("No matching bindings."))
 
         self._get_ports_for_policy_bindings(bindings, policies)
         self._select_single_matching_policy(policies)
 
         if not self._url:
-            raise MexParseError(self._log.create_error("No ws-trust endpoints match requirements."))
+            raise AdalError(self._log.create_error("No ws-trust endpoints match requirements."))

@@ -32,8 +32,7 @@ class TokenCacheKey(object):
     def __ne__(self, other):
         return not self == other
 
- #TODO: constantlize all field name like 'METADATA' stuff
- #TODO: ensure thread safety
+#TODO: ensure thread safety
 class TokenCache(object):
     def __init__(self, state=None):
         self._cache = {}

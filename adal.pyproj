@@ -62,7 +62,7 @@
     <Compile Include="adal\token_request.py">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="adal\token_request_error.py">
+    <Compile Include="adal\adal_error.py">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="adal\user_realm.py">

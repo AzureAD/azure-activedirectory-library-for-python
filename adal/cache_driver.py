@@ -1,5 +1,6 @@
 ﻿import copy
 from datetime import datetime, timedelta
+from dateutil import parser
 import hashlib
 import json
 
@@ -118,10 +119,11 @@ class CacheDriver(object):
         return new_entry
 
     def _refresh_entry_if_necessary(self, entry, is_resource_specific):
-        expiry_date = datetime.strptime(entry[TokenResponseFields.EXPIRES_ON], '%Y-%m-%d %H:%M:%S.%f') #get clear on local time and time saving mode
-
+        expiry_date = parser.parse(entry[TokenResponseFields.EXPIRES_ON]) #get clear on local time and time saving
+        now = datetime.now(expiry_date.tzinfo)
+            
         # Add some buffer in to the time comparison to account for clock skew or latency.
-        now_plus_buffer = datetime.now() + timedelta(minutes=Misc.CLOCK_BUFFER)
+        now_plus_buffer = now + timedelta(minutes=Misc.CLOCK_BUFFER)
 
         if is_resource_specific and now_plus_buffer > expiry_date:
             self._log.info('Cached token is expired.  Refreshing: {}'.format(expiry_date))

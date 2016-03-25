@@ -24,3 +24,25 @@ check out the best python method signature design
 
 need to expose an enumeratable from token cache?
 
+cache persistence: we need to check whether the cache got changed before save it
+fix a xplat bug that loading azuerprofile.json fails for the BOM
+
+Code review explicit notes
+a. concurrent support
+b. catch at root vs catch-rethrow?
+c. do not forget authentication_parameters.py
+d. test federated account
+
+###### code snippet removed, but might need to bring some back for nicer logging???#####
+    #def _get_token(self, get_token_func):
+    #    def _call(err, token_response=None):
+    #        if err:
+    #            self._log.warn("get_token_func returned with err")
+    #            callback(err, token_response)
+    #            return
+
+    #        self._log.debug("Successfully retrieved token from authority.")
+    #        callback(None, token_response)
+
+    #    get_token_func(_call)
+

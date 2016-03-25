@@ -125,7 +125,7 @@ class WSTrustRequest(object):
 
                 raise WsTokenRequestError(self._log.create_error(return_error_string), error_response)
             else:
-                self._handle_rstr(resp.text, callback)
+                self._handle_rstr(resp.text)
 
         except Exception as exp:
             self._log.error("{0} request failed".format(operation), exp)

@@ -122,18 +122,6 @@ class TokenRequest(object):
 
         return query
 
-    #def _get_token(self, get_token_func):
-    #    def _call(err, token_response=None):
-    #        if err:
-    #            self._log.warn("get_token_func returned with err")
-    #            callback(err, token_response)
-    #            return
-
-    #        self._log.debug("Successfully retrieved token from authority.")
-    #        callback(None, token_response)
-
-    #    get_token_func(_call)
-
     def _create_oauth_parameters(self, grant_type):
 
         oauth_parameters = {}

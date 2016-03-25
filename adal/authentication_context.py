@@ -125,7 +125,7 @@ class AuthenticationContext(object):
         self,
         refresh_token,
         client_id,
-        client_secret, 
+        client_secret, #TODO, get argument valdiation works if this is missing 
         resource
     ):
         argument.validate_string_param(refresh_token, 'refresh_token')

@@ -13,8 +13,6 @@ merge 2 pylintrc files
 
 consider the field access safeness
 
-token normalization such as 'userId'
-
 expose same set of properties say, for authority: 
     d:\sdk\adal-python\adal\oauth2_client.py::def _get_user_id(self, id_token):
 
@@ -32,6 +30,7 @@ a. concurrent support
 b. catch at root vs catch-rethrow?
 c. do not forget authentication_parameters.py
 d. test federated account
+e. get vs []
 
 ###### code snippet removed, but might need to bring some back for nicer logging???#####
     #def _get_token(self, get_token_func):

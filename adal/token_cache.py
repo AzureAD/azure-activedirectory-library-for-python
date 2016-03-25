@@ -1,5 +1,7 @@
 ﻿import json
 
+from .constants import TokenResponseFields
+
 def _string_cmp(str1, str2):
     if not str1 and not str2:
         return True
@@ -39,7 +41,10 @@ class TokenCache(object):
             self.deserialize(state)
 
     def find(self, query):
-        entries = self._query_cache(query.get('isMRRT'), query.get('userId'), query.get('_clientId'))
+        entries = self._query_cache(
+            query.get(TokenResponseFields.IS_MRRT), 
+            query.get(TokenResponseFields.USER_ID), 
+            query.get(TokenResponseFields._CLIENT_ID))
         return entries
 
     def remove(self, entries):
@@ -66,15 +71,19 @@ class TokenCache(object):
 
     @staticmethod
     def _get_cache_key(entry):
-        return TokenCacheKey(entry.get('_authority'), entry.get('resource'), entry.get('_clientId'), entry.get('userId'))
+        return TokenCacheKey(
+            entry.get(TokenResponseFields._AUTHORITY), 
+            entry.get(TokenResponseFields.RESOURCE), 
+            entry.get(TokenResponseFields._CLIENT_ID), 
+            entry.get(TokenResponseFields.USER_ID))
 
     def _query_cache(self, is_mrrt, user_id, client_id):
         matches = []
         for k in self._cache:
             v = self._cache[k]
-            if (is_mrrt is None or is_mrrt == v.get('isMRRT')) and \
-               (user_id is None or _string_cmp(user_id, v.get('userId'))) and \
-               (client_id is None or _string_cmp(client_id, v.get('_clientId'))):
+            if (is_mrrt is None or is_mrrt == v.get(TokenResponseFields.IS_MRRT)) and \
+               (user_id is None or _string_cmp(user_id, v.get(TokenResponseFields.USER_ID))) and \
+               (client_id is None or _string_cmp(client_id, v.get(TokenResponseFields._CLIENT_ID))):
                 matches.append(v)
         return matches
 

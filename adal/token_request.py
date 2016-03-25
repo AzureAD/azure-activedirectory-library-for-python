@@ -45,6 +45,8 @@ OAUTH2_SCOPE = constants.OAuth2.Scope
 OAUTH2_DEVICE_CODE_RESPONSE_PARAMETERS = constants.OAuth2.DeviceCodeResponseParameters 
 SAML = constants.Saml
 ACCOUNT_TYPE = constants.UserRealm.account_type
+USER_ID = constants.TokenResponseFields.USER_ID
+_CLIENT_ID = constants.TokenResponseFields._CLIENT_ID
 
 def add_parameter_if_available(parameters, key, value):
     if value:
@@ -114,9 +116,9 @@ class TokenRequest(object):
         return token
 
     def _create_cache_query(self):
-        query = {'clientId' : self._client_id}
+        query = {_CLIENT_ID : self._client_id}
         if self._user_id:
-            query['userId'] = self._user_id
+            query[USER_ID] = self._user_id
         else:
             self._log.debug("No user_id passed for cache query")
 

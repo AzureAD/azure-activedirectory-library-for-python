@@ -117,6 +117,11 @@ class TokenResponseFields(object):
     USER_ID = 'userId'
     ERROR = 'error'
     ERROR_DESCRIPTION = 'errorDescription'
+    
+    # not from the wire, but amends for token cache
+    _AUTHORITY = '_authority'
+    _CLIENT_ID = '_clientId'
+    IS_MRRT = 'isMRRT'
 
 #class UserCodeResponseFields(object):
 

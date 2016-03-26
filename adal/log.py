@@ -29,6 +29,8 @@ import logging
 import uuid
 import traceback
 
+ADAL_LOGGER_NAME = 'adal-python'
+
 LEVEL_STRING_MAP = {
     0: 'ERROR:',
     1: 'WARNING:',
@@ -53,20 +55,30 @@ def create_log_context(correlation_id=None):
     return {'correlation_id' : correlation_id or str(uuid.uuid4())}
 
 def set_logging_options(options={}):
-    logger = logging.getLogger('python_adal')
+    '''
+    To set level: {'level': adal.log.LOGGING_LEVEL.DEBUG}
+    To add console log: { 'handler': logging.StreamHandler()}
+    to add file log: {'handler': logging.FileHandler('adal.log')}
+    '''
+    logger = logging.getLogger(ADAL_LOGGER_NAME)
 
+    int_level = LEVEL_PY_MAP[LOGGING_LEVEL.ERROR]
     if options.get('level'):
         level = int(options['level'])
         if level > 3 or level < 0:
             raise ValueError("set_logging_options expects the level key to be in the range 0 to 3 inclusive")
+        int_level = LEVEL_PY_MAP[level]
 
-        logger.setLevel(LEVEL_PY_MAP[level])
-    else:
-        logger.setLevel(LEVEL_PY_MAP[LOGGING_LEVEL.ERROR])
+    logger.setLevel(int_level)
+
+    handler = options.get('handler')
+    if handler:
+        handler.setLevel(int_level)
+        logger.addHandler(handler)
 
 def get_logging_options():
 
-    logger = logging.getLogger('python_adal')
+    logger = logging.getLogger(ADAL_LOGGER_NAME)
     level = logger.getEffectiveLevel()
     for (key, val) in LEVEL_PY_MAP.items():
         if level == val:
@@ -81,7 +93,7 @@ class Logger(object):
 
         self._component_name = component_name
         self.log_context = log_context
-        self._logging = logging.getLogger('python_adal')
+        self._logging = logging.getLogger(ADAL_LOGGER_NAME)
 
     def log_message(self, level, message, error=None):
 

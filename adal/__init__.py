@@ -25,7 +25,20 @@
 #
 #------------------------------------------------------------------------------
 
+__version__ = '0.2.0'
+
 from .authentication_context import AuthenticationContext
 from .token_cache import TokenCache
-__version__ = '0.1.0'
+from .log import LOGGING_LEVEL, set_logging_options, get_logging_options
+
+# to avoid "No handler found" warnings.
+import logging
+try:  # Python 2.7+
+    from logging import NullHandler
+except ImportError:
+    class NullHandler(logging.Handler):
+        def emit(self, record):
+            pass
+logging.getLogger(log.ADAL_LOGGER_NAME).addHandler(NullHandler())
+
 

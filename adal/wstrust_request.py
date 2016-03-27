@@ -129,4 +129,4 @@ class WSTrustRequest(object):
 
         except Exception as exp:
             self._log.error("{0} request failed".format(operation), exp)
-            raise exp
+            raise

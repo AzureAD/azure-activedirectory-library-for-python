@@ -93,13 +93,13 @@ class Mex(object):
                     self._parse()
                 except AdalError as exp:
                     self._log.error('Failed to parse mex response in to DOM', exp)
-                    raise exp
+                    raise
                 return
             return
 
         except Exception as exp:
             self._log.error("{0} request failed".format(operation), exp)
-            raise exp
+            raise
 
     def _check_policy(self, policy_node):
         policy_id = policy_node.attrib["{{{}}}Id".format(XmlNamespaces.namespaces['wsu'])]

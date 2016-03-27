@@ -164,7 +164,6 @@ class WSTrustResponse(object):
             self._parse_token()
 
         except Exception as exp:
-
             self._dom = None
             self._parents = None
-            raise exp
+            raise

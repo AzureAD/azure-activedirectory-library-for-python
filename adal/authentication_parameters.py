@@ -173,12 +173,12 @@ def create_authentication_parameters_from_url(url, correlation_id=None):
         response = requests.get(challenge_url, headers=options['headers'])
     except Exception as exp:
         logger.error("Authentication parameters http get failed.", exp)
-        raise exp
+        raise
 
     try:
         parameters = create_authentication_parameters_from_response(response)
     except Exception as exp:
         logger.error("Unable to parse response in to authentication parameters.", exp)
-        raise exp
+        raise
 
     return parameters

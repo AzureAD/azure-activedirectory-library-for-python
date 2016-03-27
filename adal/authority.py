@@ -116,7 +116,7 @@ class Authority(object):
             util.log_return_correlation_id(self._log, operation, resp)
         except Exception as exp:
             self._log.error("{0} request failed".format(operation), exp)
-            raise exp
+            raise
 
         if not util.is_http_success(resp.status_code):
             return_error_string = "{0} request returned http error: {1}".format(operation, resp.status_code)

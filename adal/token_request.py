@@ -187,7 +187,7 @@ class TokenRequest(object):
             if not error_msg:
                 error_msg = "Unsuccessful RSTR.\n\terror code: {0}\n\tfaultMessage: {1}".format(exp.error_response.error_code, exp.error_response.fault_message)
             self._log.create_error(error_msg)
-            raise exp
+            raise
 
     def _perform_username_password_for_access_token_exchange(self, wstrust_endpoint, username, password):
         wstrust_response = self._perform_wstrust_exchange(wstrust_endpoint, username, password)
@@ -245,8 +245,8 @@ class TokenRequest(object):
                 raise AdalError(self._log.create_error("Server returned an unknown AccountType: {0}".format(self._user_realm.account_type)))
             self._log.debug("Successfully retrieved token from authority.")
         except Exception as exp:
-            self._log.warn("get_token_func returned with err")
-            raise exp
+            self._log.warn("get_token_func returned with err".format(exp))
+            raise
         
         self._cache_driver.add(token)
         return token

@@ -147,7 +147,7 @@ class OAuth2Client(object):
         id_token = None
         try:
             b64_id_token = cracked_token['JWSPayload']
-            b64_decoded = util.base64_urlsafe_decode(b64_id_token)
+            b64_decoded = util.base64_urlsafe_decode(str(b64_id_token))
             if not b64_decoded:
                 self._log.warn('The returned id_token could not be base64 url safe decoded.')
                 return
@@ -156,7 +156,7 @@ class OAuth2Client(object):
 
         except Exception as exp:
             self._log.warn("The returned id_token could not be decoded: {0}".format(exp))
-            return
+            raise
 
         return self._extract_token_values(id_token)
 
@@ -239,7 +239,7 @@ class OAuth2Client(object):
             token_response = self._validate_token_response(body)
         except Exception as exp:
             self._log.error("Error validating get token response", exp)
-            raise exp
+            raise
 
         return token_response
 
@@ -250,7 +250,7 @@ class OAuth2Client(object):
             device_code_response = self._validate_device_code_response(body)
         except Exception as exp:
             self._log.error('Error validating get user vcode response', exp)
-            raise exp
+            raise
 
         return device_code_response
 
@@ -283,7 +283,7 @@ class OAuth2Client(object):
 
         except Exception as exp:
             self._log.error("{0} request failed".format(operation), exp)
-            raise exp
+            raise
 
     def get_user_code_info(self, oauth_parameters):
         device_code_url = self._create_device_code_url()
@@ -313,7 +313,7 @@ class OAuth2Client(object):
 
         except Exception as exp:
             self._log.error("{0} request failed".format(operation), exp)
-            raise exp
+            raise
 
     def get_token_with_polling(self, oauth_parameters, refresh_internal, expires_in):
         token_response = {}
@@ -348,7 +348,7 @@ class OAuth2Client(object):
                     token_response = self._validate_token_response(resp.text)
                 except Exception as exp:
                     self._log.error("Error validating get token response", exp)
-                    raise exp
+                    raise
                 return token_response
 
         raise TimeoutError()

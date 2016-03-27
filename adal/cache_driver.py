@@ -1,4 +1,5 @@
-﻿import copy
+﻿import base64
+import copy
 import hashlib
 import json
 from datetime import datetime, timedelta
@@ -11,11 +12,10 @@ from . import log
 # pylint: disable=W0212
 
 def _create_token_hash(token):
-    return token
-    #todo: find the right method to hash
-    #m = hashlib.sha256()
-    #m.update(token.encode('utf-8'))
-    #return m.digest('base64')
+    m = hashlib.sha256()
+    m.update(str(token))
+    hash = base64.b64encode(m.digest())
+    return hash
 
 def _create_token_id_message(entry):
     access_token_hash = _create_token_hash(entry[TokenResponseFields.ACCESS_TOKEN])

@@ -23,7 +23,7 @@ h. thread safety
 i. (DONE)right pattern for python exception
 j: test 'cancel_token_request_with_device_code'
 k. test sign in with thubmbprints
-l. fine to assume 2.7+
+l. fine to assume 2.7+?
 
 ###### code snippet removed, but might need to bring some back for nicer logging???#####
     #def _get_token(self, get_token_func):

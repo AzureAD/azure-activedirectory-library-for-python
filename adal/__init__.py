@@ -33,12 +33,6 @@ from .log import LOGGING_LEVEL, set_logging_options, get_logging_options
 
 # to avoid "No handler found" warnings.
 import logging
-try:  # Python 2.7+
-    from logging import NullHandler
-except ImportError:
-    class NullHandler(logging.Handler):
-        def emit(self, record):
-            pass
-logging.getLogger(log.ADAL_LOGGER_NAME).addHandler(NullHandler())
+logging.getLogger(log.ADAL_LOGGER_NAME).addHandler(logging.NullHandler())
 
 

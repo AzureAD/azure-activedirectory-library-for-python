@@ -30,6 +30,7 @@ import datetime
 import uuid
 import jwt
 import base64
+import binascii
 import re
 
 from .constants import Jwt
@@ -57,9 +58,9 @@ class SelfSignedJwt(object):
         return str(uuid.uuid4())
 
     def _create_x5t_value(self, thumbprint):
-        hex_str = thumbprint.replace(':', '').replace(' ', '')
-        b64_str = base64.urlsafe_b64encode(hex_str.encode())
-        return b64_str.decode()
+        hex = binascii.a2b_hex(thumbprint)
+        b64_str = base64.urlsafe_b64encode(hex).decode()
+        return b64_str
 
     def _create_header(self, thumbprint):
         x5t = self._create_x5t_value(thumbprint)
@@ -99,24 +100,12 @@ class SelfSignedJwt(object):
             raise self._log.create_error("The thumbprint does not match a known format")
 
     def _sign_jwt(self, header, payload, certificate):
-        # TODO: Might want to load the cert and get the string proper.
-        cert_start_str = '-----BEGIN RSA PRIVATE KEY-----'
-        cert_end_str = '-----END RSA PRIVATE KEY-----\n'
-        if not certificate.startswith(cert_start_str):
-            raise Exception("Invalid Certificate: Expected Start of Certificate to be '{}'".format(cert_start_str))
-        if not certificate.endswith(cert_end_str):
-            raise Exception("Invalid Certificate: Expected End of Certificate to be '{}'".format(cert_end_str))
-
-        # Strip '-----BEGIN RSA PRIVATE KEY-----' and '-----END RSA PRIVATE KEY-----'
-        cert_string = "".join(certificate.strip().split("\n")[1:-1])
-        cert_string_64 = base64.urlsafe_b64encode(cert_string.encode())
-
-        encoded_jwt = self._encode_jwt(payload, cert_string_64, header)
+        encoded_jwt = self._encode_jwt(payload, certificate, header)
         self._raise_on_invalid_jwt_signature(encoded_jwt)
         return encoded_jwt
 
     def _encode_jwt(self, payload, certificate, header):
-        return jwt.encode(payload, certificate, headers=header).decode()
+        return jwt.encode(payload, certificate, algorithm='RS256', headers=header).decode()
 
     def _reduce_thumbprint(self, thumbprint):
 

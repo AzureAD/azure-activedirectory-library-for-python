@@ -13,16 +13,16 @@ from . import log
 
 def _create_token_hash(token):
     m = hashlib.sha256()
-    m.update(str(token))
+    m.update(token.encode('utf8')) # TODO: what is the default encoding
     hash = base64.b64encode(m.digest())
     return hash
 
 def _create_token_id_message(entry):
     access_token_hash = _create_token_hash(entry[TokenResponseFields.ACCESS_TOKEN])
-    message = 'AccessTokenId: ' + access_token_hash
+    message = 'AccessTokenId: ' + str(access_token_hash)
     if entry.get(TokenResponseFields.REFRESH_TOKEN):
         refresh_token_hash = _create_token_hash(entry[TokenResponseFields.REFRESH_TOKEN])
-        message += ', RefreshTokenId: ' + refresh_token_hash
+        message += ', RefreshTokenId: ' + str(refresh_token_hash)
     return message
 
 class CacheDriver(object):

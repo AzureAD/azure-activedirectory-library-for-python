@@ -38,6 +38,7 @@ class TokenCache(object):
         self._cache = {}
         if state:
             self.deserialize(state)
+        self.has_state_changed = False
 
     def find(self, query):
         entries = self._query_cache(
@@ -50,11 +51,13 @@ class TokenCache(object):
         for e in entries:
            key = TokenCache._get_cache_key(e)
            self._cache.pop(key)
+        self.has_state_changed = True
 
     def add(self, entries):
         for e in entries:
             key = TokenCache._get_cache_key(e)
             self._cache[key] = e
+        self.has_state_changed = True
 
     def serialize(self):
         state = json.dumps(list(self._cache.values()))

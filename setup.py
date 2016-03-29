@@ -64,6 +64,7 @@ setup(
     install_requires=[
         'PyJWT',
         'requests',
-        'python-dateutil'
+        'python-dateutil',
+        'cryptography'
     ]
 )

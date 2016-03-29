@@ -251,7 +251,6 @@ class TokenRequest(object):
         self._cache_driver.add(token)
         return token
 
-    # this is public method
     def get_token_with_client_credentials(self, client_secret):
         self._log.info("Getting token with client credentials.")
         try:

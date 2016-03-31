@@ -71,6 +71,10 @@ class TokenCache(object):
                 key = self._get_cache_key(t)
                 self._cache[key] = t
 
+    def read_items(self):
+        '''output list of tuples in (key, authentication-result)'''
+        return self._cache.items()
+
     @staticmethod
     def _get_cache_key(entry):
         return TokenCacheKey(

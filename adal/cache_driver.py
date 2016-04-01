@@ -164,7 +164,7 @@ class CacheDriver(object):
         return bool(entry[TokenResponseFields.RESOURCE])
 
     def _update_refresh_tokens(self, entry):
-        if CacheDriver._is_mrrt(entry):
+        if CacheDriver._is_mrrt(entry) and entry.get(TokenResponseFields.REFRESH_TOKEN):
             mrrt_tokens = self._find_mrrt_tokens_for_user(entry.get(TokenResponseFields.USER_ID))
             if mrrt_tokens:
                 self._log.debug('Updating {} cached refresh tokens'.format(len(mrrt_tokens)))

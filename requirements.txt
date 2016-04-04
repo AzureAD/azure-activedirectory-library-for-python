@@ -2,3 +2,4 @@ httpretty
 requests
 python-dateutil
 PyJWT
+cryptography

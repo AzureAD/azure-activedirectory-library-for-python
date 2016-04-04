@@ -26,10 +26,12 @@
 #------------------------------------------------------------------------------
 
 from datetime import datetime, timedelta
+import math
 import uuid
 import requests
 import re
 import json
+import time
 
 try:
     from urllib.parse import urlencode
@@ -41,6 +43,7 @@ except ImportError:
 from . import log
 from . import util
 from .constants import OAuth2, TokenResponseFields, IdTokenFields
+from .adal_error import AdalError
 
 TOKEN_RESPONSE_MAP = {
     OAuth2.ResponseParameters.TOKEN_TYPE : TokenResponseFields.TOKEN_TYPE,
@@ -57,19 +60,26 @@ TOKEN_RESPONSE_MAP = {
 def map_fields(in_obj, map_to):
     return dict((map_to[k], v) for k, v in in_obj.items() if k in map_to)
 
+
 class OAuth2Client(object):
 
-    def __init__(self, call_context, authority_token_endpoint):
-        self._token_endpoint = authority_token_endpoint
+    def __init__(self, call_context, authority):
+        self._token_endpoint = authority.token_endpoint
+        self._device_code_endpoint = authority.device_code_endpoint
         self._log = log.Logger("OAuth2Client", call_context['log_context'])
         self._call_context = call_context
+        self._cancel_polling_request = False
 
     def _create_token_url(self):
         parameters = {}
-        parameters['slice'] = 'testslice'
         parameters[OAuth2.Parameters.AAD_API_VERSION] = '1.0'
 
         return urlparse('{}?{}'.format(self._token_endpoint, urlencode(parameters)))
+
+    def _create_device_code_url(self):
+        parameters = {}
+        parameters[OAuth2.Parameters.AAD_API_VERSION] = '1.0'
+        return urlparse('{}?{}'.format(self._device_code_endpoint, urlencode(parameters)))
 
     def _parse_optional_ints(self, obj, keys):
         for key in keys:
@@ -123,11 +133,9 @@ class OAuth2Client(object):
         return user_id_vals
 
     def _extract_token_values(self, id_token):
-
         extracted_values = {}
-        extracted_values.update(self._get_user_id(id_token))
-
         extracted_values = map_fields(id_token, OAuth2.IdTokenMap)
+        extracted_values.update(self._get_user_id(id_token))
         return extracted_values
 
     def _parse_id_token(self, encoded_token):
@@ -139,7 +147,7 @@ class OAuth2Client(object):
         id_token = None
         try:
             b64_id_token = cracked_token['JWSPayload']
-            b64_decoded = util.base64_urlsafe_decode(b64_id_token)
+            b64_decoded = util.base64_urlsafe_decode(str(b64_id_token))
             if not b64_decoded:
                 self._log.warn('The returned id_token could not be base64 url safe decoded.')
                 return
@@ -148,7 +156,7 @@ class OAuth2Client(object):
 
         except Exception as exp:
             self._log.warn("The returned id_token could not be decoded: {0}".format(exp))
-            return
+            raise
 
         return self._extract_token_values(id_token)
 
@@ -166,7 +174,7 @@ class OAuth2Client(object):
             OAuth2.ResponseParameters.EXPIRES_ON,
             OAuth2.ResponseParameters.EXPIRES_IN,
             OAuth2.ResponseParameters.CREATED_ON
-          ]
+        ]
 
         self._parse_optional_ints(wire_response, int_keys)
 
@@ -196,18 +204,57 @@ class OAuth2Client(object):
 
         return token_response
 
-    def _handle_get_token_response(self, body, callback):
+    def _validate_device_code_response(self, body):
+
+        wire_response = None
+
+        try:
+            wire_response = json.loads(body)
+        except Exception:
+            raise ValueError('The device code response returned from the server is unparseable as JSON')
+
+        int_keys = [
+            OAuth2.DeviceCodeResponseParameters.EXPIRES_IN,
+            OAuth2.DeviceCodeResponseParameters.INTERVAL
+        ]
+
+        self._parse_optional_ints(wire_response, int_keys)
+
+        if not wire_response.get(OAuth2.DeviceCodeResponseParameters.EXPIRES_IN):
+            raise self._log.create_error('wire_response is missing expires_in')
+
+        if not wire_response.get(OAuth2.DeviceCodeResponseParameters.DEVICE_CODE):
+            raise self._log.create_error('wire_response is missing device_code')
+
+        if not wire_response.get(OAuth2.DeviceCodeResponseParameters.USER_CODE):
+            raise self._log.create_error('wire_response is missing user_code')
+
+        #skip field naming tweak, becasue names from wire are python style already
+        return wire_response
+
+    def _handle_get_token_response(self, body):
 
         token_response = None
         try:
             token_response = self._validate_token_response(body)
         except Exception as exp:
             self._log.error("Error validating get token response", exp)
-            callback(exp, None)
+            raise
 
-        callback(None, token_response)
+        return token_response
 
-    def get_token(self, oauth_parameters, callback):
+    def _handle_get_device_code_response(self, body):
+
+        device_code_response = None
+        try:
+            device_code_response = self._validate_device_code_response(body)
+        except Exception as exp:
+            self._log.error('Error validating get user vcode response', exp)
+            raise
+
+        return device_code_response
+
+    def get_token(self, oauth_parameters):
 
         token_url = self._create_token_url()
         url_encoded_token_request = urlencode(oauth_parameters)
@@ -219,7 +266,10 @@ class OAuth2Client(object):
             resp = requests.post(token_url.geturl(), data=url_encoded_token_request, headers=post_options['headers'])
             util.log_return_correlation_id(self._log, operation, resp)
 
-            if not util.is_http_success(resp.status_code):
+            if util.is_http_success(resp.status_code):
+                token = self._handle_get_token_response(resp.text)
+                return token
+            else:
                 return_error_string = "{0} request returned http error: {1}".format(operation, resp.status_code)
                 error_response = ""
                 if resp.text:
@@ -229,13 +279,80 @@ class OAuth2Client(object):
                     except:
                         pass
 
-                callback(self._log.create_error(return_error_string), error_response)
-                return
-
-            else:
-                self._handle_get_token_response(resp.text, callback)
+                raise AdalError(self._log.create_error(return_error_string), error_response)
 
         except Exception as exp:
             self._log.error("{0} request failed".format(operation), exp)
-            callback(exp, None)
-            return
+            raise
+
+    def get_user_code_info(self, oauth_parameters):
+        device_code_url = self._create_device_code_url()
+        url_encoded_code_request = urlencode(oauth_parameters)
+
+        post_options = util.create_request_options(self, {'headers' : {'content-type': 'application/x-www-form-urlencoded'}})
+        operation = "Get Device Code"
+        
+        try:
+            resp = requests.post(device_code_url.geturl(), data=url_encoded_code_request, headers=post_options['headers'])
+            util.log_return_correlation_id(self._log, operation, resp)
+
+            if util.is_http_success(resp.status_code):
+                code = self._handle_get_device_code_response(resp.text)
+                return code
+            else:
+                return_error_string = "{0} request returned http error: {1}".format(operation, resp.status_code)
+                error_response = ""
+                if resp.text:
+                    return_error_string += " and server response: {0}".format(resp.text)
+                    try:
+                        error_response = resp.json()
+                    except:
+                        pass
+
+                raise AdalError(self._log.create_error(return_error_string), error_response)
+
+        except Exception as exp:
+            self._log.error("{0} request failed".format(operation), exp)
+            raise
+
+    def get_token_with_polling(self, oauth_parameters, refresh_internal, expires_in):
+        token_response = {}
+
+        token_url = self._create_token_url()
+        url_encoded_code_request = urlencode(oauth_parameters)
+
+        post_options = util.create_request_options(self, {'headers' : {'content-type': 'application/x-www-form-urlencoded'}})
+        operation = "Get token with device code"
+
+        max_times_for_retry = math.floor(expires_in/refresh_internal)
+        for _ in range(int(max_times_for_retry)):
+            if self._cancel_polling_request:
+                raise AdalError('Polling_Request_Cancelled')
+
+            resp = requests.post(token_url.geturl(), data=url_encoded_code_request, headers=post_options['headers'])
+            util.log_return_correlation_id(self._log, operation, resp)
+
+            wire_response = {} 
+            if not util.is_http_success(resp.status_code):
+                wire_response = json.loads(resp.text) # on error, the body should be json already 
+
+            error = wire_response.get(OAuth2.DeviceCodeResponseParameters.ERROR)
+            if error:
+                if error == 'authorization_pending':
+                    time.sleep(refresh_internal)
+                    continue
+                else:
+                    raise ValueError(error)
+            else:
+                try:
+                    token_response = self._validate_token_response(resp.text)
+                except Exception as exp:
+                    self._log.error("Error validating get token response", exp)
+                    raise
+                return token_response
+
+        raise TimeoutError()
+
+    def cancel_polling_request(self):
+        self._cancel_polling_request = True
+

@@ -93,16 +93,12 @@ class WSTrustRequest(object):
 
         return rst
 
-    def _handle_rstr(self, body, callback):
-
+    def _handle_rstr(self, body):
         wstrust_resp = wstrust_response.WSTrustResponse(self._call_context, body)
-        try:
-            wstrust_resp.parse()
-            callback(None, wstrust_resp)
-        except Exception as exp:
-            callback(exp, wstrust_resp)
+        wstrust_resp.parse()
+        return wstrust_resp
 
-    def acquire_token(self, username, password, callback):
+    def acquire_token(self, username, password):
 
         rst = self._build_rst(username, password)
         headers = {'headers': {'Content-type':'application/soap+xml; charset=utf-8',
@@ -113,7 +109,7 @@ class WSTrustRequest(object):
 
         operation = "WS-Trust RST"
         try:
-            resp = requests.post(self._wstrust_endpoint_url, headers=options['headers'], data=rst, allow_redirects = True)
+            resp = requests.post(self._wstrust_endpoint_url, headers=options['headers'], data=rst, allow_redirects=True)
 
             util.log_return_correlation_id(self._log, operation, resp)
 
@@ -127,13 +123,10 @@ class WSTrustRequest(object):
                     except:
                         pass
 
-                callback(self._log.create_error(return_error_string), error_response)
-                return
-
+                raise WsTokenRequestError(self._log.create_error(return_error_string), error_response)
             else:
-                self._handle_rstr(resp.text, callback)
+                self._handle_rstr(resp.text)
 
         except Exception as exp:
             self._log.error("{0} request failed".format(operation), exp)
-            callback(exp, None)
-            return
+            raise

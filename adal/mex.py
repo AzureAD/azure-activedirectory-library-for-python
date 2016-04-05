@@ -26,25 +26,22 @@
 #------------------------------------------------------------------------------
 
 import random
-import requests
-
-from . import log
-from . import util
-from . import xmlutil
 
 try:
-    from urllib.parse import quote, unquote
-    from urllib.parse import urlparse, urlsplit
-
+    from urllib.parse import urlparse
 except ImportError:
-    from urllib import quote, unquote
-    from urlparse import urlparse, urlsplit
+    from urlparse import urlparse
 
 try:
     from xml.etree import cElementTree as ET
 except ImportError:
     from xml.etree import ElementTree as ET
 
+import requests
+
+from . import log
+from . import util
+from . import xmlutil
 from .constants import XmlNamespaces
 from .constants import MexNamespaces
 from .adal_error import AdalError
@@ -63,43 +60,38 @@ class Mex(object):
         self._log.debug("Mex created with url: {0}".format(self._url))
 
     def discover(self):
-
         self._log.debug("Retrieving mex at: {0}".format(self._url))
         options = util.create_request_options(self, {'headers': {'Content-Type': 'application/soap+xml'}})
 
+        resp = None
         try:
             operation = "Mex Get"
             resp = requests.get(self._url, headers=options['headers'])
             util.log_return_correlation_id(self._log, operation, resp)
-
-            if not util.is_http_success(resp.status_code):
-                return_error_string = "{0} request returned http error: {1}".format(operation, resp.status_code)
-                error_response = ""
-                if resp.text:
-                    return_error_string += " and server response: {0}".format(resp.text)
-                    try:
-                        error_response = resp.json()
-                    except:
-                        pass
-
-                raise AdalError(self._log.create_error(return_error_string), error_response)
-
-            else:
-                try:
-                    self._mex_doc = resp.text
-                    #options = {'errorHandler':self._log.error}
-                    self._dom = ET.fromstring(self._mex_doc)
-                    self._parents = {c:p for p in self._dom.iter() for c in p}
-                    self._parse()
-                except AdalError as exp:
-                    self._log.error('Failed to parse mex response in to DOM', exp)
-                    raise
-                return
-            return
-
-        except Exception as exp:
-            self._log.error("{0} request failed".format(operation), exp)
+        except Exception:
+            self._log.info("{0} request failed".format(operation))
             raise
+
+        if not util.is_http_success(resp.status_code):
+            return_error_string = "{0} request returned http error: {1}".format(operation, resp.status_code)
+            error_response = ""
+            if resp.text:
+                return_error_string += " and server response: {0}".format(resp.text)
+                try:
+                    error_response = resp.json()
+                except ValueError:
+                    pass
+            raise AdalError(return_error_string, error_response)
+        else:
+            try:
+                self._mex_doc = resp.text
+                #options = {'errorHandler':self._log.error}
+                self._dom = ET.fromstring(self._mex_doc)
+                self._parents = {c:p for p in self._dom.iter() for c in p}
+                self._parse()
+            except Exception:
+                self._log.info('Failed to parse mex response in to DOM')
+                raise
 
     def _check_policy(self, policy_node):
         policy_id = policy_node.attrib["{{{}}}Id".format(XmlNamespaces.namespaces['wsu'])]
@@ -130,9 +122,9 @@ class Mex(object):
 
         for node in username_token_nodes:
             policy_node = self._parents[self._parents[self._parents[self._parents[self._parents[self._parents[self._parents[node]]]]]]]
-            id = self._check_policy(policy_node)
-            if id:
-                id_ref = '#' + id
+            policy_id = self._check_policy(policy_node)
+            if policy_id:
+                id_ref = '#' + policy_id
                 policies[id_ref] = {id:id_ref}
 
         return policies if policies else None
@@ -143,7 +135,7 @@ class Mex(object):
         soap_transport = ""
         name = binding_node.get('name')
 
-        soap_transport_attributes = []
+        soap_transport_attributes = ""
         soap_action_attributes = xmlutil.xpath_find(binding_node, MexNamespaces.SOAP_ACTION_XPATH)[0].attrib['soapAction']
 
         if soap_action_attributes:
@@ -178,8 +170,8 @@ class Mex(object):
 
         return bindings if bindings else None
 
-    def _url_is_secure(self, endpoint_url):
-
+    @staticmethod
+    def _url_is_secure(endpoint_url):
         parsed = urlparse(endpoint_url)
         return parsed.scheme == 'https'
 
@@ -201,7 +193,7 @@ class Mex(object):
                         raise self._log.create_error("No address nodes on port")
 
                     address = xmlutil.find_element_text(address_node)
-                    if self._url_is_secure(address):
+                    if Mex._url_is_secure(address):
                         binding_policy['url'] = address
                     else:
                         self._log.warn("Skipping insecure endpoint: {0}".format(address))
@@ -220,15 +212,15 @@ class Mex(object):
 
         policies = self._select_username_password_polices()
         if not policies:
-            raise AdalError(self._log.create_error("No matching policies."))
+            raise AdalError("No matching policies.")
             
 
         bindings = self._get_matching_bindings(policies)
         if not bindings:
-            raise AdalError(self._log.create_error("No matching bindings."))
+            raise AdalError("No matching bindings.")
 
         self._get_ports_for_policy_bindings(bindings, policies)
         self._select_single_matching_policy(policies)
 
         if not self._url:
-            raise AdalError(self._log.create_error("No ws-trust endpoints match requirements."))
+            raise AdalError("No ws-trust endpoints match requirements.")

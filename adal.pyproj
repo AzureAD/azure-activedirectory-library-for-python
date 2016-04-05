@@ -83,6 +83,11 @@
     <Compile Include="adal\__init__.py">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="sample\certificate_credentials_sample.py" />
+    <Compile Include="sample\client_credentials_sample.py" />
+    <Compile Include="sample\device_code_sample.py" />
+    <Compile Include="sample\refresh_token_sample.py" />
+    <Compile Include="sample\website_sample.py" />
     <Compile Include="setup.py">
       <SubType>Code</SubType>
     </Compile>
@@ -105,6 +110,7 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="adal\" />
+    <Folder Include="sample\" />
     <Folder Include="tests\" />
     <Folder Include="tests\data\" />
     <Folder Include="tests\mex\" />

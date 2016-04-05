@@ -25,14 +25,15 @@
 #
 #------------------------------------------------------------------------------
 
-import requests
 import uuid
-import time
 from datetime import datetime, timedelta
+
+import requests
 
 from . import log
 from . import util
 from . import wstrust_response
+from .adal_error import AdalError 
 
 class WSTrustRequest(object):
 
@@ -41,15 +42,17 @@ class WSTrustRequest(object):
         self._call_context = call_context
         self._wstrust_endpoint_url = watrust_endpoint_url
         self._applies_to = applies_to
-
-    def _build_soap_message_credentials(self, username, password):
+        
+    @staticmethod
+    def _build_soap_message_credentials(username, password):
         username_token_xml = "<wsse:UsernameToken wsu:Id=\'ADALUsernameToken\'>\
                               <wsse:Username>{0}</wsse:Username>\
                               <wsse:Password>{1}</wsse:Password>\
                               </wsse:UsernameToken>".format(username, password)
         return username_token_xml
 
-    def _build_security_header(self, username, password):
+    @staticmethod
+    def _build_security_header(username, password):
 
         time_now = datetime.utcnow()
         expire_time = time_now + timedelta(minutes=10)
@@ -62,7 +65,7 @@ class WSTrustRequest(object):
                                <wsu:Created>{0}</wsu:Created>\
                                <wsu:Expires>{1}</wsu:Expires>\
                                </wsu:Timestamp>{2}</wsse:Security>".format(time_now_str, expire_time_str,
-                                                                           self._build_soap_message_credentials(username, password))
+                                                                           WSTrustRequest._build_soap_message_credentials(username, password))
         return security_header_xml
 
     def _build_rst(self, username, password):
@@ -89,7 +92,7 @@ class WSTrustRequest(object):
           <wst:RequestType>http://docs.oasis-open.org/ws-sx/ws-trust/200512/Issue</wst:RequestType>\
         </wst:RequestSecurityToken>\
       </s:Body>\
-    </s:Envelope>".format(message_id, self._wstrust_endpoint_url, self._build_security_header(username, password), self._applies_to)
+    </s:Envelope>".format(message_id, self._wstrust_endpoint_url, WSTrustRequest._build_security_header(username, password), self._applies_to)
 
         return rst
 
@@ -108,25 +111,20 @@ class WSTrustRequest(object):
         self._log.debug("Sending RST to: {0}\n{1}".format(self._wstrust_endpoint_url, rst))
 
         operation = "WS-Trust RST"
-        try:
-            resp = requests.post(self._wstrust_endpoint_url, headers=options['headers'], data=rst, allow_redirects=True)
+        resp = requests.post(self._wstrust_endpoint_url, headers=options['headers'], data=rst, allow_redirects=True)
 
-            util.log_return_correlation_id(self._log, operation, resp)
+        util.log_return_correlation_id(self._log, operation, resp)
 
-            if not util.is_http_success(resp.status_code):
-                return_error_string = "{0} request returned http error: {1}".format(operation, resp.status_code)
-                error_response = ""
-                if resp.text:
-                    return_error_string += " and server response: {0}".format(resp.text)
-                    try:
-                        error_response = resp.json()
-                    except:
-                        pass
+        if not util.is_http_success(resp.status_code):
+            return_error_string = "{0} request returned http error: {1}".format(operation, resp.status_code)
+            error_response = ""
+            if resp.text:
+                return_error_string += " and server response: {0}".format(resp.text)
+                try:
+                    error_response = resp.json()
+                except ValueError:
+                    pass
 
-                raise WsTokenRequestError(self._log.create_error(return_error_string), error_response)
-            else:
-                self._handle_rstr(resp.text)
-
-        except Exception as exp:
-            self._log.error("{0} request failed".format(operation), exp)
-            raise
+            raise AdalError(return_error_string, error_response)
+        else:
+            self._handle_rstr(resp.text)

@@ -24,15 +24,21 @@
 # THE SOFTWARE.
 #
 #------------------------------------------------------------------------------
+import sys
 
 from .constants import OAuth2DeviceCodeResponseParameters
 
 def validate_string_param(value, name):
-
     if not value:
         raise ValueError("The {0} parameter is required".format(name))
 
-    if not isinstance(value, str):
+    result = True
+    if sys.version_info.major < 3:
+        result = isinstance(value, basestring)
+    else:
+        result = isinstance(value, str) 
+
+    if not result:
         raise TypeError("The {0} parameter must be of type str".format(name))
 
 def validate_user_code_info(user_code_info):

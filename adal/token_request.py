@@ -25,7 +25,6 @@
 #
 #------------------------------------------------------------------------------
 
-from functools import partial
 from base64 import b64encode
 
 from . import constants
@@ -64,10 +63,15 @@ class TokenRequest(object):
         self._client_id = client_id
         self._redirect_uri = redirect_uri
 
-        # This should be set at the beginning of get_token
+        self._cache_driver = None
+        
+        # should be set at the beginning of get_token
         # functions that have a user_id
         self._user_id = None
         self._user_realm = None
+
+        # should be set when acquire token using device flow
+        self._polling_client = None
 
     def _create_user_realm_request(self, username):
         return user_realm.UserRealm(self._call_context, username, self._authentication_context.authority.url)
@@ -130,9 +134,9 @@ class TokenRequest(object):
         oauth_parameters[OAUTH2_PARAMETERS.GRANT_TYPE] = grant_type
 
         if (OAUTH2_GRANT_TYPE.AUTHORIZATION_CODE != grant_type and
-            OAUTH2_GRANT_TYPE.CLIENT_CREDENTIALS != grant_type and
-            OAUTH2_GRANT_TYPE.REFRESH_TOKEN != grant_type and
-            OAUTH2_GRANT_TYPE.DEVICE_CODE != grant_type):
+                OAUTH2_GRANT_TYPE.CLIENT_CREDENTIALS != grant_type and
+                OAUTH2_GRANT_TYPE.REFRESH_TOKEN != grant_type and
+                OAUTH2_GRANT_TYPE.DEVICE_CODE != grant_type):
 
             oauth_parameters[OAUTH2_PARAMETERS.SCOPE] = OAUTH2_SCOPE.OPENID
 
@@ -183,10 +187,12 @@ class TokenRequest(object):
             wstrust_response = wstrust.acquire_token(username, password)
             return wstrust_response
         except AdalError as exp:
-            error_msg = exp.error_msg
-            if not error_msg:
-                error_msg = "Unsuccessful RSTR.\n\terror code: {0}\n\tfaultMessage: {1}".format(exp.error_response.error_code, exp.error_response.fault_message)
-            self._log.create_error(error_msg)
+            error_msg = str(exp)
+            if exp.error_response:
+                err_template = "Unsuccessful RSTR.\n\terror code: {0}\n\tfaultMessage: {1}"
+                error_msg = (err_template.format(exp.error_response.error_code, 
+                                                 exp.error_response.fault_message))
+            self._log.info(error_msg)
             raise
 
     def _perform_username_password_for_access_token_exchange(self, wstrust_endpoint, username, password):
@@ -198,12 +204,16 @@ class TokenRequest(object):
         self._log.debug("Acquiring token with username password for federated user")
 
         if not self._user_realm.federation_metadata_url:
-            self._log.warn("Unable to retrieve federationMetadataUrl from AAD.  Attempting fallback to AAD supplied endpoint.")
+            self._log.warn("Unable to retrieve federationMetadataUrl from AAD. " +
+                           "Attempting fallback to AAD supplied endpoint.")
 
             if not self._user_realm.federation_active_auth_url:
-                raise AdalError('AAD did not return a WSTrust endpoint.  Unable to proceed.')
+                raise AdalError('AAD did not return a WSTrust endpoint. Unable to proceed.')
 
-            token = self._perform_username_password_for_access_token_exchange(self._user_realm.federation_active_auth_url, username, password)
+            token = self._perform_username_password_for_access_token_exchange(
+                self._user_realm.federation_active_auth_url, 
+                username, 
+                password)
             return token
         else:
             mex_endpoint = self._user_realm.federation_metadata_url
@@ -214,11 +224,13 @@ class TokenRequest(object):
             try:
                 mex_instance.discover()
                 wstrust_endpoint = mex_instance.username_password_url
-            except:
-                self._log.warn("MEX exchange failed.  Attempting fallback to AAD supplied endpoint.")
+            except Exception:
+                warn_template = ("MEX exchange failed for {}. " + 
+                                 "Attempting fallback to AAD supplied endpoint.")
+                self._log.warn(warn_template.format(mex_endpoint))
                 wstrust_endpoint = self._user_realm.federation_active_auth_url
                 if not wstrust_endpoint:
-                    raise AdalError('AAD did not return a WSTrust endpoint.  Unable to proceed.')
+                    raise AdalError('AAD did not return a WSTrust endpoint. Unable to proceed.')
 
             token = self._perform_username_password_for_access_token_exchange(wstrust_endpoint, username, password)
             return token
@@ -230,7 +242,7 @@ class TokenRequest(object):
             token = self._find_token_from_cache()
             if token:
                 return token
-        except Exception as exp:
+        except AdalError as exp:
             self._log.warn('Attempt to look for token in cache resulted in Error: {}'.format(exp), True)
  
         self._user_realm = self._create_user_realm_request(username)
@@ -242,10 +254,11 @@ class TokenRequest(object):
             elif self._user_realm.account_type == ACCOUNT_TYPE['Federated']:
                 token = self._get_token_username_password_federated(username, password)
             else:
-                raise AdalError(self._log.create_error("Server returned an unknown AccountType: {0}".format(self._user_realm.account_type)))
+                raise AdalError(
+                    "Server returned an unknown AccountType: {0}".format(self._user_realm.account_type))
             self._log.debug("Successfully retrieved token from authority.")
-        except Exception as exp:
-            self._log.warn("get_token_func returned with err".format(exp))
+        except Exception:
+            self._log.info("get_token_func returned with error")
             raise
         
         self._cache_driver.add(token)
@@ -257,7 +270,7 @@ class TokenRequest(object):
             token = self._find_token_from_cache()
             if token:
                 return token
-        except Exception as exp:
+        except AdalError as exp:
             self._log.warn('Attempt to look for token in cache resulted in Error: {}'.format(exp), True)
 
         oauth_parameters = self._create_oauth_parameters(OAUTH2_GRANT_TYPE.CLIENT_CREDENTIALS)
@@ -276,7 +289,6 @@ class TokenRequest(object):
         oauth_parameters[OAUTH2_PARAMETERS.CLIENT_SECRET] = client_secret
 
         token = self._oauth_get_token(oauth_parameters)
-        self._cache_driver.add(token)
         return token
 
     def _get_token_with_refresh_token(self, refresh_token, resource, client_secret):
@@ -329,7 +341,7 @@ class TokenRequest(object):
             token = self._find_token_from_cache()
             if token:
                 return token
-        except Exception as exp: 
+        except AdalError as exp: 
             self._log.warn('Attempt to look for token in cache resulted in Error: {}'.format(exp), True)
         
         token = self._oauth_get_token(oauth_parameters)

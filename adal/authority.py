@@ -25,15 +25,14 @@
 #
 #------------------------------------------------------------------------------
 
-import requests
-
 try:
     from urllib.parse import quote
     from urllib.parse import urlparse
-
 except ImportError:
     from urllib import quote
     from urlparse import urlparse
+
+import requests
 
 from .constants import AADConstants
 from .adal_error import AdalError
@@ -114,8 +113,8 @@ class Authority(object):
         try:
             resp = requests.get(discovery_endpoint.geturl(), headers=get_options['headers'])
             util.log_return_correlation_id(self._log, operation, resp)
-        except Exception as exp:
-            self._log.error("{0} request failed".format(operation), exp)
+        except Exception:
+            self._log.info("{0} request failed".format(operation))
             raise
 
         if not util.is_http_success(resp.status_code):
@@ -125,17 +124,17 @@ class Authority(object):
                 return_error_string += " and server response: {0}".format(resp.text)
                 try:
                     error_response = resp.json()
-                except:
+                except ValueError:
                     pass
 
-            raise AdalError(self._log.create_error(return_error_string), error_response)
+            raise AdalError(return_error_string, error_response)
 
         else:
             discovery_resp = resp.json()
             if discovery_resp.get('tenant_discovery_endpoint'):
                 return discovery_resp['tenant_discovery_endpoint']
             else:
-                raise AdalError(self._log.create_error('Failed to parse instance discovery response'))
+                raise AdalError('Failed to parse instance discovery response')
 
     def _validate_via_instance_discovery(self):
         valid = self._perform_static_instance_discovery()

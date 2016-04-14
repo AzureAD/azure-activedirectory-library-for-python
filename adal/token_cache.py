@@ -38,7 +38,7 @@ def _string_cmp(str1, str2):
     else:
         return str1.lower() == str2.lower()
 
-class TokenCacheKey(object):
+class TokenCacheKey(object): # pylint: disable=too-few-public-methods
     #To clarify with AAD team, comparing with C# version
     #  https://github.com/AzureAD/azure-activedirectory-library-for-dotnet/blob/master/src/ADAL.Common/TokenCacheKey.cs
     #We don't hash 'TokenSubjectType' and 'DisplayableId', big deal?
@@ -60,6 +60,7 @@ class TokenCacheKey(object):
     def __ne__(self, other):
         return not self == other
 
+# pylint: disable=protected-access
 class TokenCache(object):
     def __init__(self, state=None):
         self._cache = {}
@@ -70,11 +71,10 @@ class TokenCache(object):
 
     def find(self, query):
         with self._lock:
-            entries = self._query_cache(
+            return self._query_cache(
                 query.get(TokenResponseFields.IS_MRRT), 
                 query.get(TokenResponseFields.USER_ID), 
                 query.get(TokenResponseFields._CLIENT_ID))
-            return entries
 
     def remove(self, entries):
         with self._lock:
@@ -92,8 +92,7 @@ class TokenCache(object):
 
     def serialize(self):
         with self._lock:
-            state = json.dumps(list(self._cache.values()))
-            return state
+            return json.dumps(list(self._cache.values()))
 
     def deserialize(self, state):
         with self._lock:
@@ -122,6 +121,7 @@ class TokenCache(object):
         for k in self._cache:
             v = self._cache[k]
             #None value will be taken as wildcard match
+            #pylint: disable=too-many-boolean-expressions
             if (is_mrrt is None or is_mrrt == v.get(TokenResponseFields.IS_MRRT)) and \
                (user_id is None or _string_cmp(user_id, v.get(TokenResponseFields.USER_ID))) and \
                (client_id is None or _string_cmp(client_id, v.get(TokenResponseFields._CLIENT_ID))):

@@ -29,8 +29,8 @@ try:
     from urllib.parse import quote
     from urllib.parse import urlparse
 except ImportError:
-    from urllib import quote
-    from urlparse import urlparse
+    from urllib import quote # pylint: disable=no-name-in-module
+    from urlparse import urlparse # pylint: disable=import-error
 
 import requests
 
@@ -77,9 +77,6 @@ class Authority(object):
         try:
             self._tenant = path_parts[1]
         except IndexError:
-            self._tenant = None
-
-        if not self._tenant:
             raise ValueError("Could not determine tenant.")
 
     def _perform_static_instance_discovery(self):
@@ -108,13 +105,13 @@ class Authority(object):
         discovery_endpoint = self._create_instance_discovery_endpoint_from_template(AADConstants.WORLD_WIDE_AUTHORITY)
         get_options = util.create_request_options(self)
         operation = "Instance Discovery"
-        self._log.debug("Attempting instance discover at: {0}".format(discovery_endpoint.geturl()))
+        self._log.debug("Attempting instance discover at: %s", discovery_endpoint.geturl())
 
         try:
             resp = requests.get(discovery_endpoint.geturl(), headers=get_options['headers'])
             util.log_return_correlation_id(self._log, operation, resp)
         except Exception:
-            self._log.info("{0} request failed".format(operation))
+            self._log.info("%s request failed", operation)
             raise
 
         if not util.is_http_success(resp.status_code):
@@ -153,10 +150,12 @@ class Authority(object):
         self._call_context = call_context
 
         if not self._validated:
-            self._log.debug("Performing instance discovery: {0}".format(self._url.geturl()))
+            self._log.debug("Performing instance discovery: %s", self._url.geturl())
             self._validate_via_instance_discovery()
             self._validated = True
         else:
-            self._log.debug("Instance discovery/validation has either already been completed or is turned off: {0}".format(self._url.geturl()))
+            self._log.debug(
+                "Instance discovery/validation has either already been completed or is turned off: %s",
+                self._url.geturl())
 
         self._get_oauth_endpoints()

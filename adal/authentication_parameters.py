@@ -25,8 +25,11 @@
 #
 #------------------------------------------------------------------------------
 
-import requests
+#Note, this module does not appear being used anywhere
+
 import re
+
+import requests
 
 from . import util
 from . import log
@@ -38,6 +41,7 @@ AUTHORIZATION_URI = 'authorization_uri'
 RESOURCE = 'resource'
 WWW_AUTHENTICATE_HEADER = 'www-authenticate'
 
+# pylint: disable=anomalous-backslash-in-string,too-few-public-methods
 
 class AuthenticationParameters(object):
 
@@ -136,8 +140,8 @@ def create_authentication_parameters_from_response(response):
         raise AttributeError('There were no headers found in the response.')
 
     if response.status_code != HttpError.UNAUTHORIZED:
-        raise ValueError('The response status code does not correspond to an OAuth challenge.  ' +
-      'The statusCode is expected to be 401 but is: {0}'.format(response.status_code))
+        raise ValueError('The response status code does not correspond to an OAuth challenge.  '
+                         'The statusCode is expected to be 401 but is: {0}'.format(response.status_code))
 
     challenge = response.headers.get(WWW_AUTHENTICATE_HEADER)
     if not challenge:
@@ -171,14 +175,12 @@ def create_authentication_parameters_from_url(url, correlation_id=None):
     options = util.create_request_options(_options())
     try:
         response = requests.get(challenge_url, headers=options['headers'])
-    except Exception as exp:
-        logger.error("Authentication parameters http get failed.", exp)
+    except Exception:
+        logger.info("Authentication parameters http get failed.")
         raise
 
     try:
-        parameters = create_authentication_parameters_from_response(response)
-    except Exception as exp:
-        logger.error("Unable to parse response in to authentication parameters.", exp)
+        return create_authentication_parameters_from_response(response)
+    except Exception:
+        logger.info("Unable to parse response in to authentication parameters.")
         raise
-
-    return parameters

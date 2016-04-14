@@ -30,7 +30,7 @@ import random
 try:
     from urllib.parse import urlparse
 except ImportError:
-    from urlparse import urlparse
+    from urlparse import urlparse # pylint: disable=import-error
 
 try:
     from xml.etree import cElementTree as ET
@@ -57,19 +57,18 @@ class Mex(object):
         self._parents = None
         self._mex_doc = None
         self.username_password_url = None
-        self._log.debug("Mex created with url: {0}".format(self._url))
+        self._log.debug("Mex created with url: %s", self._url)
 
     def discover(self):
-        self._log.debug("Retrieving mex at: {0}".format(self._url))
+        self._log.debug("Retrieving mex at: %s", self._url)
         options = util.create_request_options(self, {'headers': {'Content-Type': 'application/soap+xml'}})
 
-        resp = None
         try:
             operation = "Mex Get"
             resp = requests.get(self._url, headers=options['headers'])
             util.log_return_correlation_id(self._log, operation, resp)
         except Exception:
-            self._log.info("{0} request failed".format(operation))
+            self._log.info("%s request failed", operation)
             raise
 
         if not util.is_http_success(resp.status_code):
@@ -105,9 +104,11 @@ class Mex(object):
 
         # If we did not find any binding, this is potentially bad.
         if not transport_binding_nodes:
-            self._log.debug("Potential policy did not match required transport binding: {0}".format(policy_id))
+            self._log.debug(
+                "Potential policy did not match required transport binding: %s", 
+                policy_id)
         else:
-            self._log.debug("Found matching policy id: {0}".format(policy_id))
+            self._log.debug("Found matching policy id: %s", policy_id)
 
         return policy_id
 
@@ -147,9 +148,12 @@ class Mex(object):
 
         found = soap_action == MexNamespaces.RST_SOAP_ACTION and soap_transport == MexNamespaces.SOAP_HTTP_TRANSPORT_VALUE
         if found:
-            self._log.debug("Found binding matching Action and Transport: {0}".format(name))
+            self._log.debug("Found binding matching Action and Transport: %s", 
+                            name)
         else:
-            self._log.debug("Binding node did not match soap Action or Transport: {0}".format(name))
+            self._log.debug(
+                "Binding node did not match soap Action or Transport: %s", 
+                name)
 
         return found
 
@@ -190,13 +194,14 @@ class Mex(object):
                 if not binding_policy.get('url', None):
                     address_node = node.find(MexNamespaces.ADDRESS_XPATH, XmlNamespaces.namespaces)
                     if address_node is None:
-                        raise self._log.create_error("No address nodes on port")
+                        raise AdalError("No address nodes on port")
 
                     address = xmlutil.find_element_text(address_node)
                     if Mex._url_is_secure(address):
                         binding_policy['url'] = address
                     else:
-                        self._log.warn("Skipping insecure endpoint: {0}".format(address))
+                        self._log.warn("Skipping insecure endpoint: %s", 
+                                       address)
 
     def _select_single_matching_policy(self, policies):
 

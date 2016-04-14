@@ -28,13 +28,15 @@
 import time
 import datetime
 import uuid
-import jwt
 import base64
 import binascii
 import re
 
+import jwt
+
 from .constants import Jwt
 from .log import Logger
+from .adal_error import AdalError
 
 class SelfSignedJwt(object):
 
@@ -61,14 +63,13 @@ class SelfSignedJwt(object):
     @staticmethod
     def _create_x5t_value(thumbprint):
         hex_val = binascii.a2b_hex(thumbprint)
-        b64_str = base64.urlsafe_b64encode(hex_val).decode()
-        return b64_str
+        return base64.urlsafe_b64encode(hex_val).decode()
 
     def _create_header(self, thumbprint):
         x5t = SelfSignedJwt._create_x5t_value(thumbprint)
         header = {'typ':'JWT', 'alg':'RS256', 'x5t':x5t}
 
-        self._log.debug("Creating self signed JWT header. x5t: {0}".format(x5t))
+        self._log.debug("Creating self signed JWT header. x5t: %s", x5t)
 
         return header
 
@@ -78,7 +79,10 @@ class SelfSignedJwt(object):
         minutes = datetime.timedelta(0, 0, 0, 0, Jwt.SELF_SIGNED_JWT_LIFETIME)
         expires = now + minutes
 
-        self._log.debug('Creating self signed JWT payload. Expires: {0} NotBefore: {1}'.format(expires, now))
+        self._log.debug(
+            'Creating self signed JWT payload. Expires: %s NotBefore: %s',
+            expires,
+            now)
 
         jwt_payload = {}
         jwt_payload[Jwt.AUDIENCE] = self._token_endpoint
@@ -90,20 +94,22 @@ class SelfSignedJwt(object):
 
         return jwt_payload
 
-    def _raise_on_invalid_jwt_signature(self, encoded_jwt):
+    @staticmethod
+    def _raise_on_invalid_jwt_signature(encoded_jwt):
         segments = encoded_jwt.split('.')
-        if len(segments) < 3 or not segments[2]:
-            raise self._log.create_error('Failed to sign JWT. This is most likely due to an invalid certificate.')
+        if len(segments) < 3 or not segments[2]:    
+            raise AdalError('Failed to sign JWT. This is most likely due to an invalid certificate.')
 
     def _raise_on_invalid_thumbprint(self, thumbprint):
 
         thumbprint_sizes = [self.NumCharIn128BitHexString, self.numCharIn160BitHexString]
         if len(thumbprint) not in thumbprint_sizes or not re.search(self.ThumbprintRegEx, thumbprint):
-            raise self._log.create_error("The thumbprint does not match a known format")
+            raise AdalError("The thumbprint does not match a known format")
 
-    def _sign_jwt(self, header, payload, certificate):
+    @staticmethod
+    def _sign_jwt(header, payload, certificate):
         encoded_jwt = SelfSignedJwt._encode_jwt(payload, certificate, header)
-        self._raise_on_invalid_jwt_signature(encoded_jwt)
+        SelfSignedJwt._raise_on_invalid_jwt_signature(encoded_jwt)
         return encoded_jwt
 
     @staticmethod
@@ -120,5 +126,4 @@ class SelfSignedJwt(object):
         thumbprint = self._reduce_thumbprint(thumbprint)
         header = self._create_header(thumbprint)
         payload = self._create_payload()
-        signed_jwt = self._sign_jwt(header, payload, certificate)
-        return signed_jwt
+        return SelfSignedJwt._sign_jwt(header, payload, certificate)

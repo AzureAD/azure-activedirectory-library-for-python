@@ -32,6 +32,7 @@ except ImportError:
 
 from . import xmlutil
 from . import log
+from .adal_error import AdalError
 
 class WSTrustResponse(object):
 
@@ -142,28 +143,21 @@ class WSTrustResponse(object):
             raise self._log.create_error("Unable to find any tokens in RSTR.")
 
     def parse(self):
-
         if not self._response:
-            raise self._log.create_error("Received empty RSTR response body.")
+            raise AdalError("Received empty RSTR response body.")
 
         try:
-            try:
-                self._dom = ET.fromstring(self._response)
-                self._parents = {c:p for p in self._dom.iter() for c in p}
-
-            except Exception as exp:
-                raise self._log.create_error("Failed to parse RSTR in to DOM", exp)
-
+            self._dom = ET.fromstring(self._response)
+            self._parents = {c:p for p in self._dom.iter() for c in p}
             error_found = self._parse_error()
-
             if error_found:
-                str_error_code = self.error_code if self.error_code else 'NONE'
-                str_fault_message = self.fault_message if self.fault_message else 'NONE'
-                raise self._log.create_error('Server returned error in RSTR - ErrorCode: {0} : FaultMessage: {1}'.format(str_error_code, str_fault_message))
-
+                str_error_code = self.error_code or 'NONE'
+                str_fault_message = self.fault_message or 'NONE'
+                error_template = 'Server returned error in RSTR - ErrorCode: {} : FaultMessage: {}'
+                raise AdalError(error_template.format(str_error_code, str_fault_message))
             self._parse_token()
-
-        except Exception as exp:
+        finally:
+            self._log.info("Failed to parse RSTR in to DOM")
             self._dom = None
             self._parents = None
-            raise
+

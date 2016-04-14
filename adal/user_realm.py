@@ -25,7 +25,6 @@
 #
 #------------------------------------------------------------------------------
 import json
-import requests
 
 try:
     from urllib.parse import quote, urlencode
@@ -33,6 +32,8 @@ try:
 except ImportError:
     from urllib import quote, urlencode
     from urlparse import urlunparse
+
+import requests
 
 from . import constants
 from . import log
@@ -61,17 +62,18 @@ class UserRealm(object):
 
     def _get_user_realm_url(self):
 
-        user_realm_url = list(util.copy_url(self._authority_url))
+        url_components = list(util.copy_url(self._authority_url))
         url_encoded_user = quote(self._user_principle, safe='~()*!.\'')
-        user_realm_url[2] = '/' + USER_REALM_PATH_TEMPLATE.replace('<user>', url_encoded_user)
+        url_components[2] = '/' + USER_REALM_PATH_TEMPLATE.replace('<user>', url_encoded_user)
 
         user_realm_query = {'api-version':self.api_version}
-        user_realm_url[4] = urlencode(user_realm_query)
-        user_realm_url = util.copy_url(urlunparse(user_realm_url))
+        url_components[4] = urlencode(user_realm_query)
+        user_realm_url = util.copy_url(urlunparse(url_components))
 
         return user_realm_url
 
-    def _validate_constant_value(self, constants, value, case_sensitive=False):
+    @staticmethod
+    def _validate_constant_value(value_dic, value, case_sensitive=False):
 
         if not value:
             return False
@@ -79,13 +81,15 @@ class UserRealm(object):
         if not case_sensitive:
             value = value.lower()
 
-        return value if value in constants.values() else False
+        return value if value in value_dic.values() else False
 
-    def _validate_account_type(self, type):
-        return self._validate_constant_value(ACCOUNT_TYPE, type)
+    @staticmethod
+    def _validate_account_type(account_type):
+        return UserRealm._validate_constant_value(ACCOUNT_TYPE, account_type)
 
-    def _validate_federation_protocol(self, protocol):
-        return self._validate_constant_value(FEDERATION_PROTOCOL_TYPE, protocol)
+    @staticmethod
+    def _validate_federation_protocol(protocol):
+        return UserRealm._validate_constant_value(FEDERATION_PROTOCOL_TYPE, protocol)
 
     def _log_parsed_response(self):
 
@@ -102,19 +106,22 @@ class UserRealm(object):
         response = None
         try:
             response = json.loads(body)
-        except Exception as exp:
-            raise AdalError(self._log.create_error('Parsing realm discovery response JSON failed: {0}'.format(body)))
+        except ValueError:
+            error_template = ("Parsing realm discovery response JSON failed " + 
+                              "for body: '{}'")
+            self._log.info(error_template.format(body))
+            raise
 
-        account_type = self._validate_account_type(response['account_type'])
+        account_type = UserRealm._validate_account_type(response['account_type'])
         if not account_type:
-            raise AdalError(self._log.create_error('Cannot parse account_type: {0}'.format(account_type)))
+            raise AdalError('Cannot parse account_type: {0}'.format(account_type))
         self.account_type = account_type
 
         if self.account_type == ACCOUNT_TYPE['Federated']:
-            protocol = self._validate_federation_protocol(response['federation_protocol'])
+            protocol = UserRealm._validate_federation_protocol(response['federation_protocol'])
 
             if not protocol:
-                raise AdalError(self._log.create_error('Cannot parse federation protocol: {0}'.format(protocol)))
+                raise AdalError('Cannot parse federation protocol: {0}'.format(protocol))
 
             self.federation_protocol = protocol
             self.federation_metadata_url = response['federation_metadata_url']
@@ -139,10 +146,10 @@ class UserRealm(object):
                 return_error_string += " and server response: {0}".format(resp.text)
                 try:
                     error_response = resp.json()
-                except:
+                except ValueError:
                     pass
 
-            raise AdalError(self._log.create_error(return_error_string), error_response)
+            raise AdalError(return_error_string, error_response)
 
         else:
             self._parse_discovery_response(resp.text)

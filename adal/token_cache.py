@@ -1,4 +1,32 @@
-﻿import json
+﻿#------------------------------------------------------------------------------
+#
+# Copyright (c) Microsoft Corporation. 
+# All rights reserved.
+# 
+# This code is licensed under the MIT License.
+# 
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files(the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and / or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions :
+# 
+# The above copyright notice and this permission notice shall be included in
+# all copies or substantial portions of the Software.
+# 
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+# THE SOFTWARE.
+#
+#------------------------------------------------------------------------------
+
+import json
+import threading
 
 from .constants import TokenResponseFields
 
@@ -32,48 +60,54 @@ class TokenCacheKey(object):
     def __ne__(self, other):
         return not self == other
 
-#TODO: ensure thread safety
 class TokenCache(object):
     def __init__(self, state=None):
         self._cache = {}
+        self._lock = threading.RLock()
         if state:
             self.deserialize(state)
         self.has_state_changed = False
 
     def find(self, query):
-        entries = self._query_cache(
-            query.get(TokenResponseFields.IS_MRRT), 
-            query.get(TokenResponseFields.USER_ID), 
-            query.get(TokenResponseFields._CLIENT_ID))
-        return entries
+        with self._lock:
+            entries = self._query_cache(
+                query.get(TokenResponseFields.IS_MRRT), 
+                query.get(TokenResponseFields.USER_ID), 
+                query.get(TokenResponseFields._CLIENT_ID))
+            return entries
 
     def remove(self, entries):
-        for e in entries:
-           key = TokenCache._get_cache_key(e)
-           self._cache.pop(key)
-        self.has_state_changed = True
+        with self._lock:
+            for e in entries:
+                key = TokenCache._get_cache_key(e)
+                self._cache.pop(key)
+            self.has_state_changed = True
 
     def add(self, entries):
-        for e in entries:
-            key = TokenCache._get_cache_key(e)
-            self._cache[key] = e
-        self.has_state_changed = True
+        with self._lock:
+            for e in entries:
+                key = TokenCache._get_cache_key(e)
+                self._cache[key] = e
+            self.has_state_changed = True
 
     def serialize(self):
-        state = json.dumps(list(self._cache.values()))
-        return state
+        with self._lock:
+            state = json.dumps(list(self._cache.values()))
+            return state
 
     def deserialize(self, state):
-        self._cache.clear()
-        if state:
-            tokens = json.loads(state)
-            for t in tokens:
-                key = self._get_cache_key(t)
-                self._cache[key] = t
+        with self._lock:
+            self._cache.clear()
+            if state:
+                tokens = json.loads(state)
+                for t in tokens:
+                    key = self._get_cache_key(t)
+                    self._cache[key] = t
 
     def read_items(self):
         '''output list of tuples in (key, authentication-result)'''
-        return self._cache.items()
+        with self._lock:
+            return self._cache.items()
 
     @staticmethod
     def _get_cache_key(entry):
@@ -87,6 +121,7 @@ class TokenCache(object):
         matches = []
         for k in self._cache:
             v = self._cache[k]
+            #None value will be taken as wildcard match
             if (is_mrrt is None or is_mrrt == v.get(TokenResponseFields.IS_MRRT)) and \
                (user_id is None or _string_cmp(user_id, v.get(TokenResponseFields.USER_ID))) and \
                (client_id is None or _string_cmp(client_id, v.get(TokenResponseFields._CLIENT_ID))):

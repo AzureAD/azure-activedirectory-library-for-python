@@ -35,13 +35,12 @@ import re
 
 from .constants import Jwt
 from .log import Logger
-from . import util
 
 class SelfSignedJwt(object):
 
     NumCharIn128BitHexString = 128/8*2
     numCharIn160BitHexString = 160/8*2
-    ThumbprintRegEx = "^[a-f\d]*$"
+    ThumbprintRegEx = r"^[a-f\d]*$"
 
     def __init__(self, call_context, authority, client_id):
         self._log = Logger('SelfSignedJwt', call_context['log_context'])
@@ -51,19 +50,22 @@ class SelfSignedJwt(object):
         self._token_endpoint = authority.token_endpoint
         self._client_id = client_id
 
-    def _get_date_now(self):
+    @staticmethod
+    def _get_date_now():
         return datetime.datetime.now()
 
-    def _get_new_jwt_id(self):
+    @staticmethod
+    def _get_new_jwt_id():
         return str(uuid.uuid4())
 
-    def _create_x5t_value(self, thumbprint):
-        hex = binascii.a2b_hex(thumbprint)
-        b64_str = base64.urlsafe_b64encode(hex).decode()
+    @staticmethod
+    def _create_x5t_value(thumbprint):
+        hex_val = binascii.a2b_hex(thumbprint)
+        b64_str = base64.urlsafe_b64encode(hex_val).decode()
         return b64_str
 
     def _create_header(self, thumbprint):
-        x5t = self._create_x5t_value(thumbprint)
+        x5t = SelfSignedJwt._create_x5t_value(thumbprint)
         header = {'typ':'JWT', 'alg':'RS256', 'x5t':x5t}
 
         self._log.debug("Creating self signed JWT header. x5t: {0}".format(x5t))
@@ -72,7 +74,7 @@ class SelfSignedJwt(object):
 
     def _create_payload(self):
 
-        now = self._get_date_now()
+        now = SelfSignedJwt._get_date_now()
         minutes = datetime.timedelta(0, 0, 0, 0, Jwt.SELF_SIGNED_JWT_LIFETIME)
         expires = now + minutes
 
@@ -84,7 +86,7 @@ class SelfSignedJwt(object):
         jwt_payload[Jwt.SUBJECT] = self._client_id
         jwt_payload[Jwt.NOT_BEFORE] = int(time.mktime(now.timetuple()))
         jwt_payload[Jwt.EXPIRES_ON] = int(time.mktime(expires.timetuple()))
-        jwt_payload[Jwt.JWT_ID] = self._get_new_jwt_id()
+        jwt_payload[Jwt.JWT_ID] = SelfSignedJwt._get_new_jwt_id()
 
         return jwt_payload
 
@@ -100,11 +102,12 @@ class SelfSignedJwt(object):
             raise self._log.create_error("The thumbprint does not match a known format")
 
     def _sign_jwt(self, header, payload, certificate):
-        encoded_jwt = self._encode_jwt(payload, certificate, header)
+        encoded_jwt = SelfSignedJwt._encode_jwt(payload, certificate, header)
         self._raise_on_invalid_jwt_signature(encoded_jwt)
         return encoded_jwt
 
-    def _encode_jwt(self, payload, certificate, header):
+    @staticmethod
+    def _encode_jwt(payload, certificate, header):
         return jwt.encode(payload, certificate, algorithm='RS256', headers=header).decode()
 
     def _reduce_thumbprint(self, thumbprint):

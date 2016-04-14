@@ -1,10 +1,38 @@
-﻿import base64
+﻿#------------------------------------------------------------------------------
+#
+# Copyright (c) Microsoft Corporation. 
+# All rights reserved.
+# 
+# This code is licensed under the MIT License.
+# 
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files(the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and / or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions :
+# 
+# The above copyright notice and this permission notice shall be included in
+# all copies or substantial portions of the Software.
+# 
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+# THE SOFTWARE.
+#
+#------------------------------------------------------------------------------
+
+import base64
 import copy
 import hashlib
 import json
 from datetime import datetime, timedelta
 from dateutil import parser
 
+from .adal_error import AdalError
 from .constants import TokenResponseFields, Misc
 from . import log
 
@@ -12,10 +40,10 @@ from . import log
 # pylint: disable=W0212
 
 def _create_token_hash(token):
-    m = hashlib.sha256()
-    m.update(token.encode('utf8')) # TODO: what is the default encoding
-    hash = base64.b64encode(m.digest())
-    return hash
+    hash_object = hashlib.sha256()
+    hash_object.update(token.encode('utf8'))
+    token_hash = base64.b64encode(hash_object.digest())
+    return token_hash
 
 def _create_token_id_message(entry):
     access_token_hash = _create_token_hash(entry[TokenResponseFields.ACCESS_TOKEN])
@@ -65,7 +93,9 @@ class CacheDriver(object):
         potential_entries = self._get_potential_entries(query)
         if potential_entries:
             resource_tenant_specific_entries = [
-                x for x in potential_entries if x[TokenResponseFields.RESOURCE] == self._resource and x[TokenResponseFields._AUTHORITY] == self._authority]
+                x for x in potential_entries 
+                if x[TokenResponseFields.RESOURCE] == self._resource and 
+                x[TokenResponseFields._AUTHORITY] == self._authority]
 
             if not resource_tenant_specific_entries:
                 self._log.debug('No resource specific cache entries found.')
@@ -82,7 +112,7 @@ class CacheDriver(object):
                 return_val = resource_tenant_specific_entries[0]
                 is_resource_tenant_specific = True
             else:
-                raise ValueError('More than one token matches the criteria.  The result is ambiguous.')
+                raise AdalError('More than one token matches the criteria. The result is ambiguous.')
 
         if return_val:
             self._log.debug(
@@ -119,7 +149,7 @@ class CacheDriver(object):
         return new_entry
 
     def _refresh_entry_if_necessary(self, entry, is_resource_specific):
-        expiry_date = parser.parse(entry[TokenResponseFields.EXPIRES_ON]) #get clear on local time and time saving
+        expiry_date = parser.parse(entry[TokenResponseFields.EXPIRES_ON])
         now = datetime.now(expiry_date.tzinfo)
             
         # Add some buffer in to the time comparison to account for clock skew or latency.
@@ -197,4 +227,3 @@ class CacheDriver(object):
         self._argument_entry_with_cached_metadata(entry)
         self._update_refresh_tokens(entry)
         self._cache.add([entry])
-

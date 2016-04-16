@@ -77,7 +77,6 @@ class OAuth2RequestHandler(httpserver.SimpleHTTPRequestHandler):
             self.send_header('Location', authorization_url)
             self.end_headers()
         elif self.path.startswith('/getAToken'):
-            message = None
             is_ok = True
             try:
                 token_response = self._acquire_token()
@@ -104,13 +103,12 @@ class OAuth2RequestHandler(httpserver.SimpleHTTPRequestHandler):
         if state != cookie['auth_state'].value:
             raise ValueError('state does not match')
         auth_context = AuthenticationContext(authority_url)
-        token = auth_context.acquire_token_with_authorization_code(
+        return auth_context.acquire_token_with_authorization_code(
             code, 
             REDIRECT_URI, 
             RESOURCE, 
             sample_parameters['clientId'], 
             sample_parameters['clientSecret'])
-        return token
 
     def _send_response(self, message, is_ok=True):
         self.send_response(200 if is_ok else 400)
@@ -119,10 +117,10 @@ class OAuth2RequestHandler(httpserver.SimpleHTTPRequestHandler):
 
         if is_ok:
             #todo, pretty format token response in json
-            message_template = ('<html><head><title>Succeeded</title></head>' + 
+            message_template = ('<html><head><title>Succeeded</title></head>'
                                 '<body><p>{}</p></body></html>')
         else:
-            message_template = ('<html><head><title>Failed</title></head>' + 
+            message_template = ('<html><head><title>Failed</title></head>'
                                 '<body><p>{}</p></body></html>')
 
         output = message_template.format(message)

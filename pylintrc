@@ -58,7 +58,7 @@ const-rgx=(([A-Z_][A-Z1-9_]*)|(__.*__)|([a-z_][a-z0-9_]*))$
 class-rgx=[a-zA-Z0-9_]+$
 
 # Regular expression which should only match correct function names
-function-rgx=[a-zA-Z_][a-zA-Z0-9_]{2,30}$
+function-rgx=[a-zA-Z_][a-zA-Z0-9_]{2,50}$
 
 # Regular expression which should only match correct method names
 method-rgx=[a-z_][a-zA-Z0-9_]{2,60}$
@@ -70,7 +70,7 @@ attr-rgx=[a-z_][a-z0-9_]{1,30}$
 argument-rgx=[a-z_][a-z0-9_]{1,30}$
 
 # Regular expression which should only match correct variable names
-variable-rgx=[a-z_][a-zA-Z0-9_]{1,40}$
+variable-rgx=[a-z_][a-zA-Z0-9_]{0,40}$
 
 # Regular expression which should only match correct list comprehension /
 # generator expression variable names

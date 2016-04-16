@@ -30,8 +30,8 @@ try:
     from urllib.parse import quote, urlencode
     from urllib.parse import urlunparse
 except ImportError:
-    from urllib import quote, urlencode
-    from urlparse import urlunparse
+    from urllib import quote, urlencode #pylint: disable=no-name-in-module
+    from urlparse import urlunparse #pylint: disable=import-error
 
 import requests
 
@@ -68,9 +68,7 @@ class UserRealm(object):
 
         user_realm_query = {'api-version':self.api_version}
         url_components[4] = urlencode(user_realm_query)
-        user_realm_url = util.copy_url(urlunparse(url_components))
-
-        return user_realm_url
+        return util.copy_url(urlunparse(url_components))
 
     @staticmethod
     def _validate_constant_value(value_dic, value, case_sensitive=False):
@@ -94,20 +92,19 @@ class UserRealm(object):
     def _log_parsed_response(self):
 
         self._log.debug('UserRealm response:')
-        self._log.debug(' AccountType:             {0}'.format(self.account_type))
-        self._log.debug(' FederationProtocol:      {0}'.format(self.federation_protocol))
-        self._log.debug(' FederationMetatdataUrl:  {0}'.format(self.federation_metadata_url))
-        self._log.debug(' FederationActiveAuthUrl: {0}'.format(self.federation_active_auth_url))
+        self._log.debug(' AccountType:             %s', self.account_type)
+        self._log.debug(' FederationProtocol:      %s', self.federation_protocol)
+        self._log.debug(' FederationMetatdataUrl:  %s', self.federation_metadata_url)
+        self._log.debug(' FederationActiveAuthUrl: %s', self.federation_active_auth_url)
 
     def _parse_discovery_response(self, body):
 
-        self._log.debug("Discovery response:\n{0}".format(body))
+        self._log.debug("Discovery response:\n %s", body)
 
-        response = None
         try:
             response = json.loads(body)
         except ValueError:
-            error_template = ("Parsing realm discovery response JSON failed " + 
+            error_template = ("Parsing realm discovery response JSON failed " 
                               "for body: '{}'")
             self._log.info(error_template.format(body))
             raise
@@ -133,7 +130,8 @@ class UserRealm(object):
 
         options = util.create_request_options(self, {'headers': {'Accept':'application/json'}})
         user_realm_url = self._get_user_realm_url()
-        self._log.debug("Performing user realm discovery at: {0}".format(user_realm_url.geturl()))
+        self._log.debug("Performing user realm discovery at: %s",
+                        user_realm_url.geturl())
 
         operation = 'User Realm Discovery'
         resp = requests.get(user_realm_url.geturl(), headers=options['headers'])

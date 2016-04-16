@@ -5,11 +5,14 @@ import sys
 import adal
 
 def turn_on_logging():
-    handler = logging.StreamHandler()
-    adal.set_logging_options({
-        'level': adal.LOGGING_LEVEL.DEBUG,
-        'handler': handler 
-    })
+    logging.basicConfig(level=logging.DEBUG)
+    #or, 
+    #handler = logging.StreamHandler()
+    #adal.set_logging_options({
+    #    'level': 'DEBUG',
+    #    'handler': handler 
+    #})
+    #handler.setFormatter(logging.Formatter(logging.BASIC_FORMAT))
 
 # You can provide account information by using a JSON file
 # with the same parameters as the sampleParameters variable below.  Either
@@ -39,7 +42,7 @@ clientid = sample_parameters['clientid']
 RESOURCE = '00000002-0000-0000-c000-000000000000'
 
 #uncomment for verbose logging 
-#turn_on_logging()
+turn_on_logging()
 
 context = adal.AuthenticationContext(authority_url)
 code = context.acquire_user_code(RESOURCE, clientid)

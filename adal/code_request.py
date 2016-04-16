@@ -42,8 +42,7 @@ class CodeRequest(object):
 
     def _get_user_code_info(self, oauth_parameters):
         client = self._create_oauth2_client()
-        code = client.get_user_code_info(oauth_parameters)
-        return code
+        return client.get_user_code_info(oauth_parameters)
 
     def _create_oauth2_client(self):
         return oauth2_client.OAuth2Client(

@@ -29,12 +29,13 @@ import sys
 from .constants import OAuth2DeviceCodeResponseParameters
 
 def validate_string_param(value, name):
+    '''check the value is a non empty string'''
     if not value:
         raise ValueError("The {0} parameter is required".format(name))
 
     result = True
     if sys.version_info.major < 3:
-        result = isinstance(value, basestring)
+        result = isinstance(value, basestring) #pylint: disable=undefined-variable
     else:
         result = isinstance(value, str) 
 

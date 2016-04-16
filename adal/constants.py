@@ -218,7 +218,7 @@ class AADConstants(object):
 
     WORLD_WIDE_AUTHORITY = 'login.windows.net'
     WELL_KNOWN_AUTHORITY_HOSTS = ['login.windows.net', 'login.microsoftonline.com', 'login.chinacloudapi.cn', 'login.cloudgovapi.us']
-    INSTANCE_DISCOVERY_ENDPOINT_TEMPLATE = 'https://{authorize_host}/common/discovery/instance?authorization_endpoint={authorize_endpoint}&api-version=1.0'
+    INSTANCE_DISCOVERY_ENDPOINT_TEMPLATE = 'https://{authorize_host}/common/discovery/instance?authorization_endpoint={authorize_endpoint}&api-version=1.0' # pylint: disable=invalid-name
     AUTHORIZE_ENDPOINT_PATH = '/oauth2/authorize'
     TOKEN_ENDPOINT_PATH = '/oauth2/token'
     DEVICE_ENDPOINT_PATH = '/oauth2/devicecode'
@@ -228,6 +228,6 @@ class AdalIdParameters(object):
 
     SKU = 'x-client-SKU'
     VERSION = 'x-client-Ver'
-    OS = 'x-client-OS'
+    OS = 'x-client-OS'  # pylint: disable=invalid-name
     CPU = 'x-client-CPU'
     PYTHON_SKU = 'Python'

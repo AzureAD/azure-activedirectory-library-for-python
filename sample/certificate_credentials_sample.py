@@ -5,11 +5,14 @@ import sys
 import adal
 
 def turn_on_logging():
-    handler = logging.StreamHandler()
-    adal.set_logging_options({
-        'level': adal.LOGGING_LEVEL.DEBUG,
-        'handler': handler 
-    })
+    logging.basicConfig(level=logging.DEBUG)
+    #or, 
+    #handler = logging.StreamHandler()
+    #adal.set_logging_options({
+    #    'level': 'DEBUG',
+    #    'handler': handler 
+    #})
+    #handler.setFormatter(logging.Formatter(logging.BASIC_FORMAT))
 
 def get_private_key(filename):
     with open(filename, 'r') as pem_file:
@@ -45,7 +48,7 @@ authority_url = (sample_parameters['authorityHostUrl'] + '/' +
 RESOURCE = '00000002-0000-0000-c000-000000000000'
 
 #uncomment for verbose logging
-#turn_on_logging()
+turn_on_logging()
 
 context = adal.AuthenticationContext(authority_url)
 key = get_private_key(sample_parameters['privateKeyFile'])

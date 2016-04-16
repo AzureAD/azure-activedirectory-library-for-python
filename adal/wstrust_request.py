@@ -108,7 +108,9 @@ class WSTrustRequest(object):
                                'SOAPAction': 'http://docs.oasis-open.org/ws-sx/ws-trust/200512/RST/Issue'},
                    'body': rst}
         options = util.create_request_options(self, headers)
-        self._log.debug("Sending RST to: {0}\n{1}".format(self._wstrust_endpoint_url, rst))
+        self._log.debug("Sending RST to: %s\n%s",
+                        self._wstrust_endpoint_url, 
+                        rst)
 
         operation = "WS-Trust RST"
         resp = requests.post(self._wstrust_endpoint_url, headers=options['headers'], data=rst, allow_redirects=True)

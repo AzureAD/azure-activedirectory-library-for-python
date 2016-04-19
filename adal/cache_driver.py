@@ -52,8 +52,17 @@ def _create_token_id_message(entry):
         message += ', RefreshTokenId: ' + str(refresh_token_hash)
     return message
 
+def _is_mrrt(entry):
+    return bool(entry[TokenResponseFields.RESOURCE])
+
+def _entry_has_metadata(entry):
+    return (TokenResponseFields._CLIENT_ID in entry and 
+            TokenResponseFields._AUTHORITY in entry)
+
+
 class CacheDriver(object):
-    def __init__(self, call_context, authority, resource, client_id, cache, refresh_function):
+    def __init__(self, call_context, authority, resource, client_id, cache,
+                 refresh_function):
         self._call_context = call_context
         self._log = log.Logger("OAuth2Client", call_context['log_context'])
         self._authority = authority
@@ -98,11 +107,12 @@ class CacheDriver(object):
             if not resource_tenant_specific_entries:
                 self._log.debug('No resource specific cache entries found.')
 
-                #There are no resource specific entries.  Find an MRRT token.
-                mrrt_tokens = [x for x in potential_entries if x[TokenResponseFields.IS_MRRT]]
-                if mrrt_tokens:
+                #There are no resource specific entries. Find an MRRT token.
+                mrrt_tokens = (x for x in potential_entries if x[TokenResponseFields.IS_MRRT])
+                token = next(mrrt_tokens, None)
+                if token:
                     self._log.debug('Found an MRRT token.')
-                    return_val = mrrt_tokens[0]
+                    return_val = token
                 else:
                     self._log.debug('No MRRT tokens found.')
             elif len(resource_tenant_specific_entries) == 1:
@@ -116,7 +126,7 @@ class CacheDriver(object):
             self._log.debug('Returning token from cache lookup, %s',
                             _create_token_id_message(return_val))
 
-        return (return_val, is_resource_tenant_specific)
+        return return_val, is_resource_tenant_specific
 
     def _create_entry_from_refresh(self, entry, refresh_response):
         new_entry = copy.deepcopy(entry)
@@ -156,7 +166,7 @@ class CacheDriver(object):
         if is_resource_specific and now_plus_buffer > expiry_date:
             self._log.info('Cached token is expired.  Refreshing: %s', expiry_date)
             return self._refresh_expired_entry(entry)
-        elif (not is_resource_specific) and entry.get(TokenResponseFields.IS_MRRT):
+        elif not is_resource_specific and entry.get(TokenResponseFields.IS_MRRT):
             self._log.info('Acquiring new access token from MRRT token.')
             return self._acquire_new_token_from_mrrt(entry)
         else:
@@ -168,7 +178,8 @@ class CacheDriver(object):
         self._log.debug('finding with query: %s', json.dumps(query))
         entry, is_resource_tenant_specific = self._load_single_entry_from_cache(query)
         if entry:
-            return self._refresh_entry_if_necessary(entry, is_resource_tenant_specific)
+            return self._refresh_entry_if_necessary(entry, 
+                                                    is_resource_tenant_specific)
         else:
             return None
 
@@ -184,12 +195,8 @@ class CacheDriver(object):
         self._log.debug('Add many: %s', len(entries))
         self._cache.add(entries)
 
-    @staticmethod
-    def _is_mrrt(entry):
-        return bool(entry[TokenResponseFields.RESOURCE])
-
     def _update_refresh_tokens(self, entry):
-        if CacheDriver._is_mrrt(entry) and entry.get(TokenResponseFields.REFRESH_TOKEN):
+        if _is_mrrt(entry) and entry.get(TokenResponseFields.REFRESH_TOKEN):
             mrrt_tokens = self._find_mrrt_tokens_for_user(entry.get(TokenResponseFields.USER_ID))
             if mrrt_tokens:
                 self._log.debug('Updating %s cached refresh tokens', len(mrrt_tokens))
@@ -200,15 +207,11 @@ class CacheDriver(object):
 
                 self._add_many(mrrt_tokens)
 
-    @staticmethod
-    def _entry_has_metadata(entry):
-        return (TokenResponseFields._CLIENT_ID in entry) and (TokenResponseFields._AUTHORITY in entry)
-
     def _argument_entry_with_cached_metadata(self, entry):
-        if CacheDriver._entry_has_metadata(entry):
+        if _entry_has_metadata(entry):
             return
 
-        if CacheDriver._is_mrrt(entry):
+        if _is_mrrt(entry):
             self._log.debug('Added entry is MRRT')
             entry[TokenResponseFields.IS_MRRT] = True
         else:

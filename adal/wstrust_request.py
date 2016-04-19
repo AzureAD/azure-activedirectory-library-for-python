@@ -46,8 +46,8 @@ class WSTrustRequest(object):
     @staticmethod
     def _build_soap_message_credentials(username, password):
         username_token_xml = "<wsse:UsernameToken wsu:Id=\'ADALUsernameToken\'>\
-                              <wsse:Username>{0}</wsse:Username>\
-                              <wsse:Password>{1}</wsse:Password>\
+                              <wsse:Username>{}</wsse:Username>\
+                              <wsse:Password>{}</wsse:Password>\
                               </wsse:UsernameToken>".format(username, password)
         return username_token_xml
 
@@ -62,10 +62,10 @@ class WSTrustRequest(object):
 
         security_header_xml = "<wsse:Security s:mustUnderstand=\'1\' xmlns:wsse=\'http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd\'>\
                                <wsu:Timestamp wsu:Id=\'_0\'>\
-                               <wsu:Created>{0}</wsu:Created>\
-                               <wsu:Expires>{1}</wsu:Expires>\
-                               </wsu:Timestamp>{2}</wsse:Security>".format(time_now_str, expire_time_str,
-                                                                           WSTrustRequest._build_soap_message_credentials(username, password))
+                               <wsu:Created>{}</wsu:Created>\
+                               <wsu:Expires>{}</wsu:Expires>\
+                               </wsu:Timestamp>{}</wsse:Security>".format(time_now_str, expire_time_str, 
+                                                                          WSTrustRequest._build_soap_message_credentials(username, password))
         return security_header_xml
 
     def _build_rst(self, username, password):
@@ -74,18 +74,18 @@ class WSTrustRequest(object):
         rst = "<s:Envelope xmlns:s=\'http://www.w3.org/2003/05/soap-envelope\' xmlns:wsa=\'http://www.w3.org/2005/08/addressing\' xmlns:wsu=\'http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd\'>\
       <s:Header>\
         <wsa:Action s:mustUnderstand=\'1\'>http://docs.oasis-open.org/ws-sx/ws-trust/200512/RST/Issue</wsa:Action>\
-        <wsa:messageID>urn:uuid:{0}</wsa:messageID>\
+        <wsa:messageID>urn:uuid:{}</wsa:messageID>\
         <wsa:ReplyTo>\
           <wsa:Address>http://www.w3.org/2005/08/addressing/anonymous</wsa:Address>\
         </wsa:ReplyTo>\
-        <wsa:To s:mustUnderstand=\'1\'>{1}</wsa:To>\
-        {2}\
+        <wsa:To s:mustUnderstand=\'1\'>{}</wsa:To>\
+        {}\
       </s:Header>\
       <s:Body>\
         <wst:RequestSecurityToken xmlns:wst=\'http://docs.oasis-open.org/ws-sx/ws-trust/200512\'>\
           <wsp:AppliesTo xmlns:wsp=\'http://schemas.xmlsoap.org/ws/2004/09/policy\'>\
             <wsa:EndpointReference>\
-              <wsa:Address>{3}</wsa:Address>\
+              <wsa:Address>{}</wsa:Address>\
             </wsa:EndpointReference>\
           </wsp:AppliesTo>\
           <wst:KeyType>http://docs.oasis-open.org/ws-sx/ws-trust/200512/Bearer</wst:KeyType>\
@@ -118,10 +118,10 @@ class WSTrustRequest(object):
         util.log_return_correlation_id(self._log, operation, resp)
 
         if not util.is_http_success(resp.status_code):
-            return_error_string = "{0} request returned http error: {1}".format(operation, resp.status_code)
+            return_error_string = "{} request returned http error: {}".format(operation, resp.status_code)
             error_response = ""
             if resp.text:
-                return_error_string += " and server response: {0}".format(resp.text)
+                return_error_string += " and server response: {}".format(resp.text)
                 try:
                     error_response = resp.json()
                 except ValueError:

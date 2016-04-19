@@ -51,9 +51,21 @@ def add_parameter_if_available(parameters, key, value):
     if value:
         parameters[key] = value
 
+def _get_saml_grant_type(wstrust_response):
+    token_type = wstrust_response.token_type
+    if token_type == SAML.TokenTypeV1:
+        return OAUTH2_GRANT_TYPE.SAML1
+
+    elif token_type == SAML.TokenTypeV2:
+        return OAUTH2_GRANT_TYPE.SAML2
+
+    else:
+        raise AdalError("RSTR returned unknown token type: {}".format(token_type))
+
 class TokenRequest(object):
 
-    def __init__(self, call_context, authentication_context, client_id, resource, redirect_uri=None):
+    def __init__(self, call_context, authentication_context, client_id, 
+                 resource, redirect_uri=None):
 
         self._log = log.Logger("TokenRequest", call_context['log_context'])
         self._call_context = call_context
@@ -74,19 +86,25 @@ class TokenRequest(object):
         self._polling_client = None
 
     def _create_user_realm_request(self, username):
-        return user_realm.UserRealm(self._call_context, username, self._authentication_context.authority.url)
+        return user_realm.UserRealm(self._call_context, 
+                                    username, 
+                                    self._authentication_context.authority.url)
 
     def _create_mex(self, mex_endpoint):
         return mex.Mex(self._call_context, mex_endpoint)
 
     def _create_wstrust_request(self, wstrust_endpoint, applies_to):
-        return wstrust_request.WSTrustRequest(self._call_context, wstrust_endpoint, applies_to)
+        return wstrust_request.WSTrustRequest(self._call_context, 
+                                              wstrust_endpoint, applies_to)
 
     def _create_oauth2_client(self):
-        return oauth2_client.OAuth2Client(self._call_context, self._authentication_context.authority)
+        return oauth2_client.OAuth2Client(self._call_context, 
+                                          self._authentication_context.authority)
 
     def _create_self_signed_jwt(self):
-        return self_signed_jwt.SelfSignedJwt(self._call_context, self._authentication_context.authority, self._client_id)
+        return self_signed_jwt.SelfSignedJwt(self._call_context, 
+                                             self._authentication_context.authority, 
+                                             self._client_id)
 
     def _oauth_get_token(self, oauth_parameters):
         client = self._create_oauth2_client()
@@ -138,9 +156,12 @@ class TokenRequest(object):
 
             oauth_parameters[OAUTH2_PARAMETERS.SCOPE] = OAUTH2_SCOPE.OPENID
 
-        add_parameter_if_available(oauth_parameters, OAUTH2_PARAMETERS.CLIENT_ID, self._client_id)
-        add_parameter_if_available(oauth_parameters, OAUTH2_PARAMETERS.RESOURCE, self._resource)
-        add_parameter_if_available(oauth_parameters, OAUTH2_PARAMETERS.REDIRECT_URI, self._redirect_uri)
+        add_parameter_if_available(oauth_parameters, OAUTH2_PARAMETERS.CLIENT_ID, 
+                                   self._client_id)
+        add_parameter_if_available(oauth_parameters, OAUTH2_PARAMETERS.RESOURCE, 
+                                   self._resource)
+        add_parameter_if_available(oauth_parameters, OAUTH2_PARAMETERS.REDIRECT_URI, 
+                                   self._redirect_uri)
 
         return oauth_parameters
 
@@ -154,23 +175,11 @@ class TokenRequest(object):
 
         return self._oauth_get_token(oauth_parameters)
 
-    @staticmethod
-    def _get_saml_grant_type(wstrust_response):
-        token_type = wstrust_response.token_type
-        if token_type == SAML.TokenTypeV1:
-            return OAUTH2_GRANT_TYPE.SAML1
-
-        elif token_type == SAML.TokenTypeV2:
-            return OAUTH2_GRANT_TYPE.SAML2
-
-        else:
-            raise AdalError("RSTR returned unknown token type: {0}".format(token_type))
-
     def _perform_wstrust_assertion_oauth_exchange(self, wstrust_response):
         self._log.debug("Performing OAuth assertion grant type exchange.")
 
         oauth_parameters = {}
-        grant_type = TokenRequest._get_saml_grant_type(wstrust_response)
+        grant_type = _get_saml_grant_type(wstrust_response)
         assertion = b64encode(wstrust_response.token)
         oauth_parameters = self._create_oauth_parameters(grant_type)
         oauth_parameters[OAUTH2_PARAMETERS.ASSERTION] = assertion
@@ -178,21 +187,26 @@ class TokenRequest(object):
         return self._oauth_get_token(oauth_parameters)
 
     def _perform_wstrust_exchange(self, wstrust_endpoint, username, password):
-        wstrust = self._create_wstrust_request(wstrust_endpoint, "urn:federation:MicrosoftOnline")
+        wstrust = self._create_wstrust_request(wstrust_endpoint, 
+                                               "urn:federation:MicrosoftOnline")
 
         try:
             return wstrust.acquire_token(username, password)
         except AdalError as exp:
             error_msg = str(exp)
             if exp.error_response:
-                err_template = "Unsuccessful RSTR.\n\terror code: {0}\n\tfaultMessage: {1}"
+                err_template = "Unsuccessful RSTR.\n\terror code: {}\n\tfaultMessage: {}"
                 error_msg = (err_template.format(exp.error_response.error_code, 
                                                  exp.error_response.fault_message))
             self._log.info(error_msg)
             raise
 
-    def _perform_username_password_for_access_token_exchange(self, wstrust_endpoint, username, password):
-        wstrust_response = self._perform_wstrust_exchange(wstrust_endpoint, username, password)
+    def _perform_username_password_for_access_token_exchange(self, 
+                                                             wstrust_endpoint, 
+                                                             username, 
+                                                             password):
+        wstrust_response = self._perform_wstrust_exchange(wstrust_endpoint, 
+                                                          username, password)
         return self._perform_wstrust_assertion_oauth_exchange(wstrust_response)
 
     def _get_token_username_password_federated(self, username, password):
@@ -225,7 +239,8 @@ class TokenRequest(object):
                 if not wstrust_endpoint:
                     raise AdalError('AAD did not return a WSTrust endpoint. Unable to proceed.')
 
-            return self._perform_username_password_for_access_token_exchange(wstrust_endpoint, username, password)
+            return self._perform_username_password_for_access_token_exchange(wstrust_endpoint,
+                                                                             username, password)
 
     def get_token_with_username_password(self, username, password):
         self._log.info("Acquiring token with username password.")
@@ -250,7 +265,7 @@ class TokenRequest(object):
                 token = self._get_token_username_password_federated(username, password)
             else:
                 raise AdalError(
-                    "Server returned an unknown AccountType: {0}".format(self._user_realm.account_type))
+                    "Server returned an unknown AccountType: {}".format(self._user_realm.account_type))
             self._log.debug("Successfully retrieved token from authority.")
         except Exception:
             self._log.info("get_token_func returned with error")

@@ -35,9 +35,8 @@ def create_log_context(correlation_id=None):
     return {'correlation_id' : correlation_id or str(uuid.uuid4())}
 
 def set_logging_options(options=None):
-    '''
-    Configure adal logger, including level and handler spec'd by python logging
-    module.
+    '''Configure adal logger, including level and handler spec'd by python
+    logging module.
 
     Basic Usages::
         >>>adal.set_logging_options({
@@ -49,11 +48,7 @@ def set_logging_options(options=None):
         options = {}
     logger = logging.getLogger(ADAL_LOGGER_NAME)
 
-    level = options.get('level')
-    if level:
-        logger.setLevel(level)
-    else:
-        logger.setLevel(logging.ERROR)
+    logger.setLevel(options.get('level', logging.ERROR))
 
     handler = options.get('handler')
     if handler:
@@ -61,8 +56,7 @@ def set_logging_options(options=None):
         logger.addHandler(handler)
 
 def get_logging_options():
-    '''
-    Get logging options
+    '''Get logging options
 
     :returns: a dict, with a key of 'level' for logging level.
     '''
@@ -73,8 +67,7 @@ def get_logging_options():
         }
 
 class Logger(object):
-    '''
-    wrapper arund python built-in logging to log correlation_id, and stack
+    '''wrapper around python built-in logging to log correlation_id, and stack
     trace through keyword argument of 'log_stack_trace'
     '''
     def __init__(self, component_name, log_context):
@@ -92,14 +85,15 @@ class Logger(object):
             log_stack_trace = kwargs['log_stack_trace']
             kwargs.pop('log_stack_trace')
 
-        correlation_id = self.log_context.get("correlation_id", "<no correlation id>")
+        correlation_id = self.log_context.get("correlation_id", 
+                                              "<no correlation id>")
         
-        formatted = "{0} - {1}:{2}".format(
+        formatted = "{} - {}:{}".format(
             correlation_id, 
             self._component_name,
             msg)
         if log_stack_trace:
-            formatted += "\nStack:\n{0}".format(traceback.format_stack())
+            formatted += "\nStack:\n{}".format(traceback.format_stack())
 
         return formatted
 

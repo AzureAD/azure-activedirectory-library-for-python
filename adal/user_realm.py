@@ -111,14 +111,14 @@ class UserRealm(object):
 
         account_type = UserRealm._validate_account_type(response['account_type'])
         if not account_type:
-            raise AdalError('Cannot parse account_type: {0}'.format(account_type))
+            raise AdalError('Cannot parse account_type: {}'.format(account_type))
         self.account_type = account_type
 
         if self.account_type == ACCOUNT_TYPE['Federated']:
             protocol = UserRealm._validate_federation_protocol(response['federation_protocol'])
 
             if not protocol:
-                raise AdalError('Cannot parse federation protocol: {0}'.format(protocol))
+                raise AdalError('Cannot parse federation protocol: {}'.format(protocol))
 
             self.federation_protocol = protocol
             self.federation_metadata_url = response['federation_metadata_url']
@@ -138,10 +138,11 @@ class UserRealm(object):
         util.log_return_correlation_id(self._log, operation, resp)
 
         if not util.is_http_success(resp.status_code):
-            return_error_string = "{0} request returned http error: {1}".format(operation, resp.status_code)
+            return_error_string = "{} request returned http error: {}".format(operation, 
+                                                                              resp.status_code)
             error_response = ""
             if resp.text:
-                return_error_string += " and server response: {0}".format(resp.text)
+                return_error_string += " and server response: {}".format(resp.text)
                 try:
                     error_response = resp.json()
                 except ValueError:

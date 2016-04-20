@@ -124,7 +124,7 @@ class TestAuthority(unittest.TestCase):
         self.performStaticInstanceDiscovery('login.microsoftonline.com', callback)
         self.performStaticInstanceDiscovery('login.windows.net', callback)
         self.performStaticInstanceDiscovery('login.chinacloudapi.cn', callback)
-        self.performStaticInstanceDiscovery('login.cloudgovapi.us', callback)
+        self.performStaticInstanceDiscovery('login-us.microsoftonline.com', callback)
 
 
     @httpretty.activate

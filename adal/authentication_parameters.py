@@ -33,7 +33,6 @@ import requests
 
 from . import util
 from . import log
-from . import argument
 
 from .constants import HttpError
 
@@ -99,7 +98,6 @@ first_key_value_pair_regex = re.compile("""^\s*Bearer\s+([^,\s="]+?)="([^"]*?)"\
 all_other_key_value_pair_regex = re.compile("""(?:,\s*([^,\s="]+?)="([^"]*?)"\s*)""")
 
 
-
 def parse_challenge(challenge):
 
     if not bearer_challenge_structure_validation.search(challenge):
@@ -116,9 +114,6 @@ def parse_challenge(challenge):
     return challenge_parameters
 
 def create_authentication_parameters_from_header(challenge):
-
-    argument.validate_string_param(challenge, 'challenge')
-
     challenge_parameters = parse_challenge(challenge)
     authorization_uri = challenge_parameters.get(AUTHORIZATION_URI)
 
@@ -141,7 +136,7 @@ def create_authentication_parameters_from_response(response):
 
     if response.status_code != HttpError.UNAUTHORIZED:
         raise ValueError('The response status code does not correspond to an OAuth challenge.  '
-                         'The statusCode is expected to be 401 but is: {0}'.format(response.status_code))
+                         'The statusCode is expected to be 401 but is: {}'.format(response.status_code))
 
     challenge = response.headers.get(WWW_AUTHENTICATE_HEADER)
     if not challenge:
@@ -166,7 +161,7 @@ def create_authentication_parameters_from_url(url, correlation_id=None):
     logger = log.Logger('AuthenticationParameters', log_context)
 
     logger.debug(
-        "Attempting to retrieve authentication parameters from: {0}".format(challenge_url)
+        "Attempting to retrieve authentication parameters from: {}".format(challenge_url)
     )
 
     class _options(object):

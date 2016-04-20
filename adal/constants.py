@@ -29,8 +29,8 @@
 
 class Errors:
     # Constants
-    ERROR_VALUE_NONE = '{0} should not be None.'
-    ERROR_VALUE_EMPTY_STRING = '{0} should not be "".'
+    ERROR_VALUE_NONE = '{} should not be None.'
+    ERROR_VALUE_EMPTY_STRING = '{} should not be "".'
     ERROR_RESPONSE_MALFORMED_XML = 'The provided response string is not well formed XML.'
 
 class OAuth2Parameters(object):

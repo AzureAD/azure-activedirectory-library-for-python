@@ -38,6 +38,29 @@ from .constants import Jwt
 from .log import Logger
 from .adal_error import AdalError
 
+def _get_date_now():
+    return datetime.datetime.now()
+
+def _get_new_jwt_id():
+    return str(uuid.uuid4())
+
+def _create_x5t_value(thumbprint):
+    hex_val = binascii.a2b_hex(thumbprint)
+    return base64.urlsafe_b64encode(hex_val).decode()
+
+def _sign_jwt(header, payload, certificate):
+    encoded_jwt = _encode_jwt(payload, certificate, header)
+    _raise_on_invalid_jwt_signature(encoded_jwt)
+    return encoded_jwt
+
+def _encode_jwt(payload, certificate, header):
+    return jwt.encode(payload, certificate, algorithm='RS256', headers=header).decode()
+
+def _raise_on_invalid_jwt_signature(encoded_jwt):
+    segments = encoded_jwt.split('.')
+    if len(segments) < 3 or not segments[2]:    
+        raise AdalError('Failed to sign JWT. This is most likely due to an invalid certificate.')
+
 class SelfSignedJwt(object):
 
     NumCharIn128BitHexString = 128/8*2
@@ -52,21 +75,8 @@ class SelfSignedJwt(object):
         self._token_endpoint = authority.token_endpoint
         self._client_id = client_id
 
-    @staticmethod
-    def _get_date_now():
-        return datetime.datetime.now()
-
-    @staticmethod
-    def _get_new_jwt_id():
-        return str(uuid.uuid4())
-
-    @staticmethod
-    def _create_x5t_value(thumbprint):
-        hex_val = binascii.a2b_hex(thumbprint)
-        return base64.urlsafe_b64encode(hex_val).decode()
-
     def _create_header(self, thumbprint):
-        x5t = SelfSignedJwt._create_x5t_value(thumbprint)
+        x5t = _create_x5t_value(thumbprint)
         header = {'typ':'JWT', 'alg':'RS256', 'x5t':x5t}
 
         self._log.debug("Creating self signed JWT header. x5t: %s", x5t)
@@ -74,8 +84,7 @@ class SelfSignedJwt(object):
         return header
 
     def _create_payload(self):
-
-        now = SelfSignedJwt._get_date_now()
+        now = _get_date_now()
         minutes = datetime.timedelta(0, 0, 0, 0, Jwt.SELF_SIGNED_JWT_LIFETIME)
         expires = now + minutes
 
@@ -90,34 +99,17 @@ class SelfSignedJwt(object):
         jwt_payload[Jwt.SUBJECT] = self._client_id
         jwt_payload[Jwt.NOT_BEFORE] = int(time.mktime(now.timetuple()))
         jwt_payload[Jwt.EXPIRES_ON] = int(time.mktime(expires.timetuple()))
-        jwt_payload[Jwt.JWT_ID] = SelfSignedJwt._get_new_jwt_id()
+        jwt_payload[Jwt.JWT_ID] = _get_new_jwt_id()
 
         return jwt_payload
 
-    @staticmethod
-    def _raise_on_invalid_jwt_signature(encoded_jwt):
-        segments = encoded_jwt.split('.')
-        if len(segments) < 3 or not segments[2]:    
-            raise AdalError('Failed to sign JWT. This is most likely due to an invalid certificate.')
-
     def _raise_on_invalid_thumbprint(self, thumbprint):
-
         thumbprint_sizes = [self.NumCharIn128BitHexString, self.numCharIn160BitHexString]
-        if len(thumbprint) not in thumbprint_sizes or not re.search(self.ThumbprintRegEx, thumbprint):
+        size_ok = len(thumbprint) in thumbprint_sizes
+        if not size_ok or not re.search(self.ThumbprintRegEx, thumbprint):
             raise AdalError("The thumbprint does not match a known format")
 
-    @staticmethod
-    def _sign_jwt(header, payload, certificate):
-        encoded_jwt = SelfSignedJwt._encode_jwt(payload, certificate, header)
-        SelfSignedJwt._raise_on_invalid_jwt_signature(encoded_jwt)
-        return encoded_jwt
-
-    @staticmethod
-    def _encode_jwt(payload, certificate, header):
-        return jwt.encode(payload, certificate, algorithm='RS256', headers=header).decode()
-
     def _reduce_thumbprint(self, thumbprint):
-
         canonical = thumbprint.lower().replace(' ', '').replace(':', '')
         self._raise_on_invalid_thumbprint(canonical)
         return canonical
@@ -126,4 +118,4 @@ class SelfSignedJwt(object):
         thumbprint = self._reduce_thumbprint(thumbprint)
         header = self._create_header(thumbprint)
         payload = self._create_payload()
-        return SelfSignedJwt._sign_jwt(header, payload, certificate)
+        return _sign_jwt(header, payload, certificate)

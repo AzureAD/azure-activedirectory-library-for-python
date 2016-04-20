@@ -24,33 +24,17 @@
 # THE SOFTWARE.
 #
 #------------------------------------------------------------------------------
-import sys
-
 from .constants import OAuth2DeviceCodeResponseParameters
-
-def validate_string_param(value, name):
-    '''check the value is a non empty string'''
-    if not value:
-        raise ValueError("The {0} parameter is required".format(name))
-
-    result = True
-    if sys.version_info.major < 3:
-        result = isinstance(value, basestring) #pylint: disable=undefined-variable
-    else:
-        result = isinstance(value, str) 
-
-    if not result:
-        raise TypeError("The {0} parameter must be of type str".format(name))
 
 def validate_user_code_info(user_code_info):
     if not user_code_info:
         raise ValueError("the user_code_info parameter is required")
 
-    if not user_code_info[OAuth2DeviceCodeResponseParameters.DEVICE_CODE]:
+    if not user_code_info.get(OAuth2DeviceCodeResponseParameters.DEVICE_CODE):
         raise ValueError("the user_code_info is missing device_code")
 
-    if not user_code_info[OAuth2DeviceCodeResponseParameters.INTERVAL]:
+    if not user_code_info.get(OAuth2DeviceCodeResponseParameters.INTERVAL):
         raise ValueError("the user_code_info is missing internal")
 
-    if not user_code_info[OAuth2DeviceCodeResponseParameters.EXPIRES_IN]:
+    if not user_code_info.get(OAuth2DeviceCodeResponseParameters.EXPIRES_IN):
         raise ValueError("the user_code_info is missing expires_in")

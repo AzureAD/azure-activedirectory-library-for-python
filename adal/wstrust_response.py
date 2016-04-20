@@ -93,7 +93,7 @@ class WSTrustResponse(object):
         # text inside the value is not possible to select without prefix, so substring is necessary
         subnode = xmlutil.xpath_find(self._dom, 's:Body/s:Fault/s:Code/s:Subcode/s:Value')
         if len(subnode) > 1:
-            raise AdalError("Found too many fault code values: {0}".format(len(subnode)))
+            raise AdalError("Found too many fault code values: {}".format(len(subnode)))
 
         if subnode:
             error_code = subnode[0].text
@@ -117,7 +117,7 @@ class WSTrustResponse(object):
 
             requested_token_node = xmlutil.xpath_find(self._parents[node], 'wst:RequestedSecurityToken')
             if len(requested_token_node) > 1:
-                raise AdalError("Found too many RequestedSecurityToken nodes for token type: {0}".format(token_type))
+                raise AdalError("Found too many RequestedSecurityToken nodes for token type: {}".format(token_type))
 
             if not requested_token_node:
                 self._log.warn(

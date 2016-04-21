@@ -42,27 +42,25 @@ class TestE2EExamples(unittest.TestCase):
         self.assertIsNotNone(user_pass_params['password'], "This test cannot work without you adding a password")
         return super(TestE2EExamples, self).setUp()
 
-    def test_acquire_token_with_user_pass_defaults(self):
-        authority = user_pass_params['authorityHostUrl'] + '/' + user_pass_params['tenant']
-        token_response = adal.acquire_token_with_username_password(
-            authority, user_pass_params['username'], user_pass_params['password'])
-        self.validate_token_response_username_password(token_response)
-
     def test_acquire_token_with_user_pass_explicit(self):
         resource = '00000002-0000-0000-c000-000000000000'
         client_id_xplat = '04b07795-8ddb-461a-bbee-02f9e1bf7b46'
         authority = user_pass_params['authorityHostUrl'] + '/' + user_pass_params['tenant']
 
-        token_response = adal.acquire_token_with_username_password(
-            authority, user_pass_params['username'], user_pass_params['password'],
-            client_id_xplat, resource)
+        context = adal.AuthenticationContext(authority)
+        token_response = context.acquire_token_with_username_password(
+            resource, user_pass_params['username'], user_pass_params['password'],
+            client_id_xplat)
         self.validate_token_response_username_password(token_response)
 
     def test_acquire_token_with_client_creds(self):
-        token_response = adal.acquire_token_with_client_credentials(
-            client_cred_params['authority'],
-            client_cred_params['client_id'],
-            client_cred_params['secret'])
+        resource = '00000002-0000-0000-c000-000000000000'
+        context = adal.AuthenticationContext(client_cred_params['authority'])
+        token_response = context.acquire_token_with_client_credentials(
+             resource,
+             client_cred_params['clientId'],
+             client_cred_params['secret'])
+
         self.validate_token_response_client_credentials(token_response)
 
     @unittest.skip('https://github.com/AzureAD/azure-activedirectory-library-for-python-priv/issues/46')
@@ -71,15 +69,20 @@ class TestE2EExamples(unittest.TestCase):
 
     def test_acquire_token_with_refresh_token(self):
         authority = user_pass_params['authorityHostUrl'] + '/' + user_pass_params['tenant']
+        resource = '00000002-0000-0000-c000-000000000000'
+        client_id_xplat = '04b07795-8ddb-461a-bbee-02f9e1bf7b46'
 
         # Get token using username password first
-        token_response = adal.acquire_token_with_username_password(
-            authority, user_pass_params['username'], user_pass_params['password'])
+        context = adal.AuthenticationContext(authority)
+        token_response = context.acquire_token_with_username_password(
+            resource, user_pass_params['username'], user_pass_params['password'],
+            client_id_xplat)
         self.validate_token_response_username_password(token_response)
 
         # Use returned refresh token to acquire a new token.
         refresh_token = token_response['refreshToken']
-        token_response2 = adal.acquire_token_with_refresh_token(authority, refresh_token)
+        context = adal.AuthenticationContext(authority)
+        token_response2 = context.acquire_token_with_refresh_token(refresh_token, client_id_xplat, resource)
         self.validate_token_response_refresh_token(token_response2)
 
     @unittest.skip('https://github.com/AzureAD/azure-activedirectory-library-for-python-priv/issues/47')

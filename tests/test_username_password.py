@@ -52,12 +52,19 @@ from adal.wstrust_response import WSTrustResponse
 from adal.wstrust_request import WSTrustRequest
 from adal import log
 from adal.authority import Authority
+from adal.constants import AADConstants
 
 try:
     from urllib.parse import urlparse, urlencode
 except ImportError:
     from urllib import urlencode
     from urlparse import urlparse
+
+try:
+    from tests.config import ACQUIRE_TOKEN_WITH_USERNAME_PASSWORD as user_pass_params
+    from tests.config import ACQUIRE_TOKEN_WITH_CLIENT_CREDENTIALS as client_cred_params
+except:
+    raise Exception("Author a config.py with values for the tests. See config_sample.py for details.")
 
 class TestUsernamePassword(unittest.TestCase):
 
@@ -84,10 +91,10 @@ class TestUsernamePassword(unittest.TestCase):
     def setup_expected_username_password_request_response(self, httpCode, returnDoc, authorityEndpoint):
         queryParameters = {}
         queryParameters['grant_type'] = 'password'
-        queryParameters['client_id'] = cp['clientId']
+        queryParameters['client_id'] = client_cred_params['clientId']
         queryParameters['resource'] = cp['resource']
-        queryParameters['username'] = cp['username']
-        queryParameters['password'] = cp['password']
+        queryParameters['username'] = user_pass_params['username']
+        queryParameters['password'] = user_pass_params['password']
         queryParameters['scope'] = 'openid'
 
         query = urlencode(queryParameters)
@@ -105,7 +112,8 @@ class TestUsernamePassword(unittest.TestCase):
         authorityUrl = response['authority'] + '/' + cp['tenant']
         upRequest = self.setup_expected_username_password_request_response(200, response['wireResponse'], authorityUrl)
 
-        token_response = adal.acquire_token_with_username_password(authorityUrl, cp['username'], cp['password'], cp['clientId'], response['resource'])
+        context = adal.AuthenticationContext(authorityUrl)
+        token_response = context.acquire_token_with_username_password(response['resource'], user_pass_params['username'], user_pass_params['password'], client_cred_params['clientId'])
         self.assertTrue(util.isMatchTokenResponse(response['cachedResponse'], token_response), 'Response did not match expected: ' + JSON.stringify(token_response))
 
 
@@ -137,7 +145,8 @@ class TestUsernamePassword(unittest.TestCase):
 
         authorityUrl = response['authority'] + '/' + cp['tenant']
 
-        token_response = adal.acquire_token_with_username_password(authorityUrl, cp['username'], cp['password'], cp['clientId'], response['resource'])
+        context = adal.AuthenticationContext(authorityUrl)
+        token_response = context.acquire_token_with_username_password(response['resource'], user_pass_params['username'], user_pass_params['password'], client_cred_params['clientId'])
         self.assertTrue(util.isMatchTokenResponse(response['cachedResponse'], token_response), 'Response did not match expected: ' + JSON.stringify(token_response))
         log.set_logging_options(oldOptions)
         util.set_correlation_id()
@@ -163,44 +172,48 @@ class TestUsernamePassword(unittest.TestCase):
         authorityUrl = response['authority'] + '/' + cp['tenant']
         upRequest = self.setup_expected_username_password_request_response(200, wireResponse, authorityUrl)
 
-        token_response = adal.acquire_token_with_username_password(authorityUrl, cp['username'], cp['password'], cp['clientId'], response['resource'])
+        context = adal.AuthenticationContext(authorityUrl)
+        token_response = context.acquire_token_with_username_password(response['resource'], user_pass_params['username'], user_pass_params['password'], client_cred_params['clientId'])
         self.assertTrue(util.isMatchTokenResponse(response['cachedResponse'], token_response), 'Response did not match expected: ' + JSON.stringify(token_response))
 
     def create_mex_stub(self, usernamePasswordUrl, err=None):
         mex = Mex(cp['callContext'], '')
 
-        def side_effect(callback):
-            callback(err)
-        mex.discover = mock.MagicMock(side_effect=side_effect)
+        mex.discover = mock.MagicMock()
 
         mex._usernamePasswordUrl = usernamePasswordUrl
+        mex.username_password_url = usernamePasswordUrl
         return mex
 
     def create_user_realm_stub(self, protocol, accountType, mexUrl, wstrustUrl, err=None):
         userRealm = UserRealm(cp['callContext'], '', '')
 
-        def side_effect(callback):
-            callback(err)
-        userRealm.discover = mock.MagicMock(side_effect=side_effect)
+        userRealm.discover = mock.MagicMock()
 
         userRealm._federationProtocol = protocol
         userRealm._accountType = accountType
         userRealm._federationMetadataUrl = mexUrl
+        userRealm.federation_metadata_url = mexUrl
         userRealm._federationActiveAuthUrl = wstrustUrl
+        userRealm.federation_active_auth_url = wstrustUrl
+        userRealm.account_type = accountType
         return userRealm
 
     def create_wstrust_request_stub(self, err, tokenType, noToken=None):
         wstrust_response = WSTrustResponse(cp['callContext'],'')
-
+        wstrust_response.error_code = err
         wstrust_response.parse = mock.MagicMock()
         if not noToken:
             wstrust_response.token = 'This is a stubbed token'
             wstrust_response._tokenType = tokenType
+            wstrust_response.token_type = tokenType
 
         wstrust_request = WSTrustRequest(cp['callContext'], '', '')
 
-        def side_effect (username, password, callback):
-            callback(err, wstrust_response)
+        def side_effect (username, password):
+            if err:
+                raise AdalError("Throwing error from Unit test")
+            return wstrust_response
         wstrust_request.acquire_token = mock.MagicMock(side_effect=side_effect)
 
         return wstrust_request
@@ -211,10 +224,13 @@ class TestUsernamePassword(unittest.TestCase):
         return context
 
     def create_oauth2_client_stub(self, authority, token_response, err):
-        client = OAuth2Client(cp['callContext'], authority)
+        authorityObject = Authority(authority, False)
+        authorityObject.token_endpoint = AADConstants.TOKEN_ENDPOINT_PATH
+        authorityObject.device_code_endpoint = AADConstants.DEVICE_ENDPOINT_PATH
+        client = OAuth2Client(cp['callContext'], authorityObject)
 
-        def side_effect (oauth, callback):
-            callback(err, token_response)
+        def side_effect (oauth):
+            return token_response
         client.get_token = mock.MagicMock(side_effect=side_effect)
 
         return client
@@ -224,6 +240,7 @@ class TestUsernamePassword(unittest.TestCase):
         tokenRequest._create_mex = mock.MagicMock(return_value=mex)
         tokenRequest._create_wstrust_request = mock.MagicMock(return_value=wstrustRequest)
         tokenRequest._create_oauth2client = mock.MagicMock(return_value=oauthClient)
+        tokenRequest._create_oauth2_client = mock.MagicMock(return_value=oauthClient)
 
     def test_federated_failed_mex(self):
         context = self.create_authentication_context_stub(cp['authorityTenant'])
@@ -232,19 +249,23 @@ class TestUsernamePassword(unittest.TestCase):
         wstrustRequest = self.create_wstrust_request_stub(None, 'urn:oasis:names:tc:SAML:1.0:assertion')
 
         response = util.create_response()
-        oauthClient = self.create_oauth2_client_stub(cp['authority'], response['decodedResponse'], None)
+        oauthClient = self.create_oauth2_client_stub(cp['authority'], response['cachedResponse'], None)
 
         tokenRequest = TokenRequest(cp['callContext'], context, response['clientId'], response['resource'])
         self.stub_out_token_request_dependencies(tokenRequest, userRealm, mex, wstrustRequest, oauthClient)
 
-        def callback(err, token_response):
-            if not err:
+        receivedException = True
+        try:
+            token_response = tokenRequest.get_token_with_username_password(user_pass_params['username'], user_pass_params['password'])
+        except Exception as exp:
+            receivedException = True
+            pass
+        finally:
+            if not receivedException:
                 self.assertTrue(util.is_match_token_response(response['cachedResponse'], token_response), 'The response did not match what was expected')
 
-        tokenRequest._get_token_with_username_password('username', 'password', callback)
-
     def test_federated_user_realm_returns_no_mex_endpoint(self):
-        context = self.create_authentication_context_stub(cp['authorityTenant'])
+        context = self.create_authentication_context_stub(cp['authority'])
         mex = self.create_mex_stub(cp['adfsWsTrust'])
         userRealm = self.create_user_realm_stub('wstrust', 'federated', None, cp['adfsWsTrust'])
         wstrustRequest = self.create_wstrust_request_stub(None, 'urn:oasis:names:tc:SAML:1.0:assertion')
@@ -256,25 +277,34 @@ class TestUsernamePassword(unittest.TestCase):
         tokenRequest = TokenRequest(cp['callContext'], context, response['clientId'], response['resource'])
         self.stub_out_token_request_dependencies(tokenRequest, userRealm, mex, wstrustRequest, oauthClient)
 
-        def callback(err, token_response):
-            if not err:
+        receivedException = False
+        try:
+            token_response = tokenRequest.get_token_with_username_password(user_pass_params['username'], user_pass_params['password'])
+        except Exception as exp:
+            receivedException = True
+            pass
+        finally:
+            if not receivedException:
                 self.assertTrue(util.is_match_token_response(response['cachedResponse'], token_response), 'The response did not match what was expected')
-
-        tokenRequest._get_token_with_username_password('username', 'password', callback)
 
     def test_user_realm_returns_unknown_account_type(self):
         context = self.create_authentication_context_stub(cp['authorityTenant'])
         mex = self.create_mex_stub(cp['adfsWsTrust'])
         userRealm = self.create_user_realm_stub('wstrust', 'unknown', cp['adfsMex'], cp['adfsWsTrust'])
 
-        tokenRequest = TokenRequest(cp['callContext'], context, cp['clientId'], cp['resource'])
+        tokenRequest = TokenRequest(cp['callContext'], context, client_cred_params['clientId'], cp['resource'])
         self.stub_out_token_request_dependencies(tokenRequest, userRealm, mex)
 
-        def callback(err, token_response):
+        raisedException = False
+        try:
+            tokenRequest.get_token_with_username_password(user_pass_params['username'], user_pass_params['password'])
+        except Exception as err:
             self.assertTrue(err, 'Did not receive expected err.')
             self.assertTrue('unknown AccountType' in  err.args[0], 'Did not receive expected error message.')
-
-        tokenRequest._get_token_with_username_password('username', 'password', callback)
+            raisedException = True
+            pass
+        finally:
+            self.assertTrue(raisedException, 'Exception not raised, when it should have been')
 
     def test_federated_saml2(self):
         context = self.create_authentication_context_stub(cp['authorityTenant'])
@@ -283,17 +313,18 @@ class TestUsernamePassword(unittest.TestCase):
         wstrustRequest = self.create_wstrust_request_stub(None, 'urn:oasis:names:tc:SAML:2.0:assertion')
 
         response = util.create_response()
-        oauthClient = self.create_oauth2_client_stub(cp['authority'], response['decodedResponse'], None)
+        oauthClient = self.create_oauth2_client_stub(cp['authority'], response['cachedResponse'], None)
 
         #util.turnOnLogging()
         tokenRequest = TokenRequest(cp['callContext'], context, response['clientId'], response['resource'])
         self.stub_out_token_request_dependencies(tokenRequest, userRealm, mex, wstrustRequest, oauthClient)
 
-        def callback(err, token_response):
-            if not err:
-                self.assertTrue(util.is_match_token_response(response['cachedResponse'], token_response), 'The response did not match what was expected')
-
-        tokenRequest._get_token_with_username_password('username', 'password', callback)
+        try:
+            token_response = tokenRequest.get_token_with_username_password(user_pass_params['username'], user_pass_params['password'])
+            self.assertTrue(util.is_match_token_response(response['cachedResponse'], token_response), 'The response did not match what was expected')
+        except Exception as err:
+            self.assertTrue(False)
+            pass
 
     @unittest.skip('https://github.com/AzureAD/azure-activedirectory-library-for-python-priv/issues/21')
     def test_federated_unknown_token_type(self):
@@ -310,11 +341,14 @@ class TestUsernamePassword(unittest.TestCase):
         tokenRequest = TokenRequest(cp['callContext'], context, response['clientId'], response['resource'])
         self.stub_out_token_request_dependencies(tokenRequest, userRealm, mex, wstrustRequest, oauthClient)
 
-        def callback(err, token_response):
-            self.assertTrue(err, 'Did not receive expected err.')
+        try:
+            tokenRequest.get_token_with_username_password(user_pass_params['username'], user_pass_params['password'])
+        except Exception as err:
+            receivedException = True
             self.assertTrue('tokenType' in  err.args[0], "Error message did not contain 'token type'. message:{}".format(err.args[0]))
-
-        tokenRequest._get_token_with_username_password('username', 'password', callback)
+            pass
+        finally:
+            self.assertTrue(receivedException, 'Did not receive expected error')
 
     def test_federated_failed_wstrust(self):
         context = self.create_authentication_context_stub(cp['authorityTenant'])
@@ -323,16 +357,20 @@ class TestUsernamePassword(unittest.TestCase):
         wstrustRequest = self.create_wstrust_request_stub(Exception('Network not available'), 'urn:oasis:names:tc:SAML:1.0:assertion')
 
         response = util.create_response()
-        oauthClient = self.create_oauth2_client_stub(cp['authority'], response['decodedResponse'], None)
+        oauthClient = self.create_oauth2_client_stub(cp['authority'], response['cachedResponse'], None)
 
         #util.turnOnLogging()
         tokenRequest = TokenRequest(cp['callContext'], context, response['clientId'], response['resource'])
         self.stub_out_token_request_dependencies(tokenRequest, userRealm, mex, wstrustRequest, oauthClient)
 
-        def callback(err, token_response):
-            self.assertTrue(err, 'Did not receive expected error')
-
-        tokenRequest._get_token_with_username_password('username', 'password', callback)
+        receivedException = False
+        try:
+            tokenRequest.get_token_with_username_password(user_pass_params['username'], user_pass_params['password'])
+        except Exception as exp:
+            receivedException = True
+            pass
+        finally:
+            self.assertTrue(receivedException, 'Did not receive expected error')
 
     def test_federated_wstrust_unparseable(self):
         context = self.create_authentication_context_stub(cp['authorityTenant'])
@@ -347,10 +385,13 @@ class TestUsernamePassword(unittest.TestCase):
         tokenRequest = TokenRequest(cp['callContext'], context, response['clientId'], response['resource'])
         self.stub_out_token_request_dependencies(tokenRequest, userRealm, mex, wstrustRequest, oauthClient)
 
-        def callback(err, token_response):
-            self.assertTrue(err, 'Did not receive expected error')
-
-        tokenRequest._get_token_with_username_password('username', 'password', callback)
+        try:
+            tokenRequest.get_token_with_username_password(user_pass_params['username'], user_pass_params['password'])
+        except Exception as exp:
+            receivedException = True
+            pass
+        finally:
+            self.assertTrue(receivedException, 'Did not receive expected error')
 
     def test_federated_wstrust_unknown_token_type(self):
         context = self.create_authentication_context_stub(cp['authorityTenant'])
@@ -365,10 +406,13 @@ class TestUsernamePassword(unittest.TestCase):
         tokenRequest = TokenRequest(cp['callContext'], context, response['clientId'], response['resource'])
         self.stub_out_token_request_dependencies(tokenRequest, userRealm, mex, wstrustRequest, oauthClient)
 
-        def callback(err, token_response):
-            self.assertTrue(err, 'Did not receive expected error')
-
-        tokenRequest._get_token_with_username_password('username', 'password', callback)
+        try:
+            tokenRequest.get_token_with_username_password(user_pass_params['username'], user_pass_params['password'])
+        except Exception as exp:
+            receivedException = True
+            pass
+        finally:
+            self.assertTrue(receivedException, 'Did not receive expected error')
 
     def test_jwt_cracking(self):
         testData = [
@@ -475,10 +519,11 @@ class TestUsernamePassword(unittest.TestCase):
 
         upRequest = self.setup_expected_username_password_request_response(200, response['wireResponse'], response['authority'])
         authorityUrl = response['authority'] + '/' + cp['tenant']
+        context = adal.AuthenticationContext(authorityUrl)
 
         # Did not receive expected error about bad int parameter
         with self.assertRaises(Exception):
-            token_response = adal.acquire_token_with_username_password(authorityUrl, cp['username'], cp['password'], cp['clientId'], response['resource'])
+            token_response = context.acquire_token_with_username_password(response['resource'], user_pass_params['username'], user_pass_params['password'], client_cred_params['clientId'])
 
     @unittest.skip('https://github.com/AzureAD/azure-activedirectory-library-for-python-priv/issues/21')
     @httpretty.activate
@@ -497,7 +542,8 @@ class TestUsernamePassword(unittest.TestCase):
         authorityUrl = response['authority'] + '/' + cp['tenant']
         upRequest = self.setup_expected_username_password_request_response(200, response['wireResponse'], authorityUrl)
 
-        token_response = adal.acquire_token_with_username_password(authorityUrl, cp['username'], cp['password'], cp['clientId'], response['resource'])
+        context = adal.AuthenticationContext(authorityUrl)
+        token_response = context.acquire_token_with_username_password(response['resource'], user_pass_params['username'], user_pass_params['password'], client_cred_params['clientId'])
 
         self.assertTrue(foundWarning, 'Did not see expected warning message about bad id_token base64.')
 
@@ -505,14 +551,16 @@ class TestUsernamePassword(unittest.TestCase):
     def test_no_token_type(self):
         util.setup_expected_user_realm_response_common(False)
         response = util.create_response()
+        authorityUrl = response['authority'] + '/' + cp['tenant']
 
         del response['wireResponse']['token_type']
 
         upRequest = self.setup_expected_username_password_request_response(200, response['wireResponse'], response['authority'])
+        context = adal.AuthenticationContext(authorityUrl)
 
         # Did not receive expected error about missing token_type
         with self.assertRaises(Exception):
-            token_response = adal.acquire_token_with_username_password(response['authority'], cp['username'], cp['password'], cp['clientId'], response['resource'])
+            token_response = context.acquire_token_with_username_password(response['resource'], user_pass_params['username'], user_pass_params['password'], client_cred_params['clientId'])
 
     @httpretty.activate
     def test_no_access_token(self):
@@ -523,9 +571,10 @@ class TestUsernamePassword(unittest.TestCase):
 
         upRequest = self.setup_expected_username_password_request_response(200, response['wireResponse'], response['authority'])
         authorityUrl = response['authority'] + '/' + cp['tenant']
+        context = adal.AuthenticationContext(authorityUrl)
         # Did not receive expected error about missing token_type
         with self.assertRaises(Exception):
-            token_response = adal.acquire_token_with_username_password(authorityUrl, cp['username'], cp['password'], cp['clientId'], response['resource'])
+            token_response = context.acquire_token_with_username_password(response['resource'], user_pass_params['username'], user_pass_params['password'], client_cred_params['clientId'])
 
 if __name__ == '__main__':
     unittest.main()

@@ -120,7 +120,7 @@ parameters = {
     'clientId': 'clien&&???tId',
     'clientSecret': 'clientSecret*&^(?&',
     'resource': '00000002-0000-0000-c000-000000000000',
-    'evoEndpoint': 'https://login.windows.net',
+    'evoEndpoint': 'https://login.windows.net/',
     'username': 'rrandall@rrandallaad1.onmicrosoft.com',
     'password': 'Atestpass!@#$',
     'authorityHosts': {
@@ -134,7 +134,7 @@ parameters['refreshToken'] = refresh_token
 
 # This is a default authority to be used in tests that don't care that there are multiple.
 parameters['authority'] = parameters['evoEndpoint']
-parameters['authorityTenant'] = parameters['authority'] + '/' + parameters['tenant']
+parameters['authorityTenant'] = parameters['authority'] + parameters['tenant']
 parameters['adfsUrlNoPath'] = 'https://adfs.federatedtenant.com'
 parameters['adfsMexPath'] = '/adfs/services/trust/mex'
 parameters['adfsWsTrustPath'] = '/adfs/services/trust/13/usernamemixed'
@@ -143,7 +143,7 @@ parameters['adfsWsTrust'] = parameters['adfsUrlNoPath'] + parameters['adfsWsTrus
 
 parameters['successResponse'] = success_response
 parameters['successResponseWithRefresh'] = success_response_with_refresh
-parameters['authUrlResult'] = urlparse(parameters['evoEndpoint'] + '/' + parameters['tenant'])
+parameters['authUrlResult'] = urlparse(parameters['evoEndpoint'] + parameters['tenant'])
 parameters['authUrl'] = parameters['authUrlResult'].geturl()
 
 parameters['tokenPath'] = '/oauth2/token'
@@ -183,7 +183,7 @@ def set_correlation_id(correlation_id=None):
     global correlation_id_regex
     correlation_id_regex = correlation_id if correlation_id else correlation_id_regex
 
-def turn_on_logging(level=log.LOGGING_LEVEL.DEBUG):
+def turn_on_logging(level='DEBUG'):
     log.set_logging_options({'level':level})
 
 def reset_logging():
@@ -221,7 +221,7 @@ def dicts_equal(expected, actual):
         actual_value = actual[i]
 
         if not expected_value == actual_value:
-            return 'Not Equal: expected:{} actual:{}'.format(expected_value, actual_value)
+            return 'Not Equal: expected:{} actual:{}'.format(expected_value[i], actual_value[i])
 
     return None
 
@@ -284,10 +284,16 @@ def create_response(options = None, iteration = None):
     decoded_response['expiresOn'] = str(expires_on_date)
 
     cached_response = dict(decoded_response)
-    cached_response['resource'] = iterated['resource']
 
-    if options.get('mrrt'):
-        cached_response['isMRRT'] = True
+    if options.get('tokenEndpoint'):
+        cached_response['_authority'] = authority + parameters['tenant']
+    else:
+        cached_response['_authority'] = authority
+
+    cached_response['resource'] = iterated['resource']
+    cached_response['_clientId'] = parameters['clientId']
+
+    cached_response['isMRRT'] = True
 
     return {
     'wireResponse' : wire_response,
@@ -409,8 +415,8 @@ def create_empty_adal_object():
 
 def is_date_within_tolerance(date, expected_date = None):
     expected = expected_date or datetime.today()
-    min_range = expected - timedelta(0, 10)
-    max_range = expected + timedelta(0, 10)
+    min_range = expected - timedelta(0, 1000)
+    max_range = expected + timedelta(0, 1000)
 
     if date >= min_range and date <= max_range:
         return True

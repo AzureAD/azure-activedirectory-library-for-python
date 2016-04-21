@@ -56,19 +56,21 @@ class TestSelfSignedJwt(unittest.TestCase):
     testClientId = 'd6835713-b745-48d1-bb62-7a8248477d35'
     testCert = cp['cert']
 
-    def _create_jwt(self, cert, thumbprint):
+    def _create_jwt(self, cert, thumbprint, encodeError = None):
         ssjwt = SelfSignedJwt(cp['callContext'], self.testAuthority, self.testClientId)
 
         ssjwt._get_date_now = mock.MagicMock(return_value = self.testNowDate)
         ssjwt._get_new_jwt_id = mock.MagicMock(return_value = self.testJwtId)
-        ssjwt._encode_jwt = mock.MagicMock(return_value = self.expectedJwt)
+
+        if not encodeError:
+            SelfSignedJwt._encode_jwt = mock.MagicMock(return_value = self.expectedJwt)
 
         jwt = ssjwt.create(cert, thumbprint)
         return jwt
 
-    def _create_jwt_and_match_expected_err(self, testCert, thumbprint):
+    def _create_jwt_and_match_expected_err(self, testCert, thumbprint, encodeError = None):
         with self.assertRaises(Exception):
-            self._create_jwt(testCert, thumbprint)
+            self._create_jwt(testCert, thumbprint, encodeError)
 
     def _create_jwt_and_match_expected_jwt(self, cert, thumbprint):
         jwt = self._create_jwt(cert, thumbprint)
@@ -87,7 +89,7 @@ class TestSelfSignedJwt(unittest.TestCase):
         self._create_jwt_and_match_expected_jwt(self.testCert, thumbprint)
 
     def test_create_jwt_invalid_cert(self):
-        self._create_jwt_and_match_expected_err('foobar', cp['certHash'])
+        self._create_jwt_and_match_expected_err('foobar', cp['certHash'], True)
 
     def test_create_jwt_invalid_thumbprint_1(self):
         self._create_jwt_and_match_expected_err(self.testCert, 'zzzz')

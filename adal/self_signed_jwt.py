@@ -108,7 +108,11 @@ class SelfSignedJwt(object):
 
     @staticmethod
     def _sign_jwt(header, payload, certificate):
-        encoded_jwt = SelfSignedJwt._encode_jwt(payload, certificate, header)
+        try:
+            encoded_jwt = SelfSignedJwt._encode_jwt(payload, certificate, header)
+        except Exception as exp:
+            raise AdalError("Error:Invalid Certificate: Expected Start of Certificate to be '-----BEGIN RSA PRIVATE KEY-----'", exp)
+
         SelfSignedJwt._raise_on_invalid_jwt_signature(encoded_jwt)
         return encoded_jwt
 

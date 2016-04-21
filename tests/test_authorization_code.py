@@ -40,6 +40,7 @@ except ImportError:
     import mock
 
 import adal
+from adal.authentication_context import AuthenticationContext
 from tests import util
 from tests.util import parameters as cp
 
@@ -83,7 +84,8 @@ class TestAuthorizationCode(unittest.TestCase):
 
         self.setup_expected_auth_code_token_request_response(200, response['wireResponse'])
 
-        token_response = adal._acquire_token_with_authorization_code(cp['authUrl'], cp['clientId'], cp['clientSecret'], self.authorization_code, self.redirect_uri, response['resource'])
+        context = adal.AuthenticationContext(cp['authUrl'])
+        token_response = context.acquire_token_with_authorization_code(self.authorization_code, self.redirect_uri, response['resource'], cp['clientId'], cp['clientSecret'])
 
         self.assertTrue(util.is_match_token_response(response['decodedResponse'], token_response), 'The response did not match what was expected')
 

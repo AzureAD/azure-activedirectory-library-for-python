@@ -151,7 +151,12 @@ class WSTrustResponse(object):
             raise AdalError("Received empty RSTR response body.")
 
         try:
-            self._dom = ET.fromstring(self._response)
+
+            try:
+                self._dom = ET.fromstring(self._response)
+            except Exception as exp:
+                raise AdalError('Failed to parse RSTR in to DOM', exp)
+
             self._parents = {c:p for p in self._dom.iter() for c in p}
             error_found = self._parse_error()
             if error_found:

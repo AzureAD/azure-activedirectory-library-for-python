@@ -171,7 +171,7 @@ class TokenRequest(object):
 
         oauth_parameters = {}
         grant_type = TokenRequest._get_saml_grant_type(wstrust_response)
-        assertion = b64encode(wstrust_response.token)
+        assertion = b64encode(wstrust_response.token.encode('utf-8'))
         oauth_parameters = self._create_oauth_parameters(grant_type)
         oauth_parameters[OAUTH2_PARAMETERS.ASSERTION] = assertion
 

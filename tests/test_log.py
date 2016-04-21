@@ -39,7 +39,7 @@ class TestLog(unittest.TestCase):
         options = log.get_logging_options()
         log.set_logging_options(current_options)
 
-        noOptions = len(options) == 1 and options['level'] == 0
+        noOptions = len(options) == 1 and options['level'] == 'ERROR'
         self.assertTrue(noOptions, 'Did not expect to find any logging options set: ' + json.dumps(options))
 
     def test_console_settings(self):
@@ -52,7 +52,7 @@ class TestLog(unittest.TestCase):
         # future tests are logged as they should be.
         log.set_logging_options(currentOptions)
 
-        self.assertEqual(level, log.LOGGING_LEVEL.DEBUG, 'Logging level was not the expected value of LOGGING_LEVEL.DEBUG: {}'.format(level))
+        self.assertEqual(level, 'DEBUG', 'Logging level was not the expected value of LOGGING_LEVEL.DEBUG: {}'.format(level))
 
 if __name__ == '__main__':
     unittest.main()

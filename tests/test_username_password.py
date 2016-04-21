@@ -28,6 +28,7 @@
 import sys
 import requests
 import httpretty
+from adal import oauth2_client
 
 try:
     import unittest2 as unittest
@@ -494,19 +495,19 @@ class TestUsernamePassword(unittest.TestCase):
           ],
         ]
 
-        OAuth2Client._crack_jwt
+        oauth2_client._crack_jwt
 
         for testCase in testData:
             testJWT = testCase[0]
             testResult = testCase[1]
 
             if testResult:
-                crackedJwt = OAuth2Client._crack_jwt(testJWT)
+                crackedJwt = oauth2_client._crack_jwt(testJWT)
                 resp = util.dicts_equal(testResult, crackedJwt)
                 self.assertTrue(resp is None, 'The cracked token does not match the expected result.: {}'.format(resp))
             else:
                 with self.assertRaises(ValueError):
-                    crackedJwt = OAuth2Client._crack_jwt(testJWT)
+                    crackedJwt = oauth2_client._crack_jwt(testJWT)
 
 
 

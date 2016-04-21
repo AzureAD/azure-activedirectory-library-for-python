@@ -43,6 +43,7 @@ except ImportError:
 
 import adal
 from adal.authority import Authority
+from adal import self_signed_jwt
 from adal.self_signed_jwt import SelfSignedJwt
 from adal.authentication_context import AuthenticationContext
 from tests import util
@@ -59,11 +60,11 @@ class TestSelfSignedJwt(unittest.TestCase):
     def _create_jwt(self, cert, thumbprint, encodeError = None):
         ssjwt = SelfSignedJwt(cp['callContext'], self.testAuthority, self.testClientId)
 
-        ssjwt._get_date_now = mock.MagicMock(return_value = self.testNowDate)
-        ssjwt._get_new_jwt_id = mock.MagicMock(return_value = self.testJwtId)
+        self_signed_jwt._get_date_now = mock.MagicMock(return_value = self.testNowDate)
+        self_signed_jwt._get_new_jwt_id = mock.MagicMock(return_value = self.testJwtId)
 
         if not encodeError:
-            SelfSignedJwt._encode_jwt = mock.MagicMock(return_value = self.expectedJwt)
+            self_signed_jwt._encode_jwt = mock.MagicMock(return_value = self.expectedJwt)
 
         jwt = ssjwt.create(cert, thumbprint)
         return jwt

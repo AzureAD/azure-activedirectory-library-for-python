@@ -92,17 +92,22 @@ class Authority(object):
         return True
 
     def _create_authority_url(self):
-        return "https://{0}/{1}{2}".format(self._url.hostname, self._tenant, AADConstants.AUTHORIZE_ENDPOINT_PATH)
+        return "https://{}/{}{}".format(self._url.hostname, 
+                                        self._tenant, 
+                                        AADConstants.AUTHORIZE_ENDPOINT_PATH)
 
     def _create_instance_discovery_endpoint_from_template(self, authority_host):
 
         discovery_endpoint = AADConstants.INSTANCE_DISCOVERY_ENDPOINT_TEMPLATE
         discovery_endpoint = discovery_endpoint.replace('{authorize_host}', authority_host)
-        discovery_endpoint = discovery_endpoint.replace('{authorize_endpoint}', quote(self._create_authority_url(), safe='~()*!.\''))
+        discovery_endpoint = discovery_endpoint.replace('{authorize_endpoint}', 
+                                                        quote(self._create_authority_url(), 
+                                                              safe='~()*!.\''))
         return urlparse(discovery_endpoint)
 
     def _perform_dynamic_instance_discovery(self):
-        discovery_endpoint = self._create_instance_discovery_endpoint_from_template(AADConstants.WORLD_WIDE_AUTHORITY)
+        discovery_endpoint = self._create_instance_discovery_endpoint_from_template(
+            AADConstants.WORLD_WIDE_AUTHORITY)
         get_options = util.create_request_options(self)
         operation = "Instance Discovery"
         self._log.debug("Attempting instance discover at: %s", discovery_endpoint.geturl())
@@ -115,10 +120,11 @@ class Authority(object):
             raise
 
         if not util.is_http_success(resp.status_code):
-            return_error_string = "{0} request returned http error: {1}".format(operation, resp.status_code)
+            return_error_string = "{} request returned http error: {}".format(operation, 
+                                                                              resp.status_code)
             error_response = ""
             if resp.text:
-                return_error_string += " and server response: {0}".format(resp.text)
+                return_error_string += " and server response: {}".format(resp.text)
                 try:
                     error_response = resp.json()
                 except ValueError:

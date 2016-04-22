@@ -46,6 +46,10 @@ from .constants import XmlNamespaces
 from .constants import MexNamespaces
 from .adal_error import AdalError
 
+def _url_is_secure(endpoint_url):
+    parsed = urlparse(endpoint_url)
+    return parsed.scheme == 'https'
+
 class Mex(object):
 
     def __init__(self, call_context, url):
@@ -72,10 +76,10 @@ class Mex(object):
             raise
 
         if not util.is_http_success(resp.status_code):
-            return_error_string = "{0} request returned http error: {1}".format(operation, resp.status_code)
+            return_error_string = "{} request returned http error: {}".format(operation, resp.status_code)
             error_response = ""
             if resp.text:
-                return_error_string += " and server response: {0}".format(resp.text)
+                return_error_string += " and server response: {}".format(resp.text)
                 try:
                     error_response = resp.json()
                 except ValueError:
@@ -174,11 +178,6 @@ class Mex(object):
 
         return bindings if bindings else None
 
-    @staticmethod
-    def _url_is_secure(endpoint_url):
-        parsed = urlparse(endpoint_url)
-        return parsed.scheme == 'https'
-
     def _get_ports_for_policy_bindings(self, bindings, policies):
 
         port_nodes = xmlutil.xpath_find(self._dom, MexNamespaces.PORT_XPATH)
@@ -197,7 +196,7 @@ class Mex(object):
                         raise AdalError("No address nodes on port")
 
                     address = xmlutil.find_element_text(address_node)
-                    if Mex._url_is_secure(address):
+                    if _url_is_secure(address):
                         binding_policy['url'] = address
                     else:
                         self._log.warn("Skipping insecure endpoint: %s", 

@@ -38,18 +38,20 @@ from .constants import OAuth2DeviceCodeResponseParameters
 GLOBAL_ADAL_OPTIONS = {}
 
 class AuthenticationContext(object):
-    '''
-    Retrieves authentication tokens from Azure Active Directory.
+    '''Retrieves authentication tokens from Azure Active Directory.
+
     For usages, check out the "sample" folder at:
         https://github.com/AzureAD/azure-activedirectory-library-for-python
     '''
+
     def __init__(self, authority, validate_authority=None, cache=None):
-        '''
-        Creates a new AuthenticationContext object. By default the authority
-        will be checked against a list of known Azure Active Directory
-        authorities. If the authority is not recognized as one of these well
-        known authorities then token acquisition will fail. This behavior can
-        be turned off via the validate_authority parameter below.
+        '''Creates a new AuthenticationContext object. 
+        
+        By default the authority will be checked against a list of known Azure
+        Active Directory authorities. If the authority is not recognized as 
+        one of these well known authorities then token acquisition will fail.
+        This behavior can be turned off via the validate_authority parameter
+        below.
 
         :param str authority: A URL that identifies a token authority.
         :param bool validate_authority: (optional) Turns authority validation 
@@ -87,8 +89,7 @@ class AuthenticationContext(object):
         return token_func(self)
 
     def acquire_token(self, resource, user_id, client_id):
-        '''
-        Gets a token for a given resource via cached tokens.
+        '''Gets a token for a given resource via cached tokens.
 
         :param str resource: A URI that identifies the resource for which the
             token is valid.
@@ -98,9 +99,6 @@ class AuthenticationContext(object):
         :returns: dic with several keys, include "accessToken" and
             "refreshToken".
         '''
-        argument.validate_string_param(resource, 'resource')
-        argument.validate_string_param(client_id, 'client_id')
-
         def token_func(self):
             token_request = TokenRequest(self._call_context, self, client_id, resource)
             return token_request.get_token_from_cache_with_refresh(user_id)
@@ -108,8 +106,7 @@ class AuthenticationContext(object):
         return self._acquire_token(token_func)       
 
     def acquire_token_with_username_password(self, resource, username, password, client_id):
-        '''
-        Gets a token for a given resource via user credentails.
+        '''Gets a token for a given resource via user credentails.
         
         :param str resource: A URI that identifies the resource for which the 
             token is valid.
@@ -121,11 +118,6 @@ class AuthenticationContext(object):
         :returns: dict with several keys, include "accessToken" and
             "refreshToken".
         '''
-        argument.validate_string_param(resource, 'resource')
-        argument.validate_string_param(username, 'username')
-        argument.validate_string_param(password, 'password')
-        argument.validate_string_param(client_id, 'client_id')
-
         def token_func(self):
             token_request = TokenRequest(self._call_context, self, client_id, resource)
             return token_request.get_token_with_username_password(username, password)
@@ -133,8 +125,7 @@ class AuthenticationContext(object):
         return self._acquire_token(token_func)
 
     def acquire_token_with_client_credentials(self, resource, client_id, client_secret):
-        '''
-        Gets a token for a given resource via client credentials.
+        '''Gets a token for a given resource via client credentials.
 
         :param str resource: A URI that identifies the resource for which the 
             token is valid.
@@ -142,26 +133,17 @@ class AuthenticationContext(object):
         :param str client_secret: The OAuth client secret of the calling application.
         :returns: dict with several keys, include "accessToken".
         '''
-        argument.validate_string_param(resource, 'resource')
-        argument.validate_string_param(client_id, 'client_id')
-        argument.validate_string_param(client_secret, 'client_secret')
-
         def token_func(self):
             token_request = TokenRequest(self._call_context, self, client_id, resource)
             return token_request.get_token_with_client_credentials(client_secret)
 
         return self._acquire_token(token_func)
 
-    def acquire_token_with_authorization_code(
-            self, 
-            authorization_code, 
-            redirect_uri, 
-            resource, 
-            client_id, 
-            client_secret):
-        '''
-        Gets a token for a given resource via auhtorization code for a server
-        app.
+    def acquire_token_with_authorization_code(self, authorization_code, 
+                                              redirect_uri, resource, 
+                                              client_id, client_secret):
+        '''Gets a token for a given resource via auhtorization code for a
+        server app.
         
         :param str authorization_code: An authorization code returned from a
             client.
@@ -175,12 +157,6 @@ class AuthenticationContext(object):
         :returns: dict with several keys, include "accessToken" and
             "refreshToken".
         '''
-        argument.validate_string_param(authorization_code, 'authorization_code')
-        argument.validate_string_param(redirect_uri, 'redirect_uri')
-        argument.validate_string_param(resource, 'resource')
-        argument.validate_string_param(client_id, 'client_id')
-        argument.validate_string_param(client_secret, 'client_secret')
- 
         def token_func(self):
             token_request = TokenRequest(
                 self._call_context, 
@@ -194,9 +170,9 @@ class AuthenticationContext(object):
 
         return self._acquire_token(token_func)
 
-    def acquire_token_with_refresh_token(self, refresh_token, client_id, resource, client_secret=None):
-        '''
-        Gets a token for a given resource via refresh tokens
+    def acquire_token_with_refresh_token(self, refresh_token, client_id,
+                                         resource, client_secret=None):
+        '''Gets a token for a given resource via refresh tokens
         
         :param str refresh_token: A refresh token returned in a tokne response
             from a previous invocation of acquireToken.
@@ -208,18 +184,15 @@ class AuthenticationContext(object):
         :returns: dict with several keys, include "accessToken" and
             "refreshToken".
         '''
-        argument.validate_string_param(refresh_token, 'refresh_token')
-        argument.validate_string_param(client_id, 'client_id')
-        argument.validate_string_param(resource, 'resource')
         def token_func(self):
             token_request = TokenRequest(self._call_context, self, client_id, resource)
             return token_request.get_token_with_refresh_token(refresh_token, client_secret)
 
         return self._acquire_token(token_func)
 
-    def acquire_token_with_client_certificate(self, resource, client_id, certificate, thumbprint):
-        '''
-        Gets a token for a given resource via certificate credentials
+    def acquire_token_with_client_certificate(self, resource, client_id, 
+                                              certificate, thumbprint):
+        '''Gets a token for a given resource via certificate credentials
 
         :param str resource: A URI that identifies the resource for which the
             token is valid.
@@ -228,11 +201,6 @@ class AuthenticationContext(object):
         :param str thumbprint:  hex encoded thumbprint of the certificate.
         :returns: dict with several keys, include "accessToken".
         '''
-        argument.validate_string_param(resource, 'resource')
-        argument.validate_string_param(client_id, 'client_id')
-        argument.validate_string_param(certificate, 'certificate')
-        argument.validate_string_param(thumbprint, 'thumbprint')
-
         def token_func(self):
             token_request = TokenRequest(self._call_context, self, client_id, resource)
             return token_request.get_token_with_certificate(certificate, thumbprint)
@@ -240,8 +208,7 @@ class AuthenticationContext(object):
         return self._acquire_token(token_func)
 
     def acquire_user_code(self, resource, client_id, language=None):
-        '''
-        Gets the user code info which contains user_code, device_code for
+        '''Gets the user code info which contains user_code, device_code for
         authenticating user on device.
         
         :param str resource: A URI that identifies the resource for which the 
@@ -257,8 +224,7 @@ class AuthenticationContext(object):
         return code_request.get_user_code_info(language)
 
     def acquire_token_with_device_code(self, resource, user_code_info, client_id):
-        '''
-        Gets a new access token using via a device code. 
+        '''Gets a new access token using via a device code. 
         
         :param str resource: A URI that identifies the resource for which the
             token is valid.
@@ -287,8 +253,7 @@ class AuthenticationContext(object):
         return self._acquire_token(token_func)
 
     def cancel_request_to_get_token_with_device_code(self, user_code_info):
-        '''
-        Cancels the polling request to get token with device code. 
+        '''Cancels the polling request to get token with device code. 
 
         :param dict user_code_info: The code info from the invocation of
             "acquire_user_code"

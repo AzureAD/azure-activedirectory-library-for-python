@@ -24,10 +24,9 @@
 # THE SOFTWARE.
 #
 #------------------------------------------------------------------------------
-# Surppress warnings of 'Too few public methods'
-# pylint: disable=R0903
+# pylint: disable=too-few-public-methods,old-style-class,no-init
 
-class Errors:
+class Errors: 
     # Constants
     ERROR_VALUE_NONE = '{} should not be None.'
     ERROR_VALUE_EMPTY_STRING = '{} should not be "".'

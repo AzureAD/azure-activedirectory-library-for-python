@@ -33,11 +33,10 @@ import time
 import uuid
 
 try:
-    from urllib.parse import urlencode
-    from urllib.parse import urlparse
+    from urllib.parse import urlencode, urlparse
 except ImportError:
     from urllib import urlencode # pylint: disable=no-name-in-module
-    from urlparse import urlparse # pylint: disable=import-error
+    from urlparse import urlparse # pylint: disable=import-error,ungrouped-imports
 
 import requests
 

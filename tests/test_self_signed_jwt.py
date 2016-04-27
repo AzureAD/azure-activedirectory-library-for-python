@@ -53,6 +53,7 @@ class TestSelfSignedJwt(unittest.TestCase):
     testNowDate = cp['nowDate']
     testJwtId = cp['jwtId']
     expectedJwt = cp['expectedJwt']
+    unexpectedJwt = 'unexpectedJwt'
     testAuthority = Authority('https://login.windows.net/naturalcauses.com/oauth2/token', False)
     testClientId = 'd6835713-b745-48d1-bb62-7a8248477d35'
     testCert = cp['cert']
@@ -63,7 +64,9 @@ class TestSelfSignedJwt(unittest.TestCase):
         self_signed_jwt._get_date_now = mock.MagicMock(return_value = self.testNowDate)
         self_signed_jwt._get_new_jwt_id = mock.MagicMock(return_value = self.testJwtId)
 
-        if not encodeError:
+        if encodeError:
+            self_signed_jwt._encode_jwt = mock.MagicMock(return_value = self.unexpectedJwt)
+        else:
             self_signed_jwt._encode_jwt = mock.MagicMock(return_value = self.expectedJwt)
 
         jwt = ssjwt.create(cert, thumbprint)

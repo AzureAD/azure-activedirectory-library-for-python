@@ -28,6 +28,7 @@
 import unittest
 import json
 import httpretty
+import six
 
 import adal
 from adal.self_signed_jwt import SelfSignedJwt
@@ -62,7 +63,7 @@ class TestClientCredentials(unittest.TestCase):
     def test_http_error(self):
         tokenRequest = util.setup_expected_client_cred_token_request_response(403)
 
-        with self.assertRaisesRegex(Exception, '403'):
+        with six.assertRaisesRegex(self, Exception, '403'):
             context = adal.AuthenticationContext(cp['authUrl'])
             token_response = context.acquire_token_with_client_credentials(
                  cp['resource'], cp['clientId'], cp['clientSecret'])
@@ -77,7 +78,7 @@ class TestClientCredentials(unittest.TestCase):
 
         tokenRequest = util.setup_expected_client_cred_token_request_response(400, errorResponse)
 
-        with self.assertRaisesRegex(Exception, 'Get Token request returned http error: 400 and server response:'):
+        with six.assertRaisesRegex(self, Exception, 'Get Token request returned http error: 400 and server response:'):
             context = adal.AuthenticationContext(cp['authUrl'])
             token_response = context.acquire_token_with_client_credentials(
                  cp['resource'], cp['clientId'], cp['clientSecret'])
@@ -159,14 +160,14 @@ class TestClientCredentials(unittest.TestCase):
         cert = 'gobbledy'
         context = adal.AuthenticationContext(cp['authorityTenant'])
 
-        with self.assertRaisesRegex(Exception, "Error:Invalid Certificate: Expected Start of Certificate to be '-----BEGIN RSA PRIVATE KEY-----'"):
+        with six.assertRaisesRegex(self, Exception, "Error:Invalid Certificate: Expected Start of Certificate to be '-----BEGIN RSA PRIVATE KEY-----'"):
             context.acquire_token_with_client_certificate(cp['resource'], cp['clientId'], cert, cp['certHash'])
 
     def test_cert_bad_thumbprint(self):
         thumbprint = 'gobbledy'
         context = adal.AuthenticationContext(cp['authorityTenant'])
 
-        with self.assertRaisesRegex(Exception, 'thumbprint does not match a known format'):
+        with six.assertRaisesRegex(self, Exception, 'thumbprint does not match a known format'):
             context.acquire_token_with_client_certificate( cp['resource'], cp['clientId'], cp['cert'], thumbprint)
 
 

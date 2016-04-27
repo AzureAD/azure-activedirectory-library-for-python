@@ -28,6 +28,7 @@
 import sys
 import requests
 import httpretty
+import six
 
 try:
     import unittest2 as unittest
@@ -130,7 +131,7 @@ class TestAuthority(unittest.TestCase):
     def test_http_error(self):
         util.setup_expected_instance_discovery_request(500, cp['authorityHosts']['global'], None, self.nonHardCodedAuthorizeEndpoint)
 
-        with self.assertRaisesRegex(Exception, '500'):
+        with six.assertRaisesRegex(self, Exception, '500'):
             context = adal.AuthenticationContext(self.nonHardCodedAuthority)
             token_response = context.acquire_token_with_client_credentials(
                  cp['resource'], cp['clientId'], cp['clientSecret'])
@@ -140,7 +141,7 @@ class TestAuthority(unittest.TestCase):
         returnDoc = { 'error' : 'invalid_instance', 'error_description' : 'the instance was invalid' }
         util.setup_expected_instance_discovery_request(400, cp['authorityHosts']['global'], returnDoc, self.nonHardCodedAuthorizeEndpoint)
 
-        with self.assertRaisesRegex(Exception, 'instance was invalid'):
+        with six.assertRaisesRegex(self, Exception, 'instance was invalid'):
             context = adal.AuthenticationContext(self.nonHardCodedAuthority)
             token_response = context.acquire_token_with_client_credentials(
                  cp['resource'], cp['clientId'], cp['clientSecret'])
@@ -171,12 +172,12 @@ class TestAuthority(unittest.TestCase):
 
     @httpretty.activate
     def test_bad_url_not_https(self):
-        with self.assertRaisesRegex(ValueError, "The authority url must be an https endpoint\."):
+        with six.assertRaisesRegex(self, ValueError, "The authority url must be an https endpoint\."):
             context = AuthenticationContext('http://this.is.not.https.com/mytenant.com')
 
     @httpretty.activate
     def test_bad_url_has_query(self):
-        with self.assertRaisesRegex(ValueError, "The authority url must not have a query string\."):
+        with six.assertRaisesRegex(self, ValueError, "The authority url must not have a query string\."):
             context = AuthenticationContext(cp['authorityTenant'] + '?this=should&not=be&here=foo')
 
     @httpretty.activate

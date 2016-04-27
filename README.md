@@ -8,28 +8,9 @@ The ADAL for python library makes it easy for python applications to authenticat
 
 ### Acquire Token with Client Credentials
 
-In order to use this token acquisition method, you need to configure a service principal:
+In order to use this token acquisition method, you need to configure a service principal. Please follow [this walkthrough](https://azure.microsoft.com/en-us/documentation/articles/resource-group-create-service-principal-portal/).
 
-1) Login to [management portal](https://manage.windowsazure.com), select the "Active Directory" tab.
-
-2) Create an application in the AD instance and name it like "http://PythonSDK"
-
-3) Go to the configure tab and you can find all of the following information:
-
-- Click on 'View Endpoints' and Copy the 'Federation Metadata Document' entry. The Root + GUID URL is our Authority.
-- Exit out of App Endpoints.  The Client ID is on the configure page.
-- In the keys section of the Azure AD App Configure page, create a key (1 or 2 years is fine)
-
-For PythonSDK application to manage your azure resources, you can use [azure-cli](https://github.com/Azure/azure-xplat-cli/releases)
-to configure its permission set
-```bash
-    azure login
-    azure config mode arm
-    azure ad sp show --spn 'http://PythonSDK' # you will get the object id
-    azure role assignment create --objectId <the object id> --roleName Contributor
-```
-
-See the [sample](./sample/client_credentials_sample.py)
+See the [sample](./sample/client_credentials_sample.py).
 ```python
 import adal
 
@@ -41,8 +22,21 @@ token = context.acquire_token_with_client_credentials(
     "Key-Configured-In-Portal")
 ```
 
+### Acquire Token with client certificate
+A service principal is also required. See the [sample](./sample/certificate_credentials_sample.py).
+```python
+import adal
+context = adal.AuthenticationContext('https://login.microsoftonline.com/ABCDEFGH-1234-1234-1234-ABCDEFGHIJKL')
+RESOURCE = '00000002-0000-0000-c000-000000000000' #AAD graph resource
+token = context.acquire_token_with_client_certificate(
+    RESOURCE,
+    "http://PythonSDK",  
+    'yourPrivateKeyFileContent', 
+    'thumbprintOfPrivateKey')
+```
+
 ### Acquire Token with Refresh Token
-See the [sample](./sample/refresh_token_sample.py)
+See the [sample](./sample/refresh_token_sample.py).
 ```python
 import adal
 context = adal.AuthenticationContext('https://login.microsoftonline.com/ABCDEFGH-1234-1234-1234-ABCDEFGHIJKL')
@@ -60,21 +54,8 @@ token = context.acquire_token_with_refresh_token(
     RESOURCE)
 ```
 
-### Acquire Token with client certificate
-See the [sample](./sample/certificate_credentials_sample.py)
-```python
-import adal
-context = adal.AuthenticationContext('https://login.microsoftonline.com/ABCDEFGH-1234-1234-1234-ABCDEFGHIJKL')
-RESOURCE = '00000002-0000-0000-c000-000000000000' #AAD graph resource
-token = context.acquire_token_with_client_certificate(
-    RESOURCE,
-    "http://PythonSDK",  
-    'yourPrivateKeyFileContent', 
-    'thumbprintOfPrivateKey')
-```
-
 ### Acquire Token with device code
-See the [sample](./sample/device_code_sample.py)
+See the [sample](./sample/device_code_sample.py).
 ```python
 context = adal.AuthenticationContext('https://login.microsoftonline.com/ABCDEFGH-1234-1234-1234-ABCDEFGHIJKL')
 RESOURCE = '00000002-0000-0000-c000-000000000000' #AAD graph resource

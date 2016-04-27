@@ -39,7 +39,7 @@ authority_url = (sample_parameters['authorityHostUrl'] + '/' +
 RESOURCE = '00000002-0000-0000-c000-000000000000'
 
 #uncomment for verbose log
-turn_on_logging()
+#turn_on_logging()
 
 context = adal.AuthenticationContext(authority_url)
 

@@ -4,29 +4,15 @@
 
 The ADAL for python library makes it easy for python applications to authenticate to AAD in order to access AAD protected web resources.
 
-# Note
-This is an early, pre-release version of the library.  It does not yet have support for any kind of caching.
-
 ## Usage
-
-### Acquire Token with Username & Password
-
-```python
-import adal
-token_response = adal.acquire_token_with_username_password(
-    'https://login.windows.net/ACTIVE_DIRECTORY_TENANT.onmicrosoft.com',
-    'username@ACTIVE_DIRECTORY_TENANT.onmicrosoft.com',
-    'password'
-)
-```
 
 ### Acquire Token with Client Credentials
 
-In order to use this token acquisition method, you need to:
+In order to use this token acquisition method, you need to configure a service principal:
 
-1) Create an Azure Active Directory (AD) instance on your Azure account
+1) Login to [management portal](https://manage.windowsazure.com), select the "Active Directory" tab.
 
-2) Create an application in the AD instance and name it PythonSDK http://PythonSDK
+2) Create an application in the AD instance and name it like "http://PythonSDK"
 
 3) Go to the configure tab and you can find all of the following information:
 
@@ -34,55 +20,81 @@ In order to use this token acquisition method, you need to:
 - Exit out of App Endpoints.  The Client ID is on the configure page.
 - In the keys section of the Azure AD App Configure page, create a key (1 or 2 years is fine)
 
-
-```python
-import adal
-token_response = adal.acquire_token_with_client_credentials(
-    "https://login.microsoftonline.com/ABCDEFGH-1234-1234-1234-ABCDEFGHIJKL", # Authority
-    "ABCDEFGH-1234-1234-1234-ABCDEFGHIJKL", # Client ID
-    "a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a=" # Client Secret
-)
+For PythonSDK application to manage your azure resources, you can use [azure-cli](https://github.com/Azure/azure-xplat-cli/releases)
+to configure its permission set
+```bash
+    azure login
+    azure config mode arm
+    azure ad sp show --spn 'http://PythonSDK' # you will get the object id
+    azure role assignment create --objectId <the object id> --roleName Contributor
 ```
 
-If you are using this with the Azure SDK, you will need to give the PythonSDK application we have access.
-From PowerShell, you can execute the following:
+See the [sample](./sample/client_credentials_sample.py)
+```python
+import adal
 
-```powershell
-### Install the Azure Resource Manager (ARM) PowerShell module from the PowerShell Gallery
-Install-Module -Name AzureRm
-
-### Install the AzureRm child modules (this may take a few minutes)
-Install-AzureRm
-
-### Authenticate to Microsoft Azure (an authentication dialog will open)
-$null = Login-AzureRmAccount
-
-### List out the Microsoft Azure subscriptions available to your account
-Get-AzureRmSubscription | Format-Table -AutoSize
-
-### Select the Microsoft Azure subscription you want to manipulate
-Set-AzureRmContext -SubscriptionId ABCDEFGH-1234-1234-1234-ABCDEFGH
-
-### List out the Azure Active Directory (AAD) Service Principals in your AAD tenant
-Get-AzureRmADServicePrincipal | Sort-Object -Property DisplayName
-
-### Assign the "contributor" role to your Azure Active Directory (AAD) Service Principal
-New-AzureRmRoleAssignment -ServicePrincipalName http://PythonSDK -RoleDefinitionName Contributor
+context = adal.AuthenticationContext('https://login.microsoftonline.com/ABCDEFGH-1234-1234-1234-ABCDEFGHIJKL')
+RESOURCE = '00000002-0000-0000-c000-000000000000' #AAD graph resource
+token = context.acquire_token_with_client_credentials(
+    RESOURCE,
+    "http://PythonSDK", 
+    "Key-Configured-In-Portal")
 ```
 
 ### Acquire Token with Refresh Token
-
+See the [sample](./sample/refresh_token_sample.py)
 ```python
 import adal
-token_response = adal.acquire_token_with_username_password(
-    'https://login.windows.net/ACTIVE_DIRECTORY_TENANT.onmicrosoft.com',
-    'username@ACTIVE_DIRECTORY_TENANT.onmicrosoft.com',
-    'password'
+context = adal.AuthenticationContext('https://login.microsoftonline.com/ABCDEFGH-1234-1234-1234-ABCDEFGHIJKL')
+RESOURCE = '00000002-0000-0000-c000-000000000000' #AAD graph resource
+token = context.acquire_token_with_username_password(
+    RESOURCE, 
+    'yourName',
+    'yourPassword',
+    'yourClientIdHere')
 
-# Use returned refresh token to acquire a new token.
-refresh_token = token_response['refreshToken']
-token_response = adal.acquire_token_with_refresh_token(authority, refresh_token)
+refresh_token = token['refreshToken']
+token = context.acquire_token_with_refresh_token(
+    refresh_token,
+    'yourClientIdHere',
+    RESOURCE)
 ```
+
+### Acquire Token with client certificate
+See the [sample](./sample/certificate_credentials_sample.py)
+```python
+import adal
+context = adal.AuthenticationContext('https://login.microsoftonline.com/ABCDEFGH-1234-1234-1234-ABCDEFGHIJKL')
+RESOURCE = '00000002-0000-0000-c000-000000000000' #AAD graph resource
+token = context.acquire_token_with_client_certificate(
+    RESOURCE,
+    "http://PythonSDK",  
+    'yourPrivateKeyFileContent', 
+    'thumbprintOfPrivateKey')
+```
+
+### Acquire Token with device code
+See the [sample](./sample/device_code_sample.py)
+```python
+context = adal.AuthenticationContext('https://login.microsoftonline.com/ABCDEFGH-1234-1234-1234-ABCDEFGHIJKL')
+RESOURCE = '00000002-0000-0000-c000-000000000000' #AAD graph resource
+code = context.acquire_user_code(RESOURCE, 'yourClientIdHere')
+print(code['message'])
+token = context.acquire_token_with_device_code(RESOURCE, code, 'yourClientIdHere')
+``` 
+
+### Acquire Token with authorization code
+See the [sample](./sample/website_sample.py) for a complete bare bones web site that makes use of the code below.
+```python
+context = adal.AuthenticationContext('https://login.microsoftonline.com/ABCDEFGH-1234-1234-1234-ABCDEFGHIJKL')
+RESOURCE = '00000002-0000-0000-c000-000000000000' #AAD graph resource
+return auth_context.acquire_token_with_authorization_code(
+            'yourCodeFromQueryString', 
+            'yourWebRedirectUri', 
+            RESOURCE, 
+            'yourClientId', 
+            'yourClientSecret')
+``` 
 
 ## Samples and Documentation
 [We provide a full suite of sample applications and documentation on GitHub](https://github.com/AzureADSamples) to help you get started with learning the Azure Identity system. This includes tutorials for native clients such as Windows, Windows Phone, iOS, OSX, Android, and Linux. We also provide full walkthroughs for authentication flows such as OAuth2, OpenID Connect, Graph API, and other awesome features.

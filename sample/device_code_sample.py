@@ -42,7 +42,7 @@ clientid = sample_parameters['clientid']
 RESOURCE = '00000002-0000-0000-c000-000000000000'
 
 #uncomment for verbose logging 
-turn_on_logging()
+#turn_on_logging()
 
 context = adal.AuthenticationContext(authority_url)
 code = context.acquire_user_code(RESOURCE, clientid)

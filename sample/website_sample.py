@@ -86,8 +86,8 @@ class OAuth2RequestHandler(httpserver.SimpleHTTPRequestHandler):
                 token_response = auth_context.acquire_token_with_refresh_token(
                     token_response['refreshToken'],
                     sample_parameters['clientId'],
-                    sample_parameters['clientSecret'],
-                    RESOURCE)
+                    RESOURCE,
+                    sample_parameters['clientSecret'])
                 message = (message + '*** And here is the refresh response:' + 
                            json.dumps(token_response))
             except ValueError as exp:

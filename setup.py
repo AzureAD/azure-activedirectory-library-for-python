@@ -64,6 +64,6 @@ setup(
     install_requires=[
         'PyJWT',
         'requests',
-        'six'
+        'six',
     ]
 )

@@ -25,13 +25,15 @@
 #
 #------------------------------------------------------------------------------
 
+import six
+
 def validate_string_param(value, name):
 
     if not value:
         raise ValueError("The {0} parameter is required".format(name))
 
-    if not isinstance(value, str):
-        raise TypeError("The {0} parameter must be of type str".format(name))
+    if not isinstance(value, six.string_types):
+        raise TypeError("The {0} parameter must be a string".format(name))
 
 def validate_callback_type(callback):
 

@@ -40,7 +40,6 @@ except:
     raise Exception("Author a config.py with values for the tests. See config_sample.py for details.")
 
 
-@pytest.mark.skip(reason="needs some way to get configuration settings from environment")
 class TestE2EExamples(unittest.TestCase):
 
     def setUp(self):

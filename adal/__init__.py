@@ -27,7 +27,7 @@
 
 # pylint: disable=wrong-import-position
 
-__version__ = '0.2.0rc1'
+__version__ = '0.2.3rc1'
 
 import logging
 

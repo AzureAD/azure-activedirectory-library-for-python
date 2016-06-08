@@ -24,6 +24,8 @@
 # THE SOFTWARE.
 #
 #------------------------------------------------------------------------------
+# Surppress warnings of 'Too few public methods'
+# pylint: disable=R0903
 
 class Errors:
     # Constants
@@ -47,7 +49,8 @@ class OAuth2Parameters(object):
     USERNAME = 'username'
     PASSWORD = 'password'
     REFRESH_TOKEN = 'refresh_token'
-
+    LANGUAGE = 'mkt'
+    DEVICE_CODE = 'device_code'
 
 class OAuth2GrantType(object):
 
@@ -58,6 +61,7 @@ class OAuth2GrantType(object):
     PASSWORD = 'password'
     SAML1 = 'urn:ietf:params:oauth:grant-type:saml1_1-bearer'
     SAML2 = 'urn:ietf:params:oauth:grant-type:saml2-bearer'
+    DEVICE_CODE = 'device_code'
 
 
 class OAuth2ResponseParameters(object):
@@ -74,6 +78,15 @@ class OAuth2ResponseParameters(object):
     ERROR = 'error'
     ERROR_DESCRIPTION = 'error_description'
 
+class OAuth2DeviceCodeResponseParameters:
+    USER_CODE = 'user_code'
+    DEVICE_CODE = 'device_code'
+    VERIFICATION_URL = 'verification_url'
+    EXPIRES_IN = 'expires_in'
+    INTERVAL = 'interval'
+    MESSAGE = 'message'
+    ERROR = 'error'
+    ERROR_DESCRIPTION = 'error_description'
 
 class OAuth2Scope(object):
 
@@ -85,6 +98,7 @@ class OAuth2(object):
     Parameters = OAuth2Parameters()
     GrantType = OAuth2GrantType()
     ResponseParameters = OAuth2ResponseParameters()
+    DeviceCodeResponseParameters = OAuth2DeviceCodeResponseParameters()
     Scope = OAuth2Scope()
     IdTokenMap = {
         'tid' : 'tenantId',
@@ -105,6 +119,11 @@ class TokenResponseFields(object):
     USER_ID = 'userId'
     ERROR = 'error'
     ERROR_DESCRIPTION = 'errorDescription'
+    
+    # not from the wire, but amends for token cache
+    _AUTHORITY = '_authority'
+    _CLIENT_ID = '_clientId'
+    IS_MRRT = 'isMRRT'
 
 
 class IdTokenFields(object):
@@ -139,13 +158,13 @@ class UserRealm(object):
         'WSFederation' : 'wstrust',
         'SAML2' : 'saml20',
         'Unknown' : 'unknown'
-      }
+    }
 
     account_type = {
         'Federated' : 'federated',
         'Managed' : 'managed',
         'Unknown' : 'unknown'
-      }
+    }
 
 
 class Saml(object):
@@ -202,6 +221,7 @@ class AADConstants(object):
     INSTANCE_DISCOVERY_ENDPOINT_TEMPLATE = 'https://{authorize_host}/common/discovery/instance?authorization_endpoint={authorize_endpoint}&api-version=1.0'
     AUTHORIZE_ENDPOINT_PATH = '/oauth2/authorize'
     TOKEN_ENDPOINT_PATH = '/oauth2/token'
+    DEVICE_ENDPOINT_PATH = '/oauth2/devicecode'
 
 
 class AdalIdParameters(object):

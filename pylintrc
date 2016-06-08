@@ -23,7 +23,10 @@ load-plugins=
 #        and there is no "else" clause.
 # I0011: Locally disabling (message)
 # R0921: Abstract class not referenced
-disable=C0321,W0105,W0142,W0404,W0704,I0011,R0921
+# C0111: missing-docstring
+# C0303: railing whitespace
+# C0301: Line too long
+disable=C0111,C0321,C0303,C0301,W0105,W0142,W0404,W0704,I0011,R0921
 
 [REPORTS]
 
@@ -65,7 +68,7 @@ class-rgx=[a-zA-Z0-9_]+$
 function-rgx=[a-zA-Z_][a-zA-Z0-9_]{2,30}$
 
 # Regular expression which should only match correct method names
-method-rgx=[a-z_][a-zA-Z0-9_]{2,30}$
+method-rgx=[a-z_][a-zA-Z0-9_]{2,50}$
 
 # Regular expression which should only match correct instance attribute names
 attr-rgx=[a-z_][a-z0-9_]{1,30}$
@@ -74,7 +77,7 @@ attr-rgx=[a-z_][a-z0-9_]{1,30}$
 argument-rgx=[a-z_][a-z0-9_]{1,30}$
 
 # Regular expression which should only match correct variable names
-variable-rgx=[a-z_][a-zA-Z0-9_]{1,30}$
+variable-rgx=[a-z_][a-zA-Z0-9_]{1,40}$
 
 # Regular expression which should only match correct list comprehension /
 # generator expression variable names

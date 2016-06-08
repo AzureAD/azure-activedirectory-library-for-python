@@ -13,8 +13,8 @@
     <OutputPath>.</OutputPath>
     <Name>adal</Name>
     <RootNamespace>adal</RootNamespace>
-    <InterpreterId>{035af01c-b03d-490d-8832-e92e10c726f3}</InterpreterId>
-    <InterpreterVersion>2.7</InterpreterVersion>
+    <InterpreterId>{4e6b690d-870d-4e48-b24e-ba6f9fe36da5}</InterpreterId>
+    <InterpreterVersion>3.5</InterpreterVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
     <DebugSymbols>true</DebugSymbols>
@@ -37,6 +37,10 @@
     <Compile Include="adal\authority.py">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="adal\cache_driver.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="adal\code_request.py" />
     <Compile Include="adal\constants.py">
       <SubType>Code</SubType>
     </Compile>
@@ -52,7 +56,13 @@
     <Compile Include="adal\self_signed_jwt.py">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="adal\token_cache.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="adal\token_request.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="adal\adal_error.py">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="adal\user_realm.py">
@@ -103,6 +113,7 @@
   <ItemGroup>
     <Content Include=".gitignore" />
     <Content Include="LICENSE" />
+    <Content Include="pylintrc" />
     <Content Include="README.md" />
     <Content Include="requirements.txt" />
     <Content Include="setup.cfg" />

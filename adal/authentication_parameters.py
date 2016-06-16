@@ -25,12 +25,14 @@
 #
 #------------------------------------------------------------------------------
 
-import requests
+#Note, this module does not appear being used anywhere
+
 import re
+
+import requests
 
 from . import util
 from . import log
-from . import argument
 
 from .constants import HttpError
 
@@ -38,6 +40,7 @@ AUTHORIZATION_URI = 'authorization_uri'
 RESOURCE = 'resource'
 WWW_AUTHENTICATE_HEADER = 'www-authenticate'
 
+# pylint: disable=anomalous-backslash-in-string,too-few-public-methods
 
 class AuthenticationParameters(object):
 
@@ -95,7 +98,6 @@ first_key_value_pair_regex = re.compile("""^\s*Bearer\s+([^,\s="]+?)="([^"]*?)"\
 all_other_key_value_pair_regex = re.compile("""(?:,\s*([^,\s="]+?)="([^"]*?)"\s*)""")
 
 
-
 def parse_challenge(challenge):
 
     if not bearer_challenge_structure_validation.search(challenge):
@@ -112,9 +114,6 @@ def parse_challenge(challenge):
     return challenge_parameters
 
 def create_authentication_parameters_from_header(challenge):
-
-    argument.validate_string_param(challenge, 'challenge')
-
     challenge_parameters = parse_challenge(challenge)
     authorization_uri = challenge_parameters.get(AUTHORIZATION_URI)
 
@@ -136,8 +135,8 @@ def create_authentication_parameters_from_response(response):
         raise AttributeError('There were no headers found in the response.')
 
     if response.status_code != HttpError.UNAUTHORIZED:
-        raise ValueError('The response status code does not correspond to an OAuth challenge.  ' +
-      'The statusCode is expected to be 401 but is: {0}'.format(response.status_code))
+        raise ValueError('The response status code does not correspond to an OAuth challenge.  '
+                         'The statusCode is expected to be 401 but is: {}'.format(response.status_code))
 
     challenge = response.headers.get(WWW_AUTHENTICATE_HEADER)
     if not challenge:
@@ -150,42 +149,33 @@ def validate_url_object(url):
     if not url or not hasattr(url, 'geturl'):
         raise AttributeError('Parameter is of wrong type: url')
 
-def create_authentication_parameters_from_url(url, callback, correlation_id=None):
+def create_authentication_parameters_from_url(url, correlation_id=None):
 
-    argument.validate_callback_type(callback)
+    if isinstance(url, str):
+        challenge_url = url
+    else:
+        validate_url_object(url)
+        challenge_url = url.geturl()
+
+    log_context = log.create_log_context(correlation_id)
+    logger = log.Logger('AuthenticationParameters', log_context)
+
+    logger.debug(
+        "Attempting to retrieve authentication parameters from: {}".format(challenge_url)
+    )
+
+    class _options(object):
+        _call_context = {'log_context': log_context}
+
+    options = util.create_request_options(_options())
     try:
-        if isinstance(url, str):
-            challenge_url = url
-        else:
-            validate_url_object(url)
-            challenge_url = url.geturl()
+        response = requests.get(challenge_url, headers=options['headers'])
+    except Exception:
+        logger.info("Authentication parameters http get failed.")
+        raise
 
-        log_context = log.create_log_context(correlation_id)
-        logger = log.Logger('AuthenticationParameters', log_context)
-
-        logger.debug(
-            "Attempting to retrieve authentication parameters from: {0}".format(challenge_url)
-        )
-
-        class _options(object):
-            _call_context = {'log_context': log_context}
-
-        options = util.create_request_options(_options())
-        try:
-            response = requests.get(challenge_url, headers=options['headers'])
-        except Exception as exp:
-            logger.error("Authentication parameters http get failed.", exp)
-            callback(exp, None)
-            return
-
-        try:
-            parameters = create_authentication_parameters_from_response(response)
-        except Exception as exp:
-            logger.error("Unable to parse response in to authentication parameters.", exp)
-            callback(exp, None)
-            return
-
-        callback(None, parameters)
-
-    except Exception as exp:
-        callback(exp, None)
+    try:
+        return create_authentication_parameters_from_response(response)
+    except Exception:
+        logger.info("Unable to parse response in to authentication parameters.")
+        raise

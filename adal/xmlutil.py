@@ -42,7 +42,7 @@ def expand_q_names(xpath):
         if part.find(":") != -1:
             q_parts = part.split(':')
             if len(q_parts) != 2:
-                raise IndexError("Unable to parse XPath string: {} with QName: {}".format(xpath, part))
+                raise IndexError("Unable to parse XPath string: {0} with QName: {1}".format(xpath, part))
 
             expanded_path = XPATH_PATH_TEMPLATE.replace('LOCAL_NAME', q_parts[1])
             expanded_path = expanded_path.replace('NAMESPACE', namespaces[q_parts[0]])

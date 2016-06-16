@@ -47,8 +47,7 @@ class Test_wstrust_request(unittest.TestCase):
         username = 'test_username'
         password = 'test_password'
         appliesTo = 'test_appliesTo'
-        wstrustFile = open(os.path.join(os.getcwd(), 'tests', 'wstrust', 'RST.xml'), mode='r')
-        templateRST = wstrustFile.read()
+        templateRST = open(os.path.join(os.getcwd(), 'tests', 'wstrust', 'RST.xml'), mode='r').read()
         rst = templateRST \
             .replace('%USERNAME%', username) \
             .replace('%PASSWORD%', password) \
@@ -65,17 +64,17 @@ class Test_wstrust_request(unittest.TestCase):
 
         request._handle_rstr =mock.MagicMock()
 
-        request.acquire_token(username, password)
-        wstrustFile.close()
+        def callback():
+            pass
+
+        request.acquire_token(username, password, callback)
 
     @httpretty.activate
     def test_fail_to_parse_rstr(self):
         username = 'test_username'
         password = 'test_password'
         appliesTo = 'test_appliesTo'
-        templateFile = open(os.path.join(os.getcwd(), 'tests', 'wstrust', 'RST.xml'), mode='r')
-        templateRST = templateFile.read()
-        templateFile.close()
+        templateRST = open(os.path.join(os.getcwd(), 'tests', 'wstrust', 'RST.xml'), mode='r').read()
         rst = templateRST \
             .replace('%USERNAME%', username) \
             .replace('%PASSWORD%', password) \
@@ -84,10 +83,11 @@ class Test_wstrust_request(unittest.TestCase):
 
         httpretty.register_uri(method=httpretty.POST, uri=wstrustEndpoint, status=200, body='fake response body')
 
-        request = WSTrustRequest(_call_context, wstrustEndpoint, appliesTo)
-        with self.assertRaises(Exception):
-            request.acquire_token(username, password)
+        def callback(err, token):
+            self.assertEqual(err.args[0], 'Failed to parse RSTR in to DOM')
 
+        request = WSTrustRequest(_call_context, wstrustEndpoint, appliesTo)
+        request.acquire_token(username, password, callback)
 
 if __name__ == '__main__':
     unittest.main()

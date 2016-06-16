@@ -39,7 +39,7 @@ ACQUIRE_TOKEN_WITH_USERNAME_PASSWORD = {
     #       the password created here.
 
     "username" : "USERNAME@XXXXXXXX.onmicrosoft.com",
-    "password" : "None",
+    "password" : None,
     "tenant" : "XXXXXXXX.onmicrosoft.com",
 
     "authorityHostUrl" : "https://login.windows.net",

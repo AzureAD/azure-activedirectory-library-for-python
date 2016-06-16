@@ -29,47 +29,51 @@ import logging
 import uuid
 import traceback
 
-ADAL_LOGGER_NAME = 'adal-python'
+LEVEL_STRING_MAP = {
+    0: 'ERROR:',
+    1: 'WARNING:',
+    2: 'INFO:',
+    3: 'DEBUG:'
+    }
 
-def create_log_context(correlation_id=None):
+class LOGGING_LEVEL:
+    ERROR = 0
+    WARN = 1
+    INFO = 2
+    DEBUG = 3
+
+LEVEL_PY_MAP = {
+    LOGGING_LEVEL.ERROR  : 40,
+    LOGGING_LEVEL.WARN   : 30,
+    LOGGING_LEVEL.INFO   : 20,
+    LOGGING_LEVEL.DEBUG  : 10
+    }
+
+def create_log_context(correlation_id = None):
     return {'correlation_id' : correlation_id or str(uuid.uuid4())}
 
-def set_logging_options(options=None):
-    '''Configure adal logger, including level and handler spec'd by python
-    logging module.
+def set_logging_options(options={}):
+    logger = logging.getLogger('python_adal')
 
-    Basic Usages::
-        >>>adal.set_logging_options({
-        >>>  'level': 'DEBUG'
-        >>>  'handler': logging.FileHandler('adal.log')
-        >>>})
-    '''
-    if options is None:
-        options = {}
-    logger = logging.getLogger(ADAL_LOGGER_NAME)
+    if options.get('level'):
+        level = int(options['level'])
+        if level > 3 or level < 0:
+            raise ValueError("set_logging_options expects the level key to be in the range 0 to 3 inclusive")
 
-    logger.setLevel(options.get('level', logging.ERROR))
-
-    handler = options.get('handler')
-    if handler:
-        handler.setLevel(logger.level)
-        logger.addHandler(handler)
+        logger.setLevel(LEVEL_PY_MAP[level])
+    else:
+        logger.setLevel(LEVEL_PY_MAP[LOGGING_LEVEL.ERROR])
 
 def get_logging_options():
-    '''Get logging options
 
-    :returns: a dict, with a key of 'level' for logging level.
-    '''
-    logger = logging.getLogger(ADAL_LOGGER_NAME)
+    logger = logging.getLogger('python_adal')
     level = logger.getEffectiveLevel()
-    return { 
-        'level': logging.getLevelName(level) 
-        }
+    for (key, val) in LEVEL_PY_MAP.items():
+        if level == val:
+            return {'level':key}
 
 class Logger(object):
-    '''wrapper around python built-in logging to log correlation_id, and stack
-    trace through keyword argument of 'log_stack_trace'
-    '''
+
     def __init__(self, component_name, log_context):
 
         if not log_context:
@@ -77,34 +81,39 @@ class Logger(object):
 
         self._component_name = component_name
         self.log_context = log_context
-        self._logging = logging.getLogger(ADAL_LOGGER_NAME)
+        self._logging = logging.getLogger('python_adal')
 
-    def _log_message(self, msg, **kwargs):
-        log_stack_trace = False
-        if 'log_stack_trace' in kwargs:
-            log_stack_trace = kwargs['log_stack_trace']
-            kwargs.pop('log_stack_trace')
+    def log_message(self, level, message, error=None):
 
-        correlation_id = self.log_context.get("correlation_id", 
-                                              "<no correlation id>")
-        
-        formatted = "{} - {}:{}".format(
-            correlation_id, 
-            self._component_name,
-            msg)
-        if log_stack_trace:
-            formatted += "\nStack:\n{}".format(traceback.format_stack())
+        correlation_id = self.log_context.get("correlation_id", "<no correlation id>")
+
+        formatted = "{0} - {1}: {2} {3}".format(correlation_id, self._component_name, LEVEL_STRING_MAP[level], message)
+        if error:
+            formatted += "\nStack:\n{0}".format(traceback.format_stack())
 
         return formatted
 
-    def warn(self, msg, *args, **kwargs):
-        msg = self._log_message(msg, **kwargs)
-        self._logging.warning(msg, *args, **kwargs)
+    def error(self, message, error=None):
 
-    def info(self, msg, *args, **kwargs):
-        msg = self._log_message(msg, **kwargs)
-        self._logging.info(msg, *args, **kwargs)
+        message = self.log_message(0, message, error)
+        self._logging.error(message)
 
-    def debug(self, msg, *args, **kwargs):
-        msg = self._log_message(msg, **kwargs)
-        self._logging.debug(msg, *args, **kwargs)
+    def warn(self, message, error=None):
+
+        message = self.log_message(1, message, error)
+        self._logging.warning(message)
+
+    def info(self, message, error=None):
+
+        message = self.log_message(2, message, error)
+        self._logging.info(message)
+
+    def debug(self, message, error=None):
+
+        message = self.log_message(3, message, error)
+        self._logging.debug(message)
+
+    def create_error(self, message, error=None):
+        err = Exception(message)
+        self.error(err, error)
+        return err

@@ -26,29 +26,27 @@
 #------------------------------------------------------------------------------
 
 import random
+import requests
+
+from . import log
+from . import util
+from . import xmlutil
 
 try:
-    from urllib.parse import urlparse
+    from urllib.parse import quote, unquote
+    from urllib.parse import urlparse, urlsplit
+
 except ImportError:
-    from urlparse import urlparse # pylint: disable=import-error
+    from urllib import quote, unquote
+    from urlparse import urlparse, urlsplit
 
 try:
     from xml.etree import cElementTree as ET
 except ImportError:
     from xml.etree import ElementTree as ET
 
-import requests
-
-from . import log
-from . import util
-from . import xmlutil
 from .constants import XmlNamespaces
 from .constants import MexNamespaces
-from .adal_error import AdalError
-
-def _url_is_secure(endpoint_url):
-    parsed = urlparse(endpoint_url)
-    return parsed.scheme == 'https'
 
 class Mex(object):
 
@@ -61,40 +59,49 @@ class Mex(object):
         self._parents = None
         self._mex_doc = None
         self.username_password_url = None
-        self._log.debug("Mex created with url: %s", self._url)
+        self._log.debug("Mex created with url: {0}".format(self._url))
 
-    def discover(self):
-        self._log.debug("Retrieving mex at: %s", self._url)
+    def discover(self, callback):
+
+        self._log.debug("Retrieving mex at: {0}".format(self._url))
         options = util.create_request_options(self, {'headers': {'Content-Type': 'application/soap+xml'}})
 
         try:
             operation = "Mex Get"
             resp = requests.get(self._url, headers=options['headers'])
             util.log_return_correlation_id(self._log, operation, resp)
-        except Exception:
-            self._log.info("%s request failed", operation)
-            raise
 
-        if not util.is_http_success(resp.status_code):
-            return_error_string = "{} request returned http error: {}".format(operation, resp.status_code)
-            error_response = ""
-            if resp.text:
-                return_error_string += " and server response: {}".format(resp.text)
+            if not util.is_http_success(resp.status_code):
+                return_error_string = "{0} request returned http error: {1}".format(operation, resp.status_code)
+                error_response = ""
+                if resp.text:
+                    return_error_string += " and server response: {0}".format(resp.text)
+                    try:
+                        error_response = resp.json()
+                    except:
+                        pass
+
+                callback(self._log.create_error(return_error_string), error_response)
+                return
+
+            else:
                 try:
-                    error_response = resp.json()
-                except ValueError:
-                    pass
-            raise AdalError(return_error_string, error_response)
-        else:
-            try:
-                self._mex_doc = resp.text
-                #options = {'errorHandler':self._log.error}
-                self._dom = ET.fromstring(self._mex_doc)
-                self._parents = {c:p for p in self._dom.iter() for c in p}
-                self._parse()
-            except Exception:
-                self._log.info('Failed to parse mex response in to DOM')
-                raise
+                    self._mex_doc = resp.text
+                    #options = {'errorHandler':self._log.error}
+                    self._dom = ET.fromstring(self._mex_doc)
+                    self._parents = {c:p for p in self._dom.iter() for c in p}
+                    self._parse(callback)
+
+                except Exception as err:
+                    self._log.error('Failed to parse mex response in to DOM', err)
+                    callback(err, None)
+                    return
+                return
+            return
+
+        except Exception as err:
+            self._log.error("{0} request failed".format(operation), err)
+            callback(err, None)
 
     def _check_policy(self, policy_node):
         policy_id = policy_node.attrib["{{{}}}Id".format(XmlNamespaces.namespaces['wsu'])]
@@ -108,11 +115,9 @@ class Mex(object):
 
         # If we did not find any binding, this is potentially bad.
         if not transport_binding_nodes:
-            self._log.debug(
-                "Potential policy did not match required transport binding: %s", 
-                policy_id)
+            self._log.debug("Potential policy did not match required transport binding: {0}".format(policy_id))
         else:
-            self._log.debug("Found matching policy id: %s", policy_id)
+            self._log.debug("Found matching policy id: {0}".format(policy_id))
 
         return policy_id
 
@@ -127,9 +132,9 @@ class Mex(object):
 
         for node in username_token_nodes:
             policy_node = self._parents[self._parents[self._parents[self._parents[self._parents[self._parents[self._parents[node]]]]]]]
-            policy_id = self._check_policy(policy_node)
-            if policy_id:
-                id_ref = '#' + policy_id
+            id = self._check_policy(policy_node)
+            if id:
+                id_ref = '#' + id
                 policies[id_ref] = {id:id_ref}
 
         return policies if policies else None
@@ -140,7 +145,7 @@ class Mex(object):
         soap_transport = ""
         name = binding_node.get('name')
 
-        soap_transport_attributes = ""
+        soap_transport_attributes = []
         soap_action_attributes = xmlutil.xpath_find(binding_node, MexNamespaces.SOAP_ACTION_XPATH)[0].attrib['soapAction']
 
         if soap_action_attributes:
@@ -152,12 +157,9 @@ class Mex(object):
 
         found = soap_action == MexNamespaces.RST_SOAP_ACTION and soap_transport == MexNamespaces.SOAP_HTTP_TRANSPORT_VALUE
         if found:
-            self._log.debug("Found binding matching Action and Transport: %s", 
-                            name)
+            self._log.debug("Found binding matching Action and Transport: {0}".format(name))
         else:
-            self._log.debug(
-                "Binding node did not match soap Action or Transport: %s", 
-                name)
+            self._log.debug("Binding node did not match soap Action or Transport: {0}".format(name))
 
         return found
 
@@ -178,6 +180,11 @@ class Mex(object):
 
         return bindings if bindings else None
 
+    def _url_is_secure(self, endpoint_url):
+
+        parsed = urlparse(endpoint_url)
+        return parsed.scheme == 'https'
+
     def _get_ports_for_policy_bindings(self, bindings, policies):
 
         port_nodes = xmlutil.xpath_find(self._dom, MexNamespaces.PORT_XPATH)
@@ -193,14 +200,13 @@ class Mex(object):
                 if not binding_policy.get('url', None):
                     address_node = node.find(MexNamespaces.ADDRESS_XPATH, XmlNamespaces.namespaces)
                     if address_node is None:
-                        raise AdalError("No address nodes on port")
+                        raise self._log.create_error("No address nodes on port")
 
                     address = xmlutil.find_element_text(address_node)
-                    if _url_is_secure(address):
+                    if self._url_is_secure(address):
                         binding_policy['url'] = address
                     else:
-                        self._log.warn("Skipping insecure endpoint: %s", 
-                                       address)
+                        self._log.warn("Skipping insecure endpoint: {0}".format(address))
 
     def _select_single_matching_policy(self, policies):
 
@@ -212,19 +218,22 @@ class Mex(object):
         random.shuffle(matching_policies)
         self.username_password_url = matching_policies[0]['url']
 
-    def _parse(self):
+    def _parse(self, callback):
 
         policies = self._select_username_password_polices()
         if not policies:
-            raise AdalError("No matching policies.")
-            
+            callback(self._log.create_error("No matching policies."))
+            return
 
         bindings = self._get_matching_bindings(policies)
         if not bindings:
-            raise AdalError("No matching bindings.")
+            callback(self._log.create_error("No matching bindings."))
+            return
 
         self._get_ports_for_policy_bindings(bindings, policies)
         self._select_single_matching_policy(policies)
 
-        if not self._url:
-            raise AdalError("No ws-trust endpoints match requirements.")
+        if self._url:
+            callback(None)
+        else:
+            callback(self._log.create_error("No ws-trust endpoints match requirements."))

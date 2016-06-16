@@ -28,7 +28,6 @@
 import unittest
 import json
 import httpretty
-import six
 
 import adal
 from adal.self_signed_jwt import SelfSignedJwt
@@ -47,13 +46,12 @@ class TestClientCredentials(unittest.TestCase):
 
     @httpretty.activate
     def test_happy_path(self):
-        response_options = { 'noRefresh' : True, 'tokenEndpoint': True }
+        response_options = { 'noRefresh' : True }
         response = util.create_response(response_options)
         token_request = util.setup_expected_client_cred_token_request_response(200, response['wireResponse'])
 
-        context = adal.AuthenticationContext(cp['authUrl'])
-        token_response = context.acquire_token_with_client_credentials(
-             response['resource'], cp['clientId'], cp['clientSecret'])
+        token_response = adal.acquire_token_with_client_credentials(
+            cp['authUrl'], cp['clientId'], cp['clientSecret'], response['resource'])
         self.assertTrue(
             util.is_match_token_response(response['cachedResponse'], token_response),
             'The response does not match what was expected.: ' + str(token_response)
@@ -63,10 +61,8 @@ class TestClientCredentials(unittest.TestCase):
     def test_http_error(self):
         tokenRequest = util.setup_expected_client_cred_token_request_response(403)
 
-        with six.assertRaisesRegex(self, Exception, '403'):
-            context = adal.AuthenticationContext(cp['authUrl'])
-            token_response = context.acquire_token_with_client_credentials(
-                 cp['resource'], cp['clientId'], cp['clientSecret'])
+        with self.assertRaisesRegexp(Exception, '403'):
+            adal.acquire_token_with_client_credentials(cp['authUrl'], cp['clientId'], cp['clientSecret'], cp['resource'])
 
     @httpretty.activate
     def test_oauth_error(self):
@@ -78,10 +74,8 @@ class TestClientCredentials(unittest.TestCase):
 
         tokenRequest = util.setup_expected_client_cred_token_request_response(400, errorResponse)
 
-        with six.assertRaisesRegex(self, Exception, 'Get Token request returned http error: 400 and server response:'):
-            context = adal.AuthenticationContext(cp['authUrl'])
-            token_response = context.acquire_token_with_client_credentials(
-                 cp['resource'], cp['clientId'], cp['clientSecret'])
+        with self.assertRaisesRegexp(Exception, 'Get Token request returned http error: 400 and server response:'):
+            adal.acquire_token_with_client_credentials(cp['authUrl'], cp['clientId'], cp['clientSecret'], cp['resource'])
 
     @httpretty.activate
     def test_error_with_junk_return(self):
@@ -90,9 +84,7 @@ class TestClientCredentials(unittest.TestCase):
         tokenRequest = util.setup_expected_client_cred_token_request_response(400, junkResponse)
 
         with self.assertRaises(Exception):
-            context = adal.AuthenticationContext(cp['authUrl'])
-            token_response = context.acquire_token_with_client_credentials(
-                 cp['resource'], cp['clientId'], cp['clientSecret'])
+            adal.acquire_token_with_client_credentials(cp['authUrl'], cp['clientId'], cp['clientSecret'], cp['resource'])
 
     @httpretty.activate
     def test_success_with_junk_return(self):
@@ -101,19 +93,16 @@ class TestClientCredentials(unittest.TestCase):
         tokenRequest = util.setup_expected_client_cred_token_request_response(200, junkResponse)
 
         with self.assertRaises(Exception):
-            context = adal.AuthenticationContext(cp['authUrl'])
-            token_response = context.acquire_token_with_client_credentials(
-                 cp['resource'], cp['clientId'], cp['clientSecret'])
+            adal.acquire_token_with_client_credentials(cp['authUrl'], cp['clientId'], cp['clientSecret'], cp['resource'])
 
     def test_no_cached_token_found_error(self):
         context = AuthenticationContext(cp['authUrl'])
 
-        try:
-            context.acquire_token(cp['resource'], 'unknownUser', cp['clientId'])
-        except Exception as err:
+        def callback(err, _):
             self.assertTrue(err, 'Expected an error and non was recieved.')
             self.assertIn('not found', err.args[0], 'Returned error did not contain expected message: ' + err.args[0])
 
+        context.acquire_token(cp['resource'], 'unknownUser', cp['clientId'], callback)
 
     def update_self_signed_jwt_stubs():
         '''
@@ -149,26 +138,23 @@ class TestClientCredentials(unittest.TestCase):
         responseOptions = { noRefresh : true }
         response = util.create_response(responseOptions)
         tokenRequest = util.setupExpectedClientAssertionTokenRequestResponse(200, response.wireResponse, cp['authorityTenant'])
-        context = adal.AuthenticationContext(cp['authorityTenant'])
 
-        context.acquire_token_with_client_certificate(response.resource, cp['clientId'], cp['cert'], cp['certHash'])
+        adal._acquire_token_with_client_certificate(cp['authorityTenant'], cp['clientId'], cp['cert'], cp['certHash'], response.resource)
 
         resetSelfSignedJwtStubs(saveProto)
         self.assertTrue(util.is_match_token_response(response.cachedResponse, token_response), 'The response did not match what was expected')
 
     def test_cert_bad_cert(self):
         cert = 'gobbledy'
-        context = adal.AuthenticationContext(cp['authorityTenant'])
 
-        with six.assertRaisesRegex(self, Exception, "Error:Invalid Certificate: Expected Start of Certificate to be '-----BEGIN RSA PRIVATE KEY-----'"):
-            context.acquire_token_with_client_certificate(cp['resource'], cp['clientId'], cert, cp['certHash'])
+        with self.assertRaisesRegexp(Exception, "Error:Invalid Certificate: Expected Start of Certificate to be '-----BEGIN RSA PRIVATE KEY-----'"):
+            adal._acquire_token_with_client_certificate(cp['authorityTenant'], cp['clientId'], cert, cp['certHash'], cp['resource'])
 
     def test_cert_bad_thumbprint(self):
         thumbprint = 'gobbledy'
-        context = adal.AuthenticationContext(cp['authorityTenant'])
 
-        with six.assertRaisesRegex(self, Exception, 'thumbprint does not match a known format'):
-            context.acquire_token_with_client_certificate( cp['resource'], cp['clientId'], cp['cert'], thumbprint)
+        with self.assertRaisesRegexp(Exception, 'thumbprint does not match a known format'):
+            adal._acquire_token_with_client_certificate(cp['authorityTenant'], cp['clientId'], cp['cert'], thumbprint, cp['resource'])
 
 
 if __name__ == '__main__':

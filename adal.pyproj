@@ -13,8 +13,8 @@
     <OutputPath>.</OutputPath>
     <Name>adal</Name>
     <RootNamespace>adal</RootNamespace>
-    <InterpreterId>{4e6b690d-870d-4e48-b24e-ba6f9fe36da5}</InterpreterId>
-    <InterpreterVersion>3.5</InterpreterVersion>
+    <InterpreterId>{035af01c-b03d-490d-8832-e92e10c726f3}</InterpreterId>
+    <InterpreterVersion>2.7</InterpreterVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
     <DebugSymbols>true</DebugSymbols>
@@ -37,10 +37,6 @@
     <Compile Include="adal\authority.py">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="adal\cache_driver.py">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="adal\code_request.py" />
     <Compile Include="adal\constants.py">
       <SubType>Code</SubType>
     </Compile>
@@ -56,13 +52,7 @@
     <Compile Include="adal\self_signed_jwt.py">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="adal\token_cache.py">
-      <SubType>Code</SubType>
-    </Compile>
     <Compile Include="adal\token_request.py">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="adal\adal_error.py">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="adal\user_realm.py">
@@ -83,11 +73,6 @@
     <Compile Include="adal\__init__.py">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="sample\certificate_credentials_sample.py" />
-    <Compile Include="sample\client_credentials_sample.py" />
-    <Compile Include="sample\device_code_sample.py" />
-    <Compile Include="sample\refresh_token_sample.py" />
-    <Compile Include="sample\website_sample.py" />
     <Compile Include="setup.py">
       <SubType>Code</SubType>
     </Compile>
@@ -110,7 +95,6 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="adal\" />
-    <Folder Include="sample\" />
     <Folder Include="tests\" />
     <Folder Include="tests\data\" />
     <Folder Include="tests\mex\" />
@@ -119,7 +103,6 @@
   <ItemGroup>
     <Content Include=".gitignore" />
     <Content Include="LICENSE" />
-    <Content Include="pylintrc" />
     <Content Include="README.md" />
     <Content Include="requirements.txt" />
     <Content Include="setup.cfg" />

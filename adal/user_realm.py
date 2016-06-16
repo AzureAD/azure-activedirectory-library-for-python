@@ -25,20 +25,18 @@
 #
 #------------------------------------------------------------------------------
 import json
+import requests
 
 try:
     from urllib.parse import quote, urlencode
     from urllib.parse import urlunparse
 except ImportError:
-    from urllib import quote, urlencode #pylint: disable=no-name-in-module
-    from urlparse import urlunparse #pylint: disable=import-error
-
-import requests
+    from urllib import quote, urlencode
+    from urlparse import urlunparse
 
 from . import constants
 from . import log
 from . import util
-from .adal_error import AdalError 
 
 USER_REALM_PATH_TEMPLATE = 'common/UserRealm/<user>'
 
@@ -62,16 +60,17 @@ class UserRealm(object):
 
     def _get_user_realm_url(self):
 
-        url_components = list(util.copy_url(self._authority_url))
+        user_realm_url = list(util.copy_url(self._authority_url))
         url_encoded_user = quote(self._user_principle, safe='~()*!.\'')
-        url_components[2] = '/' + USER_REALM_PATH_TEMPLATE.replace('<user>', url_encoded_user)
+        user_realm_url[2] = '/' + USER_REALM_PATH_TEMPLATE.replace('<user>', url_encoded_user)
 
         user_realm_query = {'api-version':self.api_version}
-        url_components[4] = urlencode(user_realm_query)
-        return util.copy_url(urlunparse(url_components))
+        user_realm_url[4] = urlencode(user_realm_query)
+        user_realm_url = util.copy_url(urlunparse(user_realm_url))
 
-    @staticmethod
-    def _validate_constant_value(value_dic, value, case_sensitive=False):
+        return user_realm_url
+
+    def _validate_constant_value(self, constants, value, case_sensitive=False):
 
         if not value:
             return False
@@ -79,76 +78,81 @@ class UserRealm(object):
         if not case_sensitive:
             value = value.lower()
 
-        return value if value in value_dic.values() else False
+        return value if value in constants.values() else False
 
-    @staticmethod
-    def _validate_account_type(account_type):
-        return UserRealm._validate_constant_value(ACCOUNT_TYPE, account_type)
+    def _validate_account_type(self, type):
+        return self._validate_constant_value(ACCOUNT_TYPE, type)
 
-    @staticmethod
-    def _validate_federation_protocol(protocol):
-        return UserRealm._validate_constant_value(FEDERATION_PROTOCOL_TYPE, protocol)
+    def _validate_federation_protocol(self, protocol):
+        return self._validate_constant_value(FEDERATION_PROTOCOL_TYPE, protocol)
 
     def _log_parsed_response(self):
 
         self._log.debug('UserRealm response:')
-        self._log.debug(' AccountType:             %s', self.account_type)
-        self._log.debug(' FederationProtocol:      %s', self.federation_protocol)
-        self._log.debug(' FederationMetatdataUrl:  %s', self.federation_metadata_url)
-        self._log.debug(' FederationActiveAuthUrl: %s', self.federation_active_auth_url)
+        self._log.debug(' AccountType:             {0}'.format(self.account_type))
+        self._log.debug(' FederationProtocol:      {0}'.format(self.federation_protocol))
+        self._log.debug(' FederationMetatdataUrl:  {0}'.format(self.federation_metadata_url))
+        self._log.debug(' FederationActiveAuthUrl: {0}'.format(self.federation_active_auth_url))
 
-    def _parse_discovery_response(self, body):
+    def _parse_discovery_response(self, body, callback):
 
-        self._log.debug("Discovery response:\n %s", body)
+        self._log.debug("Discovery response:\n{0}".format(body))
 
+        response = None
         try:
             response = json.loads(body)
-        except ValueError:
-            error_template = ("Parsing realm discovery response JSON failed " 
-                              "for body: '{}'")
-            self._log.info(error_template.format(body))
-            raise
+        except Exception as exp:
+            callback(self._log.create_error('Parsing realm discovery response JSON failed: {0}'.format(body)))
+            return
 
-        account_type = UserRealm._validate_account_type(response['account_type'])
+        account_type = self._validate_account_type(response['account_type'])
         if not account_type:
-            raise AdalError('Cannot parse account_type: {}'.format(account_type))
+            callback(self._log.create_error('Cannot parse account_type: {0}'.format(account_type)))
+            return
         self.account_type = account_type
 
         if self.account_type == ACCOUNT_TYPE['Federated']:
-            protocol = UserRealm._validate_federation_protocol(response['federation_protocol'])
+            protocol = self._validate_federation_protocol(response['federation_protocol'])
 
             if not protocol:
-                raise AdalError('Cannot parse federation protocol: {}'.format(protocol))
+                callback(self._log.create_error('Cannot parse federation protocol: {0}'.format(protocol)))
+                return
 
             self.federation_protocol = protocol
             self.federation_metadata_url = response['federation_metadata_url']
             self.federation_active_auth_url = response['federation_active_auth_url']
 
         self._log_parsed_response()
+        callback(None)
 
-    def discover(self):
+    def discover(self, callback):
 
         options = util.create_request_options(self, {'headers': {'Accept':'application/json'}})
         user_realm_url = self._get_user_realm_url()
-        self._log.debug("Performing user realm discovery at: %s",
-                        user_realm_url.geturl())
+        self._log.debug("Performing user realm discovery at: {0}".format(user_realm_url.geturl()))
 
         operation = 'User Realm Discovery'
-        resp = requests.get(user_realm_url.geturl(), headers=options['headers'])
-        util.log_return_correlation_id(self._log, operation, resp)
+        try:
+            resp = requests.get(user_realm_url.geturl(), headers=options['headers'])
+            util.log_return_correlation_id(self._log, operation, resp)
 
-        if not util.is_http_success(resp.status_code):
-            return_error_string = "{} request returned http error: {}".format(operation, 
-                                                                              resp.status_code)
-            error_response = ""
-            if resp.text:
-                return_error_string += " and server response: {}".format(resp.text)
-                try:
-                    error_response = resp.json()
-                except ValueError:
-                    pass
+            if not util.is_http_success(resp.status_code):
+                return_error_string = "{0} request returned http error: {1}".format(operation, resp.status_code)
+                error_response = ""
+                if resp.text:
+                    return_error_string += " and server response: {0}".format(resp.text)
+                    try:
+                        error_response = resp.json()
+                    except:
+                        pass
 
-            raise AdalError(return_error_string, error_response)
+                callback(self._log.create_error(return_error_string), error_response)
+                return
 
-        else:
-            self._parse_discovery_response(resp.text)
+            else:
+                self._parse_discovery_response(resp.text, callback)
+
+        except Exception as exp:
+            self._log.error("{0} request failed".format(operation), exp)
+            callback(exp)
+            return

@@ -1,6 +1,5 @@
 [MASTER]
 
-profile=no
 ignore=.svn
 persistent=yes
 cache-size=500
@@ -23,13 +22,15 @@ load-plugins=
 #        and there is no "else" clause.
 # I0011: Locally disabling (message)
 # R0921: Abstract class not referenced
-disable=C0321,W0105,W0142,W0404,W0704,I0011,R0921
+# C0111: missing-docstring
+# C0303: railing whitespace
+# C0301: Line too long
+disable=C0111,C0321,C0303,C0301,W0105,W0142,W0404,W0704,I0011,R0921
 
 [REPORTS]
 
 # Available formats are text, parseable, colorized, msvs (Visual Studio) and html
 output-format=msvs
-include-ids=yes
 files-output=no
 reports=yes
 
@@ -40,16 +41,11 @@ reports=yes
 # (R0004).
 evaluation=10.0 - ((float(5 * error + warning + refactor + convention) / statement) * 10)
 
-# Add a comment according to your evaluation note. This is used by the global
-# evaluation report (R0004).
-comment=no
-
 #enable-report=
 #disable-report=
 
 [BASIC]
 
-required-attributes=
 no-docstring-rgx=__.*__
 
 # Regular expression which should only match correct module names
@@ -62,10 +58,10 @@ const-rgx=(([A-Z_][A-Z1-9_]*)|(__.*__)|([a-z_][a-z0-9_]*))$
 class-rgx=[a-zA-Z0-9_]+$
 
 # Regular expression which should only match correct function names
-function-rgx=[a-zA-Z_][a-zA-Z0-9_]{2,30}$
+function-rgx=[a-zA-Z_][a-zA-Z0-9_]{2,50}$
 
 # Regular expression which should only match correct method names
-method-rgx=[a-z_][a-zA-Z0-9_]{2,30}$
+method-rgx=[a-z_][a-zA-Z0-9_]{2,60}$
 
 # Regular expression which should only match correct instance attribute names
 attr-rgx=[a-z_][a-z0-9_]{1,30}$
@@ -74,7 +70,7 @@ attr-rgx=[a-z_][a-z0-9_]{1,30}$
 argument-rgx=[a-z_][a-z0-9_]{1,30}$
 
 # Regular expression which should only match correct variable names
-variable-rgx=[a-z_][a-zA-Z0-9_]{1,30}$
+variable-rgx=[a-z_][a-zA-Z0-9_]{0,40}$
 
 # Regular expression which should only match correct list comprehension /
 # generator expression variable names

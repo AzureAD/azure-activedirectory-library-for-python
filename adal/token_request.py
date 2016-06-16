@@ -25,7 +25,6 @@
 #
 #------------------------------------------------------------------------------
 
-from functools import partial
 from base64 import b64encode
 
 from . import constants
@@ -35,21 +34,38 @@ from . import oauth2_client
 from . import self_signed_jwt
 from . import user_realm
 from . import wstrust_request
+from .adal_error import AdalError
+from .cache_driver import CacheDriver
 
 OAUTH2_PARAMETERS = constants.OAuth2.Parameters
 TOKEN_RESPONSE_FIELDS = constants.TokenResponseFields
 OAUTH2_GRANT_TYPE = constants.OAuth2.GrantType
 OAUTH2_SCOPE = constants.OAuth2.Scope
+OAUTH2_DEVICE_CODE_RESPONSE_PARAMETERS = constants.OAuth2.DeviceCodeResponseParameters 
 SAML = constants.Saml
 ACCOUNT_TYPE = constants.UserRealm.account_type
+USER_ID = constants.TokenResponseFields.USER_ID
+_CLIENT_ID = constants.TokenResponseFields._CLIENT_ID #pylint: disable=protected-access
 
 def add_parameter_if_available(parameters, key, value):
     if value:
         parameters[key] = value
 
+def _get_saml_grant_type(wstrust_response):
+    token_type = wstrust_response.token_type
+    if token_type == SAML.TokenTypeV1:
+        return OAUTH2_GRANT_TYPE.SAML1
+
+    elif token_type == SAML.TokenTypeV2:
+        return OAUTH2_GRANT_TYPE.SAML2
+
+    else:
+        raise AdalError("RSTR returned unknown token type: {}".format(token_type))
+
 class TokenRequest(object):
 
-    def __init__(self, call_context, authentication_context, client_id, resource, redirect_uri=None):
+    def __init__(self, call_context, authentication_context, client_id, 
+                 resource, redirect_uri=None):
 
         self._log = log.Logger("TokenRequest", call_context['log_context'])
         self._call_context = call_context
@@ -59,55 +75,74 @@ class TokenRequest(object):
         self._client_id = client_id
         self._redirect_uri = redirect_uri
 
-        # This should be set at the beginning of get_token
+        self._cache_driver = None
+        
+        # should be set at the beginning of get_token
         # functions that have a user_id
         self._user_id = None
         self._user_realm = None
 
+        # should be set when acquire token using device flow
+        self._polling_client = None
+
     def _create_user_realm_request(self, username):
-        return user_realm.UserRealm(self._call_context, username, self._authentication_context.authority.url)
+        return user_realm.UserRealm(self._call_context, 
+                                    username, 
+                                    self._authentication_context.authority.url)
 
     def _create_mex(self, mex_endpoint):
         return mex.Mex(self._call_context, mex_endpoint)
 
     def _create_wstrust_request(self, wstrust_endpoint, applies_to):
-        return wstrust_request.WSTrustRequest(self._call_context, wstrust_endpoint, applies_to)
+        return wstrust_request.WSTrustRequest(self._call_context, 
+                                              wstrust_endpoint, applies_to)
 
     def _create_oauth2_client(self):
-        return oauth2_client.OAuth2Client(self._call_context, self._authentication_context.authority.token_endpoint)
+        return oauth2_client.OAuth2Client(self._call_context, 
+                                          self._authentication_context.authority)
 
     def _create_self_signed_jwt(self):
-        return self_signed_jwt.SelfSignedJwt(self._call_context, self._authentication_context.authority, self._client_id)
+        return self_signed_jwt.SelfSignedJwt(self._call_context, 
+                                             self._authentication_context.authority, 
+                                             self._client_id)
 
-    def _oauth_get_token(self, oauth_parameters, callback):
+    def _oauth_get_token(self, oauth_parameters):
         client = self._create_oauth2_client()
-        client.get_token(oauth_parameters, callback)
+        return client.get_token(oauth_parameters)
 
-    def _get_token_with_token_response(self, entry, resource, callback):
+    def _create_cache_driver(self):
+        return CacheDriver(
+            self._call_context,
+            self._authentication_context.authority.url,
+            self._resource,
+            self._client_id,
+            self._authentication_context.cache,
+            self._get_token_with_token_response
+        )
+
+    def _find_token_from_cache(self):
+        self._cache_driver = self._create_cache_driver()
+        cache_query = self._create_cache_query()
+        return self._cache_driver.find(cache_query)
+
+    def _add_token_into_cache(self, token):
+        cache_driver = self._create_cache_driver()
+        self._log.debug('Storing retrieved token into cache')
+        cache_driver.add(token)
+
+    def _get_token_with_token_response(self, entry, resource):
         self._log.debug("called to refresh a token from the cache")
         refresh_token = entry[TOKEN_RESPONSE_FIELDS.REFRESH_TOKEN]
-        self._get_token_with_refresh_token(refresh_token, resource, None, callback)
+        return self._get_token_with_refresh_token(refresh_token, resource, None)
 
     def _create_cache_query(self):
-        query = {'clientId' : self._client_id }
+        query = {_CLIENT_ID : self._client_id}
         if self._user_id:
-            query['userId'] = self._user_id
+            query[USER_ID] = self._user_id
         else:
             self._log.debug("No user_id passed for cache query")
 
         return query
-
-    def _get_token(self, callback, get_token_func):
-        def _call(err, token_response=None):
-            if err:
-                self._log.warn("get_token_func returned with err")
-                callback(err, token_response)
-                return
-
-            self._log.debug("Successfully retrieved token from authority.")
-            callback(None, token_response)
-
-        get_token_func(_call)
 
     def _create_oauth_parameters(self, grant_type):
 
@@ -115,18 +150,22 @@ class TokenRequest(object):
         oauth_parameters[OAUTH2_PARAMETERS.GRANT_TYPE] = grant_type
 
         if (OAUTH2_GRANT_TYPE.AUTHORIZATION_CODE != grant_type and
-            OAUTH2_GRANT_TYPE.CLIENT_CREDENTIALS != grant_type and
-            OAUTH2_GRANT_TYPE.REFRESH_TOKEN != grant_type):
+                OAUTH2_GRANT_TYPE.CLIENT_CREDENTIALS != grant_type and
+                OAUTH2_GRANT_TYPE.REFRESH_TOKEN != grant_type and
+                OAUTH2_GRANT_TYPE.DEVICE_CODE != grant_type):
 
             oauth_parameters[OAUTH2_PARAMETERS.SCOPE] = OAUTH2_SCOPE.OPENID
 
-        add_parameter_if_available(oauth_parameters, OAUTH2_PARAMETERS.CLIENT_ID, self._client_id)
-        add_parameter_if_available(oauth_parameters, OAUTH2_PARAMETERS.RESOURCE, self._resource)
-        add_parameter_if_available(oauth_parameters, OAUTH2_PARAMETERS.REDIRECT_URI, self._redirect_uri)
+        add_parameter_if_available(oauth_parameters, OAUTH2_PARAMETERS.CLIENT_ID, 
+                                   self._client_id)
+        add_parameter_if_available(oauth_parameters, OAUTH2_PARAMETERS.RESOURCE, 
+                                   self._resource)
+        add_parameter_if_available(oauth_parameters, OAUTH2_PARAMETERS.REDIRECT_URI, 
+                                   self._redirect_uri)
 
         return oauth_parameters
 
-    def _get_token_username_password_managed(self, username, password, callback):
+    def _get_token_username_password_managed(self, username, password):
         self._log.debug('Acquiring token with username password for managed user')
 
         oauth_parameters = self._create_oauth_parameters(OAUTH2_GRANT_TYPE.PASSWORD)
@@ -134,131 +173,127 @@ class TokenRequest(object):
         oauth_parameters[OAUTH2_PARAMETERS.PASSWORD] = password
         oauth_parameters[OAUTH2_PARAMETERS.USERNAME] = username
 
-        self._oauth_get_token(oauth_parameters, callback)
+        return self._oauth_get_token(oauth_parameters)
 
-    def _get_saml_grant_type(self, wstrust_response):
-        token_type = wstrust_response.token_type
-        if token_type == SAML.TokenTypeV1:
-            return OAUTH2_GRANT_TYPE.SAML1
-
-        elif token_type == SAML.TokenTypeV2:
-            return OAUTH2_GRANT_TYPE.SAML2
-
-        else:
-            raise self._log.create_error("RSTR returned unknown token type: {0}".format(token_type))
-
-    def _perform_wstrust_assertion_oauth_exchange(self, wstrust_response, callback):
+    def _perform_wstrust_assertion_oauth_exchange(self, wstrust_response):
         self._log.debug("Performing OAuth assertion grant type exchange.")
 
         oauth_parameters = {}
+        grant_type = _get_saml_grant_type(wstrust_response)
+        assertion = b64encode(wstrust_response.token.encode('utf-8'))
+        oauth_parameters = self._create_oauth_parameters(grant_type)
+        oauth_parameters[OAUTH2_PARAMETERS.ASSERTION] = assertion
+
+        return self._oauth_get_token(oauth_parameters)
+
+    def _perform_wstrust_exchange(self, wstrust_endpoint, username, password):
+        wstrust = self._create_wstrust_request(wstrust_endpoint, 
+                                               "urn:federation:MicrosoftOnline")
+
         try:
-            grant_type = self._get_saml_grant_type(wstrust_response)
-            assertion = b64encode(wstrust_response.token)
-            oauth_parameters = self._create_oauth_parameters(grant_type)
-            oauth_parameters[OAUTH2_PARAMETERS.ASSERTION] = assertion
+            return wstrust.acquire_token(username, password)
+        except AdalError as exp:
+            error_msg = str(exp)
+            if exp.error_response:
+                err_template = "Unsuccessful RSTR.\n\terror code: {}\n\tfaultMessage: {}"
+                error_msg = (err_template.format(exp.error_response.error_code, 
+                                                 exp.error_response.fault_message))
+            self._log.info(error_msg)
+            raise
 
-        except Exception as exp:
-            callback(exp)
-            return
+    def _perform_username_password_for_access_token_exchange(self, 
+                                                             wstrust_endpoint, 
+                                                             username, 
+                                                             password):
+        wstrust_response = self._perform_wstrust_exchange(wstrust_endpoint, 
+                                                          username, password)
+        return self._perform_wstrust_assertion_oauth_exchange(wstrust_response)
 
-        self._oauth_get_token(oauth_parameters, callback)
-
-    def _perform_wstrust_exchange(self, wstrust_endpoint, username, password, callback):
-        wstrust = self._create_wstrust_request(wstrust_endpoint, "urn:federation:MicrosoftOnline")
-
-        def _callback(rst_err, response):
-            if rst_err:
-                callback(rst_err, None)
-                return
-
-            if not response.token:
-                rst_err = self._log.create_error("Unsuccessful RSTR.\n\terror code: {0}\n\tfaultMessage: {1}".format(response.error_code, response.fault_message))
-                callback(rst_err, None)
-                return
-            callback(None, response)
-
-        wstrust.acquire_token(username, password, _callback)
-
-    def _perform_username_password_for_access_token_exchange(self, wstrust_endpoint, username, password, callback):
-        def _callback(err, wstrust_response):
-            if err:
-                callback(err, None)
-                return
-            self._perform_wstrust_assertion_oauth_exchange(wstrust_response, callback)
-
-        self._perform_wstrust_exchange(wstrust_endpoint, username, password, _callback)
-
-    def _create_adwstrust_endpoint_error(self):
-        return self._log.create_error('AAD did not return a WSTrust endpoint.  Unable to proceed.')
-
-    def _get_token_username_password_federated(self, username, password, callback):
+    def _get_token_username_password_federated(self, username, password):
         self._log.debug("Acquiring token with username password for federated user")
 
         if not self._user_realm.federation_metadata_url:
-            self._log.warn("Unable to retrieve federationMetadataUrl from AAD.  Attempting fallback to AAD supplied endpoint.")
+            self._log.warn("Unable to retrieve federationMetadataUrl from AAD. "
+                           "Attempting fallback to AAD supplied endpoint.")
 
             if not self._user_realm.federation_active_auth_url:
-                callback(self._create_adwstrust_endpoint_error())
-                return
+                raise AdalError('AAD did not return a WSTrust endpoint. Unable to proceed.')
 
-            self._perform_username_password_for_access_token_exchange(self._user_realm.federation_active_auth_url, username, password, callback)
-            return
+            return self._perform_username_password_for_access_token_exchange(
+                self._user_realm.federation_active_auth_url, 
+                username, 
+                password)
         else:
             mex_endpoint = self._user_realm.federation_metadata_url
-            self._log.debug("Attempting mex at: {0}".format(mex_endpoint))
+            self._log.debug("Attempting mex at: %s", mex_endpoint)
             mex_instance = self._create_mex(mex_endpoint)
+             
+            try:
+                mex_instance.discover()
+                wstrust_endpoint = mex_instance.username_password_url
+            except Exception: #pylint: disable=broad-except
+                warn_template = ("MEX exchange failed for %s. " 
+                                 "Attempting fallback to AAD supplied endpoint.")
+                self._log.warn(warn_template, mex_endpoint)
+                wstrust_endpoint = self._user_realm.federation_active_auth_url
+                if not wstrust_endpoint:
+                    raise AdalError('AAD did not return a WSTrust endpoint. Unable to proceed.')
 
-            def _callback(mex_err, _=None):
-                if mex_err:
-                    self._log.warn("MEX exchange failed.  Attempting fallback to AAD supplied endpoint.")
-                    wstrust_endpoint = self._user_realm.federation_active_auth_url
-                    if not wstrust_endpoint:
-                        callback(self._create_adwstrust_endpoint_error())
-                        return
-                else:
-                    wstrust_endpoint = mex_instance.username_password_url
-                self._perform_username_password_for_access_token_exchange(wstrust_endpoint, username, password, callback)
-                return
-            mex_instance.discover(_callback)
+            return self._perform_username_password_for_access_token_exchange(wstrust_endpoint,
+                                                                             username, password)
 
-    def _get_token_with_username_password(self, username, password, callback):
-
+    def get_token_with_username_password(self, username, password):
         self._log.info("Acquiring token with username password.")
         self._user_id = username
+        try:
+            token = self._find_token_from_cache()
+            if token:
+                return token
+        except AdalError as exp:
+            self._log.warn(
+                'Attempt to look for token in cache resulted in Error: %s', 
+                exp,
+                log_stack_trace=True)
+ 
+        self._user_realm = self._create_user_realm_request(username)
+        self._user_realm.discover()
 
-        def _callback(get_token_complete_callback):
-            self._user_realm = self._create_user_realm_request(username)
+        try:
+            if self._user_realm.account_type == ACCOUNT_TYPE['Managed']:
+                token = self._get_token_username_password_managed(username, password)
+            elif self._user_realm.account_type == ACCOUNT_TYPE['Federated']:
+                token = self._get_token_username_password_federated(username, password)
+            else:
+                raise AdalError(
+                    "Server returned an unknown AccountType: {}".format(self._user_realm.account_type))
+            self._log.debug("Successfully retrieved token from authority.")
+        except Exception:
+            self._log.info("get_token_func returned with error")
+            raise
+        
+        self._cache_driver.add(token)
+        return token
 
-            def _call(err, _=None):
-                if err:
-                    get_token_complete_callback(err)
-                    return
-
-                if self._user_realm.account_type == ACCOUNT_TYPE['Managed']:
-                    self._get_token_username_password_managed(username, password, get_token_complete_callback)
-                    return
-                elif self._user_realm.account_type == ACCOUNT_TYPE['Federated']:
-                    self._get_token_username_password_federated(username, password, get_token_complete_callback)
-                    return
-                else:
-                    get_token_complete_callback(self._log.create_error("Server returned an unknown AccountType: {0}".format(self._user_realm.account_type)))
-                return
-
-            self._user_realm.discover(_call)
-        self._get_token(callback, _callback)
-
-    def _get_token_with_client_credentials(self, client_secret, callback):
-
+    def get_token_with_client_credentials(self, client_secret):
         self._log.info("Getting token with client credentials.")
+        try:
+            token = self._find_token_from_cache()
+            if token:
+                return token
+        except AdalError as exp:
+            self._log.warn(
+                'Attempt to look for token in cache resulted in Error: %s', 
+                exp, 
+                log_stack_trace=True)
 
-        def _callback(get_token_complete_callback):
-            oauth_parameters = self._create_oauth_parameters(OAUTH2_GRANT_TYPE.CLIENT_CREDENTIALS)
-            oauth_parameters[OAUTH2_PARAMETERS.CLIENT_SECRET] = client_secret
-            self._oauth_get_token(oauth_parameters, get_token_complete_callback)
+        oauth_parameters = self._create_oauth_parameters(OAUTH2_GRANT_TYPE.CLIENT_CREDENTIALS)
+        oauth_parameters[OAUTH2_PARAMETERS.CLIENT_SECRET] = client_secret
 
-        self._get_token(callback, _callback)
+        token = self._oauth_get_token(oauth_parameters)
+        self._cache_driver.add(token)
+        return token
 
-    def _get_token_with_authorization_code(self, authorization_code, client_secret, callback):
+    def get_token_with_authorization_code(self, authorization_code, client_secret):
 
         self._log.info("Getting token with auth code.")
 
@@ -266,14 +301,13 @@ class TokenRequest(object):
         oauth_parameters[OAUTH2_PARAMETERS.CODE] = authorization_code
         oauth_parameters[OAUTH2_PARAMETERS.CLIENT_SECRET] = client_secret
 
-        self._oauth_get_token(oauth_parameters, callback)
+        return self._oauth_get_token(oauth_parameters)
 
-    def _get_token_with_refresh_token(self, refresh_token, resource, client_secret, callback):
+    def _get_token_with_refresh_token(self, refresh_token, resource, client_secret):
 
         self._log.info("Getting a new token from a refresh token")
 
         oauth_parameters = self._create_oauth_parameters(OAUTH2_GRANT_TYPE.REFRESH_TOKEN)
-
         if resource:
             oauth_parameters[OAUTH2_PARAMETERS.RESOURCE] = resource
 
@@ -281,7 +315,15 @@ class TokenRequest(object):
             oauth_parameters[OAUTH2_PARAMETERS.CLIENT_SECRET] = client_secret
 
         oauth_parameters[OAUTH2_PARAMETERS.REFRESH_TOKEN] = refresh_token
-        self._oauth_get_token(oauth_parameters, callback)
+        return self._oauth_get_token(oauth_parameters)
+
+    def get_token_with_refresh_token(self, refresh_token, client_secret):
+        return self._get_token_with_refresh_token(refresh_token, None, client_secret)
+
+    def get_token_from_cache_with_refresh(self, user_id):
+        self._log.info("Getting token from cache with refresh if necessary.")
+        self._user_id = user_id
+        return self._find_token_from_cache()
 
     def _create_jwt(self, certificate, thumbprint):
 
@@ -289,35 +331,50 @@ class TokenRequest(object):
         jwt = ssj.create(certificate, thumbprint)
 
         if not jwt:
-            raise self._log.create_error("Failed to create JWT.")
-
+            raise AdalError("Failed to create JWT.")
         return jwt
 
-    def get_token_with_refresh_token(self, refresh_token, client_secret, callback):
-        self._get_token_with_refresh_token(refresh_token, None, client_secret, callback)
-
-    def get_token_from_cache_with_refresh(self, user_id, callback):
-
-        self._log.info("Getting token from cache with refresh if necessary.")
-
-        self._user_id = user_id
-        self._get_token(callback, lambda _callback: _callback(self._log.create_error("Entry not found in cache.")))
-
-    def get_token_with_certificate(self, certificate, thumbprint, callback):
+    def get_token_with_certificate(self, certificate, thumbprint):
 
         self._log.info("Getting a token via certificate.")
 
-        try:
-            jwt = self._create_jwt(certificate, thumbprint)
-        except Exception as exp:
-            callback(exp, None)
-            return
+        jwt = self._create_jwt(certificate, thumbprint)
 
         oauth_parameters = self._create_oauth_parameters(OAUTH2_GRANT_TYPE.CLIENT_CREDENTIALS)
         oauth_parameters[OAUTH2_PARAMETERS.CLIENT_ASSERTION_TYPE] = OAUTH2_GRANT_TYPE.JWT_BEARER
         oauth_parameters[OAUTH2_PARAMETERS.CLIENT_ASSERTION] = jwt
 
-        def _callback(get_token_complete_callback):
-            self._oauth_get_token(oauth_parameters, get_token_complete_callback)
+        try:
+            token = self._find_token_from_cache()
+            if token:
+                return token
+        except AdalError as exp: 
+            self._log.warn(
+                'Attempt to look for token in cache resulted in Error: %s', 
+                exp, 
+                log_stack_trace=True)
+        
+        return self._oauth_get_token(oauth_parameters)
 
-        self._get_token(callback, _callback)
+    def get_token_with_device_code(self, user_code_info):
+        self._log.info("Getting a token via device code")
+
+        oauth_parameters = self._create_oauth_parameters(OAUTH2_GRANT_TYPE.DEVICE_CODE)
+        oauth_parameters[OAUTH2_PARAMETERS.CODE] = user_code_info[OAUTH2_DEVICE_CODE_RESPONSE_PARAMETERS.DEVICE_CODE]
+
+        interval = user_code_info[OAUTH2_DEVICE_CODE_RESPONSE_PARAMETERS.INTERVAL]
+        expires_in = user_code_info[OAUTH2_DEVICE_CODE_RESPONSE_PARAMETERS.EXPIRES_IN]
+
+        if interval <= 0:
+            raise AdalError('invalid refresh interval')
+
+        client = self._create_oauth2_client()
+        self._polling_client = client
+
+        token = client.get_token_with_polling(oauth_parameters, interval, expires_in)
+        self._add_token_into_cache(token)
+
+        return token
+
+    def cancel_token_request_with_device_code(self):
+        self._polling_client.cancel_polling_request()

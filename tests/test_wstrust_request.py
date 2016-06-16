@@ -47,7 +47,8 @@ class Test_wstrust_request(unittest.TestCase):
         username = 'test_username'
         password = 'test_password'
         appliesTo = 'test_appliesTo'
-        templateRST = open(os.path.join(os.getcwd(), 'tests', 'wstrust', 'RST.xml'), mode='r').read()
+        wstrustFile = open(os.path.join(os.getcwd(), 'tests', 'wstrust', 'RST.xml'), mode='r')
+        templateRST = wstrustFile.read()
         rst = templateRST \
             .replace('%USERNAME%', username) \
             .replace('%PASSWORD%', password) \
@@ -64,17 +65,17 @@ class Test_wstrust_request(unittest.TestCase):
 
         request._handle_rstr =mock.MagicMock()
 
-        def callback():
-            pass
-
-        request.acquire_token(username, password, callback)
+        request.acquire_token(username, password)
+        wstrustFile.close()
 
     @httpretty.activate
     def test_fail_to_parse_rstr(self):
         username = 'test_username'
         password = 'test_password'
         appliesTo = 'test_appliesTo'
-        templateRST = open(os.path.join(os.getcwd(), 'tests', 'wstrust', 'RST.xml'), mode='r').read()
+        templateFile = open(os.path.join(os.getcwd(), 'tests', 'wstrust', 'RST.xml'), mode='r')
+        templateRST = templateFile.read()
+        templateFile.close()
         rst = templateRST \
             .replace('%USERNAME%', username) \
             .replace('%PASSWORD%', password) \
@@ -83,11 +84,10 @@ class Test_wstrust_request(unittest.TestCase):
 
         httpretty.register_uri(method=httpretty.POST, uri=wstrustEndpoint, status=200, body='fake response body')
 
-        def callback(err, token):
-            self.assertEqual(err.args[0], 'Failed to parse RSTR in to DOM')
-
         request = WSTrustRequest(_call_context, wstrustEndpoint, appliesTo)
-        request.acquire_token(username, password, callback)
+        with self.assertRaises(Exception):
+            request.acquire_token(username, password)
+
 
 if __name__ == '__main__':
     unittest.main()

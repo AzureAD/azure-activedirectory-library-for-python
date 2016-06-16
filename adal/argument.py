@@ -24,16 +24,17 @@
 # THE SOFTWARE.
 #
 #------------------------------------------------------------------------------
+from .constants import OAuth2DeviceCodeResponseParameters
 
-def validate_string_param(value, name):
+def validate_user_code_info(user_code_info):
+    if not user_code_info:
+        raise ValueError("the user_code_info parameter is required")
 
-    if not value:
-        raise ValueError("The {0} parameter is required".format(name))
+    if not user_code_info.get(OAuth2DeviceCodeResponseParameters.DEVICE_CODE):
+        raise ValueError("the user_code_info is missing device_code")
 
-    if not isinstance(value, str):
-        raise TypeError("The {0} parameter must be of type str".format(name))
+    if not user_code_info.get(OAuth2DeviceCodeResponseParameters.INTERVAL):
+        raise ValueError("the user_code_info is missing internal")
 
-def validate_callback_type(callback):
-
-    if not callback or not hasattr(callback, '__call__'):
-        raise ValueError("acquireToken requires a function callback parameter")
+    if not user_code_info.get(OAuth2DeviceCodeResponseParameters.EXPIRES_IN):
+        raise ValueError("the user_code_info is missing expires_in")

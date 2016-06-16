@@ -28,17 +28,14 @@
 import sys
 import platform
 import base64
+try:
+    from urllib.parse import urlparse
+except ImportError:
+    from urlparse import urlparse #pylint: disable=import-error
 
-from .constants import AdalIdParameters
 import adal
 
-try:
-
-    from urllib.parse import urlparse
-
-except ImportError:
-
-    from urlparse import urlparse
+from .constants import AdalIdParameters
 
 def is_http_success(status_code):
     return status_code >= 200 and status_code < 300
@@ -51,6 +48,7 @@ def add_default_request_headers(self, options):
     if not headers.get('Accept-Charset'):
         headers['Accept-Charset'] = 'utf-8'
 
+    #pylint: disable=protected-access
     headers['client-request-id'] = self._call_context['log_context']['correlation_id']
     headers['return-client-request-id'] = 'true'
 
@@ -67,6 +65,7 @@ def create_request_options(self, *options):
         for i in options:
             merged_options.update(i)
 
+    #pylint: disable=protected-access
     if self._call_context.get('options') and self._call_context['options'].get('http'):
         merged_options.update(self._call_context['options']['http'])
 
@@ -76,7 +75,9 @@ def create_request_options(self, *options):
 
 def log_return_correlation_id(log, operation_message, response):
     if response and response.headers and response.headers.get('client-request-id'):
-        log.info("{0} Server returned this correlation_id: {1}".format(operation_message, response.headers['client-request-id']))
+        log.info("{} Server returned this correlation_id: {}".format(
+            operation_message, 
+            response.headers['client-request-id']))
 
 def copy_url(url_source):
     if hasattr(url_source, 'geturl'):
@@ -88,6 +89,5 @@ def copy_url(url_source):
 # the string needs to be correctly padded before decoding.
 def base64_urlsafe_decode(b64string):
     b64string += '=' * (4 - ((len(b64string) % 4)))
-
-    return base64.urlsafe_b64decode(b64string)
+    return base64.urlsafe_b64decode(b64string.encode('ascii'))
 

@@ -45,3 +45,6 @@ src/build
 # Virtual Environments
 /env*
 
+# Visual Studio Files
+/.vs/*
+/tests/.vs/*

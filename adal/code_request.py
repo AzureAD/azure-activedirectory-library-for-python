@@ -24,35 +24,43 @@
 # THE SOFTWARE.
 #
 #------------------------------------------------------------------------------
-import json
-import unittest
-from adal import log
-from tests import util
-from tests.util import parameters as cp
 
-class TestLog(unittest.TestCase):
-    def test_settings_none(self):
-        current_options = log.get_logging_options()
+from . import constants
+from . import log
+from . import oauth2_client
 
-        log.set_logging_options()
+OAUTH2_PARAMETERS = constants.OAuth2.Parameters
 
-        options = log.get_logging_options()
-        log.set_logging_options(current_options)
+class CodeRequest(object):
+    """description of class"""
+    def __init__(self, call_context, authentication_context, client_id, 
+                 resource):
+        self._log = log.Logger("CodeRequest", call_context['log_context'])
+        self._call_context = call_context
+        self._authentication_context = authentication_context
+        self._client_id = client_id
+        self._resource = resource
 
-        noOptions = len(options) == 1 and options['level'] == 'ERROR'
-        self.assertTrue(noOptions, 'Did not expect to find any logging options set: ' + json.dumps(options))
+    def _get_user_code_info(self, oauth_parameters):
+        client = self._create_oauth2_client()
+        return client.get_user_code_info(oauth_parameters)
 
-    def test_console_settings(self):
-        currentOptions = log.get_logging_options()
-        util.turn_on_logging()
-        options = log.get_logging_options()
-        level = options['level']
+    def _create_oauth2_client(self):
+        return oauth2_client.OAuth2Client(
+            self._call_context,
+            self._authentication_context.authority)
 
-        # Set the looging options back to what they were before this test so that
-        # future tests are logged as they should be.
-        log.set_logging_options(currentOptions)
+    def _create_oauth_parameters(self):
+        return {
+            OAUTH2_PARAMETERS.CLIENT_ID: self._client_id,
+            OAUTH2_PARAMETERS.RESOURCE: self._resource
+        }
 
-        self.assertEqual(level, 'DEBUG', 'Logging level was not the expected value of LOGGING_LEVEL.DEBUG: {}'.format(level))
+    def get_user_code_info(self, language):
+        self._log.info('Getting user code info.')
 
-if __name__ == '__main__':
-    unittest.main()
+        oauth_parameters = self._create_oauth_parameters()
+        if language:
+            oauth_parameters[OAUTH2_PARAMETERS.LANGUAGE] = language
+
+        return self._get_user_code_info(oauth_parameters)

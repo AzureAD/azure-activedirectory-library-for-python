@@ -28,6 +28,7 @@
 import sys
 import requests
 import httpretty
+import six
 
 try:
     import unittest2 as unittest
@@ -83,20 +84,21 @@ class TestAuthority(unittest.TestCase):
             self.nonHardCodedAuthorizeEndpoint
         )
 
-        responseOptions = { 'authority' : self.nonHardCodedAuthority}
+        responseOptions = { 'authority' : self.nonHardCodedAuthority }
         response = util.create_response(responseOptions)
         wireResponse = response['wireResponse']
 
         util.setup_expected_client_cred_token_request_response(200, wireResponse, self.nonHardCodedAuthority)
 
-        token_response = adal.acquire_token_with_client_credentials(
-            self.nonHardCodedAuthority, cp['clientId'], cp['clientSecret'], response['resource'])
+        context = adal.AuthenticationContext(self.nonHardCodedAuthority)
+        token_response = context.acquire_token_with_client_credentials(
+             response['resource'], cp['clientId'], cp['clientSecret'])
         self.assertTrue(
             util.is_match_token_response(response['cachedResponse'], token_response),
             'The response does not match what was expected.: ' + str(token_response)
         )
 
-    def performStaticInstanceDiscovery(self, authorityHost, callback):
+    def performStaticInstanceDiscovery(self, authorityHost):
         hardCodedAuthority = 'https://' + authorityHost + '/' + cp['tenant']
 
         responseOptions = {
@@ -106,8 +108,9 @@ class TestAuthority(unittest.TestCase):
         wireResponse = response['wireResponse']
         tokenRequest = util.setup_expected_client_cred_token_request_response(200, wireResponse, hardCodedAuthority)
 
-        token_response = adal.acquire_token_with_client_credentials(
-            hardCodedAuthority, cp['clientId'], cp['clientSecret'], response['resource'])
+        context = adal.AuthenticationContext(hardCodedAuthority)
+        token_response = context.acquire_token_with_client_credentials(
+             response['resource'], cp['clientId'], cp['clientSecret'])
 
         self.assertTrue(
             util.is_match_token_response(response['cachedResponse'], token_response),
@@ -117,32 +120,31 @@ class TestAuthority(unittest.TestCase):
 
     @httpretty.activate
     def test_success_static_instance_discovery(self):
-        def callback(err):
-            if err:
-                raise Exception(err)
 
-        self.performStaticInstanceDiscovery('login.microsoftonline.com', callback)
-        self.performStaticInstanceDiscovery('login.windows.net', callback)
-        self.performStaticInstanceDiscovery('login.chinacloudapi.cn', callback)
-        self.performStaticInstanceDiscovery('login.cloudgovapi.us', callback)
+        self.performStaticInstanceDiscovery('login.microsoftonline.com')
+        self.performStaticInstanceDiscovery('login.windows.net')
+        self.performStaticInstanceDiscovery('login.chinacloudapi.cn')
+        self.performStaticInstanceDiscovery('login-us.microsoftonline.com')
 
 
     @httpretty.activate
     def test_http_error(self):
         util.setup_expected_instance_discovery_request(500, cp['authorityHosts']['global'], None, self.nonHardCodedAuthorizeEndpoint)
 
-        with self.assertRaisesRegexp(Exception, '500'):
-            token_response = adal.acquire_token_with_client_credentials(
-                self.nonHardCodedAuthority, cp['clientId'], cp['clientSecret'], cp['resource'])
+        with six.assertRaisesRegex(self, Exception, '500'):
+            context = adal.AuthenticationContext(self.nonHardCodedAuthority)
+            token_response = context.acquire_token_with_client_credentials(
+                 cp['resource'], cp['clientId'], cp['clientSecret'])
 
     @httpretty.activate
     def test_validation_error(self):
         returnDoc = { 'error' : 'invalid_instance', 'error_description' : 'the instance was invalid' }
         util.setup_expected_instance_discovery_request(400, cp['authorityHosts']['global'], returnDoc, self.nonHardCodedAuthorizeEndpoint)
 
-        with self.assertRaisesRegexp(Exception, 'instance was invalid'):
-            token_response = adal.acquire_token_with_client_credentials(
-                self.nonHardCodedAuthority, cp['clientId'], cp['clientSecret'], cp['resource'])
+        with six.assertRaisesRegex(self, Exception, 'instance was invalid'):
+            context = adal.AuthenticationContext(self.nonHardCodedAuthority)
+            token_response = context.acquire_token_with_client_credentials(
+                 cp['resource'], cp['clientId'], cp['clientSecret'])
 
     @httpretty.activate
     def test_validation_off(self):
@@ -159,8 +161,9 @@ class TestAuthority(unittest.TestCase):
 
         util.setup_expected_client_cred_token_request_response(200, wireResponse, self.nonHardCodedAuthority)
 
-        token_response = adal.acquire_token_with_client_credentials(
-            self.nonHardCodedAuthority, cp['clientId'], cp['clientSecret'], response['resource'], validate_authority = False)
+        context = adal.AuthenticationContext(self.nonHardCodedAuthority)
+        token_response = context.acquire_token_with_client_credentials(
+             response['resource'], cp['clientId'], cp['clientSecret'])
         self.assertTrue(
             util.is_match_token_response(response['cachedResponse'], token_response),
             'The response does not match what was expected.: ' + str(token_response)
@@ -169,12 +172,12 @@ class TestAuthority(unittest.TestCase):
 
     @httpretty.activate
     def test_bad_url_not_https(self):
-        with self.assertRaisesRegexp(ValueError, "The authority url must be an https endpoint\."):
+        with six.assertRaisesRegex(self, ValueError, "The authority url must be an https endpoint\."):
             context = AuthenticationContext('http://this.is.not.https.com/mytenant.com')
 
     @httpretty.activate
     def test_bad_url_has_query(self):
-        with self.assertRaisesRegexp(ValueError, "The authority url must not have a query string\."):
+        with six.assertRaisesRegex(self, ValueError, "The authority url must not have a query string\."):
             context = AuthenticationContext(cp['authorityTenant'] + '?this=should&not=be&here=foo')
 
     @httpretty.activate
@@ -190,13 +193,9 @@ class TestAuthority(unittest.TestCase):
         authority = Authority(authority_url, True)
         obj = util.create_empty_adal_object()
 
-        def callback(err):
-            if err:
-                self.assertFalse(err, 'Received unexpected error: ' + err.args[0])
-            req = httpretty.last_request()
-            util.match_standard_request_headers(req)
-
-        authority.validate(obj['call_context'], callback)
+        authority.validate(obj['call_context'])
+        req = httpretty.last_request()
+        util.match_standard_request_headers(req)
 
 if __name__ == '__main__':
     unittest.main()

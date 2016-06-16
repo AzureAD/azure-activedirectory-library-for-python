@@ -27,6 +27,7 @@
 
 import unittest
 import os
+import six
 
 try:
     from xml.etree import cElementTree as ET
@@ -70,12 +71,14 @@ class Test_wstrustresponse(unittest.TestCase):
         wstrustResponse = WSTrustResponse(_call_context, errorResponse)
 
         exception_text = "Server returned error in RSTR - ErrorCode: RequestFailed : FaultMessage: MSIS3127: The specified request failed"
-        with self.assertRaisesRegexp(Exception, exception_text) as cm:
+        with six.assertRaisesRegex(self, Exception, exception_text) as cm:
             wstrustResponse.parse()
 
     def test_token_parsing_happy_path(self):
-        wstrustResponse = WSTrustResponse(_call_context, open(os.path.join(os.getcwd(), 'tests', 'wstrust', 'RSTR.xml')).read())
+        wstrustFile = open(os.path.join(os.getcwd(), 'tests', 'wstrust', 'RSTR.xml'))
+        wstrustResponse = WSTrustResponse(_call_context, wstrustFile.read())
         wstrustResponse.parse()
+        wstrustFile.close()
 
         self.assertEqual(wstrustResponse.token_type, 'urn:oasis:names:tc:SAML:1.0:assertion', 'TokenType did not match expected value: ' + wstrustResponse.token_type)
 
@@ -84,17 +87,17 @@ class Test_wstrustresponse(unittest.TestCase):
         self.assertEqual('1TIu064jGEmmf+hnI+F0Jg==', attribute_values[1].text)
 
     def test_rstr_none(self):
-        with self.assertRaisesRegexp(Exception, 'Received empty RSTR response body.') as cm:
+        with six.assertRaisesRegex(self, Exception, 'Received empty RSTR response body.') as cm:
             wstrustResponse = WSTrustResponse(_call_context, None)
             wstrustResponse.parse()
 
     def test_rstr_empty_string(self):
-        with self.assertRaisesRegexp(Exception, 'Received empty RSTR response body.') as cm:
+        with six.assertRaisesRegex(self, Exception, 'Received empty RSTR response body.') as cm:
             wstrustResponse = WSTrustResponse(_call_context, '')
             wstrustResponse.parse()
 
     def test_rstr_unparseable_xml(self):
-        with self.assertRaisesRegexp(Exception, 'Failed to parse RSTR in to DOM'):
+        with six.assertRaisesRegex(self, Exception, 'Failed to parse RSTR in to DOM'):
             wstrustResponse = WSTrustResponse(_call_context, '<This is not parseable as an RSTR')
             wstrustResponse.parse()
 

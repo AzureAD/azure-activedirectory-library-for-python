@@ -43,7 +43,6 @@ except ImportError:
 
 import adal
 from adal.authority import Authority
-from adal import self_signed_jwt
 from adal.self_signed_jwt import SelfSignedJwt
 from adal.authentication_context import AuthenticationContext
 from tests import util
@@ -53,28 +52,23 @@ class TestSelfSignedJwt(unittest.TestCase):
     testNowDate = cp['nowDate']
     testJwtId = cp['jwtId']
     expectedJwt = cp['expectedJwt']
-    unexpectedJwt = 'unexpectedJwt'
     testAuthority = Authority('https://login.windows.net/naturalcauses.com/oauth2/token', False)
     testClientId = 'd6835713-b745-48d1-bb62-7a8248477d35'
     testCert = cp['cert']
 
-    def _create_jwt(self, cert, thumbprint, encodeError = None):
+    def _create_jwt(self, cert, thumbprint):
         ssjwt = SelfSignedJwt(cp['callContext'], self.testAuthority, self.testClientId)
 
-        self_signed_jwt._get_date_now = mock.MagicMock(return_value = self.testNowDate)
-        self_signed_jwt._get_new_jwt_id = mock.MagicMock(return_value = self.testJwtId)
-
-        if encodeError:
-            self_signed_jwt._encode_jwt = mock.MagicMock(return_value = self.unexpectedJwt)
-        else:
-            self_signed_jwt._encode_jwt = mock.MagicMock(return_value = self.expectedJwt)
+        ssjwt._get_date_now = mock.MagicMock(return_value = self.testNowDate)
+        ssjwt._get_new_jwt_id = mock.MagicMock(return_value = self.testJwtId)
+        ssjwt._encode_jwt = mock.MagicMock(return_value = self.expectedJwt)
 
         jwt = ssjwt.create(cert, thumbprint)
         return jwt
 
-    def _create_jwt_and_match_expected_err(self, testCert, thumbprint, encodeError = None):
+    def _create_jwt_and_match_expected_err(self, testCert, thumbprint):
         with self.assertRaises(Exception):
-            self._create_jwt(testCert, thumbprint, encodeError)
+            self._create_jwt(testCert, thumbprint)
 
     def _create_jwt_and_match_expected_jwt(self, cert, thumbprint):
         jwt = self._create_jwt(cert, thumbprint)
@@ -93,7 +87,7 @@ class TestSelfSignedJwt(unittest.TestCase):
         self._create_jwt_and_match_expected_jwt(self.testCert, thumbprint)
 
     def test_create_jwt_invalid_cert(self):
-        self._create_jwt_and_match_expected_err('foobar', cp['certHash'], True)
+        self._create_jwt_and_match_expected_err('foobar', cp['certHash'])
 
     def test_create_jwt_invalid_thumbprint_1(self):
         self._create_jwt_and_match_expected_err(self.testCert, 'zzzz')

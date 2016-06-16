@@ -24,12 +24,11 @@
 # THE SOFTWARE.
 #
 #------------------------------------------------------------------------------
-# pylint: disable=too-few-public-methods,old-style-class,no-init
 
-class Errors: 
+class Errors:
     # Constants
-    ERROR_VALUE_NONE = '{} should not be None.'
-    ERROR_VALUE_EMPTY_STRING = '{} should not be "".'
+    ERROR_VALUE_NONE = '{0} should not be None.'
+    ERROR_VALUE_EMPTY_STRING = '{0} should not be "".'
     ERROR_RESPONSE_MALFORMED_XML = 'The provided response string is not well formed XML.'
 
 class OAuth2Parameters(object):
@@ -48,8 +47,7 @@ class OAuth2Parameters(object):
     USERNAME = 'username'
     PASSWORD = 'password'
     REFRESH_TOKEN = 'refresh_token'
-    LANGUAGE = 'mkt'
-    DEVICE_CODE = 'device_code'
+
 
 class OAuth2GrantType(object):
 
@@ -60,7 +58,6 @@ class OAuth2GrantType(object):
     PASSWORD = 'password'
     SAML1 = 'urn:ietf:params:oauth:grant-type:saml1_1-bearer'
     SAML2 = 'urn:ietf:params:oauth:grant-type:saml2-bearer'
-    DEVICE_CODE = 'device_code'
 
 
 class OAuth2ResponseParameters(object):
@@ -77,15 +74,6 @@ class OAuth2ResponseParameters(object):
     ERROR = 'error'
     ERROR_DESCRIPTION = 'error_description'
 
-class OAuth2DeviceCodeResponseParameters:
-    USER_CODE = 'user_code'
-    DEVICE_CODE = 'device_code'
-    VERIFICATION_URL = 'verification_url'
-    EXPIRES_IN = 'expires_in'
-    INTERVAL = 'interval'
-    MESSAGE = 'message'
-    ERROR = 'error'
-    ERROR_DESCRIPTION = 'error_description'
 
 class OAuth2Scope(object):
 
@@ -97,7 +85,6 @@ class OAuth2(object):
     Parameters = OAuth2Parameters()
     GrantType = OAuth2GrantType()
     ResponseParameters = OAuth2ResponseParameters()
-    DeviceCodeResponseParameters = OAuth2DeviceCodeResponseParameters()
     Scope = OAuth2Scope()
     IdTokenMap = {
         'tid' : 'tenantId',
@@ -118,11 +105,6 @@ class TokenResponseFields(object):
     USER_ID = 'userId'
     ERROR = 'error'
     ERROR_DESCRIPTION = 'errorDescription'
-    
-    # not from the wire, but amends for token cache
-    _AUTHORITY = '_authority'
-    _CLIENT_ID = '_clientId'
-    IS_MRRT = 'isMRRT'
 
 
 class IdTokenFields(object):
@@ -157,13 +139,13 @@ class UserRealm(object):
         'WSFederation' : 'wstrust',
         'SAML2' : 'saml20',
         'Unknown' : 'unknown'
-    }
+      }
 
     account_type = {
         'Federated' : 'federated',
         'Managed' : 'managed',
         'Unknown' : 'unknown'
-    }
+      }
 
 
 class Saml(object):
@@ -216,17 +198,16 @@ class HttpError(object):
 class AADConstants(object):
 
     WORLD_WIDE_AUTHORITY = 'login.windows.net'
-    WELL_KNOWN_AUTHORITY_HOSTS = ['login.windows.net', 'login.microsoftonline.com', 'login.chinacloudapi.cn', 'login-us.microsoftonline.com', 'login.microsoftonline.de']
-    INSTANCE_DISCOVERY_ENDPOINT_TEMPLATE = 'https://{authorize_host}/common/discovery/instance?authorization_endpoint={authorize_endpoint}&api-version=1.0' # pylint: disable=invalid-name
+    WELL_KNOWN_AUTHORITY_HOSTS = ['login.windows.net', 'login.microsoftonline.com', 'login.chinacloudapi.cn', 'login.cloudgovapi.us']
+    INSTANCE_DISCOVERY_ENDPOINT_TEMPLATE = 'https://{authorize_host}/common/discovery/instance?authorization_endpoint={authorize_endpoint}&api-version=1.0'
     AUTHORIZE_ENDPOINT_PATH = '/oauth2/authorize'
     TOKEN_ENDPOINT_PATH = '/oauth2/token'
-    DEVICE_ENDPOINT_PATH = '/oauth2/devicecode'
 
 
 class AdalIdParameters(object):
 
     SKU = 'x-client-SKU'
     VERSION = 'x-client-Ver'
-    OS = 'x-client-OS'  # pylint: disable=invalid-name
+    OS = 'x-client-OS'
     CPU = 'x-client-CPU'
     PYTHON_SKU = 'Python'

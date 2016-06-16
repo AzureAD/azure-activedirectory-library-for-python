@@ -120,13 +120,13 @@ parameters = {
     'clientId': 'clien&&???tId',
     'clientSecret': 'clientSecret*&^(?&',
     'resource': '00000002-0000-0000-c000-000000000000',
-    'evoEndpoint': 'https://login.windows.net/',
+    'evoEndpoint': 'https://login.windows.net',
     'username': 'rrandall@rrandallaad1.onmicrosoft.com',
-    'password': '<password>',
+    'password': 'Atestpass!@#$',
     'authorityHosts': {
         'global': 'login.windows.net',
         'china': 'login.chinacloudapi.cn',
-        'gov': 'login-us.microsoftonline.com'
+        'gov': 'login.cloudgovapi.us'
     }
 }
 
@@ -134,7 +134,7 @@ parameters['refreshToken'] = refresh_token
 
 # This is a default authority to be used in tests that don't care that there are multiple.
 parameters['authority'] = parameters['evoEndpoint']
-parameters['authorityTenant'] = parameters['authority'] + parameters['tenant']
+parameters['authorityTenant'] = parameters['authority'] + '/' + parameters['tenant']
 parameters['adfsUrlNoPath'] = 'https://adfs.federatedtenant.com'
 parameters['adfsMexPath'] = '/adfs/services/trust/mex'
 parameters['adfsWsTrustPath'] = '/adfs/services/trust/13/usernamemixed'
@@ -143,7 +143,7 @@ parameters['adfsWsTrust'] = parameters['adfsUrlNoPath'] + parameters['adfsWsTrus
 
 parameters['successResponse'] = success_response
 parameters['successResponseWithRefresh'] = success_response_with_refresh
-parameters['authUrlResult'] = urlparse(parameters['evoEndpoint'] + parameters['tenant'])
+parameters['authUrlResult'] = urlparse(parameters['evoEndpoint'] + '/' + parameters['tenant'])
 parameters['authUrl'] = parameters['authUrlResult'].geturl()
 
 parameters['tokenPath'] = '/oauth2/token'
@@ -166,40 +166,10 @@ parameters['AssertionFile'] = os.path.join(_dirname, 'wstrust/common.base64.enco
 parameters['logContext'] = { 'correlation_id' : 'test-correlation-id-123456789' }
 parameters['callContext'] = { 'log_context' : parameters['logContext'] }
 
-# This is a dummy RSA private cert used for testing purpose.It does not represent valid credential.
-# privatePem variable is a fake certificate in the form of a string.
-# Hence the following message is added to suppress CredScan warning.
-# [SuppressMessage("Microsoft.Security", "CS002:SecretInNextLine")]
 def get_self_signed_cert():
-    private_pem = ("-----BEGIN RSA PRIVATE KEY-----"
-                  "MIIEpAIBAAKCAQEAoMGZTZi0vU/ICYVgV4vcTwzvZCNXdJ9EgGBBFu1E0/j4FF0Y"
-                  "Fd2sP7IwmWVZLlWJ5VbwAtdMiRdrogX/QnWPfsNfsPzDdRRJD+Erh9tmBzJm08h7"
-                  "1RggS1/VehZ9WNdTDlQM3P+zNg0IG274VIr+ZSBzIbYxV6ecPdRU/EsZ5Wa5SCwG"
-                  "Fu1qPJW8KY8yvse9PHdFiHjrmcZSKTbBCp/2grdBrk/N1jwtH6Yj100l7G69HPE/"
-                  "4kXYRX9f/LjpzF77VMCj7UJtmb1yR3fRHpppbm7GkqvJFM2Kg3UG5fsp8nQBDRc+"
-                  "R3kjm+DU05MoFdsfo3DkzpNJjDcLUPdANe+mWwIDAQABAoIBACdb/1r+XpJTbFjY"
-                  "bSRCPCimtB5CgPEu5ajA6G7inQ2BUcw6luETq07VJA0KwXEUxHSAerdXW4fdUh8T"
-                  "dNIi0oVo9I7y9DBATTs0GGJlF2//qSmFVrxv8chCqJQB2aLc5ZsGfTfG62v6eNeu"
-                  "reKVPYApF8dTQnWBtkF1MXGsOaTuxEecrM6KbES97kElC0QsJ89sDnTUjKuihfc9"
-                  "Q9IfWDbX/5WY6JL7XMbQtKRIzd+y/E9dpU3Hu+UErKWyb5pQiud81/Q/xQThSrVt"
-                  "zpmXwlsEFCrSzDML+aOTDqrsRwypRc5sTNAMadkeRrrlo+5OzoUG1aTxco8tZ1MD"
-                  "ch7RTJECgYEA1fqn93X6S1sA8R4lYOJUDd5JmEskKwLl5Vg2VSinSD1YyMdtPnQa"
-                  "ZWCEbJGXN60tEd7ZjOM4wA0mIrwEkkApFWEiGpMe4aGTD11455rA5IfrZUGPXlcw"
-                  "lkmt4wPytKx/xDLBfa8oAu33dFDe/nhRqQqAMTi7DAnttqjUxPg/N8UCgYEAwFNG"
-                  "qLG+5+J4sq5xoXgDj0Zggi5hx2IEfN68BmyYHvfL8VSDkQMsiYXNAhTWByCkjW9D"
-                  "j/hdouGlDwMCLWq0XPgO/XsSlU7jJExsrRch63kf72PTZP/qapSkOonCe9TViNTQ"
-                  "KiRXu/v9OfJYSRPnpKz0/5goFSq7E12mBWZJJ58CgYEAvmmKNLSAobP+t5H68ycU"
-                  "Yy7u0J31Nm0ixR7lYoyFp8wniKumdA//OT1VOgOoy/vIAoILl8rPQl+xEvG7I6YC"
-                  "qSrBnWJT9bbBVcf5Aih9BCBLgdSATxRJgUNZgI2P2eUy4RXFhyFp+olmTdR1S38o"
-                  "M8PLZYG1OTZQmd3NUOYT430CgYBzU7yEPgnPPTPJWefTvobL7JTEm5GQoQs14c54"
-                  "P7g8obUO4vH+DBwx3yUfAWWSYpWqJjUqaPGlUY/L3673kwvS0AEVKS7sj6CPTLDC"
-                  "XqO9cyWeRIsn/noQLVAJtkAER41AfvTQwHhHxoSDsfoU4DXAvuIvPouSncwOgdKj"
-                  "XEGz2wKBgQDQmB/u4oGaPRf5DdasiAcqofYDEoo/OcpdRPeW2t5z7WDZcjeN4ajR"
-                  "GDoQssBpy1fpsPnghksMhYZL2l9xiSInkFw87ax5EYBS43Mt5HfJPgwpEnA5yV3W"
-                  "WGt3TBp7BgYOKhIID6803lBYfDmtQzdD+xMjlJKSQ9wfZYCuXrYwSg=="
-                  "-----END RSA PRIVATE KEY-----")
-
-    return private_pem
+    cert_file = os.path.join(_dirname, "data/self-signed-cert.pem")
+    with open(cert_file) as private_pem:
+        return private_pem.read()
 
 parameters['certHash'] = 'C1:5D:EA:86:56:AD:DF:67:BE:80:31:D8:5E:BD:DC:5A:D6:C4:36:E1'
 parameters['nowDate'] = datetime.fromtimestamp(1418433646.179)
@@ -213,7 +183,7 @@ def set_correlation_id(correlation_id=None):
     global correlation_id_regex
     correlation_id_regex = correlation_id if correlation_id else correlation_id_regex
 
-def turn_on_logging(level='DEBUG'):
+def turn_on_logging(level=log.LOGGING_LEVEL.DEBUG):
     log.set_logging_options({'level':level})
 
 def reset_logging():
@@ -251,7 +221,7 @@ def dicts_equal(expected, actual):
         actual_value = actual[i]
 
         if not expected_value == actual_value:
-            return 'Not Equal: expected:{} actual:{}'.format(expected_value[i], actual_value[i])
+            return 'Not Equal: expected:{} actual:{}'.format(expected_value, actual_value)
 
     return None
 
@@ -314,16 +284,10 @@ def create_response(options = None, iteration = None):
     decoded_response['expiresOn'] = str(expires_on_date)
 
     cached_response = dict(decoded_response)
-
-    if options.get('tokenEndpoint'):
-        cached_response['_authority'] = authority + parameters['tenant']
-    else:
-        cached_response['_authority'] = authority
-
     cached_response['resource'] = iterated['resource']
-    cached_response['_clientId'] = parameters['clientId']
 
-    cached_response['isMRRT'] = True
+    if options.get('mrrt'):
+        cached_response['isMRRT'] = True
 
     return {
     'wireResponse' : wire_response,
@@ -445,8 +409,8 @@ def create_empty_adal_object():
 
 def is_date_within_tolerance(date, expected_date = None):
     expected = expected_date or datetime.today()
-    min_range = expected - timedelta(0, 1000)
-    max_range = expected + timedelta(0, 1000)
+    min_range = expected - timedelta(0, 10)
+    max_range = expected + timedelta(0, 10)
 
     if date >= min_range and date <= max_range:
         return True

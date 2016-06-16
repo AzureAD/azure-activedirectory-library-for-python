@@ -27,7 +27,6 @@
 
 import sys
 import os
-from adal import authentication_parameters
 
 if sys.version_info[:2] < (2, 7, ):
     try:

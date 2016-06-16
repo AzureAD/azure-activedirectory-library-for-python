@@ -25,16 +25,17 @@
 #
 #------------------------------------------------------------------------------
 
-try:
-    from urllib.parse import quote, urlparse
-except ImportError:
-    from urllib import quote # pylint: disable=no-name-in-module
-    from urlparse import urlparse # pylint: disable=import-error,ungrouped-imports
-
 import requests
 
+try:
+    from urllib.parse import quote
+    from urllib.parse import urlparse
+
+except ImportError:
+    from urllib import quote
+    from urlparse import urlparse
+
 from .constants import AADConstants
-from .adal_error import AdalError
 from . import log
 from . import util
 
@@ -55,7 +56,6 @@ class Authority(object):
 
         self._authorization_endpoint = None
         self.token_endpoint = None
-        self.device_code_endpoint = None
 
     @property
     def url(self):
@@ -76,6 +76,9 @@ class Authority(object):
         try:
             self._tenant = path_parts[1]
         except IndexError:
+            self._tenant = None
+
+        if not self._tenant:
             raise ValueError("Could not determine tenant.")
 
     def _perform_static_instance_discovery(self):
@@ -91,76 +94,93 @@ class Authority(object):
         return True
 
     def _create_authority_url(self):
-        return "https://{}/{}{}".format(self._url.hostname, 
-                                        self._tenant, 
-                                        AADConstants.AUTHORIZE_ENDPOINT_PATH)
+        return "https://{0}/{1}{2}".format(self._url.hostname, self._tenant, AADConstants.AUTHORIZE_ENDPOINT_PATH)
 
     def _create_instance_discovery_endpoint_from_template(self, authority_host):
 
         discovery_endpoint = AADConstants.INSTANCE_DISCOVERY_ENDPOINT_TEMPLATE
         discovery_endpoint = discovery_endpoint.replace('{authorize_host}', authority_host)
-        discovery_endpoint = discovery_endpoint.replace('{authorize_endpoint}', 
-                                                        quote(self._create_authority_url(), 
-                                                              safe='~()*!.\''))
+        discovery_endpoint = discovery_endpoint.replace('{authorize_endpoint}', quote(self._create_authority_url(), safe='~()*!.\''))
         return urlparse(discovery_endpoint)
 
-    def _perform_dynamic_instance_discovery(self):
-        discovery_endpoint = self._create_instance_discovery_endpoint_from_template(
-            AADConstants.WORLD_WIDE_AUTHORITY)
-        get_options = util.create_request_options(self)
-        operation = "Instance Discovery"
-        self._log.debug("Attempting instance discover at: %s", discovery_endpoint.geturl())
+    def _perform_dynamic_instance_discovery(self, callback):
 
         try:
-            resp = requests.get(discovery_endpoint.geturl(), headers=get_options['headers'])
-            util.log_return_correlation_id(self._log, operation, resp)
-        except Exception:
-            self._log.info("%s request failed", operation)
-            raise
+            discovery_endpoint = self._create_instance_discovery_endpoint_from_template(AADConstants.WORLD_WIDE_AUTHORITY)
+            get_options = util.create_request_options(self)
+            operation = "Instance Discovery"
 
-        if not util.is_http_success(resp.status_code):
-            return_error_string = "{} request returned http error: {}".format(operation, 
-                                                                              resp.status_code)
-            error_response = ""
-            if resp.text:
-                return_error_string += " and server response: {}".format(resp.text)
-                try:
-                    error_response = resp.json()
-                except ValueError:
-                    pass
+            self._log.debug("Attempting instance discover at: {0}".format(discovery_endpoint.geturl()))
 
-            raise AdalError(return_error_string, error_response)
+            try:
+                resp = requests.get(discovery_endpoint.geturl(), headers=get_options['headers'])
+                util.log_return_correlation_id(self._log, operation, resp)
+
+                if not util.is_http_success(resp.status_code):
+                    return_error_string = "{0} request returned http error: {1}".format(operation, resp.status_code)
+                    error_response = ""
+                    if resp.text:
+                        return_error_string += " and server response: {0}".format(resp.text)
+                        try:
+                            error_response = resp.json()
+                        except:
+                            pass
+
+                    callback(self._log.create_error(return_error_string), error_response)
+                    return
+
+                else:
+                    discovery_resp = resp.json()
+                    if discovery_resp.get('tenant_discovery_endpoint'):
+                        callback(None, discovery_resp['tenant_discovery_endpoint'])
+                    else:
+                        callback(self._log.create_error('Failed to parse instance discovery response'), None)
+
+            except Exception as exp:
+                self._log.error("{0} request failed".format(operation), exp)
+                callback(exp, None)
+
+        except Exception as exp:
+            self._log.error("{0} create_instance_discovery_endpoint_from_template failed".format(operation), exp)
+            callback(exp, None)
+
+    def _validate_via_instance_discovery(self, callback):
+
+        if self._perform_static_instance_discovery():
+            callback(None, None)
+        else:
+            self._perform_dynamic_instance_discovery(callback)
+
+    def _get_oauth_endpoints(self, callback):
+
+        if self.token_endpoint:
+            callback(None)
+            return
 
         else:
-            discovery_resp = resp.json()
-            if discovery_resp.get('tenant_discovery_endpoint'):
-                return discovery_resp['tenant_discovery_endpoint']
-            else:
-                raise AdalError('Failed to parse instance discovery response')
-
-    def _validate_via_instance_discovery(self):
-        valid = self._perform_static_instance_discovery()
-        if not valid:
-            self._perform_dynamic_instance_discovery()
-
-    def _get_oauth_endpoints(self):
-
-        if (not self.token_endpoint) or (not self.device_code_endpoint):
             self.token_endpoint = self._url.geturl() + AADConstants.TOKEN_ENDPOINT_PATH
-            self.device_code_endpoint = self._url.geturl() + AADConstants.DEVICE_ENDPOINT_PATH
+            callback(None)
+            return
 
-    def validate(self, call_context):
+    def validate(self, call_context, callback):
 
         self._log = log.Logger('Authority', call_context['log_context'])
         self._call_context = call_context
 
         if not self._validated:
-            self._log.debug("Performing instance discovery: %s", self._url.geturl())
-            self._validate_via_instance_discovery()
-            self._validated = True
-        else:
-            self._log.debug(
-                "Instance discovery/validation has either already been completed or is turned off: %s",
-                self._url.geturl())
+            self._log.debug("Performing instance discovery: {0}".format(self._url.geturl()))
 
-        self._get_oauth_endpoints()
+            def _callback(err, _):
+                if err:
+                    callback(err)
+                else:
+                    self._validated = True
+                    self._get_oauth_endpoints(callback)
+                    return
+
+            self._validate_via_instance_discovery(_callback)
+
+        else:
+            self._log.debug("Instance discovery/validation has either already been completed or is turned off: {0}".format(self._url.geturl()))
+            self._get_oauth_endpoints(callback)
+            return

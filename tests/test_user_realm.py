@@ -69,14 +69,13 @@ class TestUserRealm(unittest.TestCase):
         httpretty.register_uri(httpretty.GET, uri=self.testUrl, body=user_realm_response, status=200)
         user_realm = adal.user_realm.UserRealm(cp['callContext'], self.user, self.authority)
 
-        try:
-            user_realm.discover()
+        def _callback(err):
+            self.assertIsNone(err, "Error raised during function: {0}".format(err))
             self.assertEqual(user_realm.federation_metadata_url, 'https://adfs.federatedtenant.com/adfs/services/trust/mex',
                              'Returned Mex URL does not match expected value: {0}'.format(user_realm.federation_metadata_url))
             self.assertAlmostEqual(user_realm.federation_active_auth_url, 'https://adfs.federatedtenant.com/adfs/services/trust/2005/usernamemixed',
                                    'Returned active auth URL does not match expected value: {0}'.format(user_realm.federation_active_auth_url))
-        except Exception as exp:
-            self.assertIsNone(exp, "Error raised during function: {0}".format(exp))
+        user_realm.discover(_callback)
 
         util.match_standard_request_headers(httpretty.last_request())
 
@@ -88,13 +87,10 @@ class TestUserRealm(unittest.TestCase):
         httpretty.register_uri(httpretty.GET, uri=self.testUrl, body=user_realm_response, status=200)
         user_realm = adal.user_realm.UserRealm(cp['callContext'], self.user, self.authority)
 
-        try:
-            user_realm.discover()
-        except Exception as exp:
-            receivedException = True
-            pass
-        finally:
-            self.assertTrue(receivedException,'Did not receive expected error')
+        def _callback(err):
+            self.assertIsNotNone(err,'Did not receive expected error')
+
+        user_realm.discover(_callback)
         util.match_standard_request_headers(httpretty.last_request())
 
     @httpretty.activate
@@ -105,13 +101,10 @@ class TestUserRealm(unittest.TestCase):
         httpretty.register_uri(httpretty.GET, uri=self.testUrl, body=user_realm_response, status=200)
         user_realm = adal.user_realm.UserRealm(cp['callContext'], self.user, self.authority)
 
-        try:
-            user_realm.discover()
-        except Exception as exp:
-            receivedException = True
-            pass
-        finally:
-            self.assertTrue(receivedException,'Did not receive expected error')
+        def _callback(err):
+            self.assertIsNotNone(err,'Did not receive expected error')
+
+        user_realm.discover(_callback)
         util.match_standard_request_headers(httpretty.last_request())
 
     @httpretty.activate
@@ -122,13 +115,10 @@ class TestUserRealm(unittest.TestCase):
         httpretty.register_uri(httpretty.GET, uri=self.testUrl, body=user_realm_response, status=200)
         user_realm = adal.user_realm.UserRealm(cp['callContext'], self.user, self.authority)
 
-        try:
-            user_realm.discover()
-        except Exception as exp:
-            receivedException = True
-            pass
-        finally:
-            self.assertTrue(receivedException,'Did not receive expected error')
+        def _callback(err):
+            self.assertIsNotNone(err,'Did not receive expected error')
+
+        user_realm.discover(_callback)
         util.match_standard_request_headers(httpretty.last_request())
 
     @httpretty.activate
@@ -139,13 +129,10 @@ class TestUserRealm(unittest.TestCase):
         httpretty.register_uri(httpretty.GET, uri=self.testUrl, body=user_realm_response, status=200)
         user_realm = adal.user_realm.UserRealm(cp['callContext'], self.user, self.authority)
 
-        try:
-            user_realm.discover()
-        except Exception as exp:
-            receivedException = True
-            pass
-        finally:
-            self.assertTrue(receivedException,'Did not receive expected error')
+        def _callback(err):
+            self.assertIsNotNone(err,'Did not receive expected error')
+
+        user_realm.discover(_callback)
         util.match_standard_request_headers(httpretty.last_request())
 
 if __name__ == '__main__':

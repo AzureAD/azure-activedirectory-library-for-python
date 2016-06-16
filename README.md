@@ -6,6 +6,26 @@ The ADAL for python library makes it easy for python applications to authenticat
 
 ## Usage
 
+### Install
+
+To support 'service principal' with certificate, ADAL depends on the 'cryptography' package. For smooth installation, some suggestions:
+
+*For Windows and OSX
+
+Upgrade to the latest pip (8.1.2 as of June 2016) and just do `pip install adal`.
+
+*For Linux
+
+You'll need a C compiler, libffi + its development headers, and openssl + its development headers. Refer to [cryptography installation](https://cryptography.io/en/latest/installation/)
+
+*To install from source:
+
+Before run `python setup.py install`, to avoid dealing with compilation errors from cryptography, run `pip install cryptography` first to use statically-linked wheels.
+If you still like build from source, refer to [cryptography installation](https://cryptography.io/en/latest/installation/).
+
+For more context, starts with this [stackoverflow thread](http://stackoverflow.com/questions/22073516/failed-to-install-python-cryptography-package-with-pip-and-setup-py).
+
+
 ### Acquire Token with Client Credentials
 
 In order to use this token acquisition method, you need to configure a service principal. Please follow [this walkthrough](https://azure.microsoft.com/en-us/documentation/articles/resource-group-create-service-principal-portal/).

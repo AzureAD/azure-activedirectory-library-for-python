@@ -25,6 +25,14 @@ If you still like build from source, refer to [cryptography installation](https:
 
 For more context, starts with this [stackoverflow thread](http://stackoverflow.com/questions/22073516/failed-to-install-python-cryptography-package-with-pip-and-setup-py).
 
+### About 'client_id' and 'resource' arguments
+The convinient methods in 0.1.0 have been removed, and now your application should provide parameter values to `client_id` and `resource`.
+
+2 Reasons:
+
+* Each adal client should have a unique id representing an valid application registered in a tenant. The old methods borrowed the client-id of [azure-cli](https://github.com/Azure/azure-xplat-cli), which is never right. It is simple to register your application and get a client id. Many walkthroughs exist. You can follow [one of those] (http://www.bradygaster.com/post/using-windows-azure-active-directory-to-authenticate-the-management-libraries). Though that involves C# client, but the flow, and particularly the wizard snapshots are the same with adal-python. Do check out if you are new to AAD.
+
+* The old mmethod defaults the `resource` argument to 'https://management.core.windows.net/', now you can just supply this value explictly. Please note, there are lots of different azure resources you can acquire tokens through adal though, for example, the samples in the repository acquire for the 'graph' resource. Because it is not an appropriate assumption to be made at the library level, we removed the old defaults.
 
 ### Acquire Token with Client Credentials
 

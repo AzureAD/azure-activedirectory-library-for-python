@@ -129,4 +129,4 @@ class WSTrustRequest(object):
 
             raise AdalError(return_error_string, error_response)
         else:
-            self._handle_rstr(resp.text)
+            return self._handle_rstr(resp.text)

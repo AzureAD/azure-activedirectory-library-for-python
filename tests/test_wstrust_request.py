@@ -35,6 +35,7 @@ except ImportError:
 
 from adal.wstrust_request import WSTrustRequest
 from adal.wstrust_response import WSTrustResponse
+from adal.constants import WSTrustVersion
 
 TEST_CORRELATION_ID = 'test-correlation-id-123456789'
 wstrustEndpoint = 'https://test.wstrust.endpoint/'
@@ -56,7 +57,7 @@ class Test_wstrust_request(unittest.TestCase):
             .replace('%WSTRUST_ENDPOINT%', wstrustEndpoint)
 
         #rstRequest = setupUpOutgoingRSTCompare(rst)
-        request = WSTrustRequest(_call_context, wstrustEndpoint, appliesTo)
+        request = WSTrustRequest(_call_context, wstrustEndpoint, appliesTo, WSTrustVersion.WSTRUST13)
 
         # TODO: handle rstr should be mocked out to prevent handling here.
         # TODO: setupUpOutgoingRSTCompare.  Use this to get messageid, created, expires, etc comparisons.
@@ -84,7 +85,7 @@ class Test_wstrust_request(unittest.TestCase):
 
         httpretty.register_uri(method=httpretty.POST, uri=wstrustEndpoint, status=200, body='fake response body')
 
-        request = WSTrustRequest(_call_context, wstrustEndpoint, appliesTo)
+        request = WSTrustRequest(_call_context, wstrustEndpoint, appliesTo, WSTrustVersion.WSTRUST13)
         with self.assertRaises(Exception):
             request.acquire_token(username, password)
 

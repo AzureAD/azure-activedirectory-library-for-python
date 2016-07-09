@@ -63,11 +63,7 @@ class AuthenticationContext(object):
             manually passed during the construction of other
             AuthenticationContexts.
         '''
-        validate = validate_authority
-        if not validate_authority:
-            validate = True
-
-        self.authority = Authority(authority, validate)
+        self.authority = Authority(authority, validate_authority is None or validate_authority)
         self._oauth2client = None
         self.correlation_id = None
         self._call_context = {'options': GLOBAL_ADAL_OPTIONS}

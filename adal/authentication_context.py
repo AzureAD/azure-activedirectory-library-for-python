@@ -24,7 +24,7 @@
 # THE SOFTWARE.
 #
 #------------------------------------------------------------------------------
-
+import os
 import threading
 
 from .authority import Authority
@@ -66,7 +66,11 @@ class AuthenticationContext(object):
         self.authority = Authority(authority, validate_authority is None or validate_authority)
         self._oauth2client = None
         self.correlation_id = None
-        self._call_context = {'options': GLOBAL_ADAL_OPTIONS}
+        env_value = os.environ.get('ADAL_PYTHON_SSL_NO_VERIFY')
+        self._call_context = {
+            'options': GLOBAL_ADAL_OPTIONS,
+            'verify_ssl': None if env_value is None else not env_value # mainly for tracing through proxy
+            }
         self._token_requests_with_user_code = {}
         self.cache = cache or TokenCache()
         self._lock = threading.RLock()

@@ -129,3 +129,6 @@ This project has adopted the [Microsoft Open Source Code of Conduct](https://ope
 ### Installation
 
 ``` $ pip install adal ```
+
+### http tracing/proxy
+If need to bypass self-signed certificates, turn on the environment variable of `ADAL_PYTHON_SSL_NO_VERIFY`

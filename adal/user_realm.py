@@ -134,7 +134,8 @@ class UserRealm(object):
                         user_realm_url.geturl())
 
         operation = 'User Realm Discovery'
-        resp = requests.get(user_realm_url.geturl(), headers=options['headers'])
+        resp = requests.get(user_realm_url.geturl(), headers=options['headers'],
+                            verify=self._call_context.get('verify_ssl', None))
         util.log_return_correlation_id(self._log, operation, resp)
 
         if not util.is_http_success(resp.status_code):

@@ -509,7 +509,7 @@ class TestUsernamePassword(unittest.TestCase):
         for testCase in testData:
             testJWT = testCase[0]
             testResult = testCase[1]
-            crackedJwt = client._crack_jwt(testJWT)
+            crackedJwt = client._open_jwt(testJWT)
             if testResult:
                 resp = util.dicts_equal(testResult, crackedJwt)
                 self.assertTrue(resp is None, 'The cracked token does not match the expected result.: {}'.format(resp))

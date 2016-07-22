@@ -127,7 +127,7 @@ class OAuth2Client(object):
 
     def _parse_id_token(self, encoded_token):
 
-        cracked_token = self._crack_jwt(encoded_token)
+        cracked_token = self._open_jwt(encoded_token)
         if not cracked_token:
             return
 
@@ -146,7 +146,7 @@ class OAuth2Client(object):
 
         return _extract_token_values(id_token)
 
-    def _crack_jwt(self, jwt_token):
+    def _open_jwt(self, jwt_token):
         id_token_parts_reg = r"^([^\.\s]*)\.([^\.\s]+)\.([^\.\s]*)$"
         matches = re.search(id_token_parts_reg, jwt_token)
         if not matches or len(matches.groups()) < 3:

@@ -183,7 +183,7 @@ class WSTrustResponse(object):
         try:
             self._dom = ET.fromstring(self._response)
         except Exception as exp:
-            raise AdalError('Failed to parse RSTR in to DOM', exp)        
+            raise AdalError('Failed to parse RSTR in to DOM', exp)
         
         try:
             self._parents = {c:p for p in self._dom.iter() for c in p}

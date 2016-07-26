@@ -53,7 +53,7 @@ def _create_token_id_message(entry):
     return message
 
 def _is_mrrt(entry):
-    return bool(entry[TokenResponseFields.RESOURCE])
+    return bool(entry.get(TokenResponseFields.RESOURCE, None))
 
 def _entry_has_metadata(entry):
     return (TokenResponseFields._CLIENT_ID in entry and 

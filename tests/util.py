@@ -70,7 +70,8 @@ parsed_id_token = {
   'userId' : 'rrandall@rrandallaad1.onmicrosoft.com',
   'givenName' : 'Rich',
   'familyName' : 'Randall',
-  'isUserIdDisplayable' : True
+  'isUserIdDisplayable' : True,
+  'oid': 'a443204a-abc9-4cb8-adc1-c0dfc12300aa'
 }
 
 decoded_id_token = {
@@ -96,7 +97,8 @@ parsed_id_token_url_safe = {
   'userId' : 'foobar@someplaceelse.com',
   'givenName' : 'Ri<?ch',
   'familyName' : 'Randall',
-  'isUserIdDisplayable' : True
+  'isUserIdDisplayable' : True,
+  'oid': 'a443204a-abc9-4cb8-adc1-c0dfc12300aa'
 }
 
 decoded_token_url_safe_test = {
@@ -138,8 +140,10 @@ parameters['authorityTenant'] = parameters['authority'] + parameters['tenant']
 parameters['adfsUrlNoPath'] = 'https://adfs.federatedtenant.com'
 parameters['adfsMexPath'] = '/adfs/services/trust/mex'
 parameters['adfsWsTrustPath'] = '/adfs/services/trust/13/usernamemixed'
+parameters['adfsWsTrustPath2005'] = '/adfs/services/trust/2005/usernamemixed'
 parameters['adfsMex'] = parameters['adfsUrlNoPath'] + parameters['adfsMexPath']
 parameters['adfsWsTrust'] = parameters['adfsUrlNoPath'] + parameters['adfsWsTrustPath']
+parameters['adfsWsTrust2005'] = parameters['adfsUrlNoPath'] + parameters['adfsWsTrustPath2005']
 
 parameters['successResponse'] = success_response
 parameters['successResponseWithRefresh'] = success_response_with_refresh
@@ -147,7 +151,10 @@ parameters['authUrlResult'] = urlparse(parameters['evoEndpoint'] + parameters['t
 parameters['authUrl'] = parameters['authUrlResult'].geturl()
 
 parameters['tokenPath'] = '/oauth2/token'
-parameters['tokenUrlPath'] = parameters['authUrlResult'].path + parameters['tokenPath']
+parameters['extraQP'] = '?api-version=1.0'
+parameters['tokenUrlPath'] = parameters['authUrlResult'].path + parameters['tokenPath'] + parameters['extraQP']
+parameters['deviceCodePath'] = '/oauth2/devicecode'
+parameters['deviceCodeUrlPath'] = parameters['authUrlResult'].path + parameters['deviceCodePath'] + parameters['extraQP']
 parameters['authorizePath'] = '/oauth/authorize'
 parameters['authorizeUrlPath'] = parameters['authUrlResult'].path + parameters['authorizePath']
 parameters['authorizeUrl'] = parameters['authUrlResult'].geturl()
@@ -168,8 +175,6 @@ parameters['callContext'] = { 'log_context' : parameters['logContext'] }
 
 # This is a dummy RSA private cert used for testing purpose.It does not represent valid credential.
 # privatePem variable is a fake certificate in the form of a string.
-# Hence the following message is added to suppress CredScan warning.
-# [SuppressMessage("Microsoft.Security", "CS002:SecretInNextLine")]
 def get_self_signed_cert():
     private_pem = ("-----BEGIN RSA PRIVATE KEY-----"
                   "MIIEpAIBAAKCAQEAoMGZTZi0vU/ICYVgV4vcTwzvZCNXdJ9EgGBBFu1E0/j4FF0Y"
@@ -213,8 +218,11 @@ def set_correlation_id(correlation_id=None):
     global correlation_id_regex
     correlation_id_regex = correlation_id if correlation_id else correlation_id_regex
 
-def turn_on_logging(level='DEBUG'):
-    log.set_logging_options({'level':level})
+def turn_on_logging(level='DEBUG', handler = None):
+    log.set_logging_options({
+        'level' : level,
+        'handler' : handler
+        })
 
 def reset_logging():
     pass
@@ -233,6 +241,16 @@ TOKEN_RESPONSE_MAP = {
     'error_description' : 'errorDescription',
     'resource' : 'resource',
 }
+
+DEVICE_CODE_RESPONSE_MAP = {
+    'device_code' : 'deviceCode',
+    'user_code' : 'userCode',
+    'verification_url' : 'verificationUrl',
+    'interval' : 'interval',
+    'expires_in' : 'expiresIn',
+    'error' : 'error',
+    'error_description' : 'errorDescription'
+    }
 
 def dicts_equal(expected, actual):
     '''
@@ -264,7 +282,7 @@ def map_fields(in_obj, out_obj, map):
 def create_response(options = None, iteration = None):
     options = options if options else {}
 
-    authority = options.get('authority', parameters['authority'])
+    authority = options.get('authority', parameters['authorityTenant'])
     base_response = {
         'token_type' : 'Bearer',
         'expires_in': 28800
@@ -290,7 +308,7 @@ def create_response(options = None, iteration = None):
 
     base_response.update(iterated)
 
-    if options.get('mrrt'):
+    if not options.get('mrrt', False):
         del base_response['resource']
 
     date_now = datetime.now()
@@ -301,9 +319,14 @@ def create_response(options = None, iteration = None):
     map_fields(wire_response, decoded_response, TOKEN_RESPONSE_MAP)
     decoded_response['createdOn'] = str(date_now)
 
-    if not options.get('noIdToken') and options.get('urlSafeUserId') is not None:
-        wire_response['id_token'] = options['urlSafeUserId'] if encoded_id_token_url_safe else encoded_id_token
-        parsed_user_info = options.get['urlSafeUserId'] if parsed_id_token_url_safe else parsed_id_token
+    if not options.get('noIdToken', None):
+        if options.get('urlSafeUserId', None):
+            wire_response['id_token'] = encoded_id_token_url_safe
+            parsed_user_info = parsed_id_token_url_safe
+        else:
+            wire_response['id_token'] = encoded_id_token
+            parsed_user_info = parsed_id_token
+
         decoded_response.update(parsed_user_info)
 
     if options.get('expired'):
@@ -315,15 +338,12 @@ def create_response(options = None, iteration = None):
 
     cached_response = dict(decoded_response)
 
-    if options.get('tokenEndpoint'):
-        cached_response['_authority'] = authority + parameters['tenant']
-    else:
-        cached_response['_authority'] = authority
-
-    cached_response['resource'] = iterated['resource']
     cached_response['_clientId'] = parameters['clientId']
+    cached_response['_authority'] = authority
+    cached_response['resource'] = iterated['resource']
 
-    cached_response['isMRRT'] = True
+    if options.get('mrrt', False):
+        cached_response['isMRRT'] = True
 
     return {
     'wireResponse' : wire_response,
@@ -332,7 +352,7 @@ def create_response(options = None, iteration = None):
     'decodedIdToken' : decoded_id_token,
     'resource' : iterated['resource'],
     'refreshToken' : iterated['refresh_token'],
-    'clientId' : parameters['clientId'],
+    'clientId' : cached_response['_clientId'],
     'authority' : authority,
   }
 
@@ -353,16 +373,30 @@ def val_exists(val):
 
 def match_standard_request_headers(mock_request):
     matches = []
-    request_id = correlation_id_regex.match(mock_request.headers.get('client-request-id'))
-
-    matches.append(mock_request.headers.get('x-client-SKU') == 'Python')
+    matches.append(mock_request.headers.get('x-client-SKU', None) == 'Python')
     matches.append(mock_request.headers.get('x-client-Ver', "").startswith('0.'))
-    matches.append(mock_request.headers.get('x-client-OS') != None)
-    matches.append(mock_request.headers.get('x-client-CPU') != None)
+    matches.append(mock_request.headers.get('x-client-OS', None) != None)
+    matches.append(mock_request.headers.get('x-client-CPU', None) != None)
+    request_id = correlation_id_regex.match(mock_request.headers.get('client-request-id'))
     matches.append(request_id != None)
 
     if not all(matches):
         raise AssertionError("Not all the standard request headers matched.")
+
+def setup_expected_oauth_response(queryParameters, tokenPath, httpCode, returnDoc, authorityEndpoint):
+    query = urlencode(queryParameters)
+    url = "{}/{}?{}".format(authorityEndpoint.rstrip('/'), tokenPath.lstrip('/'), query)
+    httpretty.register_uri(httpretty.POST, url, json.dumps(returnDoc), status = httpCode, content_type = 'text/json')
+
+def setup_expected_client_cred_token_request_response(http_code, return_doc=None, authority_endpoint = None):
+    auth_endpoint = authority_endpoint or parameters['authUrl']
+    query = {
+        'grant_type' : 'client_credentials',
+        'client_id' : parameters['clientId'],
+        'client_secret' : parameters['clientSecret'],
+        'resource' : parameters['resource']
+    }
+    setup_expected_oauth_response(query, parameters['tokenPath'] + parameters['extraQP'], http_code, return_doc, auth_endpoint)
 
 def setup_expected_instance_discovery_request(http_code, discovery_host, return_doc, authority):
     protocol = 'https://'
@@ -377,22 +411,6 @@ def setup_expected_instance_discovery_request(http_code, discovery_host, return_
 
     httpretty.register_uri(httpretty.GET, url, json.dumps(return_doc), status = http_code, content_type = 'text/json')
 
-def setup_expected_oauth_response(queryParameters, tokenPath, httpCode, returnDoc, authorityEndpoint):
-    query = urlencode(queryParameters)
-    url = "{}{}?{}".format(authorityEndpoint, tokenPath, query)
-    httpretty.register_uri(httpretty.POST, url, json.dumps(returnDoc), status = httpCode, content_type = 'text/json')
-
-def setup_expected_client_cred_token_request_response(http_code, return_doc=None, authority_endpoint = None):
-    auth_endpoint = authority_endpoint or parameters['authUrl']
-    query = {
-        'grant_type' : 'client_credentials',
-        'client_id' : parameters['clientId'],
-        'client_secret' : parameters['clientSecret'],
-        'resource' : parameters['resource']
-    }
-
-    setup_expected_oauth_response(query, parameters['tokenPath'], http_code, return_doc, auth_endpoint)
-
 def setup_expected_user_realm_response(http_code, return_doc, authority=None):
     user_realm_authority = authority or parameters['authority']
     user_realm_authority = urlparse(user_realm_authority)
@@ -402,7 +420,7 @@ def setup_expected_user_realm_response(http_code, return_doc, authority=None):
 
     user_realm_path = parameters['userRealmPathTemplate'].replace('<user>', parameters['username'])
     query = 'api-version=1.0'
-    url = '{}{}?{}'.format(user_realm_authority, user_realm_path, query)
+    url = '{}/{}?{}'.format(user_realm_authority.rstrip('/'), user_realm_path.lstrip('/'), query)
 
     httpretty.register_uri(httpretty.GET, url, return_doc)
 
@@ -431,8 +449,13 @@ def setup_expected_refresh_token_request_response(http_code, return_doc, authori
     return setup_expected_oauth_response(query_parameters, parameters['tokenUrlPath'], http_code, return_doc, auth_endpoint)
 
 def setup_expected_mex_wstrust_request_common():
-    mexDoc = open(parameters['MexFile']).read()
-    httpretty.register_uri(httpretty.GET, parameters['adfsUrlNoPath'] + parameters['adfsMexPath'], mexDoc)
+    with open(parameters['MexFile']) as mex:
+        mex_doc = mex.read()
+    httpretty.register_uri(httpretty.GET, parameters['adfsUrlNoPath'] + parameters['adfsMexPath'], mex_doc)
+    
+    with open(parameters['RSTRFile']) as resr:
+        rest_doc = resr.read()
+    httpretty.register_uri(httpretty.POST, parameters['adfsUrlNoPath'] + parameters['adfsWsTrustPath'], rest_doc)
 
 def create_empty_adal_object():
     context = log.create_log_context()
@@ -442,11 +465,10 @@ def create_empty_adal_object():
     adal_object = { 'log' : logger, 'call_context' : call_context }
     return adal_object
 
-
 def is_date_within_tolerance(date, expected_date = None):
     expected = expected_date or datetime.today()
-    min_range = expected - timedelta(0, 1000)
-    max_range = expected + timedelta(0, 1000)
+    min_range = expected - timedelta(0, 5000)
+    max_range = expected + timedelta(0, 5000)
 
     if date >= min_range and date <= max_range:
         return True

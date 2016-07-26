@@ -103,7 +103,9 @@ class OAuth2(object):
         'tid' : 'tenantId',
         'given_name' : 'givenName',
         'family_name' : 'familyName',
-        'idp' : 'identityProvider'}
+        'idp' : 'identityProvider',
+        'oid' : 'oid'
+        }
 
 
 class TokenResponseFields(object):
@@ -185,22 +187,10 @@ class XmlNamespaces(object):
         's'      :'http://www.w3.org/2003/05/soap-envelope',
         'wsa'    :'http://www.w3.org/2005/08/addressing',
         'wst'    :'http://docs.oasis-open.org/ws-sx/ws-trust/200512',
-        'trust' : "http://docs.oasis-open.org/ws-sx/ws-trust/200512",
-        'saml' : "urn:oasis:names:tc:SAML:1.0:assertion",
-
+        'trust'  : "http://docs.oasis-open.org/ws-sx/ws-trust/200512",
+        'saml'   : "urn:oasis:names:tc:SAML:1.0:assertion",
+        't'      : 'http://schemas.xmlsoap.org/ws/2005/02/trust'
     }
-
-class MexNamespaces(object):
-    TRANSPORT_BINDING_XPATH = 'wsp:ExactlyOne/wsp:All/sp:TransportBinding'
-    TRANSPORT_BINDING_2005_XPATH = 'wsp:ExactlyOne/wsp:All/sp2005:TransportBinding'
-
-    SOAP_ACTION_XPATH = 'wsdl:operation/soap12:operation'
-    RST_SOAP_ACTION = 'http://docs.oasis-open.org/ws-sx/ws-trust/200512/RST/Issue'
-    SOAP_TRANSPORT_XPATH = 'soap12:binding'
-    SOAP_HTTP_TRANSPORT_VALUE = 'http://schemas.xmlsoap.org/soap/http'
-
-    PORT_XPATH = 'wsdl:service/wsdl:port'
-    ADDRESS_XPATH = 'wsa10:EndpointReference/wsa10:Address'
 
 
 class Cache(object):
@@ -230,3 +220,9 @@ class AdalIdParameters(object):
     OS = 'x-client-OS'  # pylint: disable=invalid-name
     CPU = 'x-client-CPU'
     PYTHON_SKU = 'Python'
+
+class WSTrustVersion(object):
+    UNDEFINED = 'undefined'
+    WSTRUST13 = 'wstrust13'
+    WSTRUST2005 = 'wstrust2005'
+ 

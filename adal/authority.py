@@ -56,6 +56,7 @@ class Authority(object):
         self._authorization_endpoint = None
         self.token_endpoint = None
         self.device_code_endpoint = None
+        self.is_adfs_authority = self._tenant.lower() == 'adfs'
 
     @property
     def url(self):

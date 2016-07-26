@@ -44,12 +44,14 @@ class Test_Mex(unittest.TestCase):
 
     @httpretty.activate
     def test_failed_request(self):
-        httpretty.register_uri(httpretty.GET, uri = cp['adfsMex'], status = 500)
+        httpretty.register_uri(httpretty.GET, cp['adfsMex'], status = 500)
 
         mex = Mex(cp['callContext'], cp['adfsMex'])
 
-        with self.assertRaises(Exception) as exp: 
+        try:
             mex.discover()
+            self.fail('No exception was thrown caused by failed request')
+        except Exception as exp:
             self.assertEqual(exp.args[0], 'Mex Get request returned http error: 500 and server response: HTTPretty :)')
 
     @httpretty.activate
@@ -58,16 +60,12 @@ class Test_Mex(unittest.TestCase):
         mexFile = open(mexDocPath)
         mexDoc = mexFile.read()
         mexFile.close()
-        httpretty.register_uri(httpretty.GET, uri = cp['adfsMex'], body = mexDoc, status = 200)
+        httpretty.register_uri(httpretty.GET, cp['adfsMex'], body = mexDoc, status = 200)
 
         mex = Mex(cp['callContext'], cp['adfsMex'])
-
-        try:
-            mex.discover()
-            self.assertEqual(mex.username_password_url, expectedUrl,
-            'returned url did not match: ' + expectedUrl + ': ' + mex.username_password_url)
-        except Exception as exp:
-            self.assertFalse(exp)
+        mex.discover()
+        url = mex.username_password_policy['url']
+        self.assertEqual(url, expectedUrl, 'returned url did not match: {}:{}'.format(expectedUrl, url))
 
     @httpretty.activate
     def _badMexDocTest(self, file_name):
@@ -75,7 +73,7 @@ class Test_Mex(unittest.TestCase):
         mexFile = open(mexDocPath)
         mexDoc = mexFile.read()
         mexFile.close()
-        httpretty.register_uri(httpretty.GET, uri = cp['adfsMex'], body = mexDoc, status = 200)
+        httpretty.register_uri(httpretty.GET, cp['adfsMex'], body = mexDoc, status = 200)
 
         mex = Mex(cp['callContext'], cp['adfsMex'])
 

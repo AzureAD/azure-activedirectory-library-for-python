@@ -28,6 +28,8 @@
 
 from setuptools import setup
 
+import adal
+
 # To build:
 # python setup.py sdist
 # python setup.py bdist_wheel
@@ -44,7 +46,7 @@ from setuptools import setup
 
 setup(
     name='adal',
-    version='0.4.0', #note, same string exists in __init__.py
+    version=adal.__version__,
     description=('The ADAL for Python library makes it easy for python ' + 
                  'application to authenticate to Azure Active Directory ' + 
                  '(AAD) in order to access AAD protected web resources.'),

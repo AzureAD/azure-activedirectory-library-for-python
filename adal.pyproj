@@ -137,6 +137,7 @@
     <Content Include="tests\mex\nouri.ref.xml" />
     <Content Include="tests\mex\syntax.notrelated.mex.xml" />
     <Content Include="tests\mex\syntax.related.mex.xml" />
+    <Content Include="tests\mex\usystech.mex.xml" />
     <Content Include="tests\wstrust\common.base64.encoded.assertion.txt" />
     <Content Include="tests\wstrust\common.rstr.xml" />
     <Content Include="tests\wstrust\RST.xml" />

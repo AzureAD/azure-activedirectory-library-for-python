@@ -34,7 +34,7 @@ try:
 except ImportError:
     from xml.etree import ElementTree as ET
 
-from adal.constants import XmlNamespaces, Errors
+from adal.constants import XmlNamespaces, Errors, WSTrustVersion
 from adal.wstrust_response import WSTrustResponse
 
 _namespaces = XmlNamespaces.namespaces
@@ -68,7 +68,7 @@ class Test_wstrustresponse(unittest.TestCase):
             </s:Body>
             </s:Envelope>'''
 
-        wstrustResponse = WSTrustResponse(_call_context, errorResponse)
+        wstrustResponse = WSTrustResponse(_call_context, errorResponse, WSTrustVersion.WSTRUST13)
 
         exception_text = "Server returned error in RSTR - ErrorCode: RequestFailed : FaultMessage: MSIS3127: The specified request failed"
         with six.assertRaisesRegex(self, Exception, exception_text) as cm:
@@ -76,7 +76,7 @@ class Test_wstrustresponse(unittest.TestCase):
 
     def test_token_parsing_happy_path(self):
         wstrustFile = open(os.path.join(os.getcwd(), 'tests', 'wstrust', 'RSTR.xml'))
-        wstrustResponse = WSTrustResponse(_call_context, wstrustFile.read())
+        wstrustResponse = WSTrustResponse(_call_context, wstrustFile.read(), WSTrustVersion.WSTRUST13)
         wstrustResponse.parse()
         wstrustFile.close()
 
@@ -88,17 +88,17 @@ class Test_wstrustresponse(unittest.TestCase):
 
     def test_rstr_none(self):
         with six.assertRaisesRegex(self, Exception, 'Received empty RSTR response body.') as cm:
-            wstrustResponse = WSTrustResponse(_call_context, None)
+            wstrustResponse = WSTrustResponse(_call_context, None, WSTrustVersion.WSTRUST13)
             wstrustResponse.parse()
 
     def test_rstr_empty_string(self):
         with six.assertRaisesRegex(self, Exception, 'Received empty RSTR response body.') as cm:
-            wstrustResponse = WSTrustResponse(_call_context, '')
+            wstrustResponse = WSTrustResponse(_call_context, '', WSTrustVersion.WSTRUST13)
             wstrustResponse.parse()
 
     def test_rstr_unparseable_xml(self):
         with six.assertRaisesRegex(self, Exception, 'Failed to parse RSTR in to DOM'):
-            wstrustResponse = WSTrustResponse(_call_context, '<This is not parseable as an RSTR')
+            wstrustResponse = WSTrustResponse(_call_context, '<This is not parseable as an RSTR', WSTrustVersion.WSTRUST13)
             wstrustResponse.parse()
 
 if __name__ == '__main__':

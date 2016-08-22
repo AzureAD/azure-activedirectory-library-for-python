@@ -56,6 +56,7 @@ class Authority(object):
         self._authorization_endpoint = None
         self.token_endpoint = None
         self.device_code_endpoint = None
+        self.is_adfs_authority = self._tenant.lower() == 'adfs'
 
     @property
     def url(self):
@@ -112,7 +113,8 @@ class Authority(object):
         self._log.debug("Attempting instance discover at: %s", discovery_endpoint.geturl())
 
         try:
-            resp = requests.get(discovery_endpoint.geturl(), headers=get_options['headers'])
+            resp = requests.get(discovery_endpoint.geturl(), headers=get_options['headers'],
+                                verify=self._call_context.get('verify_ssl', None))
             util.log_return_correlation_id(self._log, operation, resp)
         except Exception:
             self._log.info("%s request failed", operation)

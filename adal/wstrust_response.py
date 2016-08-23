@@ -29,14 +29,35 @@ try:
     from xml.etree import cElementTree as ET
 except ImportError:
     from xml.etree import ElementTree as ET
+import re
 
 from . import xmlutil
 from . import log
 from .adal_error import AdalError
+from .constants import WSTrustVersion
+
+# Creates a log message that contains the RSTR scrubbed of the actual SAML assertion.
+def scrub_rstr_log_message(response_str):
+    # A regular expression for finding the SAML Assertion in an response_str.  Used to remove the SAML
+    # assertion when logging the response_str.
+    assertion_regex = r'RequestedSecurityToken.*?((<.*?:Assertion.*?>).*<\/.*?Assertion>).*?'
+    single_line_rstr, _ = re.subn(r'(\r\n|\n|\r)', '', response_str)
+
+    match = re.search(assertion_regex, single_line_rstr)
+    if not match:
+        #No Assertion was matched so just return the response_str as is.
+        scrubbed_rstr = single_line_rstr
+    else:
+        saml_assertion = match.group(1)
+        saml_assertion_start_tag = match.group(2)
+        scrubbed_rstr = single_line_rstr.replace(
+            saml_assertion, saml_assertion_start_tag + 'ASSERTION CONTENTS REDACTED</saml:Assertion>')
+
+    return 'RSTR Response: ' + scrubbed_rstr
 
 class WSTrustResponse(object):
 
-    def __init__(self, call_context, response):
+    def __init__(self, call_context, response, wstrust_version):
 
         self._log = log.Logger("WSTrustResponse", call_context['log_context'])
         self._call_context = call_context
@@ -47,8 +68,10 @@ class WSTrustResponse(object):
         self.fault_message = None
         self.token_type = None
         self.token = None
+        self._wstrust_version = wstrust_version
 
-        self._log.debug("RSTR Response: %s", self._response)
+        if response:
+            self._log.debug(scrub_rstr_log_message(response))
 
     # Sample error message
     #<s:Envelope xmlns:s="http://www.w3.org/2003/05/soap-envelope" xmlns:a="http://www.w3.org/2005/08/addressing" xmlns:u="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd">
@@ -102,7 +125,14 @@ class WSTrustResponse(object):
         return error_found
 
     def _parse_token(self):
-        token_type_nodes = xmlutil.xpath_find(self._dom, 's:Body/wst:RequestSecurityTokenResponseCollection/wst:RequestSecurityTokenResponse/wst:TokenType')
+        if self._wstrust_version == WSTrustVersion.WSTRUST2005:
+            token_type_nodes_xpath = 's:Body/t:RequestSecurityTokenResponse/t:TokenType'
+            security_token_xpath = 't:RequestedSecurityToken'
+        else:
+            token_type_nodes_xpath = 's:Body/wst:RequestSecurityTokenResponseCollection/wst:RequestSecurityTokenResponse/wst:TokenType'
+            security_token_xpath = 'wst:RequestedSecurityToken'
+
+        token_type_nodes = xmlutil.xpath_find(self._dom, token_type_nodes_xpath)
         if not token_type_nodes:
             raise AdalError("No TokenType nodes found in RSTR")
 
@@ -115,7 +145,7 @@ class WSTrustResponse(object):
             if not token_type:
                 self._log.warn("Could not find token type in RSTR token.")
 
-            requested_token_node = xmlutil.xpath_find(self._parents[node], 'wst:RequestedSecurityToken')
+            requested_token_node = xmlutil.xpath_find(self._parents[node], security_token_xpath)
             if len(requested_token_node) > 1:
                 raise AdalError("Found too many RequestedSecurityToken nodes for token type: {}".format(token_type))
 
@@ -151,12 +181,11 @@ class WSTrustResponse(object):
             raise AdalError("Received empty RSTR response body.")
 
         try:
-
-            try:
-                self._dom = ET.fromstring(self._response)
-            except Exception as exp:
-                raise AdalError('Failed to parse RSTR in to DOM', exp)
-
+            self._dom = ET.fromstring(self._response)
+        except Exception as exp:
+            raise AdalError('Failed to parse RSTR in to DOM', exp)
+        
+        try:
             self._parents = {c:p for p in self._dom.iter() for c in p}
             error_found = self._parse_error()
             if error_found:
@@ -166,7 +195,6 @@ class WSTrustResponse(object):
                 raise AdalError(error_template.format(str_error_code, str_fault_message))
             self._parse_token()
         finally:
-            self._log.info("Failed to parse RSTR in to DOM")
             self._dom = None
             self._parents = None
 

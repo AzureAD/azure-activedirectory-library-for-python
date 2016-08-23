@@ -64,18 +64,6 @@ _ERROR_TEMPLATE = "{} request returned http error: {}"
 def map_fields(in_obj, map_to):
     return dict((map_to[k], v) for k, v in in_obj.items() if k in map_to)
 
-def _crack_jwt(jwt_token):
-    id_token_parts_reg = r"^([^\.\s]*)\.([^\.\s]+)\.([^\.\s]*)$"
-    matches = re.search(id_token_parts_reg, jwt_token)
-    if not matches or len(matches.groups()) < 3:
-        raise ValueError('The token was not parsable.')
-
-    return {
-        'header': matches.group(1),
-        'JWSPayload': matches.group(2),
-        'JWSSig': matches.group(3)
-        }
-
 def _get_user_id(id_token):
     user_id = None
     is_displayable = False
@@ -86,8 +74,8 @@ def _get_user_id(id_token):
     elif id_token.get('email'):
         user_id = id_token['email']
         is_displayable = True
-    elif id_token.get('subject'):
-        user_id = id_token['subject']
+    elif id_token.get('sub'):
+        user_id = id_token['sub']
 
     if not user_id:
         user_id = str(uuid.uuid4())
@@ -139,7 +127,7 @@ class OAuth2Client(object):
 
     def _parse_id_token(self, encoded_token):
 
-        cracked_token = _crack_jwt(encoded_token)
+        cracked_token = self._open_jwt(encoded_token)
         if not cracked_token:
             return
 
@@ -152,11 +140,24 @@ class OAuth2Client(object):
 
             id_token = json.loads(b64_decoded.decode())
         except ValueError:
-            self._log.info("The returned id_token could not be decoded: %s",
+            self._log.warn("The returned id_token could not be decoded: %s",
                            encoded_token)
-            raise
+            return
 
         return _extract_token_values(id_token)
+
+    def _open_jwt(self, jwt_token):
+        id_token_parts_reg = r"^([^\.\s]*)\.([^\.\s]+)\.([^\.\s]*)$"
+        matches = re.search(id_token_parts_reg, jwt_token)
+        if not matches or len(matches.groups()) < 3:
+            self._log.warn('The token was not parsable.')
+            return {}
+
+        return {
+            'header': matches.group(1),
+            'JWSPayload': matches.group(2),
+            'JWSSig': matches.group(3)
+            }
 
     def _validate_token_response(self, body):
 
@@ -255,7 +256,8 @@ class OAuth2Client(object):
         try:
             resp = requests.post(token_url.geturl(), 
                                  data=url_encoded_token_request, 
-                                 headers=post_options['headers'])
+                                 headers=post_options['headers'],
+                                 verify=self._call_context.get('verify_ssl', None))
 
             util.log_return_correlation_id(self._log, operation, resp)
         except Exception:
@@ -284,7 +286,8 @@ class OAuth2Client(object):
         try:
             resp = requests.post(device_code_url.geturl(), 
                                  data=url_encoded_code_request, 
-                                 headers=post_options['headers'])
+                                 headers=post_options['headers'],
+                                 verify=self._call_context.get('verify_ssl', None))
             util.log_return_correlation_id(self._log, operation, resp)
         except Exception:
             self._log.info("%s request failed", operation)
@@ -319,7 +322,8 @@ class OAuth2Client(object):
 
             resp = requests.post(
                 token_url.geturl(), 
-                data=url_encoded_code_request, headers=post_options['headers'])
+                data=url_encoded_code_request, headers=post_options['headers'],
+                verify=self._call_context.get('verify_ssl', None))
 
             util.log_return_correlation_id(self._log, operation, resp)
 

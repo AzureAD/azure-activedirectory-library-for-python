@@ -44,7 +44,7 @@ from setuptools import setup
 
 setup(
     name='adal',
-    version='0.2.3rc1', #note, same string exists in __init__.py
+    version='0.4.0', #note, same string exists in __init__.py
     description=('The ADAL for Python library makes it easy for python ' + 
                  'application to authenticate to Azure Active Directory ' + 
                  '(AAD) in order to access AAD protected web resources.'),
@@ -60,6 +60,7 @@ setup(
         'Programming Language :: Python :: 3',
         'Programming Language :: Python :: 3.3',
         'Programming Language :: Python :: 3.4',
+        'Programming Language :: Python :: 3.5',
         'License :: OSI Approved :: MIT License',
     ],
     packages=['adal'],

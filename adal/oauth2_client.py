@@ -58,7 +58,7 @@ TOKEN_RESPONSE_MAP = {
 }
 
 _REQ_OPTION = {'headers' : {'content-type': 'application/x-www-form-urlencoded'}}
-_ERROR_TEMPLATE = "{} request returned http error: {}"
+_ERROR_TEMPLATE = u"{} request returned http error: {}"
 
 
 def map_fields(in_obj, map_to):
@@ -270,7 +270,8 @@ class OAuth2Client(object):
             return_error_string = _ERROR_TEMPLATE.format(operation, resp.status_code)
             error_response = ""
             if resp.text:
-                return_error_string += " and server response: {}".format(resp.text)
+                return_error_string = u"{} and server response: {}".format(return_error_string,
+                                                                           resp.text)
                 try:
                     error_response = resp.json()
                 except ValueError:
@@ -299,7 +300,8 @@ class OAuth2Client(object):
             return_error_string = _ERROR_TEMPLATE.format(operation, resp.status_code)
             error_response = ""
             if resp.text:
-                return_error_string += " and server response: {}".format(resp.text)
+                return_error_string = u"{} and server response: {}".format(return_error_string,
+                                                                           resp.text)
                 try:
                     error_response = resp.json()
                 except ValueError:
@@ -343,7 +345,7 @@ class OAuth2Client(object):
                 try:
                     return self._validate_token_response(resp.text)
                 except Exception: 
-                    self._log.info("Error validating get token response '%s'",
+                    self._log.info(u"Error validating get token response '%s'",
                                    resp.text)
                     raise
 

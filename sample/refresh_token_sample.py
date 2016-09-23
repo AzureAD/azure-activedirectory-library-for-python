@@ -20,7 +20,7 @@ def turn_on_logging():
 # {
 #   "tenant" : "rrandallaad1.onmicrosoft.com",
 #   "authorityHostUrl" : "https://login.microsoftonline.com",
-#   "clientId" : "624ac9bd-4c1c-4687-aec8-b56a8991cfb3",
+#   "clientid" : "624ac9bd-4c1c-4687-aec8-b56a8991cfb3",
 #   "username" : "user1",
 #   "password" : "verySecurePassword"
 # }

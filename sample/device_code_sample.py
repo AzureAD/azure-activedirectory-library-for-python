@@ -21,7 +21,7 @@ def turn_on_logging():
 # {
 #    "tenant" : "rrandallaad1.onmicrosoft.com",
 #    "authorityHostUrl" : "https://login.microsoftonline.com",
-#    "clientId" : "",
+#    "clientid" : "",
 #    "anothertenant" : "bar.onmicrosoft.com"
 # }
 

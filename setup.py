@@ -31,8 +31,8 @@ import re
 
 # setup.py shall not import adal
 __version__ = re.search(
-    "__version__[\s]*=[\s]*(.*)[\s]*",
-    open('adal/__init__.py').read()).group(1).strip('"\'')
+    r'__version__\s*=\s*[\'"]([^\'"]*)[\'"]',  # It excludes inline comment too
+    open('adal/__init__.py').read()).group(1)
 
 # To build:
 # python setup.py sdist

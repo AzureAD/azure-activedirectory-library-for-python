@@ -27,8 +27,12 @@
 #------------------------------------------------------------------------------
 
 from setuptools import setup
+import re
 
-import adal
+# setup.py shall not import adal
+__version__ = re.search(
+    r'__version__\s*=\s*[\'"]([^\'"]*)[\'"]',  # It excludes inline comment too
+    open('adal/__init__.py').read()).group(1)
 
 # To build:
 # python setup.py sdist
@@ -46,9 +50,9 @@ import adal
 
 setup(
     name='adal',
-    version=adal.__version__,
-    description=('The ADAL for Python library makes it easy for python ' + 
-                 'application to authenticate to Azure Active Directory ' + 
+    version=__version__,
+    description=('The ADAL for Python library makes it easy for python ' +
+                 'application to authenticate to Azure Active Directory ' +
                  '(AAD) in order to access AAD protected web resources.'),
     license='MIT',
     author='Microsoft Corporation',

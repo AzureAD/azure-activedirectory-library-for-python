@@ -138,7 +138,7 @@ class OAuth2Client(object):
                 self._log.warn('The returned id_token could not be base64 url safe decoded.')
                 return
 
-            id_token = json.loads(b64_decoded.decode())
+            id_token = json.loads(b64_decoded.decode('utf-8'))
         except ValueError:
             self._log.warn("The returned id_token could not be decoded: %s",
                            encoded_token)

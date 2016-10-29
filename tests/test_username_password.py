@@ -427,12 +427,9 @@ class TestUsernamePassword(unittest.TestCase):
 
     def test_parse_id_token_with_unicode(self):
         client = self.create_oauth2_client_stub('https://foo/ba.onmicrosoft.com', None, None)
-        encoded_token = 'eyJ0eXAiOiJKV1QiLCJhbGciOiJub25lIn0.eyJhdWQiOiIwNGIwNzc5NS04ZGRiLTQ2MWEtYmJlZS0wMmY5ZTFiZjdiNDYiLCJpc3MiOiJodHRwczovL3N0cy53aW5kb3dzLm5ldC81NDgyNmIyMi0zOGQ2LTRmYjItYmFkOS1iN2I5M2EzZTljNWEvIiwiaWF0IjoxNDc3NDM0MDE1LCJuYmYiOjE0Nzc0MzQwMTUsImV4cCI6MTQ3NzQzNzkxNSwiYW1yIjpbInB3ZCJdLCJmYW1pbHlfbmFtZSI6Ikd1aW5lYmVydGnDqHJlIiwiZ2l2ZW5fbmFtZSI6IkJlbmphbWluIiwiaXBhZGRyIjoiMTY3LjIyMC4wLjEzMCIsIm5hbWUiOiJCZW5qYW1pbiBHdWluZWJlcnRpw6hyZSIsIm9pZCI6ImIxNzIzOGNiLWRhYTEtNGU1Mi1hNjBkLTFmY2Q2M2M2MGU5NCIsInN1YiI6IjlRc0dod0tvekpYZjZzZ0c2Uk5qazVJcXlXMXJMUXhmX0NFNWltbHdBRFUiLCJ0aWQiOiI1NDgyNmIyMi0zOGQ2LTRmYjItYmFkOS1iN2I5M2EzZTljNWEiLCJ1bmlxdWVfbmFtZSI6ImJlbmd1aUBBenVyZVNES1RlYW0ub25taWNyb3NvZnQuY29tIiwidXBuIjoiYmVuZ3VpQEF6dXJlU0RLVGVhbS5vbm1pY3Jvc29mdC5jb20iLCJ2ZXIiOiIxLjAifQ.'
+        encoded_token = '.eyJmYW1pbHlfbmFtZSI6Ikd1aW5lYmVydGnDqHJlIn0.'# JWT with payload = {"family_name": "Guinebertière"}
         result = client._parse_id_token(encoded_token)
-        if sys.version_info.major == 2:
-            self.assertEqual(result['familyName'], u'Guineberti\xe8re')
-        else:
-            self.assertEqual(result['familyName'], 'Guinebertière')
+        self.assertEqual(result['familyName'], u'Guinebertière')
 
     def test_jwt_cracking(self):
         testData = [
@@ -561,11 +558,8 @@ class TestUsernamePassword(unittest.TestCase):
 
         context = adal.AuthenticationContext(authorityUrl)
 
-        #action
-        token_response = context.acquire_token_with_username_password(response['resource'], cp['username'], cp['password'], cp['clientId'])
-
-        #assert
-        self.assertTrue(expected_warn in log_content.getvalue(), 'waring for invalid id token was not emitted')
+        #action and verify
+        self.assertRaises(UnicodeDecodeError, context.acquire_token_with_username_password, response['resource'], cp['username'], cp['password'], cp['clientId'])
 
     @httpretty.activate
     def test_no_token_type(self):

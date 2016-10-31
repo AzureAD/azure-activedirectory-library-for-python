@@ -425,6 +425,12 @@ class TestUsernamePassword(unittest.TestCase):
             #assert
             self.assertEqual('Unsuccessful RSTR.\n\terror code: None\n\tfaultMessage: None', exp.args[0])
 
+    def test_parse_id_token_with_unicode(self):
+        client = self.create_oauth2_client_stub('https://foo/ba.onmicrosoft.com', None, None)
+        encoded_token = '.eyJmYW1pbHlfbmFtZSI6Ikd1aW5lYmVydGnDqHJlIn0.'# JWT with payload = {"family_name": "Guinebertière"}
+        result = client._parse_id_token(encoded_token)
+        self.assertEqual(result['familyName'], u'Guinebertière')
+
     def test_jwt_cracking(self):
         testData = [
           [
@@ -552,11 +558,8 @@ class TestUsernamePassword(unittest.TestCase):
 
         context = adal.AuthenticationContext(authorityUrl)
 
-        #action
-        token_response = context.acquire_token_with_username_password(response['resource'], cp['username'], cp['password'], cp['clientId'])
-
-        #assert
-        self.assertTrue(expected_warn in log_content.getvalue(), 'waring for invalid id token was not emitted')
+        #action and verify
+        self.assertRaises(UnicodeDecodeError, context.acquire_token_with_username_password, response['resource'], cp['username'], cp['password'], cp['clientId'])
 
     @httpretty.activate
     def test_no_token_type(self):

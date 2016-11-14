@@ -79,12 +79,7 @@ class Logger(object):
         self.log_context = log_context
         self._logging = logging.getLogger(ADAL_LOGGER_NAME)
 
-    def _log_message(self, msg, **kwargs):
-        log_stack_trace = False
-        if 'log_stack_trace' in kwargs:
-            log_stack_trace = kwargs['log_stack_trace']
-            kwargs.pop('log_stack_trace')
-
+    def _log_message(self, msg, log_stack_trace=None):
         correlation_id = self.log_context.get("correlation_id", 
                                               "<no correlation id>")
         
@@ -98,13 +93,16 @@ class Logger(object):
         return formatted
 
     def warn(self, msg, *args, **kwargs):
-        msg = self._log_message(msg, **kwargs)
+        log_stack_trace = kwargs.pop('log_stack_trace', None)
+        msg = self._log_message(msg, log_stack_trace)
         self._logging.warning(msg, *args, **kwargs)
 
     def info(self, msg, *args, **kwargs):
-        msg = self._log_message(msg, **kwargs)
+        log_stack_trace = kwargs.pop('log_stack_trace', None)
+        msg = self._log_message(msg, log_stack_trace)
         self._logging.info(msg, *args, **kwargs)
 
     def debug(self, msg, *args, **kwargs):
-        msg = self._log_message(msg, **kwargs)
+        log_stack_trace = kwargs.pop('log_stack_trace', None)
+        msg = self._log_message(msg, log_stack_trace)
         self._logging.debug(msg, *args, **kwargs)

@@ -152,7 +152,7 @@ parameters['authUrl'] = parameters['authUrlResult'].geturl()
 
 parameters['tokenPath'] = '/oauth2/token'
 parameters['extraQP'] = '?api-version=1.0'
-parameters['tokenUrlPath'] = parameters['authUrlResult'].path + parameters['tokenPath'] + parameters['extraQP']
+parameters['tokenUrlPath'] = parameters['authUrlResult'].path + parameters['tokenPath']
 parameters['deviceCodePath'] = '/oauth2/devicecode'
 parameters['deviceCodeUrlPath'] = parameters['authUrlResult'].path + parameters['deviceCodePath'] + parameters['extraQP']
 parameters['authorizePath'] = '/oauth/authorize'

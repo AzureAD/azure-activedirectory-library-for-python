@@ -103,12 +103,6 @@ class OAuth2Client(object):
         self._call_context = call_context
         self._cancel_polling_request = False
 
-    def _create_token_url(self):
-        parameters = {}
-        parameters[OAuth2.Parameters.AAD_API_VERSION] = '1.0'
-
-        return urlparse('{}?{}'.format(self._token_endpoint, urlencode(parameters)))
-
     def _create_device_code_url(self):
         parameters = {}
         parameters[OAuth2.Parameters.AAD_API_VERSION] = '1.0'
@@ -247,14 +241,13 @@ class OAuth2Client(object):
             raise
 
     def get_token(self, oauth_parameters):
-        token_url = self._create_token_url()
         url_encoded_token_request = urlencode(oauth_parameters)
         post_options = util.create_request_options(self, _REQ_OPTION)
 
         operation = "Get Token"
 
         try:
-            resp = requests.post(token_url.geturl(), 
+            resp = requests.post(self._token_endpoint, 
                                  data=url_encoded_token_request, 
                                  headers=post_options['headers'],
                                  verify=self._call_context.get('verify_ssl', None))
@@ -310,7 +303,6 @@ class OAuth2Client(object):
             raise AdalError(return_error_string, error_response)
 
     def get_token_with_polling(self, oauth_parameters, refresh_internal, expires_in):
-        token_url = self._create_token_url()
         url_encoded_code_request = urlencode(oauth_parameters)
 
         post_options = util.create_request_options(self, _REQ_OPTION)
@@ -323,7 +315,7 @@ class OAuth2Client(object):
                 raise AdalError('Polling_Request_Cancelled')
 
             resp = requests.post(
-                token_url.geturl(), 
+                self._token_endpoint, 
                 data=url_encoded_code_request, headers=post_options['headers'],
                 verify=self._call_context.get('verify_ssl', None))
 

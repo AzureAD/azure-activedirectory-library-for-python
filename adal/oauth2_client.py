@@ -105,7 +105,9 @@ class OAuth2Client(object):
 
     def _create_token_url(self):
         parameters = {}
-        parameters[OAuth2.Parameters.AAD_API_VERSION] = '1.0'
+        if self._call_context.get('api_version'):
+            parameters[OAuth2.Parameters.AAD_API_VERSION] = self._call_context[
+                'api_version']
 
         return urlparse('{}?{}'.format(self._token_endpoint, urlencode(parameters)))
 

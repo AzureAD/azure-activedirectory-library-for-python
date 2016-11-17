@@ -72,7 +72,7 @@ setup(
     packages=['adal'],
     install_requires=[
         'PyJWT>=1.0.0',
-        'requests>=2.0.0',
+        'requests>=2.0.0,!=2.12.*',
         'python-dateutil>=2.1.0',
         'cryptography>=1.1.0'
     ]

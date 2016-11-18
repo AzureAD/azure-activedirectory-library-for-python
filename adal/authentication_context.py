@@ -26,6 +26,7 @@
 #------------------------------------------------------------------------------
 import os
 import threading
+import warnings
 
 from .authority import Authority
 from . import argument
@@ -44,9 +45,11 @@ class AuthenticationContext(object):
         https://github.com/AzureAD/azure-activedirectory-library-for-python
     '''
 
-    def __init__(self, authority, validate_authority=None, cache=None):
-        '''Creates a new AuthenticationContext object. 
-        
+    def __init__(
+            self, authority, validate_authority=None, cache=None,
+            api_version='1.0'):
+        '''Creates a new AuthenticationContext object.
+
         By default the authority will be checked against a list of known Azure
         Active Directory authorities. If the authority is not recognized as 
         one of these well known authorities then token acquisition will fail.
@@ -62,13 +65,30 @@ class AuthenticationContext(object):
             the AuthenticationContext and are not shared unless it has been
             manually passed during the construction of other
             AuthenticationContexts.
+        :param api_version: (optional) Specifies API version using on the wire.
+            Historically it has a hardcoded default value as "1.0".
+            Developers are now encouraged to set it as None explicitly,
+            which means the underlying API version will be automatically chosen.
+            In next major release, this default value will be changed to None.
         '''
         self.authority = Authority(authority, validate_authority is None or validate_authority)
         self._oauth2client = None
         self.correlation_id = None
         env_value = os.environ.get('ADAL_PYTHON_SSL_NO_VERIFY')
+        if api_version is not None:
+            warnings.warn(
+                """The default behavior of including api-version=1.0 on the wire
+                is now deprecated.
+                Future version of ADAL will change the default value to None.
+
+                To ensure a smooth transition, you are recommended to explicitly
+                set it to None in your code now, and test out the new behavior.
+
+                    context = AuthenticationContext(..., api_version=None)
+                """, DeprecationWarning)
         self._call_context = {
             'options': GLOBAL_ADAL_OPTIONS,
+            'api_version': api_version,
             'verify_ssl': None if env_value is None else not env_value # mainly for tracing through proxy
             }
         self._token_requests_with_user_code = {}

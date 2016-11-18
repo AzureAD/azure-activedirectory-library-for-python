@@ -71,6 +71,7 @@ class AuthenticationContext(object):
         self.correlation_id = None
         env_value = os.environ.get('ADAL_PYTHON_SSL_NO_VERIFY')
         if api_version is not None:
+            warnings.simplefilter('always')
             warnings.warn(
                 """The default behavior of including api-version=1.0 on the wire
                 is now deprecated.

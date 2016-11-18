@@ -65,6 +65,11 @@ class AuthenticationContext(object):
             the AuthenticationContext and are not shared unless it has been
             manually passed during the construction of other
             AuthenticationContexts.
+        :param api_version: (optional) Specifies API version using on the wire.
+            Historically it has a hardcoded default value as "1.0".
+            Developers are now encouraged to set it as None explicitly,
+            which means the underlying API version will be automatically chosen.
+            In next major release, this default value will be changed to None.
         '''
         self.authority = Authority(authority, validate_authority is None or validate_authority)
         self._oauth2client = None
@@ -80,7 +85,7 @@ class AuthenticationContext(object):
                 set it to None in your code now, and test out the new behavior.
 
                     context = AuthenticationContext(..., api_version=None)
-                """)
+                """, DeprecationWarning)
         self._call_context = {
             'options': GLOBAL_ADAL_OPTIONS,
             'api_version': api_version,

@@ -25,34 +25,51 @@
 #
 #------------------------------------------------------------------------------
 import json
+import logging
 import unittest
-from adal import log
+try:
+    from cStringIO import StringIO
+except ImportError:
+    from io import StringIO
+
+from adal import log as adal_logging
 from tests import util
 from tests.util import parameters as cp
 
 class TestLog(unittest.TestCase):
     def test_settings_none(self):
-        current_options = log.get_logging_options()
+        current_options = adal_logging.get_logging_options()
 
-        log.set_logging_options()
+        adal_logging.set_logging_options()
 
-        options = log.get_logging_options()
-        log.set_logging_options(current_options)
+        options = adal_logging.get_logging_options()
+        adal_logging.set_logging_options(current_options)
 
         noOptions = len(options) == 1 and options['level'] == 'ERROR'
         self.assertTrue(noOptions, 'Did not expect to find any logging options set: ' + json.dumps(options))
 
     def test_console_settings(self):
-        currentOptions = log.get_logging_options()
+        currentOptions = adal_logging.get_logging_options()
         util.turn_on_logging()
-        options = log.get_logging_options()
+        options = adal_logging.get_logging_options()
         level = options['level']
 
         # Set the looging options back to what they were before this test so that
         # future tests are logged as they should be.
-        log.set_logging_options(currentOptions)
+        adal_logging.set_logging_options(currentOptions)
 
         self.assertEqual(level, 'DEBUG', 'Logging level was not the expected value of LOGGING_LEVEL.DEBUG: {}'.format(level))
+
+    def test_logging(self):
+        log_capture_string = StringIO()
+        handler = logging.StreamHandler(log_capture_string)
+        util.turn_on_logging(handler=handler)
+        
+        test_logger = adal_logging.Logger("TokenRequest", {'correlation_id':'12345'})
+        test_logger.warn('a warning', log_stack_trace=True)
+        log_contents = log_capture_string.getvalue()
+        logging.getLogger(adal_logging.ADAL_LOGGER_NAME).removeHandler(handler)
+        self.assertTrue('12345 - TokenRequest:a warning' in log_contents and 'Stack:' in log_contents)
 
 if __name__ == '__main__':
     unittest.main()

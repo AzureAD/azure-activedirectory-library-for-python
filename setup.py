@@ -49,7 +49,6 @@ __version__ = re.search(
 # To upload:
 # python setup.py sdist upload
 # python setup.py bdist_wheel upload
-import adal
 
 setup(
     name='adal',

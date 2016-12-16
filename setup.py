@@ -29,6 +29,8 @@
 from setuptools import setup
 import re
 
+import adal
+
 # setup.py shall not import adal
 __version__ = re.search(
     r'__version__\s*=\s*[\'"]([^\'"]*)[\'"]',  # It excludes inline comment too

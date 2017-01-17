@@ -12,3 +12,28 @@ script:
       pylint adal;
     fi
   - python -m unittest discover -s tests
+
+deploy:
+  - # test pypi
+    provider: pypi
+    distributions: sdist
+    server: https://testpypi.python.org/pypi
+    user: "nugetaad"
+    password:
+      secure: "encrypted-password-string"
+    on:
+      branch: master
+      tags: false
+      condition: $TRAVIS_PYTHON_VERSION = "2.7"
+
+  - # production pypi
+    provider: pypi
+    distributions: sdist
+    user: "nugetaad"
+    password:
+      secure: "encrypted-password-string"
+    on:
+      branch: master
+      tags: true
+      condition: $TRAVIS_PYTHON_VERSION = "2.7"
+

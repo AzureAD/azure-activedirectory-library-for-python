@@ -69,12 +69,13 @@ setup(
         'Programming Language :: Python :: 3.3',
         'Programming Language :: Python :: 3.4',
         'Programming Language :: Python :: 3.5',
+        'Programming Language :: Python :: 3.6',
         'License :: OSI Approved :: MIT License',
     ],
     packages=['adal'],
     install_requires=[
         'PyJWT>=1.0.0',
-        'requests>=2.0.0,!=2.12.*',
+        'requests>=2.0.0',
         'python-dateutil>=2.1.0',
         'cryptography>=1.1.0'
     ]

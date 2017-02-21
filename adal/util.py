@@ -55,7 +55,6 @@ def add_default_request_headers(self, options):
     headers[AdalIdParameters.SKU] = AdalIdParameters.PYTHON_SKU
     headers[AdalIdParameters.VERSION] = adal.__version__
     headers[AdalIdParameters.OS] = sys.platform
-    headers[AdalIdParameters.CPU] = 'x64' if platform.architecture()[0] == '64bit' else 'x86'
 
 def create_request_options(self, *options):
 

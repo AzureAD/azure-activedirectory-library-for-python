@@ -26,7 +26,6 @@
 #------------------------------------------------------------------------------
 
 import sys
-import platform
 import base64
 try:
     from urllib.parse import urlparse

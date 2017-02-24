@@ -12,3 +12,28 @@ script:
       pylint adal;
     fi
   - python -m unittest discover -s tests
+
+deploy:
+  - # test pypi
+    provider: pypi
+    distributions: sdist
+    server: https://testpypi.python.org/pypi
+    user: "nugetaad"
+    password:
+      secure: sEaIkr4od/4NJJq/3nvxjC/K/MF/KGBmN148dB4Sj/xMCA3DqqESMxhA8pB4YWfeZHHC6SOTqNHs6SEOxXg5JfY3eOoAke2GV0z/5VaDu/pYbjBZctxi2HC23hcQhDglW1nwfIw8Oglr9VLMbY8lls5AM69E4L/S8vB/hZvwl85WGsLIpod186GT00Ni0W+wnPVNJK+XP7xVb1BM1SRfioVDIsQ9W4qFWEYOLjJQvZByJvkb6Q971rwewZJFihYOZ3ynNeu+3lxifuCqag5KJgRmvaEynMuXx7NhO8kTic+kgcSG2YyDKBWVCrq5/8jJgAAj21n1QuyU3sdPtpVA/yoL41Lr2j1/lIsLbwzJdgaYcwn5QY8VccBNQyGctO/nSvDX6SbFnC1mYUb8J48AFg/EUsTmwqWqkXfBYwSRqgIqeMhh9vGYNh8Fxe9rRaAYTNMQa8ZZ6vBMoO71NhV4WC4tJEJ2KruWqrO9hUFHs4xV0EvAes9uCyzwk/pPE3oCZXt3BlKN5VMlaWzhA06g8oIIuovNnAKeqGXFKRwcVqVoPq+XWYfBy6OLP5b2rTBaYmTMNTkKEbTup66mP/DYbSN/j4g2wuW8koagg1p7a5I+lXrwBaDzLPBeJOxPCdzaU9rZJI8dsvFLDKqUY/wcbE8SoIMLwSwsudzMB5nS1Hw=
+    on:
+      branch: master
+      tags: false
+      condition: $TRAVIS_PYTHON_VERSION = "2.7"
+
+  - # production pypi
+    provider: pypi
+    distributions: sdist
+    user: "nugetaad"
+    password:
+      secure: sEaIkr4od/4NJJq/3nvxjC/K/MF/KGBmN148dB4Sj/xMCA3DqqESMxhA8pB4YWfeZHHC6SOTqNHs6SEOxXg5JfY3eOoAke2GV0z/5VaDu/pYbjBZctxi2HC23hcQhDglW1nwfIw8Oglr9VLMbY8lls5AM69E4L/S8vB/hZvwl85WGsLIpod186GT00Ni0W+wnPVNJK+XP7xVb1BM1SRfioVDIsQ9W4qFWEYOLjJQvZByJvkb6Q971rwewZJFihYOZ3ynNeu+3lxifuCqag5KJgRmvaEynMuXx7NhO8kTic+kgcSG2YyDKBWVCrq5/8jJgAAj21n1QuyU3sdPtpVA/yoL41Lr2j1/lIsLbwzJdgaYcwn5QY8VccBNQyGctO/nSvDX6SbFnC1mYUb8J48AFg/EUsTmwqWqkXfBYwSRqgIqeMhh9vGYNh8Fxe9rRaAYTNMQa8ZZ6vBMoO71NhV4WC4tJEJ2KruWqrO9hUFHs4xV0EvAes9uCyzwk/pPE3oCZXt3BlKN5VMlaWzhA06g8oIIuovNnAKeqGXFKRwcVqVoPq+XWYfBy6OLP5b2rTBaYmTMNTkKEbTup66mP/DYbSN/j4g2wuW8koagg1p7a5I+lXrwBaDzLPBeJOxPCdzaU9rZJI8dsvFLDKqUY/wcbE8SoIMLwSwsudzMB5nS1Hw=
+    on:
+      branch: master
+      tags: true
+      condition: $TRAVIS_PYTHON_VERSION = "2.7"
+

@@ -6,16 +6,16 @@ import adal
 
 def turn_on_logging():
     logging.basicConfig(level=logging.DEBUG)
-    #or, 
+    #or,
     #handler = logging.StreamHandler()
     #adal.set_logging_options({
     #    'level': 'DEBUG',
-    #    'handler': handler 
+    #    'handler': handler
     #})
     #handler.setFormatter(logging.Formatter(logging.BASIC_FORMAT))
 
 # You can override the account information by using a JSON file. Either
-# through a command line argument, 'python sample.js parameters.json', or
+# through a command line argument, 'python sample.py parameters.json', or
 # specifying in an environment variable of ADAL_SAMPLE_PARAMETERS_FILE.
 # {
 #   "tenant" : "rrandallaad1.onmicrosoft.com",
@@ -25,7 +25,7 @@ def turn_on_logging():
 #   "password" : "verySecurePassword"
 # }
 
-parameters_file = (sys.argv[1] if len(sys.argv) == 2 else 
+parameters_file = (sys.argv[1] if len(sys.argv) == 2 else
                    os.environ.get('ADAL_SAMPLE_PARAMETERS_FILE'))
 
 if parameters_file:
@@ -35,7 +35,7 @@ if parameters_file:
 else:
     raise ValueError('Please provide parameter file with account information.')
 
-authority_url = (sample_parameters['authorityHostUrl'] + '/' + 
+authority_url = (sample_parameters['authorityHostUrl'] + '/' +
                  sample_parameters['tenant'])
 RESOURCE = '00000002-0000-0000-c000-000000000000'
 
@@ -45,7 +45,7 @@ RESOURCE = '00000002-0000-0000-c000-000000000000'
 context = adal.AuthenticationContext(authority_url)
 
 token = context.acquire_token_with_username_password(
-    RESOURCE, 
+    RESOURCE,
     sample_parameters['username'],
     sample_parameters['password'],
     sample_parameters['clientid'])

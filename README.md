@@ -8,16 +8,19 @@ The ADAL for python library makes it easy for python applications to authenticat
 
 To support 'service principal' with certificate, ADAL depends on the 'cryptography' package. For smooth installation, some suggestions:
 
-*For Windows and OSX
+* For Windows and OSX
 
 Upgrade to the latest pip (8.1.2 as of June 2016) and just do `pip install adal`.
 
-*For Linux
+* For Linux
+
+Upgrade to the latest pip (8.1.2 as of June 2016).
 
 You'll need a C compiler, libffi + its development headers, and openssl + its development headers. Refer to [cryptography installation](https://cryptography.io/en/latest/installation/)
 
-*To install from source:
+* To install from source:
 
+Upgrade to the latest pip (8.1.2 as of June 2016).
 Before run `python setup.py install`, to avoid dealing with compilation errors from cryptography, run `pip install cryptography` first to use statically-linked wheels.
 If you still like build from source, refer to [cryptography installation](https://cryptography.io/en/latest/installation/).
 

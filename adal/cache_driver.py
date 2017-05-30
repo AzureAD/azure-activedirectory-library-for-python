@@ -164,11 +164,19 @@ class CacheDriver(object):
         now_plus_buffer = now + timedelta(minutes=Misc.CLOCK_BUFFER)
 
         if is_resource_specific and now_plus_buffer > expiry_date:
-            self._log.info('Cached token is expired.  Refreshing: %s', expiry_date)
-            return self._refresh_expired_entry(entry)
+            if TokenResponseFields.REFRESH_TOKEN in entry:
+                self._log.info('Cached token is expired.  Refreshing: %s', expiry_date)
+                return self._refresh_expired_entry(entry)
+            else:
+                self.remove(entry)
+                return None
         elif not is_resource_specific and entry.get(TokenResponseFields.IS_MRRT):
-            self._log.info('Acquiring new access token from MRRT token.')
-            return self._acquire_new_token_from_mrrt(entry)
+            if TokenResponseFields.REFRESH_TOKEN in entry:
+                self._log.info('Acquiring new access token from MRRT token.')
+                return self._acquire_new_token_from_mrrt(entry)
+            else:
+                self.remove(entry)
+                return None
         else:
             return entry
 

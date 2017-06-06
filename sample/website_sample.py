@@ -82,7 +82,7 @@ class OAuth2RequestHandler(httpserver.SimpleHTTPRequestHandler):
                 token_response = self._acquire_token()
                 message = 'response: ' + json.dumps(token_response)
                 #Later, if the access token is expired it can be refreshed.
-                auth_context = AuthenticationContext(authority_url)
+                auth_context = AuthenticationContext(authority_url, api_version=None)
                 token_response = auth_context.acquire_token_with_refresh_token(
                     token_response['refreshToken'],
                     sample_parameters['clientId'],
@@ -102,7 +102,7 @@ class OAuth2RequestHandler(httpserver.SimpleHTTPRequestHandler):
         cookie = Cookie.SimpleCookie(self.headers["Cookie"])
         if state != cookie['auth_state'].value:
             raise ValueError('state does not match')
-        auth_context = AuthenticationContext(authority_url)
+        auth_context = AuthenticationContext(authority_url, api_version=None)
         return auth_context.acquire_token_with_authorization_code(
             code,
             REDIRECT_URI,

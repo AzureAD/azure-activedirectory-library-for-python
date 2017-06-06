@@ -50,7 +50,7 @@ RESOURCE = '00000002-0000-0000-c000-000000000000'
 #uncomment for verbose logging
 turn_on_logging()
 
-context = adal.AuthenticationContext(authority_url)
+context = adal.AuthenticationContext(authority_url, api_version=None)
 key = get_private_key(sample_parameters['privateKeyFile'])
 
 token = context.acquire_token_with_client_certificate(

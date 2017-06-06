@@ -27,12 +27,13 @@
 #------------------------------------------------------------------------------
 
 from setuptools import setup
-import re
+import re, io
 
 # setup.py shall not import adal
 __version__ = re.search(
     r'__version__\s*=\s*[\'"]([^\'"]*)[\'"]',  # It excludes inline comment too
-    open('adal/__init__.py').read()).group(1)
+    io.open('adal/__init__.py', encoding='utf_8_sig').read()
+    ).group(1)
 
 # To build:
 # python setup.py sdist

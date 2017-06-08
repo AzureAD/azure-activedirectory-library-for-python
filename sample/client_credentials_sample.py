@@ -44,7 +44,8 @@ RESOURCE = sample_parameters.get(
 #turn_on_logging()
 
 context = adal.AuthenticationContext(
-    authority_url, validate_authority=sample_parameters['tenant'] != 'adfs')
+    authority_url, validate_authority=sample_parameters['tenant'] != 'adfs',
+    api_version=None)
 
 token = context.acquire_token_with_client_credentials(
     RESOURCE,

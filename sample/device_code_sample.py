@@ -44,7 +44,7 @@ RESOURCE = '00000002-0000-0000-c000-000000000000'
 #uncomment for verbose logging
 #turn_on_logging()
 
-context = adal.AuthenticationContext(authority_url)
+context = adal.AuthenticationContext(authority_url, api_version=None)
 code = context.acquire_user_code(RESOURCE, clientid)
 print(code['message'])
 token = context.acquire_token_with_device_code(RESOURCE, code, clientid)

@@ -97,7 +97,7 @@ token = context.acquire_token_with_refresh_token(
     refresh_token,
     'yourClientIdHere',
     RESOURCE,
-    secrets['yourClientSecret'])  # Make sure your secret stays a secret! (No plain text!) 
+    client_secret=secrets['yourClientSecret'])  # Make sure your secret stays a secret! (No plain text!) 
 ```
 
 ### Acquire Token with device code

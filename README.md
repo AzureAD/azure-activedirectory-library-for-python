@@ -92,13 +92,12 @@ code = context.acquire_user_code(RESOURCE, 'yourClientIdHere')
 print(code['message'])
 token = context.acquire_token_with_device_code(RESOURCE, code, 'yourClientIdHere')
 ``` 
-
 ### Acquire Token with authorization code
 See the [sample](./sample/website_sample.py) for a complete bare bones web site that makes use of the code below.
 ```python
 context = adal.AuthenticationContext('https://login.microsoftonline.com/ABCDEFGH-1234-1234-1234-ABCDEFGHIJKL')
 RESOURCE = '00000002-0000-0000-c000-000000000000' #AAD graph resource
-return auth_context.acquire_token_with_authorization_code(
+return context.acquire_token_with_authorization_code(
             'yourCodeFromQueryString', 
             'yourWebRedirectUri', 
             RESOURCE, 

@@ -26,15 +26,6 @@ If you still like build from source, refer to [cryptography installation](https:
 
 For more context, starts with this [stackoverflow thread](http://stackoverflow.com/questions/22073516/failed-to-install-python-cryptography-package-with-pip-and-setup-py).
 
-### About 'client_id' and 'resource' arguments
-The convinient methods in 0.1.0 have been removed, and now your application should provide parameter values to `client_id` and `resource`.
-
-2 Reasons:
-
-* Each adal client should have a unique id representing an valid application registered in a tenant. The old methods borrowed the client-id of [azure-cli](https://github.com/Azure/azure-xplat-cli), which is never right. It is simple to register your application and get a client id. Many walkthroughs exist. You can follow [one of those](https://docs.microsoft.com/en-us/azure/app-service-mobile/app-service-mobile-how-to-configure-active-directory-authentication). Do check out if you are new to AAD.
-
-* The old method defaults the `resource` argument to 'https://management.core.windows.net/', now you can just supply this value explictly. Please note, there are lots of different azure resources you can acquire tokens through adal though, for example, the samples in the repository acquire for the 'graph' resource. Because it is not an appropriate assumption to be made at the library level, we removed the old defaults.
-
 ### Acquire Token with Client Credentials
 
 In order to use this token acquisition method, you need to configure a service principal. Please follow [this walkthrough](https://azure.microsoft.com/en-us/documentation/articles/resource-group-create-service-principal-portal/).
@@ -138,3 +129,15 @@ This project has adopted the [Microsoft Open Source Code of Conduct](https://ope
 
 ### http tracing/proxy
 If need to bypass self-signed certificates, turn on the environment variable of `ADAL_PYTHON_SSL_NO_VERIFY`
+
+
+## Note
+
+### Changes on 'client_id' and 'resource' arguments after 0.1.0
+The convinient methods in 0.1.0 have been removed, and now your application should provide parameter values to `client_id` and `resource`.
+
+2 Reasons:
+
+* Each adal client should have an Application ID representing an valid application registered in a tenant. The old methods borrowed the client-id of [azure-cli](https://github.com/Azure/azure-xplat-cli), which is never right. It is simple to register your application and get a client id. Many walkthroughs exist. You can follow [one of those](https://docs.microsoft.com/en-us/azure/active-directory/develop/active-directory-integrating-applications). Do check out if you are new to AAD.
+
+* The old method defaults the `resource` argument to 'https://management.core.windows.net/', now you can just supply this value explictly. Please note, there are lots of different azure resources you can acquire tokens through adal though, for example, the samples in the repository acquire for the 'graph' resource. Because it is not an appropriate assumption to be made at the library level, we removed the old defaults.

@@ -19,6 +19,7 @@ def turn_on_logging():
 # through a command line argument, 'python sample.py parameters.json', or
 # specifying in an environment variable of ADAL_SAMPLE_PARAMETERS_FILE.
 # {
+#    "resource": "your_resource",
 #    "tenant" : "rrandallaad1.onmicrosoft.com",
 #    "authorityHostUrl" : "https://login.microsoftonline.com",
 #    "clientid" : "",
@@ -39,7 +40,8 @@ else:
 authority_host_url = sample_parameters['authorityHostUrl']
 authority_url = authority_host_url + '/' + sample_parameters['tenant']
 clientid = sample_parameters['clientid']
-RESOURCE = '00000002-0000-0000-c000-000000000000'
+GRAPH_RESOURCE = '00000002-0000-0000-c000-000000000000'
+RESOURCE = sample_parameters.get('resource', GRAPH_RESOURCE)
 
 #uncomment for verbose logging
 #turn_on_logging()

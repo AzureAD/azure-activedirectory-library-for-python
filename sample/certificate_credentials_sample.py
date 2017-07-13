@@ -26,6 +26,7 @@ def get_private_key(filename):
 # privateKeyFile must contain a PEM encoded cert with private key.
 # thumbprint must be the thumbprint of the privateKeyFile.
 # {
+#   "resource": "your_resource",
 #   "tenant" : "naturalcauses.onmicrosoft.com",
 #   "authorityHostUrl" : "https://login.microsoftonline.com",
 #   "clientId" : "d6835713-b745-48d1-bb62-7a8248477d35",
@@ -45,7 +46,8 @@ else:
 
 authority_url = (sample_parameters['authorityHostUrl'] + '/' +
                  sample_parameters['tenant'])
-RESOURCE = '00000002-0000-0000-c000-000000000000'
+GRAPH_RESOURCE = '00000002-0000-0000-c000-000000000000'
+RESOURCE = sample_parameters.get('resource', GRAPH_RESOURCE)
 
 #uncomment for verbose logging
 turn_on_logging()

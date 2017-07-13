@@ -37,8 +37,8 @@ else:
 
 authority_url = (sample_parameters['authorityHostUrl'] + '/' +
                  sample_parameters['tenant'])
-RESOURCE = sample_parameters.get(
-    'resource', '00000002-0000-0000-c000-000000000000')
+GRAPH_RESOURCE = '00000002-0000-0000-c000-000000000000'
+RESOURCE = sample_parameters.get('resource', GRAPH_RESOURCE)
 
 #uncomment for verbose log
 #turn_on_logging()

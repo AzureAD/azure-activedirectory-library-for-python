@@ -6,26 +6,27 @@ import adal
 
 def turn_on_logging():
     logging.basicConfig(level=logging.DEBUG)
-    #or, 
+    #or,
     #handler = logging.StreamHandler()
     #adal.set_logging_options({
     #    'level': 'DEBUG',
-    #    'handler': handler 
+    #    'handler': handler
     #})
     #handler.setFormatter(logging.Formatter(logging.BASIC_FORMAT))
 
 # You can provide account information by using a JSON file
 # with the same parameters as the sampleParameters variable below.  Either
-# through a command line argument, 'python sample.js parameters.json', or
+# through a command line argument, 'python sample.py parameters.json', or
 # specifying in an environment variable of ADAL_SAMPLE_PARAMETERS_FILE.
 # {
+#    "resource": "your_resource",
 #    "tenant" : "rrandallaad1.onmicrosoft.com",
 #    "authorityHostUrl" : "https://login.microsoftonline.com",
 #    "clientid" : "",
 #    "anothertenant" : "bar.onmicrosoft.com"
 # }
 
-parameters_file = (sys.argv[1] if len(sys.argv) == 2 else 
+parameters_file = (sys.argv[1] if len(sys.argv) == 2 else
                    os.environ.get('ADAL_SAMPLE_PARAMETERS_FILE'))
 
 if parameters_file:
@@ -39,12 +40,13 @@ else:
 authority_host_url = sample_parameters['authorityHostUrl']
 authority_url = authority_host_url + '/' + sample_parameters['tenant']
 clientid = sample_parameters['clientid']
-RESOURCE = '00000002-0000-0000-c000-000000000000'
+GRAPH_RESOURCE = '00000002-0000-0000-c000-000000000000'
+RESOURCE = sample_parameters.get('resource', GRAPH_RESOURCE)
 
-#uncomment for verbose logging 
+#uncomment for verbose logging
 #turn_on_logging()
 
-context = adal.AuthenticationContext(authority_url)
+context = adal.AuthenticationContext(authority_url, api_version=None)
 code = context.acquire_user_code(RESOURCE, clientid)
 print(code['message'])
 token = context.acquire_token_with_device_code(RESOURCE, code, clientid)
@@ -56,7 +58,7 @@ print(json.dumps(token, indent=2))
 another_tenant = sample_parameters.get('anothertenant')
 if another_tenant:
     authority_url = authority_host_url + '/' + another_tenant
-    #reuse existing cache which has the tokens acquired early on 
+    #reuse existing cache which has the tokens acquired early on
     existing_cache = context.cache
     context = adal.AuthenticationContext(authority_url, cache=existing_cache)
     token = context.acquire_token(RESOURCE, token['userId'], clientid)

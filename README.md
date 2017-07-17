@@ -8,7 +8,7 @@ The ADAL for python library makes it easy for python applications to authenticat
 
 To support 'service principal' with certificate, ADAL depends on the 'cryptography' package. For smooth installation, some suggestions:
 
-* For Windows and OSX
+* For Windows and macOS
 
 Upgrade to the latest pip (8.1.2 as of June 2016) and just do `pip install adal`.
 

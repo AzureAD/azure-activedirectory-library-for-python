@@ -73,6 +73,23 @@ token = context.acquire_token_with_refresh_token(
     'yourClientIdHere',
     RESOURCE)
 ```
+If you get a response saying 
+
+```
+{
+     "error":"invalid_client",
+     "error_description": The request body must contain the following parameter: 
+	     		'client_secret or client_assertion'
+}
+```
+you can add the client_secret as a keyword argument.
+```
+token = context.acquire_token_with_refresh_token(
+    refresh_token,
+    'yourClientIdHere',
+    RESOURCE,
+    client_secret=secrets['yourClientSecret'])  # Make sure your secret stays a secret! (No plain text!) 
+```
 
 ### Acquire Token with device code
 See the [sample](./sample/device_code_sample.py).

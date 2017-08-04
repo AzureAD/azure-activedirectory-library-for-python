@@ -34,7 +34,9 @@ See the [sample](./sample/client_credentials_sample.py).
 ```python
 import adal
 
-context = adal.AuthenticationContext('https://login.microsoftonline.com/ABCDEFGH-1234-1234-1234-ABCDEFGHIJKL')
+context = adal.AuthenticationContext(
+    'https://login.microsoftonline.com/ABCDEFGH-1234-1234-1234-ABCDEFGHIJKL',
+    api_version=None)
 RESOURCE = '00000002-0000-0000-c000-000000000000' #AAD graph resource
 token = context.acquire_token_with_client_credentials(
     RESOURCE,
@@ -46,7 +48,9 @@ token = context.acquire_token_with_client_credentials(
 A service principal is also required. See the [sample](./sample/certificate_credentials_sample.py).
 ```python
 import adal
-context = adal.AuthenticationContext('https://login.microsoftonline.com/ABCDEFGH-1234-1234-1234-ABCDEFGHIJKL')
+context = adal.AuthenticationContext(
+    'https://login.microsoftonline.com/ABCDEFGH-1234-1234-1234-ABCDEFGHIJKL',
+    api_version=None)
 RESOURCE = '00000002-0000-0000-c000-000000000000' #AAD graph resource
 token = context.acquire_token_with_client_certificate(
     RESOURCE,
@@ -59,7 +63,9 @@ token = context.acquire_token_with_client_certificate(
 See the [sample](./sample/refresh_token_sample.py).
 ```python
 import adal
-context = adal.AuthenticationContext('https://login.microsoftonline.com/ABCDEFGH-1234-1234-1234-ABCDEFGHIJKL')
+context = adal.AuthenticationContext(
+    'https://login.microsoftonline.com/ABCDEFGH-1234-1234-1234-ABCDEFGHIJKL',
+    api_version=None)
 RESOURCE = '00000002-0000-0000-c000-000000000000' #AAD graph resource
 token = context.acquire_token_with_username_password(
     RESOURCE, 
@@ -77,7 +83,9 @@ token = context.acquire_token_with_refresh_token(
 ### Acquire Token with device code
 See the [sample](./sample/device_code_sample.py).
 ```python
-context = adal.AuthenticationContext('https://login.microsoftonline.com/ABCDEFGH-1234-1234-1234-ABCDEFGHIJKL')
+context = adal.AuthenticationContext(
+    'https://login.microsoftonline.com/ABCDEFGH-1234-1234-1234-ABCDEFGHIJKL',
+    api_version=None)
 RESOURCE = '00000002-0000-0000-c000-000000000000' #AAD graph resource
 code = context.acquire_user_code(RESOURCE, 'yourClientIdHere')
 print(code['message'])
@@ -86,7 +94,9 @@ token = context.acquire_token_with_device_code(RESOURCE, code, 'yourClientIdHere
 ### Acquire Token with authorization code
 See the [sample](./sample/website_sample.py) for a complete bare bones web site that makes use of the code below.
 ```python
-context = adal.AuthenticationContext('https://login.microsoftonline.com/ABCDEFGH-1234-1234-1234-ABCDEFGHIJKL')
+context = adal.AuthenticationContext(
+    'https://login.microsoftonline.com/ABCDEFGH-1234-1234-1234-ABCDEFGHIJKL',
+    api_version=None)
 RESOURCE = '00000002-0000-0000-c000-000000000000' #AAD graph resource
 return context.acquire_token_with_authorization_code(
             'yourCodeFromQueryString', 

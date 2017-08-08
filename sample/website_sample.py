@@ -104,6 +104,7 @@ class OAuth2RequestHandler(httpserver.SimpleHTTPRequestHandler):
         cookie = Cookie.SimpleCookie(self.headers["Cookie"])
         if state != cookie['auth_state'].value:
             raise ValueError('state does not match')
+        ### Main logic begins
         auth_context = AuthenticationContext(authority_url, api_version=None)
         return auth_context.acquire_token_with_authorization_code(
             code,
@@ -111,6 +112,7 @@ class OAuth2RequestHandler(httpserver.SimpleHTTPRequestHandler):
             RESOURCE,
             sample_parameters['clientId'],
             sample_parameters['clientSecret'])
+        ### Main logic ends
 
     def _send_response(self, message, is_ok=True):
         self.send_response(200 if is_ok else 400)

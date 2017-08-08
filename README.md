@@ -30,19 +30,20 @@ For more context, starts with this [stackoverflow thread](http://stackoverflow.c
 
 In order to use this token acquisition method, you need to configure a service principal. Please follow [this walkthrough](https://azure.microsoft.com/en-us/documentation/articles/resource-group-create-service-principal-portal/).
 
-See the [sample](sample/client_credentials_sample.py#L46-L53).
+Find the `Main logic` part in the [sample](sample/client_credentials_sample.py#L46-L55).
 
 ### Acquire Token with client certificate
-A service principal is also required. See the [sample](sample/certificate_credentials_sample.py#L55-L62).
+A service principal is also required.
+Find the `Main logic` part in the [sample](sample/certificate_credentials_sample.py#L55-L64).
 
 ### Acquire Token with Refresh Token
-See the [sample](sample/refresh_token_sample.py#L47-L64).
+Find the `Main logic` part in the [sample](sample/refresh_token_sample.py#L47-L66).
 
 ### Acquire Token with device code
-See the [sample](sample/device_code_sample.py#L49-L52).
+Find the `Main logic` part in the [sample](sample/device_code_sample.py#L49-L54).
 
 ### Acquire Token with authorization code
-See the [sample](sample/website_sample.py#L107-L113) for a complete bare bones web site that makes use of the code below.
+Find the `Main logic` part in the [sample](sample/website_sample.py#L107-L115) for a complete bare bones web site that makes use of the code below.
 
 
 ## Samples and Documentation

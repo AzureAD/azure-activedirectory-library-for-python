@@ -30,71 +30,21 @@ For more context, starts with this [stackoverflow thread](http://stackoverflow.c
 
 In order to use this token acquisition method, you need to configure a service principal. Please follow [this walkthrough](https://azure.microsoft.com/en-us/documentation/articles/resource-group-create-service-principal-portal/).
 
-See the [sample](./sample/client_credentials_sample.py).
-```python
-import adal
-
-context = adal.AuthenticationContext('https://login.microsoftonline.com/ABCDEFGH-1234-1234-1234-ABCDEFGHIJKL')
-RESOURCE = '00000002-0000-0000-c000-000000000000' #AAD graph resource
-token = context.acquire_token_with_client_credentials(
-    RESOURCE,
-    "http://PythonSDK", 
-    "Key-Configured-In-Portal")
-```
+Find the `Main logic` part in the [sample](sample/client_credentials_sample.py#L46-L55).
 
 ### Acquire Token with client certificate
-A service principal is also required. See the [sample](./sample/certificate_credentials_sample.py).
-```python
-import adal
-context = adal.AuthenticationContext('https://login.microsoftonline.com/ABCDEFGH-1234-1234-1234-ABCDEFGHIJKL')
-RESOURCE = '00000002-0000-0000-c000-000000000000' #AAD graph resource
-token = context.acquire_token_with_client_certificate(
-    RESOURCE,
-    "http://PythonSDK",  
-    'yourPrivateKeyFileContent', 
-    'thumbprintOfPrivateKey')
-```
+A service principal is also required.
+Find the `Main logic` part in the [sample](sample/certificate_credentials_sample.py#L55-L64).
 
 ### Acquire Token with Refresh Token
-See the [sample](./sample/refresh_token_sample.py).
-```python
-import adal
-context = adal.AuthenticationContext('https://login.microsoftonline.com/ABCDEFGH-1234-1234-1234-ABCDEFGHIJKL')
-RESOURCE = '00000002-0000-0000-c000-000000000000' #AAD graph resource
-token = context.acquire_token_with_username_password(
-    RESOURCE, 
-    'yourName',
-    'yourPassword',
-    'yourClientIdHere')
-
-refresh_token = token['refreshToken']
-token = context.acquire_token_with_refresh_token(
-    refresh_token,
-    'yourClientIdHere',
-    RESOURCE)
-```
+Find the `Main logic` part in the [sample](sample/refresh_token_sample.py#L47-L66).
 
 ### Acquire Token with device code
-See the [sample](./sample/device_code_sample.py).
-```python
-context = adal.AuthenticationContext('https://login.microsoftonline.com/ABCDEFGH-1234-1234-1234-ABCDEFGHIJKL')
-RESOURCE = '00000002-0000-0000-c000-000000000000' #AAD graph resource
-code = context.acquire_user_code(RESOURCE, 'yourClientIdHere')
-print(code['message'])
-token = context.acquire_token_with_device_code(RESOURCE, code, 'yourClientIdHere')
-``` 
+Find the `Main logic` part in the [sample](sample/device_code_sample.py#L49-L54).
+
 ### Acquire Token with authorization code
-See the [sample](./sample/website_sample.py) for a complete bare bones web site that makes use of the code below.
-```python
-context = adal.AuthenticationContext('https://login.microsoftonline.com/ABCDEFGH-1234-1234-1234-ABCDEFGHIJKL')
-RESOURCE = '00000002-0000-0000-c000-000000000000' #AAD graph resource
-return context.acquire_token_with_authorization_code(
-            'yourCodeFromQueryString', 
-            'yourWebRedirectUri', 
-            RESOURCE, 
-            'yourClientId', 
-            'yourClientSecret')
-``` 
+Find the `Main logic` part in the [sample](sample/website_sample.py#L107-L115) for a complete bare bones web site that makes use of the code below.
+
 
 ## Samples and Documentation
 We provide a full suite of [sample applications on GitHub](https://github.com/azure-samples?utf8=%E2%9C%93&q=active-directory&type=&language=) and an [Azure AD developer landing page](https://docs.microsoft.com/en-us/azure/active-directory/develop/active-directory-developers-guide) to help you get started with learning the Azure Identity system. This includes tutorials for native clients and web applications. We also provide full walkthroughs for authentication flows such as OAuth2, OpenID Connect and for calling APIs such as the Graph API.

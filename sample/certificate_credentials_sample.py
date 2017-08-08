@@ -52,6 +52,7 @@ RESOURCE = sample_parameters.get('resource', GRAPH_RESOURCE)
 #uncomment for verbose logging
 turn_on_logging()
 
+### Main logic begins
 context = adal.AuthenticationContext(authority_url, api_version=None)
 key = get_private_key(sample_parameters['privateKeyFile'])
 
@@ -60,6 +61,7 @@ token = context.acquire_token_with_client_certificate(
     sample_parameters['clientId'],
     key,
     sample_parameters['thumbprint'])
+### Main logic ends
 
 print('Here is the token:')
 print(json.dumps(token, indent=2))

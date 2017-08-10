@@ -37,7 +37,7 @@ A service principal is also required.
 Find the `Main logic` part in the [sample](sample/certificate_credentials_sample.py#L55-L64).
 
 ### Acquire Token with Refresh Token
-Find the `Main logic` part in the [sample](sample/refresh_token_sample.py#L47-L66).
+Find the `Main logic` part in the [sample](sample/refresh_token_sample.py#L47-L69).
 
 ### Acquire Token with device code
 Find the `Main logic` part in the [sample](sample/device_code_sample.py#L49-L54).

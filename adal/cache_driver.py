@@ -132,6 +132,10 @@ class CacheDriver(object):
         new_entry = copy.deepcopy(entry)
         new_entry.update(refresh_response)
 
+        # for ADFS, it is possible the response payload has no 'resource' field, so we add it
+        if 'resource' not in refresh_response:
+            new_entry['resource'] = self._resource
+
         if entry[TokenResponseFields.IS_MRRT] and self._authority != entry[TokenResponseFields._AUTHORITY]:
             new_entry[TokenResponseFields._AUTHORITY] = self._authority
 

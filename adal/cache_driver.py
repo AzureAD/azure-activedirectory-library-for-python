@@ -132,7 +132,9 @@ class CacheDriver(object):
         new_entry = copy.deepcopy(entry)
         new_entry.update(refresh_response)
 
-        # for ADFS, it is possible the response payload has no 'resource' field, so we add it
+        # It is possible the response payload has no 'resource' field, like in ADFS, so we manually 
+        # fill it here. Note, 'resource' is part of the token cache key, so we have to set it to avoid
+        # corrupting the cache.
         if 'resource' not in refresh_response:
             new_entry['resource'] = self._resource
 

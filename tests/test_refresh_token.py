@@ -67,5 +67,20 @@ class TestRefreshToken(unittest.TestCase):
             'The response did not match what was expected: ' + str(token_response)
         )
 
+    @httpretty.activate
+    def test_happy_path_with_resource_adfs(self):
+        tokenRequest = util.setup_expected_refresh_token_request_response(200, self.wire_response, self.response['authority'], self.response['resource'], cp['clientSecret'])
+
+        context = adal.AuthenticationContext(cp['authorityTenant'])
+        def side_effect (tokenfunc):
+            return self.response['decodedResponse']
+
+        context._acquire_token = mock.MagicMock(side_effect=side_effect)
+
+        token_response = context.acquire_token(cp['refreshToken'], cp['clientId'], cp['clientSecret'], cp['resource'])
+        self.assertTrue(
+            util.is_match_token_response(self.response['decodedResponse'], token_response),
+            'The response did not match what was expected: ' + str(token_response)
+        )
 if __name__ == '__main__':
     unittest.main()

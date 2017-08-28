@@ -43,6 +43,7 @@ RESOURCE = sample_parameters.get('resource', GRAPH_RESOURCE)
 #uncomment for verbose log
 #turn_on_logging()
 
+### Main logic begins
 context = adal.AuthenticationContext(
     authority_url, validate_authority=sample_parameters['tenant'] != 'adfs',
     api_version=None)
@@ -51,6 +52,7 @@ token = context.acquire_token_with_client_credentials(
     RESOURCE,
     sample_parameters['clientId'],
     sample_parameters['clientSecret'])
+### Main logic ends
 
 print('Here is the token:')
 print(json.dumps(token, indent=2))

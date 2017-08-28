@@ -16,7 +16,7 @@ script:
 deploy:
   - # test pypi
     provider: pypi
-    distributions: sdist
+    distributions: "sdist bdist_wheel"
     server: https://test.pypi.org/legacy/
     user: "nugetaad"
     password:
@@ -28,7 +28,7 @@ deploy:
 
   - # production pypi
     provider: pypi
-    distributions: sdist
+    distributions: "sdist bdist_wheel"
     user: "nugetaad"
     password:
       secure: Wm2jGolFLm/wrfSPklf9gYdWiTK7ycGr+Qa0voVmFEJkW69PRC5bCibJI3POK1DqTBmQn7gi5G0s117PoLlXvK9lqwMaDL6Yf/ro7YnMU9pBopoB/zWMxWYZeBJVugmTGKuTkbUiQBzL2h0EnaQvvyrEDiLGrYrYEgLUSuR5AVTlvYKk1XBAAhvh8hu8JjgQQugN2ne6ZR9aBjCap0fzdTs3vhad/OQx+iH8YR8UTl4ruszdoL95CDtFmKdIkwg0qgIB65MqC6XAQ2tvhyMDHXZMMafE0NQwUwm2d+sqinCfHLNkb5bVBS0M8syrYCS8xr6Ccnt0PM1+nNFm83bu1w+HaMwKWD2IaU26QH8H7djc7mO1XmRmMSxQ1EjR313YyF534+uiLBlJWB8DOfN4r3/lqg6e44CY0impiT7NnT47bUqaoglew5HB0FgrrtGDrDlLa7zf+RHyb2BhqeqlTR1s0nnzsmzQMdxaHXvCbzYPqg3PUdwLHGBks90tXhA0zUg/3XQfb7v17Lx1byRufvsWWYXUZwLI6H8CCvWtWFvJ3TSPPBR/5LjaICVtt2g3Uv2xrG3weCIO52G7WQ6pIpOyiRsYkUAIXLi2UNsv4LlpNxNObNgL7FNfrNR/tEs8+SdbAkaf2jrFfn+Sk7v4pdPd4og7YXWAE2R/ge9nsJ4=

@@ -44,6 +44,7 @@ RESOURCE = sample_parameters.get('resource', GRAPH_RESOURCE)
 #uncomment for verbose log
 #turn_on_logging()
 
+### Main logic begins
 context = adal.AuthenticationContext(
     authority_url, validate_authority=sample_parameters['tenant'] != 'adfs',
     api_version=None)
@@ -61,7 +62,11 @@ refresh_token = token['refreshToken']
 token = context.acquire_token_with_refresh_token(
     refresh_token,
     sample_parameters['clientid'],
-    RESOURCE)
+    RESOURCE,
+    # client_secret="your_secret"  # This is needed when using Confidential Client,
+                                   # otherwise you will encounter an invalid_client error.
+    )
+### Main logic ends
 
 print('Here is the token acquired from the refreshing token')
 print(json.dumps(token, indent=2))

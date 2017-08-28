@@ -46,10 +46,12 @@ RESOURCE = sample_parameters.get('resource', GRAPH_RESOURCE)
 #uncomment for verbose logging
 #turn_on_logging()
 
+### Main logic begins
 context = adal.AuthenticationContext(authority_url, api_version=None)
 code = context.acquire_user_code(RESOURCE, clientid)
 print(code['message'])
 token = context.acquire_token_with_device_code(RESOURCE, code, clientid)
+### Main logic ends
 
 print('Here is the token from "{}":'.format(authority_url))
 print(json.dumps(token, indent=2))

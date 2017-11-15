@@ -31,8 +31,10 @@ import traceback
 
 ADAL_LOGGER_NAME = 'adal-python'
 
-def create_log_context(correlation_id=None):
-    return {'correlation_id' : correlation_id or str(uuid.uuid4())}
+def create_log_context(correlation_id=None, enable_pii=False):
+    return {
+        'correlation_id' : correlation_id or str(uuid.uuid4()),
+        'enable_pii': enable_pii}
 
 def set_logging_options(options=None):
     '''Configure adal logger, including level and handler spec'd by python

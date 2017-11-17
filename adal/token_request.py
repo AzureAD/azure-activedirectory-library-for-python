@@ -223,25 +223,29 @@ class TokenRequest(object):
 
             wstrust_version = TokenRequest._parse_wstrust_version_from_federation_active_authurl(
                 self._user_realm.federation_active_auth_url)
-            self._log.debug('wstrust endpoint version is: %s', wstrust_version)
+            self._log.debug('wstrust endpoint version is: %(wstrust_version)s',
+                {"wstrust_version": wstrust_version})
 
             return self._perform_username_password_for_access_token_exchange(
                 self._user_realm.federation_active_auth_url,
                 wstrust_version, username, password)
         else:
             mex_endpoint = self._user_realm.federation_metadata_url
-            self._log.debug("Attempting mex at: %s", mex_endpoint)
+            self._log.debug(
+                "Attempting mex at: %(mex_endpoint)s",
+                {"mex_endpoint": mex_endpoint})
             mex_instance = self._create_mex(mex_endpoint)
             wstrust_version = WSTrustVersion.UNDEFINED
-             
+
             try:
                 mex_instance.discover()
                 wstrust_endpoint = mex_instance.username_password_policy['url']
                 wstrust_version = mex_instance.username_password_policy['version']
             except Exception: #pylint: disable=broad-except
-                warn_template = ("MEX exchange failed for %s. " 
-                                 "Attempting fallback to AAD supplied endpoint.")
-                self._log.warn(warn_template, mex_endpoint)
+                self._log.warn(
+                    "MEX exchange failed for %(mex_endpoint)s. "
+                    "Attempting fallback to AAD supplied endpoint.",
+                    {"mex_endpoint": mex_endpoint})
                 wstrust_endpoint = self._user_realm.federation_active_auth_url
                 wstrust_version = TokenRequest._parse_wstrust_version_from_federation_active_authurl(
                     self._user_realm.federation_active_auth_url)
@@ -269,12 +273,9 @@ class TokenRequest(object):
             token = self._find_token_from_cache()
             if token:
                 return token
-        except AdalError as exp:
-            self._log.warn(
-                'Attempt to look for token in cache resulted in Error: %s', 
-                exp,
-                log_stack_trace=True)
- 
+        except AdalError:
+            self._log.exception('Attempt to look for token in cache resulted in Error')
+
         if not self._authentication_context.authority.is_adfs_authority:
             self._user_realm = self._create_user_realm_request(username)
             self._user_realm.discover()
@@ -304,11 +305,8 @@ class TokenRequest(object):
             token = self._find_token_from_cache()
             if token:
                 return token
-        except AdalError as exp:
-            self._log.warn(
-                'Attempt to look for token in cache resulted in Error: %s', 
-                exp, 
-                log_stack_trace=True)
+        except AdalError:
+            self._log.exception('Attempt to look for token in cache resulted in Error')
 
         oauth_parameters = self._create_oauth_parameters(OAUTH2_GRANT_TYPE.CLIENT_CREDENTIALS)
         oauth_parameters[OAUTH2_PARAMETERS.CLIENT_SECRET] = client_secret
@@ -372,12 +370,9 @@ class TokenRequest(object):
             token = self._find_token_from_cache()
             if token:
                 return token
-        except AdalError as exp: 
-            self._log.warn(
-                'Attempt to look for token in cache resulted in Error: %s', 
-                exp, 
-                log_stack_trace=True)
-        
+        except AdalError:
+            self._log.exception('Attempt to look for token in cache resulted in Error')
+
         return self._oauth_get_token(oauth_parameters)
 
     def get_token_with_device_code(self, user_code_info):

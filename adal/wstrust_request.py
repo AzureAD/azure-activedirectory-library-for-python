@@ -117,7 +117,8 @@ class WSTrustRequest(object):
                         "</s:Body>" +
                         "</s:Envelope>")
 
-        self._log.debug('Created RST: \n' + rst_template)
+        self._log.debug('Created RST: \n %(rst_template)s',
+                        {"rst_template": rst_template})
         return WSTrustRequest._populate_rst_username_password(rst_template, username, password)
 
     def _handle_rstr(self, body):
@@ -139,7 +140,8 @@ class WSTrustRequest(object):
                                'SOAPAction': soap_action},
                    'body': rst}
         options = util.create_request_options(self, headers)
-        self._log.debug("Sending RST to: %s", self._wstrust_endpoint_url)
+        self._log.debug("Sending RST to: %(wstrust_endpoint)s",
+                        {"wstrust_endpoint": self._wstrust_endpoint_url})
 
         operation = "WS-Trust RST"
         resp = requests.post(self._wstrust_endpoint_url, headers=options['headers'], data=rst,

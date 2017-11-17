@@ -91,22 +91,29 @@ class UserRealm(object):
 
     def _log_parsed_response(self):
 
-        self._log.debug('UserRealm response:')
-        self._log.debug(' AccountType:             %s', self.account_type)
-        self._log.debug(' FederationProtocol:      %s', self.federation_protocol)
-        self._log.debug(' FederationMetatdataUrl:  %s', self.federation_metadata_url)
-        self._log.debug(' FederationActiveAuthUrl: %s', self.federation_active_auth_url)
+        self._log.debug('UserRealm response:\n'
+            ' AccountType: %(account_type)s\n'
+            ' FederationProtocol: %(federation_protocol)s\n'
+            ' FederationMetatdataUrl: %(federation_metadata_url)s\n'
+            ' FederationActiveAuthUrl: %(federation_active_auth_url)s',
+            {
+                "account_type": self.account_type,
+                "federation_protocol": self.federation_protocol,
+                "federation_metadata_url": self.federation_metadata_url,
+                "federation_active_auth_url": self.federation_active_auth_url,
+            })
 
     def _parse_discovery_response(self, body):
 
-        self._log.debug("Discovery response:\n %s", body)
+        self._log.debug("Discovery response:\n %(discovery_response)s",
+                        {"discovery_response": body})
 
         try:
             response = json.loads(body)
         except ValueError:
-            error_template = ("Parsing realm discovery response JSON failed " 
-                              "for body: '{}'")
-            self._log.info(error_template.format(body))
+            self._log.info(
+                "Parsing realm discovery response JSON failed for body: %(body)s",
+                {"body": body})
             raise
 
         account_type = UserRealm._validate_account_type(response['account_type'])
@@ -130,8 +137,8 @@ class UserRealm(object):
 
         options = util.create_request_options(self, {'headers': {'Accept':'application/json'}})
         user_realm_url = self._get_user_realm_url()
-        self._log.debug("Performing user realm discovery at: %s",
-                        user_realm_url.geturl())
+        self._log.debug("Performing user realm discovery at: %(user_realm_url)s",
+                        {"user_realm_url": user_realm_url.geturl()})
 
         operation = 'User Realm Discovery'
         resp = requests.get(user_realm_url.geturl(), headers=options['headers'],

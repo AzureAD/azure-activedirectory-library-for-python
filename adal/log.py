@@ -95,16 +95,57 @@ class Logger(object):
         return formatted
 
     def warn(self, msg, *args, **kwargs):
+        """
+        The recommended way to call this function with variable content,
+        is to use the `warn("hello %(name)s", {"name": "John Doe"}` form,
+        so that this method will scrub pii value when needed.
+        """
+        if len(args)==1 and isinstance(args[0], dict) and not self.log_context.get('enable_pii'):
+            args = (scrub_pii(args[0]),)
         log_stack_trace = kwargs.pop('log_stack_trace', None)
         msg = self._log_message(msg, log_stack_trace)
         self._logging.warning(msg, *args, **kwargs)
 
     def info(self, msg, *args, **kwargs):
+        if len(args)==1 and isinstance(args[0], dict) and not self.log_context.get('enable_pii'):
+            args = (scrub_pii(args[0]),)
         log_stack_trace = kwargs.pop('log_stack_trace', None)
         msg = self._log_message(msg, log_stack_trace)
         self._logging.info(msg, *args, **kwargs)
 
     def debug(self, msg, *args, **kwargs):
+        if len(args)==1 and isinstance(args[0], dict) and not self.log_context.get('enable_pii'):
+            args = (scrub_pii(args[0]),)
         log_stack_trace = kwargs.pop('log_stack_trace', None)
         msg = self._log_message(msg, log_stack_trace)
         self._logging.debug(msg, *args, **kwargs)
+
+    def exception(self, msg, *args, **kwargs):
+        if len(args)==1 and isinstance(args[0], dict) and not self.log_context.get('enable_pii'):
+            args = (scrub_pii(args[0]),)
+        msg = self._log_message(msg)
+        self._logging.exception(msg, *args, **kwargs)
+
+
+def scrub_pii(arg_dict):
+    """
+    The input is a dict with semantic keys,
+    and the output will be a dict with PII values replaced by empty string.
+    """
+    PII = set([  # Personally Identifiable Information
+        "subject",
+        "upn",  # i.e. user name
+        "given_name", "family_name",
+        "email",
+        "oid",  # Object ID
+        "login_hint",
+        "home_oid",
+        "access_token", "refresh_token", "id_token",
+        "tenant_id",
+        # The following are actually Organizationally Identifiable Info
+        "authority",
+        "client_id",
+        "redirect_uri",
+        ])
+    return {k: "" if k in PII else arg_dict[k] for k in arg_dict}
+

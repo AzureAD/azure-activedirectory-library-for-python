@@ -75,7 +75,7 @@ class TestLog(unittest.TestCase):
         not_pii = "not pii"
         pii = "pii@contoso.com"
         content_with_pii = {"message": not_pii, "email": pii}
-        expected = {"message": not_pii, "email": ""}
+        expected = {"message": not_pii, "email": "..."}
         self.assertEqual(adal_logging.scrub_pii(content_with_pii), expected)
 
         log_capture_string = StringIO()

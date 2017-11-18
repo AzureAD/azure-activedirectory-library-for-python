@@ -127,10 +127,10 @@ class Logger(object):
         self._logging.exception(msg, *args, **kwargs)
 
 
-def scrub_pii(arg_dict):
+def scrub_pii(arg_dict, padding="..."):
     """
     The input is a dict with semantic keys,
-    and the output will be a dict with PII values replaced by empty string.
+    and the output will be a dict with PII values replaced by padding.
     """
     PII = set([  # Personally Identifiable Information
         "subject",
@@ -138,14 +138,17 @@ def scrub_pii(arg_dict):
         "given_name", "family_name",
         "email",
         "oid",  # Object ID
+        "userid",  # Used in ADAL Python token cache
         "login_hint",
         "home_oid",
         "access_token", "refresh_token", "id_token",
-        "tenant_id",
+
         # The following are actually Organizationally Identifiable Info
-        "authority",
+        "tenant_id",
+        "authority",  # which typically contains tenant_id
         "client_id",
+        "_clientid",  # This is the key name ADAL uses in cache query
         "redirect_uri",
         ])
-    return {k: "" if k in PII else arg_dict[k] for k in arg_dict}
+    return {k: padding if k.lower() in PII else arg_dict[k] for k in arg_dict}
 

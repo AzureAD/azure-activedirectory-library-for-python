@@ -64,7 +64,7 @@ class CacheDriver(object):
     def __init__(self, call_context, authority, resource, client_id, cache,
                  refresh_function):
         self._call_context = call_context
-        self._log = log.Logger("OAuth2Client", call_context['log_context'])
+        self._log = log.Logger("CacheDriver", call_context['log_context'])
         self._authority = authority
         self._resource = resource
         self._client_id = client_id
@@ -81,10 +81,10 @@ class CacheDriver(object):
             potential_entries_query[TokenResponseFields.USER_ID] = query[TokenResponseFields.USER_ID]
 
         self._log.debug('Looking for potential cache entries: %(query)s',
-            {"query": json.dumps(potential_entries_query)})
+                        {"query": log.scrub_pii(potential_entries_query)})
         entries = self._cache.find(potential_entries_query)
         self._log.debug('Found %(quantity)s potential entries.',
-            {"quantity": len(entries)})
+                        {"quantity": len(entries)})
         return entries
     
     def _find_mrrt_tokens_for_user(self, user):
@@ -191,7 +191,8 @@ class CacheDriver(object):
     def find(self, query):
         if query is None:
             query = {}
-        self._log.debug('finding with query: %(query)s', {"query": json.dumps(query)})
+        self._log.debug('finding with query keys: %(query)s',
+                        {"query": log.scrub_pii(query)})
         entry, is_resource_tenant_specific = self._load_single_entry_from_cache(query)
         if entry:
             return self._refresh_entry_if_necessary(entry, 

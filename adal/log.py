@@ -100,28 +100,28 @@ class Logger(object):
         is to use the `warn("hello %(name)s", {"name": "John Doe"}` form,
         so that this method will scrub pii value when needed.
         """
-        if len(args)==1 and isinstance(args[0], dict) and not self.log_context.get('enable_pii'):
+        if len(args) == 1 and isinstance(args[0], dict) and not self.log_context.get('enable_pii'):
             args = (scrub_pii(args[0]),)
         log_stack_trace = kwargs.pop('log_stack_trace', None)
         msg = self._log_message(msg, log_stack_trace)
         self._logging.warning(msg, *args, **kwargs)
 
     def info(self, msg, *args, **kwargs):
-        if len(args)==1 and isinstance(args[0], dict) and not self.log_context.get('enable_pii'):
+        if len(args) == 1 and isinstance(args[0], dict) and not self.log_context.get('enable_pii'):
             args = (scrub_pii(args[0]),)
         log_stack_trace = kwargs.pop('log_stack_trace', None)
         msg = self._log_message(msg, log_stack_trace)
         self._logging.info(msg, *args, **kwargs)
 
     def debug(self, msg, *args, **kwargs):
-        if len(args)==1 and isinstance(args[0], dict) and not self.log_context.get('enable_pii'):
+        if len(args) == 1 and isinstance(args[0], dict) and not self.log_context.get('enable_pii'):
             args = (scrub_pii(args[0]),)
         log_stack_trace = kwargs.pop('log_stack_trace', None)
         msg = self._log_message(msg, log_stack_trace)
         self._logging.debug(msg, *args, **kwargs)
 
     def exception(self, msg, *args, **kwargs):
-        if len(args)==1 and isinstance(args[0], dict) and not self.log_context.get('enable_pii'):
+        if len(args) == 1 and isinstance(args[0], dict) and not self.log_context.get('enable_pii'):
             args = (scrub_pii(args[0]),)
         msg = self._log_message(msg)
         self._logging.exception(msg, *args, **kwargs)
@@ -132,7 +132,7 @@ def scrub_pii(arg_dict, padding="..."):
     The input is a dict with semantic keys,
     and the output will be a dict with PII values replaced by padding.
     """
-    PII = set([  # Personally Identifiable Information
+    pii = set([  # Personally Identifiable Information
         "subject",
         "upn",  # i.e. user name
         "given_name", "family_name",
@@ -153,5 +153,5 @@ def scrub_pii(arg_dict, padding="..."):
         # Unintuitively, the following can contain PII
         "user_realm_url",  # e.g. https://login.windows.net/common/UserRealm/{username}
         ])
-    return {k: padding if k.lower() in PII else arg_dict[k] for k in arg_dict}
+    return {k: padding if k.lower() in pii else arg_dict[k] for k in arg_dict}
 

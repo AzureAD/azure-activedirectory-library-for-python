@@ -28,7 +28,6 @@
 import base64
 import copy
 import hashlib
-import json
 from datetime import datetime, timedelta
 from dateutil import parser
 
@@ -80,11 +79,12 @@ class CacheDriver(object):
         if query.get(TokenResponseFields.USER_ID):
             potential_entries_query[TokenResponseFields.USER_ID] = query[TokenResponseFields.USER_ID]
 
-        self._log.debug('Looking for potential cache entries: %(query)s',
-                        {"query": log.scrub_pii(potential_entries_query)})
+        self._log.debug(
+            'Looking for potential cache entries: %(query)s',
+            {"query": log.scrub_pii(potential_entries_query)})
         entries = self._cache.find(potential_entries_query)
-        self._log.debug('Found %(quantity)s potential entries.',
-                        {"quantity": len(entries)})
+        self._log.debug(
+            'Found %(quantity)s potential entries.', {"quantity": len(entries)})
         return entries
     
     def _find_mrrt_tokens_for_user(self, user):

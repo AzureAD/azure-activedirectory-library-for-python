@@ -91,7 +91,8 @@ class UserRealm(object):
 
     def _log_parsed_response(self):
 
-        self._log.debug('UserRealm response:\n'
+        self._log.debug(
+            'UserRealm response:\n'
             ' AccountType: %(account_type)s\n'
             ' FederationProtocol: %(federation_protocol)s\n'
             ' FederationMetatdataUrl: %(federation_metadata_url)s\n'

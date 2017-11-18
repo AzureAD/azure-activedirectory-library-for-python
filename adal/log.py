@@ -149,6 +149,9 @@ def scrub_pii(arg_dict, padding="..."):
         "client_id",
         "_clientid",  # This is the key name ADAL uses in cache query
         "redirect_uri",
+
+        # Unintuitively, the following can contain PII
+        "user_realm_url",  # e.g. https://login.windows.net/common/UserRealm/{username}
         ])
     return {k: padding if k.lower() in PII else arg_dict[k] for k in arg_dict}
 

@@ -141,7 +141,7 @@ def scrub_pii(arg_dict, padding="..."):
         "userid",  # Used in ADAL Python token cache
         "login_hint",
         "home_oid",
-        "access_token", "refresh_token", "id_token",
+        "access_token", "refresh_token", "id_token", "token_response",
 
         # The following are actually Organizationally Identifiable Info
         "tenant_id",

@@ -167,7 +167,9 @@ class OAuth2Client(object):
         try:
             wire_response = json.loads(body)
         except ValueError:
-            self._log.exception('The token response from the server is unparseable as JSON')
+            self._log.exception(
+                'The token response from the server is unparseable as JSON: %(token_response)s',
+                {"token_response": body})
             raise
 
         int_keys = [
@@ -235,7 +237,9 @@ class OAuth2Client(object):
         try:
             return self._validate_token_response(body)
         except Exception:
-            self._log.exception("Error validating get token response")
+            self._log.exception(
+                "Error validating get token response: %(token_response)s",
+                {"token_response": body})
             raise
 
     def _handle_get_device_code_response(self, body):
@@ -243,7 +247,9 @@ class OAuth2Client(object):
         try:
             return self._validate_device_code_response(body)
         except Exception:
-            self._log.exception("Error validating get user code response")
+            self._log.exception(
+                "Error validating get user code response: %(token_response)s",
+                {"token_response": body})
             raise
 
     def get_token(self, oauth_parameters):

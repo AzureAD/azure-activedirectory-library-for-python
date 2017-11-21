@@ -104,7 +104,8 @@ class AuthenticationContext(object):
         self._call_context['options'] = val
 
     def _acquire_token(self, token_func):
-        self._call_context['log_context'] = log.create_log_context(self.correlation_id)
+        self._call_context['log_context'] = log.create_log_context(
+            self.correlation_id, self._call_context.get('enable_pii', False))
         self.authority.validate(self._call_context)
         return token_func(self)
 
@@ -238,7 +239,8 @@ class AuthenticationContext(object):
             should be localized to.
         :returns: dict contains code and uri for users to login through browser.
         '''
-        self._call_context['log_context'] = log.create_log_context(self.correlation_id)
+        self._call_context['log_context'] = log.create_log_context(
+            self.correlation_id, self._call_context.get('enable_pii', False))
         self.authority.validate(self._call_context)
         code_request = CodeRequest(self._call_context, self, client_id, resource)
         return code_request.get_user_code_info(language)
@@ -254,7 +256,8 @@ class AuthenticationContext(object):
         :returns: dict with several keys, include "accessToken" and
             "refreshToken".
         '''
-        self._call_context['log_context'] = log.create_log_context(self.correlation_id)
+        self._call_context['log_context'] = log.create_log_context(
+            self.correlation_id, self._call_context.get('enable_pii', False))
 
         def token_func(self):
             token_request = TokenRequest(self._call_context, self, client_id, resource)

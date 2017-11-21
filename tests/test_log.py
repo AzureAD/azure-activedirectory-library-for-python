@@ -71,5 +71,22 @@ class TestLog(unittest.TestCase):
         logging.getLogger(adal_logging.ADAL_LOGGER_NAME).removeHandler(handler)
         self.assertTrue('12345 - TokenRequest:a warning' in log_contents and 'Stack:' in log_contents)
 
+    def test_scrub_pii(self):
+        not_pii = "not pii"
+        pii = "pii@contoso.com"
+        content_with_pii = {"message": not_pii, "email": pii}
+        expected = {"message": not_pii, "email": "..."}
+        self.assertEqual(adal_logging.scrub_pii(content_with_pii), expected)
+
+        log_capture_string = StringIO()
+        handler = logging.StreamHandler(log_capture_string)
+        util.turn_on_logging(handler=handler)
+        test_logger = adal_logging.Logger("TokenRequest", {'correlation_id':'12345'})
+        test_logger.warn('%(message)s for user email %(email)s', content_with_pii)
+        log_contents = log_capture_string.getvalue()
+        logging.getLogger(adal_logging.ADAL_LOGGER_NAME).removeHandler(handler)
+        self.assertTrue(not_pii in log_contents and pii not in log_contents)
+
+
 if __name__ == '__main__':
     unittest.main()

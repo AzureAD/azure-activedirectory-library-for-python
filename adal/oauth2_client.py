@@ -121,7 +121,7 @@ class OAuth2Client(object):
             try:
                 obj[key] = int(obj[key])
             except ValueError:
-                self._log.info("%s could not be parsed as an int", key)
+                self._log.exception("%(key)s could not be parsed as an int", {"key": key})
                 raise
             except KeyError:
                 # if the key isn't present we can just continue
@@ -142,8 +142,9 @@ class OAuth2Client(object):
 
             id_token = json.loads(b64_decoded.decode('utf-8'))
         except ValueError:
-            self._log.info("The returned id_token could not be decoded: %s",
-                           encoded_token)
+            self._log.exception(
+                "The returned id_token could not be decoded: %(id_token)s",
+                {"id_token": encoded_token})
             raise
 
         return _extract_token_values(id_token)
@@ -166,10 +167,10 @@ class OAuth2Client(object):
         try:
             wire_response = json.loads(body)
         except ValueError:
-            self._log.info(
-                'The token response from the server is unparseable as JSON: %s',
-                body)
-            raise 
+            self._log.exception(
+                'The token response from the server is unparseable as JSON: %(token_response)s',
+                {"token_response": body})
+            raise
 
         int_keys = [
             OAuth2.ResponseParameters.EXPIRES_ON,
@@ -236,7 +237,9 @@ class OAuth2Client(object):
         try:
             return self._validate_token_response(body)
         except Exception:
-            self._log.info("Error validating get token response '%s'", body)
+            self._log.exception(
+                "Error validating get token response: %(token_response)s",
+                {"token_response": body})
             raise
 
     def _handle_get_device_code_response(self, body):
@@ -244,8 +247,9 @@ class OAuth2Client(object):
         try:
             return self._validate_device_code_response(body)
         except Exception:
-            self._log.info("Error validating get user code response '%s'", 
-                           body)
+            self._log.exception(
+                "Error validating get user code response: %(token_response)s",
+                {"token_response": body})
             raise
 
     def get_token(self, oauth_parameters):
@@ -263,7 +267,7 @@ class OAuth2Client(object):
 
             util.log_return_correlation_id(self._log, operation, resp)
         except Exception:
-            self._log.info("%s request failed", operation)
+            self._log.exception("%(operation)s request failed", {"operation": operation})
             raise
 
         if util.is_http_success(resp.status_code):
@@ -293,7 +297,7 @@ class OAuth2Client(object):
                                  verify=self._call_context.get('verify_ssl', None))
             util.log_return_correlation_id(self._log, operation, resp)
         except Exception:
-            self._log.info("%s request failed", operation)
+            self._log.exception("%(operation)s request failed", {"operation": operation})
             raise
 
         if util.is_http_success(resp.status_code):
@@ -346,9 +350,10 @@ class OAuth2Client(object):
             else:
                 try:
                     return self._validate_token_response(resp.text)
-                except Exception: 
-                    self._log.info(u"Error validating get token response '%s'",
-                                   resp.text)
+                except Exception:
+                    self._log.exception(
+                        u"Error validating get token response %(access_token)s",
+                        {"access_token": resp.text})
                     raise
 
         raise AdalError('Timeout from "get_token_with_polling"')

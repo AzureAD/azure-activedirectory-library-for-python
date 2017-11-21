@@ -82,7 +82,8 @@ class SelfSignedJwt(object):
         x5t = _create_x5t_value(thumbprint)
         header = {'typ':'JWT', 'alg':'RS256', 'x5t':x5t}
 
-        self._log.debug("Creating self signed JWT header. x5t: %s", x5t)
+        self._log.debug("Creating self signed JWT header. x5t: %(x5t)s",
+                        {"x5t": x5t})
 
         return header
 
@@ -92,9 +93,8 @@ class SelfSignedJwt(object):
         expires = now + minutes
 
         self._log.debug(
-            'Creating self signed JWT payload. Expires: %s NotBefore: %s',
-            expires,
-            now)
+            'Creating self signed JWT payload. Expires: %(expires)s NotBefore: %(nbf)s',
+            {"expires": expires, "nbf": now})
 
         jwt_payload = {}
         jwt_payload[Jwt.AUDIENCE] = self._token_endpoint

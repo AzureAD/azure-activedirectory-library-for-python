@@ -47,7 +47,7 @@ class AuthenticationContext(object):
 
     def __init__(
             self, authority, validate_authority=None, cache=None,
-            api_version='1.0',timeout=None):
+            api_version='1.0', timeout=None):
         '''Creates a new AuthenticationContext object.
 
         By default the authority will be checked against a list of known Azure

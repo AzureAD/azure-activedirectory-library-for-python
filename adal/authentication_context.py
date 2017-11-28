@@ -47,7 +47,7 @@ class AuthenticationContext(object):
 
     def __init__(
             self, authority, validate_authority=None, cache=None,
-            api_version='1.0'):
+            api_version='1.0',timeout=None):
         '''Creates a new AuthenticationContext object.
 
         By default the authority will be checked against a list of known Azure
@@ -70,6 +70,9 @@ class AuthenticationContext(object):
             Developers are now encouraged to set it as None explicitly,
             which means the underlying API version will be automatically chosen.
             In next major release, this default value will be changed to None.
+        :param timeout: (optional) requests timeout. How long to wait for the server to send
+            data before giving up, as a float, or a `(connect timeout,
+            read timeout) <timeouts>` tuple.
         '''
         self.authority = Authority(authority, validate_authority is None or validate_authority)
         self._oauth2client = None
@@ -89,7 +92,8 @@ class AuthenticationContext(object):
         self._call_context = {
             'options': GLOBAL_ADAL_OPTIONS,
             'api_version': api_version,
-            'verify_ssl': None if env_value is None else not env_value # mainly for tracing through proxy
+            'verify_ssl': None if env_value is None else not env_value, # mainly for tracing through proxy
+            'timeout':timeout
             }
         self._token_requests_with_user_code = {}
         self.cache = cache or TokenCache()

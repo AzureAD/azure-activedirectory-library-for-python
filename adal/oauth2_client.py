@@ -263,7 +263,8 @@ class OAuth2Client(object):
             resp = requests.post(token_url.geturl(), 
                                  data=url_encoded_token_request, 
                                  headers=post_options['headers'],
-                                 verify=self._call_context.get('verify_ssl', None))
+                                 verify=self._call_context.get('verify_ssl', None),
+                                 timeout=self._call_context.get('timeout', None))
 
             util.log_return_correlation_id(self._log, operation, resp)
         except Exception:
@@ -294,7 +295,8 @@ class OAuth2Client(object):
             resp = requests.post(device_code_url.geturl(), 
                                  data=url_encoded_code_request, 
                                  headers=post_options['headers'],
-                                 verify=self._call_context.get('verify_ssl', None))
+                                 verify=self._call_context.get('verify_ssl', None),
+                                 timeout=self._call_context.get('timeout', None))
             util.log_return_correlation_id(self._log, operation, resp)
         except Exception:
             self._log.exception("%(operation)s request failed", {"operation": operation})

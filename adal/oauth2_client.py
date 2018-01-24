@@ -274,6 +274,8 @@ class OAuth2Client(object):
         if util.is_http_success(resp.status_code):
             return self._handle_get_token_response(resp.text)
         else:
+            if resp.status_code == 429:
+                resp.raise_for_status()  # Will raise requests.exceptions.HTTPError
             return_error_string = _ERROR_TEMPLATE.format(operation, resp.status_code)
             error_response = ""
             if resp.text:
@@ -305,6 +307,8 @@ class OAuth2Client(object):
         if util.is_http_success(resp.status_code):
             return self._handle_get_device_code_response(resp.text)
         else:
+            if resp.status_code == 429:
+                resp.raise_for_status()  # Will raise requests.exceptions.HTTPError
             return_error_string = _ERROR_TEMPLATE.format(operation, resp.status_code)
             error_response = ""
             if resp.text:
@@ -334,6 +338,8 @@ class OAuth2Client(object):
                 token_url.geturl(), 
                 data=url_encoded_code_request, headers=post_options['headers'],
                 verify=self._call_context.get('verify_ssl', None))
+            if resp.status_code == 429:
+                resp.raise_for_status()  # Will raise requests.exceptions.HTTPError
 
             util.log_return_correlation_id(self._log, operation, resp)
 

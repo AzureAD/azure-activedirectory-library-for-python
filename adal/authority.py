@@ -122,6 +122,8 @@ class Authority(object):
                                 {"operation": operation})
             raise
 
+        if resp.status_code == 429:
+            resp.raise_for_status()  # Will raise requests.exceptions.HTTPError
         if not util.is_http_success(resp.status_code):
             return_error_string = u"{} request returned http error: {}".format(operation, 
                                                                                resp.status_code)

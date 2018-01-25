@@ -70,10 +70,10 @@ class Mex(object):
         self._parents = None
         self._mex_doc = None
         self.username_password_policy = {}
-        self._log.debug("Mex created with url: %s", self._url)
+        self._log.debug("Mex created with url: %(mex_url)s",
+                        {"mex_url": self._url})
 
     def discover(self):
-        self._log.debug("Retrieving mex at: %s", self._url)
         options = util.create_request_options(self, {'headers': {'Content-Type': 'application/soap+xml'}})
 
         try:
@@ -82,9 +82,12 @@ class Mex(object):
                                 verify=self._call_context.get('verify_ssl', None))
             util.log_return_correlation_id(self._log, operation, resp)
         except Exception:
-            self._log.info("%s request failed", operation)
+            self._log.exception(
+                "%(operation)s request failed", {"operation": operation})
             raise
 
+        if resp.status_code == 429:
+            resp.raise_for_status()  # Will raise requests.exceptions.HTTPError
         if not util.is_http_success(resp.status_code):
             return_error_string = u"{} request returned http error: {}".format(operation, resp.status_code)
             error_response = ""
@@ -119,10 +122,11 @@ class Mex(object):
         # If we did not find any binding, this is potentially bad.
         if not transport_binding_nodes:
             self._log.debug(
-                "Potential policy did not match required transport binding: %s", 
-                policy_id)
+                "Potential policy did not match required transport binding: %(policy_id)s",
+                {"policy_id": policy_id})
         else:
-            self._log.debug("Found matching policy id: %s", policy_id)
+            self._log.debug("Found matching policy id: %(policy_id)s",
+                            {"policy_id": policy_id})
 
         return policy_id
 
@@ -161,13 +165,19 @@ class Mex(object):
 
         if soap_transport == SOAP_HTTP_TRANSPORT_VALUE:
             if soap_action == RST_SOAP_ACTION_13:
-                self._log.debug('found binding matching Action and Transport: %s', name)
+                self._log.debug(
+                    'found binding matching Action and Transport: %(binding_node)s',
+                    {"binding_node": name})
                 return WSTrustVersion.WSTRUST13
             elif soap_action == RST_SOAP_ACTION_2005:
-                self._log.debug('found binding matching Action and Transport: %s', name)
+                self._log.debug(
+                    'found binding matching Action and Transport: %(binding_node)s',
+                    {"binding_node": name})
                 return WSTrustVersion.WSTRUST2005
 
-        self._log.debug('binding node did not match soap Action or Transport: %s', name)
+        self._log.debug(
+            'binding node did not match soap Action or Transport: %(binding_node)s',
+            {"binding_node": name})
         return WSTrustVersion.UNDEFINED
 
     def _get_matching_bindings(self, policies):
@@ -214,8 +224,9 @@ class Mex(object):
                     if _url_is_secure(address):
                         binding_policy['url'] = address
                     else:
-                        self._log.warn("Skipping insecure endpoint: %s", 
-                                       address)
+                        self._log.warn(
+                            "Skipping insecure endpoint: %(mex_endpoint)s",
+                            {"mex_endpoint": address})
 
     def _select_single_matching_policy(self, policies):
 

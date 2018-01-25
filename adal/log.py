@@ -31,8 +31,10 @@ import traceback
 
 ADAL_LOGGER_NAME = 'adal-python'
 
-def create_log_context(correlation_id=None):
-    return {'correlation_id' : correlation_id or str(uuid.uuid4())}
+def create_log_context(correlation_id=None, enable_pii=False):
+    return {
+        'correlation_id' : correlation_id or str(uuid.uuid4()),
+        'enable_pii': enable_pii}
 
 def set_logging_options(options=None):
     '''Configure adal logger, including level and handler spec'd by python
@@ -93,16 +95,63 @@ class Logger(object):
         return formatted
 
     def warn(self, msg, *args, **kwargs):
+        """
+        The recommended way to call this function with variable content,
+        is to use the `warn("hello %(name)s", {"name": "John Doe"}` form,
+        so that this method will scrub pii value when needed.
+        """
+        if len(args) == 1 and isinstance(args[0], dict) and not self.log_context.get('enable_pii'):
+            args = (scrub_pii(args[0]),)
         log_stack_trace = kwargs.pop('log_stack_trace', None)
         msg = self._log_message(msg, log_stack_trace)
         self._logging.warning(msg, *args, **kwargs)
 
     def info(self, msg, *args, **kwargs):
+        if len(args) == 1 and isinstance(args[0], dict) and not self.log_context.get('enable_pii'):
+            args = (scrub_pii(args[0]),)
         log_stack_trace = kwargs.pop('log_stack_trace', None)
         msg = self._log_message(msg, log_stack_trace)
         self._logging.info(msg, *args, **kwargs)
 
     def debug(self, msg, *args, **kwargs):
+        if len(args) == 1 and isinstance(args[0], dict) and not self.log_context.get('enable_pii'):
+            args = (scrub_pii(args[0]),)
         log_stack_trace = kwargs.pop('log_stack_trace', None)
         msg = self._log_message(msg, log_stack_trace)
         self._logging.debug(msg, *args, **kwargs)
+
+    def exception(self, msg, *args, **kwargs):
+        if len(args) == 1 and isinstance(args[0], dict) and not self.log_context.get('enable_pii'):
+            args = (scrub_pii(args[0]),)
+        msg = self._log_message(msg)
+        self._logging.exception(msg, *args, **kwargs)
+
+
+def scrub_pii(arg_dict, padding="..."):
+    """
+    The input is a dict with semantic keys,
+    and the output will be a dict with PII values replaced by padding.
+    """
+    pii = set([  # Personally Identifiable Information
+        "subject",
+        "upn",  # i.e. user name
+        "given_name", "family_name",
+        "email",
+        "oid",  # Object ID
+        "userid",  # Used in ADAL Python token cache
+        "login_hint",
+        "home_oid",
+        "access_token", "refresh_token", "id_token", "token_response",
+
+        # The following are actually Organizationally Identifiable Info
+        "tenant_id",
+        "authority",  # which typically contains tenant_id
+        "client_id",
+        "_clientid",  # This is the key name ADAL uses in cache query
+        "redirect_uri",
+
+        # Unintuitively, the following can contain PII
+        "user_realm_url",  # e.g. https://login.windows.net/common/UserRealm/{username}
+        ])
+    return {k: padding if k.lower() in pii else arg_dict[k] for k in arg_dict}
+

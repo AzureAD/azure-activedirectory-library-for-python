@@ -171,6 +171,10 @@ class TestUsernamePassword(unittest.TestCase):
         log_content = buffer.getvalue()
         self.assertTrue(correlation_id in log_content, 'Logging was turned on but no messages were recieved.')
 
+        self.assertNotIn(cp['clientId'], log_content, "Should not log ClientID")
+        self.assertNotIn(
+            cp['username'].split('@')[0], log_content, "Should not contain PII")
+
     @httpretty.activate
     def test_invalid_id_token(self):
         util.setup_expected_user_realm_response_common(False)

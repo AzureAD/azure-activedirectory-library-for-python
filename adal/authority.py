@@ -110,16 +110,20 @@ class Authority(object):
             AADConstants.WORLD_WIDE_AUTHORITY)
         get_options = util.create_request_options(self)
         operation = "Instance Discovery"
-        self._log.debug("Attempting instance discover at: %s", discovery_endpoint.geturl())
+        self._log.debug("Attempting instance discover at: %(discovery_endpoint)s",
+                        {"discovery_endpoint": discovery_endpoint.geturl()})
 
         try:
             resp = requests.get(discovery_endpoint.geturl(), headers=get_options['headers'],
                                 verify=self._call_context.get('verify_ssl', None))
             util.log_return_correlation_id(self._log, operation, resp)
         except Exception:
-            self._log.info("%s request failed", operation)
+            self._log.exception("%(operation)s request failed",
+                                {"operation": operation})
             raise
 
+        if resp.status_code == 429:
+            resp.raise_for_status()  # Will raise requests.exceptions.HTTPError
         if not util.is_http_success(resp.status_code):
             return_error_string = u"{} request returned http error: {}".format(operation, 
                                                                                resp.status_code)
@@ -158,12 +162,13 @@ class Authority(object):
         self._call_context = call_context
 
         if not self._validated:
-            self._log.debug("Performing instance discovery: %s", self._url.geturl())
+            self._log.debug("Performing instance discovery: %(authority)s",
+                            {"authority": self._url.geturl()})
             self._validate_via_instance_discovery()
             self._validated = True
         else:
             self._log.debug(
-                "Instance discovery/validation has either already been completed or is turned off: %s",
-                self._url.geturl())
+                "Instance discovery/validation has either already been completed or is turned off: %(authority)s",
+                {"authority": self._url.geturl()})
 
         self._get_oauth_endpoints()

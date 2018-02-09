@@ -36,6 +36,7 @@ except ImportError:
 
 from adal.constants import XmlNamespaces, Errors, WSTrustVersion
 from adal.wstrust_response import WSTrustResponse
+from adal.wstrust_response import findall_content
 
 _namespaces = XmlNamespaces.namespaces
 _call_context = {'log_context' : {'correlation-id':'test-corr-id'}}
@@ -100,6 +101,23 @@ class Test_wstrustresponse(unittest.TestCase):
         with six.assertRaisesRegex(self, Exception, 'Failed to parse RSTR in to DOM'):
             wstrustResponse = WSTrustResponse(_call_context, '<This is not parseable as an RSTR', WSTrustVersion.WSTRUST13)
             wstrustResponse.parse()
+
+    def test_findall_content(self):
+        content = """
+ what <bar> ever </bar> content
+in multiple lines
+"""
+        sample = "<ns0:foo>" + content + "</ns0:foo>"
+        self.assertEqual([content], findall_content(sample, "foo"))
+        self.assertEqual([], findall_content(sample, "nonexist"))
+
+    def test_findall_content_for_real(self):
+        with open(os.path.join(os.getcwd(), 'tests', 'wstrust', 'RSTR.xml')) as f:
+            rstr = f.read()
+        wstrustResponse = WSTrustResponse(_call_context, rstr, WSTrustVersion.WSTRUST13)
+        wstrustResponse.parse()
+        self.assertIn("<X509Data>", rstr)
+        self.assertIn(b"<X509Data>", wstrustResponse.token)  # It is in bytes
 
 if __name__ == '__main__':
     unittest.main()

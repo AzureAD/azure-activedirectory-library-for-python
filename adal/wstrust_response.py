@@ -55,6 +55,20 @@ def scrub_rstr_log_message(response_str):
 
     return 'RSTR Response: ' + scrubbed_rstr
 
+def findall_content(xml_string, tag):
+    """
+    Given a tag name without any prefix,
+    this function returns a list of the raw content inside this tag as-is.
+
+    >>> findall_content("<ns0:foo> what <bar> ever </bar> content </ns0:foo>", "foo")
+    [" what <bar> ever </bar> content "]
+
+    """
+    # https://www.w3.org/TR/REC-xml/#NT-NameChar
+    pattern = r"<(?:\w+:)?%(tag)s>(.*)</(?:\w+:)?%(tag)s" % {"tag": tag}
+    return re.findall(pattern, xml_string, re.DOTALL)
+
+
 class WSTrustResponse(object):
 
     def __init__(self, call_context, response, wstrust_version):
@@ -178,6 +192,15 @@ class WSTrustResponse(object):
         if self.token is None:
             raise AdalError("Unable to find any tokens in RSTR.")
 
+    @staticmethod
+    def _parse_token_by_re(raw_response):
+        for rstr in findall_content(raw_response, "RequestSecurityTokenResponse"):
+            token_types = findall_content(rstr, "TokenType")
+            tokens = findall_content(rstr, "RequestedSecurityToken")
+            if token_types and tokens:
+                return tokens[0].encode('us-ascii'), token_types[0]
+
+
     def parse(self):
         if not self._response:
             raise AdalError("Received empty RSTR response body.")
@@ -195,7 +218,12 @@ class WSTrustResponse(object):
                 str_fault_message = self.fault_message or 'NONE'
                 error_template = 'Server returned error in RSTR - ErrorCode: {} : FaultMessage: {}'
                 raise AdalError(error_template.format(str_error_code, str_fault_message))
-            self._parse_token()
+
+            token_found = self._parse_token_by_re(self._response)
+            if token_found:
+                self.token, self.token_type = token_found
+            else:  # fallback to old logic
+                self._parse_token()
         finally:
             self._dom = None
             self._parents = None

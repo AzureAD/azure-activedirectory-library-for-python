@@ -63,9 +63,18 @@ def findall_content(xml_string, tag):
     >>> findall_content("<ns0:foo> what <bar> ever </bar> content </ns0:foo>", "foo")
     [" what <bar> ever </bar> content "]
 
+    Usually we would use XML parser to extract the data by xpath.
+    However the ElementTree in Python will implicitly normalize the output
+    by "hoisting" the inner inline namespaces into the outmost element.
+    The result will be a semantically equivalent XML snippet,
+    but not fully identical to the original one.
+    While this shouldn't become a problem,
+    in practice it could potentially confuse a picky recipient.
+
+    Introducing this helper, based on Regex, which will return raw content as-is.
     """
-    # https://www.w3.org/TR/REC-xml/#NT-NameChar
-    pattern = r"<(?:\w+:)?%(tag)s>(.*)</(?:\w+:)?%(tag)s" % {"tag": tag}
+    # \w+ is good enough for https://www.w3.org/TR/REC-xml/#NT-NameChar
+    pattern = r"<(?:\w+:)?%(tag)s(?:[^>]*)>(.*)</(?:\w+:)?%(tag)s" % {"tag": tag}
     return re.findall(pattern, xml_string, re.DOTALL)
 
 

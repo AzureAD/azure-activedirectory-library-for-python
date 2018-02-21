@@ -102,14 +102,25 @@ class Test_wstrustresponse(unittest.TestCase):
             wstrustResponse = WSTrustResponse(_call_context, '<This is not parseable as an RSTR', WSTrustVersion.WSTRUST13)
             wstrustResponse.parse()
 
-    def test_findall_content(self):
+    def test_findall_content_with_comparison(self):
         content = """
- what <bar> ever </bar> content
-in multiple lines
-"""
-        sample = "<ns0:foo>" + content + "</ns0:foo>"
-        self.assertEqual([content], findall_content(sample, "foo"))
-        self.assertEqual([], findall_content(sample, "nonexist"))
+            <saml:Assertion xmlns:saml="SAML:assertion">
+                <ds:Signature xmlns:ds="http://www.w3.org/2000/09/xmldsig#">
+                foo
+                </ds:Signature>
+            </saml:Assertion>"""
+        sample = ('<ns0:Wrapper xmlns:ns0="namespace0">'
+            + content
+            + '</ns0:Wrapper>')
+
+        # Demonstrating how XML-based parser won't give you the raw content as-is
+        element = ET.fromstring(sample).findall('{SAML:assertion}Assertion')[0]
+        assertion_via_xml_parser = ET.tostring(element)
+        self.assertNotEqual(content, assertion_via_xml_parser)
+        self.assertNotIn(b"<ds:Signature>", assertion_via_xml_parser)
+
+        # The findall_content() helper, based on Regex, will return content as-is.
+        self.assertEqual([content], findall_content(sample, "Wrapper"))
 
     def test_findall_content_for_real(self):
         with open(os.path.join(os.getcwd(), 'tests', 'wstrust', 'RSTR.xml')) as f:

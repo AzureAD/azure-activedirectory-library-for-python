@@ -63,15 +63,21 @@ def findall_content(xml_string, tag):
     >>> findall_content("<ns0:foo> what <bar> ever </bar> content </ns0:foo>", "foo")
     [" what <bar> ever </bar> content "]
 
+    Motivation:
+
     Usually we would use XML parser to extract the data by xpath.
     However the ElementTree in Python will implicitly normalize the output
     by "hoisting" the inner inline namespaces into the outmost element.
     The result will be a semantically equivalent XML snippet,
     but not fully identical to the original one.
-    While this shouldn't become a problem,
-    in practice it could potentially confuse a picky recipient.
+    While this effect shouldn't become a problem in all other cases,
+    it does not seem to fully comply with Exclusive XML Canonicalization spec
+    (https://www.w3.org/TR/xml-exc-c14n/), and void the SAML token signature.
+    SAML signature algo needs the "XML -> C14N(XML) -> Signed(C14N(Xml))" order.
 
-    Introducing this helper, based on Regex, which will return raw content as-is.
+    The binary extention lxml is probably the canonical way to solve this
+    (https://stackoverflow.com/questions/22959577/python-exclusive-xml-canonicalization-xml-exc-c14n)
+    but here we use this workaround, based on Regex, to return raw content as-is.
     """
     # \w+ is good enough for https://www.w3.org/TR/REC-xml/#NT-NameChar
     pattern = r"<(?:\w+:)?%(tag)s(?:[^>]*)>(.*)</(?:\w+:)?%(tag)s" % {"tag": tag}

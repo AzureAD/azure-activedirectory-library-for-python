@@ -47,7 +47,7 @@ class AuthenticationContext(object):
 
     def __init__(
             self, authority, validate_authority=None, cache=None,
-            api_version='1.0', timeout=None):
+            api_version='1.0', timeout=None, enable_pii=False):
         '''Creates a new AuthenticationContext object.
 
         By default the authority will be checked against a list of known Azure
@@ -73,6 +73,8 @@ class AuthenticationContext(object):
         :param timeout: (optional) requests timeout. How long to wait for the server to send
             data before giving up, as a float, or a `(connect timeout,
             read timeout) <timeouts>` tuple.
+        :param enable_pii: (optional) Unless this is set to True,
+            there will be no Personally Identifiable Information (PII) written in log.
         '''
         self.authority = Authority(authority, validate_authority is None or validate_authority)
         self._oauth2client = None
@@ -93,7 +95,8 @@ class AuthenticationContext(object):
             'options': GLOBAL_ADAL_OPTIONS,
             'api_version': api_version,
             'verify_ssl': None if env_value is None else not env_value, # mainly for tracing through proxy
-            'timeout':timeout
+            'timeout':timeout,
+            "enable_pii": enable_pii,
             }
         self._token_requests_with_user_code = {}
         self.cache = cache or TokenCache()

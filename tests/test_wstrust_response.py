@@ -36,6 +36,7 @@ except ImportError:
 
 from adal.constants import XmlNamespaces, Errors, WSTrustVersion
 from adal.wstrust_response import WSTrustResponse
+from adal.wstrust_response import findall_content
 
 _namespaces = XmlNamespaces.namespaces
 _call_context = {'log_context' : {'correlation-id':'test-corr-id'}}
@@ -100,6 +101,34 @@ class Test_wstrustresponse(unittest.TestCase):
         with six.assertRaisesRegex(self, Exception, 'Failed to parse RSTR in to DOM'):
             wstrustResponse = WSTrustResponse(_call_context, '<This is not parseable as an RSTR', WSTrustVersion.WSTRUST13)
             wstrustResponse.parse()
+
+    def test_findall_content_with_comparison(self):
+        content = """
+            <saml:Assertion xmlns:saml="SAML:assertion">
+                <ds:Signature xmlns:ds="http://www.w3.org/2000/09/xmldsig#">
+                foo
+                </ds:Signature>
+            </saml:Assertion>"""
+        sample = ('<ns0:Wrapper xmlns:ns0="namespace0">'
+            + content
+            + '</ns0:Wrapper>')
+
+        # Demonstrating how XML-based parser won't give you the raw content as-is
+        element = ET.fromstring(sample).findall('{SAML:assertion}Assertion')[0]
+        assertion_via_xml_parser = ET.tostring(element)
+        self.assertNotEqual(content, assertion_via_xml_parser)
+        self.assertNotIn(b"<ds:Signature>", assertion_via_xml_parser)
+
+        # The findall_content() helper, based on Regex, will return content as-is.
+        self.assertEqual([content], findall_content(sample, "Wrapper"))
+
+    def test_findall_content_for_real(self):
+        with open(os.path.join(os.getcwd(), 'tests', 'wstrust', 'RSTR.xml')) as f:
+            rstr = f.read()
+        wstrustResponse = WSTrustResponse(_call_context, rstr, WSTrustVersion.WSTRUST13)
+        wstrustResponse.parse()
+        self.assertIn("<X509Data>", rstr)
+        self.assertIn(b"<X509Data>", wstrustResponse.token)  # It is in bytes
 
 if __name__ == '__main__':
     unittest.main()

@@ -10,21 +10,23 @@ To support 'service principal' with certificate, ADAL depends on the 'cryptograp
 
 * For Windows and macOS
 
-Upgrade to the latest pip (8.1.2 as of June 2016) and just do `pip install adal`.
+  Upgrade to the latest pip (8.1.2 as of June 2016) and just do `pip install adal`.
 
 * For Linux
 
-Upgrade to the latest pip (8.1.2 as of June 2016).
+  Upgrade to the latest pip (8.1.2 as of June 2016).
 
-You'll need a C compiler, libffi + its development headers, and openssl + its development headers. Refer to [cryptography installation](https://cryptography.io/en/latest/installation/)
+  You'll need a C compiler, libffi + its development headers, and openssl + its development headers.
+  Refer to [cryptography installation](https://cryptography.io/en/latest/installation/)
 
 * To install from source:
 
-Upgrade to the latest pip (8.1.2 as of June 2016).
-Before run `python setup.py install`, to avoid dealing with compilation errors from cryptography, run `pip install cryptography` first to use statically-linked wheels.
-If you still like build from source, refer to [cryptography installation](https://cryptography.io/en/latest/installation/).
+  Upgrade to the latest pip (8.1.2 as of June 2016).
+  To avoid dealing with compilation errors from cryptography, first run `pip install cryptography` to use statically-linked wheels.
+  Next, run `python setup.py install`
 
-For more context, starts with this [stackoverflow thread](http://stackoverflow.com/questions/22073516/failed-to-install-python-cryptography-package-with-pip-and-setup-py).
+  If you still like to build from source, refer to [cryptography installation](https://cryptography.io/en/latest/installation/).
+  For more context, start with this [stackoverflow thread](http://stackoverflow.com/questions/22073516/failed-to-install-python-cryptography-package-with-pip-and-setup-py).
 
 ### Acquire Token with Client Credentials
 
@@ -45,6 +47,19 @@ Find the `Main logic` part in the [sample](sample/device_code_sample.py#L49-L54)
 ### Acquire Token with authorization code
 Find the `Main logic` part in the [sample](sample/website_sample.py#L107-L115) for a complete bare bones web site that makes use of the code below.
 
+## Logging
+
+#### Personal Identifiable Information (PII) & Organizational Identifiable Information (OII)
+
+Starting from ADAL Python 0.5.1, by default, ADAL logging does not capture or log any PII or OII.  The library allows app developers to turn this on by configuring the `enable_pii` flag on the AuthenticationContext. By turning on PII or OII, the app takes responsibility for safely handling highly-sensitive data and complying with any regulatory requirements.
+
+```python
+//PII or OII logging disabled. Default Logger does not capture any PII or OII.
+auth_context = AuthenticationContext(...)
+
+//PII or OII logging enabled
+auth_context = AuthenticationContext(..., enable_pii=True)
+```
 
 ## Samples and Documentation
 We provide a full suite of [sample applications on GitHub](https://github.com/azure-samples?utf8=%E2%9C%93&q=active-directory&type=&language=) and an [Azure AD developer landing page](https://docs.microsoft.com/en-us/azure/active-directory/develop/active-directory-developers-guide) to help you get started with learning the Azure Identity system. This includes tutorials for native clients and web applications. We also provide full walkthroughs for authentication flows such as OAuth2, OpenID Connect and for calling APIs such as the Graph API.
@@ -78,16 +93,16 @@ This project has adopted the [Microsoft Open Source Code of Conduct](https://ope
 ``` $ pip install adal ```
 
 ### http tracing/proxy
-If need to bypass self-signed certificates, turn on the environment variable of `ADAL_PYTHON_SSL_NO_VERIFY`
+If you need to bypass self-signed certificates, turn on the environment variable of `ADAL_PYTHON_SSL_NO_VERIFY`
 
 
 ## Note
 
 ### Changes on 'client_id' and 'resource' arguments after 0.1.0
-The convinient methods in 0.1.0 have been removed, and now your application should provide parameter values to `client_id` and `resource`.
+The convenient methods in 0.1.0 have been removed, and now your application should provide parameter values to `client_id` and `resource`.
 
 2 Reasons:
 
-* Each adal client should have an Application ID representing an valid application registered in a tenant. The old methods borrowed the client-id of [azure-cli](https://github.com/Azure/azure-xplat-cli), which is never right. It is simple to register your application and get a client id. Many walkthroughs exist. You can follow [one of those](https://docs.microsoft.com/en-us/azure/active-directory/develop/active-directory-integrating-applications). Do check out if you are new to AAD.
+* Each adal client should have an Application ID representing a valid application registered in a tenant. The old methods borrowed the client-id of [azure-cli](https://github.com/Azure/azure-xplat-cli), which is never right. It is simple to register your application and get a client id. You can follow [this walkthrough](https://docs.microsoft.com/en-us/azure/active-directory/develop/active-directory-integrating-applications). Do check out if you are new to AAD.
 
 * The old method defaults the `resource` argument to 'https://management.core.windows.net/', now you can just supply this value explictly. Please note, there are lots of different azure resources you can acquire tokens through adal though, for example, the samples in the repository acquire for the 'graph' resource. Because it is not an appropriate assumption to be made at the library level, we removed the old defaults.

@@ -81,8 +81,9 @@ class TokenCache(object):
         with self._lock:
             for e in entries:
                 key = _get_cache_key(e)
-                self._cache.pop(key)
-            self.has_state_changed = True
+                removed = self._cache.pop(key, None)
+                if removed is not None:
+                    self.has_state_changed = True
 
     def add(self, entries):
         with self._lock:

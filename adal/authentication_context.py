@@ -263,8 +263,9 @@ class AuthenticationContext(object):
         :returns: dict with several keys, include "accessToken" and
             "refreshToken".
         '''
-        self._call_context['log_context'] = log.create_log_context(
-            self.correlation_id, self._call_context.get('enable_pii', False))
+        if 'log_context' not in self._call_context:
+            self._call_context['log_context'] = log.create_log_context(
+                self.correlation_id, self._call_context.get('enable_pii', False))
 
         def token_func(self):
             token_request = TokenRequest(self._call_context, self, client_id, resource)

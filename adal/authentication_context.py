@@ -112,7 +112,7 @@ class AuthenticationContext(object):
 
     def _acquire_token(self, token_func, correlation_id=None):
         self._call_context['log_context'] = log.create_log_context(
-            self.correlation_id or correlation_id, self._call_context.get('enable_pii', False))
+            correlation_id or self.correlation_id, self._call_context.get('enable_pii', False))
         self.authority.validate(self._call_context)
         return token_func(self)
 

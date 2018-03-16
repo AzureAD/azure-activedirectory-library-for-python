@@ -247,7 +247,7 @@ class AuthenticationContext(object):
         :returns: dict contains code and uri for users to login through browser.
         '''
         self._call_context['log_context'] = log.create_log_context(
-            self.correlation_id, self._call_context.get('enable_pii', False))
+           self.correlation_id, self._call_context.get('enable_pii', False))
         self.authority.validate(self._call_context)
         code_request = CodeRequest(self._call_context, self, client_id, resource)
         return code_request.get_user_code_info(language)

@@ -305,7 +305,10 @@ class OAuth2Client(object):
             raise
 
         if util.is_http_success(resp.status_code):
-            return self._handle_get_device_code_response(resp.text)
+            user_code_info = self._handle_get_device_code_response(resp.text)
+            if resp and resp.headers and resp.headers.get('client-request-id'):
+                user_code_info['correlation_id'] = resp.headers['client-request-id']
+            return user_code_info
         else:
             if resp.status_code == 429:
                 resp.raise_for_status()  # Will raise requests.exceptions.HTTPError

@@ -110,9 +110,9 @@ class AuthenticationContext(object):
     def options(self, val):
         self._call_context['options'] = val
 
-    def _acquire_token(self, token_func):
+    def _acquire_token(self, token_func, correlation_id=None):
         self._call_context['log_context'] = log.create_log_context(
-            self.correlation_id, self._call_context.get('enable_pii', False))
+            correlation_id or self.correlation_id, self._call_context.get('enable_pii', False))
         self.authority.validate(self._call_context)
         return token_func(self)
 
@@ -263,9 +263,6 @@ class AuthenticationContext(object):
         :returns: dict with several keys, include "accessToken" and
             "refreshToken".
         '''
-        self._call_context['log_context'] = log.create_log_context(
-            self.correlation_id, self._call_context.get('enable_pii', False))
-
         def token_func(self):
             token_request = TokenRequest(self._call_context, self, client_id, resource)
 
@@ -280,7 +277,7 @@ class AuthenticationContext(object):
             
             return token
 
-        return self._acquire_token(token_func)
+        return self._acquire_token(token_func, user_code_info.get('correlation_id', None))
 
     def cancel_request_to_get_token_with_device_code(self, user_code_info):
         '''Cancels the polling request to get token with device code. 

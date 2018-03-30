@@ -26,7 +26,7 @@ def turn_on_logging():
 #    "resource": "your_resource",
 #    "tenant" : "rrandallaad1.onmicrosoft.com",
 #    "authorityHostUrl" : "https://login.microsoftonline.com",
-#    "clientid" : "",
+#    "clientId" : "624ac9bd-4c1c-4687-aec8-b56a8991cfb3",
 #    "anothertenant" : "bar.onmicrosoft.com"
 # }
 
@@ -43,7 +43,7 @@ else:
 
 authority_host_url = sample_parameters['authorityHostUrl']
 authority_url = authority_host_url + '/' + sample_parameters['tenant']
-clientid = sample_parameters['clientid']
+clientid = sample_parameters['clientId']
 GRAPH_RESOURCE = '00000002-0000-0000-c000-000000000000'
 RESOURCE = sample_parameters.get('resource', GRAPH_RESOURCE)
 

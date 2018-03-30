@@ -25,7 +25,7 @@ def turn_on_logging():
 #   "resource": "your_resource",
 #   "tenant" : "rrandallaad1.onmicrosoft.com",
 #   "authorityHostUrl" : "https://login.microsoftonline.com",
-#   "clientid" : "624ac9bd-4c1c-4687-aec8-b56a8991cfb3",
+#   "clientId" : "624ac9bd-4c1c-4687-aec8-b56a8991cfb3",
 #   "username" : "user1",
 #   "password" : "verySecurePassword"
 # }
@@ -57,7 +57,7 @@ token = context.acquire_token_with_username_password(
     RESOURCE,
     sample_parameters['username'],
     sample_parameters['password'],
-    sample_parameters['clientid'])
+    sample_parameters['clientId'])
 
 print('Here is the token')
 print(json.dumps(token, indent=2))
@@ -65,7 +65,7 @@ print(json.dumps(token, indent=2))
 refresh_token = token['refreshToken']
 token = context.acquire_token_with_refresh_token(
     refresh_token,
-    sample_parameters['clientid'],
+    sample_parameters['clientId'],
     RESOURCE,
     # client_secret="your_secret"  # This is needed when using Confidential Client,
                                    # otherwise you will encounter an invalid_client error.

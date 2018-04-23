@@ -90,17 +90,17 @@ class TestAuthorizationCode(unittest.TestCase):
 
         # assert
 
-        # the caching layer adds a few extra fileds, let us pop them out for easier comparisoon
+        # the caching layer adds a few extra fields, let us pop them out for easier verification
         for k in ['_clientId', '_authority', 'resource']:
             token_response.pop(k)
         self.assertTrue(util.is_match_token_response(response['decodedResponse'], token_response), 'The response did not match what was expected')
 
-        # verify a request was made on the wire
+        # verify a request on the wire was made
         req = httpretty.last_request()
         util.match_standard_request_headers(req)
 
-        # verify the same entry was cached
-        cached_items = context.cache.read_items()
+        # verify the same token entry was cached
+        cached_items = list(context.cache.read_items())
         self.assertTrue(len(cached_items) == 1)
         _, cached_entry = cached_items[0]
         self.assertEqual(cached_entry, token_response)

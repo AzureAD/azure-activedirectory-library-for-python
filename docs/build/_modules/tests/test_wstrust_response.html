@@ -1,0 +1,339 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>tests.test_wstrust_response &mdash; ADAL Python  documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+    <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+
+  
+  <script src="../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../../index.html" class="icon icon-home"> ADAL Python
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <!-- Local TOC -->
+              <div class="local-toc"></div>
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">ADAL Python</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../index.html">Module code</a> &raquo;</li>
+        
+      <li>tests.test_wstrust_response</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for tests.test_wstrust_response</h1><div class="highlight"><pre>
+<span></span><span class="c1">#------------------------------------------------------------------------------</span>
+<span class="c1">#</span>
+<span class="c1"># Copyright (c) Microsoft Corporation. </span>
+<span class="c1"># All rights reserved.</span>
+<span class="c1"># </span>
+<span class="c1"># This code is licensed under the MIT License.</span>
+<span class="c1"># </span>
+<span class="c1"># Permission is hereby granted, free of charge, to any person obtaining a copy</span>
+<span class="c1"># of this software and associated documentation files(the &quot;Software&quot;), to deal</span>
+<span class="c1"># in the Software without restriction, including without limitation the rights</span>
+<span class="c1"># to use, copy, modify, merge, publish, distribute, sublicense, and / or sell</span>
+<span class="c1"># copies of the Software, and to permit persons to whom the Software is</span>
+<span class="c1"># furnished to do so, subject to the following conditions :</span>
+<span class="c1"># </span>
+<span class="c1"># The above copyright notice and this permission notice shall be included in</span>
+<span class="c1"># all copies or substantial portions of the Software.</span>
+<span class="c1"># </span>
+<span class="c1"># THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR</span>
+<span class="c1"># IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,</span>
+<span class="c1"># FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.IN NO EVENT SHALL THE</span>
+<span class="c1"># AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER</span>
+<span class="c1"># LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,</span>
+<span class="c1"># OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN</span>
+<span class="c1"># THE SOFTWARE.</span>
+<span class="c1">#</span>
+<span class="c1">#------------------------------------------------------------------------------</span>
+
+<span class="kn">import</span> <span class="nn">unittest</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">six</span>
+
+<span class="k">try</span><span class="p">:</span>
+    <span class="kn">from</span> <span class="nn">xml.etree</span> <span class="k">import</span> <span class="n">cElementTree</span> <span class="k">as</span> <span class="n">ET</span>
+<span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
+    <span class="kn">from</span> <span class="nn">xml.etree</span> <span class="k">import</span> <span class="n">ElementTree</span> <span class="k">as</span> <span class="n">ET</span>
+
+<span class="kn">from</span> <span class="nn">adal.constants</span> <span class="k">import</span> <span class="n">XmlNamespaces</span><span class="p">,</span> <span class="n">Errors</span><span class="p">,</span> <span class="n">WSTrustVersion</span>
+<span class="kn">from</span> <span class="nn">adal.wstrust_response</span> <span class="k">import</span> <span class="n">WSTrustResponse</span>
+<span class="kn">from</span> <span class="nn">adal.wstrust_response</span> <span class="k">import</span> <span class="n">findall_content</span>
+
+<span class="n">_namespaces</span> <span class="o">=</span> <span class="n">XmlNamespaces</span><span class="o">.</span><span class="n">namespaces</span>
+<span class="n">_call_context</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;log_context&#39;</span> <span class="p">:</span> <span class="p">{</span><span class="s1">&#39;correlation-id&#39;</span><span class="p">:</span><span class="s1">&#39;test-corr-id&#39;</span><span class="p">}}</span>
+
+<div class="viewcode-block" id="Test_wstrustresponse"><a class="viewcode-back" href="../../source/tests.html#tests.test_wstrust_response.Test_wstrustresponse">[docs]</a><span class="k">class</span> <span class="nc">Test_wstrustresponse</span><span class="p">(</span><span class="n">unittest</span><span class="o">.</span><span class="n">TestCase</span><span class="p">):</span>
+<div class="viewcode-block" id="Test_wstrustresponse.test_parse_error_happy_path"><a class="viewcode-back" href="../../source/tests.html#tests.test_wstrust_response.Test_wstrustresponse.test_parse_error_happy_path">[docs]</a>    <span class="k">def</span> <span class="nf">test_parse_error_happy_path</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">errorResponse</span> <span class="o">=</span> <span class="s1">&#39;&#39;&#39;</span>
+<span class="s1">            &lt;s:Envelope xmlns:s=&quot;http://www.w3.org/2003/05/soap-envelope&quot; xmlns:a=&quot;http://www.w3.org/2005/08/addressing&quot; xmlns:u=&quot;http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd&quot;&gt;</span>
+<span class="s1">              &lt;s:Header&gt;</span>
+<span class="s1">               &lt;a:Action s:mustUnderstand=&quot;1&quot;&gt;http://www.w3.org/2005/08/addressing/soap/fault&lt;/a:Action&gt;</span>
+<span class="s1">               &lt;o:Security s:mustUnderstand=&quot;1&quot; xmlns:o=&quot;http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd&quot;&gt;</span>
+<span class="s1">                 &lt;u:Timestamp u:Id=&quot;_0&quot;&gt;</span>
+<span class="s1">                 &lt;u:Created&gt;2013-07-30T00:32:21.989Z&lt;/u:Created&gt;</span>
+<span class="s1">                 &lt;u:Expires&gt;2013-07-30T00:37:21.989Z&lt;/u:Expires&gt;</span>
+<span class="s1">                 &lt;/u:Timestamp&gt;</span>
+<span class="s1">               &lt;/o:Security&gt;</span>
+<span class="s1">               &lt;/s:Header&gt;</span>
+<span class="s1">             &lt;s:Body&gt;</span>
+<span class="s1">               &lt;s:Fault&gt;</span>
+<span class="s1">                 &lt;s:Code&gt;</span>
+<span class="s1">                   &lt;s:Value&gt;s:Sender&lt;/s:Value&gt;</span>
+<span class="s1">                   &lt;s:Subcode&gt;</span>
+<span class="s1">                   &lt;s:Value xmlns:a=&quot;http://docs.oasis-open.org/ws-sx/ws-trust/200512&quot;&gt;a:RequestFailed&lt;/s:Value&gt;</span>
+<span class="s1">                   &lt;/s:Subcode&gt;</span>
+<span class="s1">                 &lt;/s:Code&gt;</span>
+<span class="s1">                 &lt;s:Reason&gt;</span>
+<span class="s1">                 &lt;s:Text xml:lang=&quot;en-US&quot;&gt;MSIS3127: The specified request failed.&lt;/s:Text&gt;</span>
+<span class="s1">                 &lt;/s:Reason&gt;</span>
+<span class="s1">               &lt;/s:Fault&gt;</span>
+<span class="s1">            &lt;/s:Body&gt;</span>
+<span class="s1">            &lt;/s:Envelope&gt;&#39;&#39;&#39;</span>
+
+        <span class="n">wstrustResponse</span> <span class="o">=</span> <span class="n">WSTrustResponse</span><span class="p">(</span><span class="n">_call_context</span><span class="p">,</span> <span class="n">errorResponse</span><span class="p">,</span> <span class="n">WSTrustVersion</span><span class="o">.</span><span class="n">WSTRUST13</span><span class="p">)</span>
+
+        <span class="n">exception_text</span> <span class="o">=</span> <span class="s2">&quot;Server returned error in RSTR - ErrorCode: RequestFailed : FaultMessage: MSIS3127: The specified request failed&quot;</span>
+        <span class="k">with</span> <span class="n">six</span><span class="o">.</span><span class="n">assertRaisesRegex</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="ne">Exception</span><span class="p">,</span> <span class="n">exception_text</span><span class="p">)</span> <span class="k">as</span> <span class="n">cm</span><span class="p">:</span>
+            <span class="n">wstrustResponse</span><span class="o">.</span><span class="n">parse</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="Test_wstrustresponse.test_token_parsing_happy_path"><a class="viewcode-back" href="../../source/tests.html#tests.test_wstrust_response.Test_wstrustresponse.test_token_parsing_happy_path">[docs]</a>    <span class="k">def</span> <span class="nf">test_token_parsing_happy_path</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">wstrustFile</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">(),</span> <span class="s1">&#39;tests&#39;</span><span class="p">,</span> <span class="s1">&#39;wstrust&#39;</span><span class="p">,</span> <span class="s1">&#39;RSTR.xml&#39;</span><span class="p">))</span>
+        <span class="n">wstrustResponse</span> <span class="o">=</span> <span class="n">WSTrustResponse</span><span class="p">(</span><span class="n">_call_context</span><span class="p">,</span> <span class="n">wstrustFile</span><span class="o">.</span><span class="n">read</span><span class="p">(),</span> <span class="n">WSTrustVersion</span><span class="o">.</span><span class="n">WSTRUST13</span><span class="p">)</span>
+        <span class="n">wstrustResponse</span><span class="o">.</span><span class="n">parse</span><span class="p">()</span>
+        <span class="n">wstrustFile</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">wstrustResponse</span><span class="o">.</span><span class="n">token_type</span><span class="p">,</span> <span class="s1">&#39;urn:oasis:names:tc:SAML:1.0:assertion&#39;</span><span class="p">,</span> <span class="s1">&#39;TokenType did not match expected value: &#39;</span> <span class="o">+</span> <span class="n">wstrustResponse</span><span class="o">.</span><span class="n">token_type</span><span class="p">)</span>
+
+        <span class="n">attribute_values</span> <span class="o">=</span> <span class="n">ET</span><span class="o">.</span><span class="n">fromstring</span><span class="p">(</span><span class="n">wstrustResponse</span><span class="o">.</span><span class="n">token</span><span class="p">)</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="s1">&#39;saml:AttributeStatement/saml:Attribute/saml:AttributeValue&#39;</span><span class="p">,</span> <span class="n">_namespaces</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">attribute_values</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="s1">&#39;1TIu064jGEmmf+hnI+F0Jg==&#39;</span><span class="p">,</span> <span class="n">attribute_values</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">text</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Test_wstrustresponse.test_rstr_none"><a class="viewcode-back" href="../../source/tests.html#tests.test_wstrust_response.Test_wstrustresponse.test_rstr_none">[docs]</a>    <span class="k">def</span> <span class="nf">test_rstr_none</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">with</span> <span class="n">six</span><span class="o">.</span><span class="n">assertRaisesRegex</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="ne">Exception</span><span class="p">,</span> <span class="s1">&#39;Received empty RSTR response body.&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">cm</span><span class="p">:</span>
+            <span class="n">wstrustResponse</span> <span class="o">=</span> <span class="n">WSTrustResponse</span><span class="p">(</span><span class="n">_call_context</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="n">WSTrustVersion</span><span class="o">.</span><span class="n">WSTRUST13</span><span class="p">)</span>
+            <span class="n">wstrustResponse</span><span class="o">.</span><span class="n">parse</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="Test_wstrustresponse.test_rstr_empty_string"><a class="viewcode-back" href="../../source/tests.html#tests.test_wstrust_response.Test_wstrustresponse.test_rstr_empty_string">[docs]</a>    <span class="k">def</span> <span class="nf">test_rstr_empty_string</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">with</span> <span class="n">six</span><span class="o">.</span><span class="n">assertRaisesRegex</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="ne">Exception</span><span class="p">,</span> <span class="s1">&#39;Received empty RSTR response body.&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">cm</span><span class="p">:</span>
+            <span class="n">wstrustResponse</span> <span class="o">=</span> <span class="n">WSTrustResponse</span><span class="p">(</span><span class="n">_call_context</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">WSTrustVersion</span><span class="o">.</span><span class="n">WSTRUST13</span><span class="p">)</span>
+            <span class="n">wstrustResponse</span><span class="o">.</span><span class="n">parse</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="Test_wstrustresponse.test_rstr_unparseable_xml"><a class="viewcode-back" href="../../source/tests.html#tests.test_wstrust_response.Test_wstrustresponse.test_rstr_unparseable_xml">[docs]</a>    <span class="k">def</span> <span class="nf">test_rstr_unparseable_xml</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">with</span> <span class="n">six</span><span class="o">.</span><span class="n">assertRaisesRegex</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="ne">Exception</span><span class="p">,</span> <span class="s1">&#39;Failed to parse RSTR in to DOM&#39;</span><span class="p">):</span>
+            <span class="n">wstrustResponse</span> <span class="o">=</span> <span class="n">WSTrustResponse</span><span class="p">(</span><span class="n">_call_context</span><span class="p">,</span> <span class="s1">&#39;&lt;This is not parseable as an RSTR&#39;</span><span class="p">,</span> <span class="n">WSTrustVersion</span><span class="o">.</span><span class="n">WSTRUST13</span><span class="p">)</span>
+            <span class="n">wstrustResponse</span><span class="o">.</span><span class="n">parse</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="Test_wstrustresponse.test_findall_content_with_comparison"><a class="viewcode-back" href="../../source/tests.html#tests.test_wstrust_response.Test_wstrustresponse.test_findall_content_with_comparison">[docs]</a>    <span class="k">def</span> <span class="nf">test_findall_content_with_comparison</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">content</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">            &lt;saml:Assertion xmlns:saml=&quot;SAML:assertion&quot;&gt;</span>
+<span class="s2">                &lt;ds:Signature xmlns:ds=&quot;http://www.w3.org/2000/09/xmldsig#&quot;&gt;</span>
+<span class="s2">                foo</span>
+<span class="s2">                &lt;/ds:Signature&gt;</span>
+<span class="s2">            &lt;/saml:Assertion&gt;&quot;&quot;&quot;</span>
+        <span class="n">sample</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;&lt;ns0:Wrapper xmlns:ns0=&quot;namespace0&quot;&gt;&#39;</span>
+            <span class="o">+</span> <span class="n">content</span>
+            <span class="o">+</span> <span class="s1">&#39;&lt;/ns0:Wrapper&gt;&#39;</span><span class="p">)</span>
+
+        <span class="c1"># Demonstrating how XML-based parser won&#39;t give you the raw content as-is</span>
+        <span class="n">element</span> <span class="o">=</span> <span class="n">ET</span><span class="o">.</span><span class="n">fromstring</span><span class="p">(</span><span class="n">sample</span><span class="p">)</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="s1">&#39;{SAML:assertion}Assertion&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">assertion_via_xml_parser</span> <span class="o">=</span> <span class="n">ET</span><span class="o">.</span><span class="n">tostring</span><span class="p">(</span><span class="n">element</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertNotEqual</span><span class="p">(</span><span class="n">content</span><span class="p">,</span> <span class="n">assertion_via_xml_parser</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertNotIn</span><span class="p">(</span><span class="sa">b</span><span class="s2">&quot;&lt;ds:Signature&gt;&quot;</span><span class="p">,</span> <span class="n">assertion_via_xml_parser</span><span class="p">)</span>
+
+        <span class="c1"># The findall_content() helper, based on Regex, will return content as-is.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">([</span><span class="n">content</span><span class="p">],</span> <span class="n">findall_content</span><span class="p">(</span><span class="n">sample</span><span class="p">,</span> <span class="s2">&quot;Wrapper&quot;</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="Test_wstrustresponse.test_findall_content_for_real"><a class="viewcode-back" href="../../source/tests.html#tests.test_wstrust_response.Test_wstrustresponse.test_findall_content_for_real">[docs]</a>    <span class="k">def</span> <span class="nf">test_findall_content_for_real</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">(),</span> <span class="s1">&#39;tests&#39;</span><span class="p">,</span> <span class="s1">&#39;wstrust&#39;</span><span class="p">,</span> <span class="s1">&#39;RSTR.xml&#39;</span><span class="p">))</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="n">rstr</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+        <span class="n">wstrustResponse</span> <span class="o">=</span> <span class="n">WSTrustResponse</span><span class="p">(</span><span class="n">_call_context</span><span class="p">,</span> <span class="n">rstr</span><span class="p">,</span> <span class="n">WSTrustVersion</span><span class="o">.</span><span class="n">WSTRUST13</span><span class="p">)</span>
+        <span class="n">wstrustResponse</span><span class="o">.</span><span class="n">parse</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertIn</span><span class="p">(</span><span class="s2">&quot;&lt;X509Data&gt;&quot;</span><span class="p">,</span> <span class="n">rstr</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertIn</span><span class="p">(</span><span class="sa">b</span><span class="s2">&quot;&lt;X509Data&gt;&quot;</span><span class="p">,</span> <span class="n">wstrustResponse</span><span class="o">.</span><span class="n">token</span><span class="p">)</span>  <span class="c1"># It is in bytes</span></div></div>
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>
+    <span class="n">unittest</span><span class="o">.</span><span class="n">main</span><span class="p">()</span>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018, abhidnya.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../../',
+            VERSION:'',
+            LANGUAGE:'None',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="../../_static/jquery.js"></script>
+      <script type="text/javascript" src="../../_static/underscore.js"></script>
+      <script type="text/javascript" src="../../_static/doctools.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          
+          SphinxRtdTheme.Navigation.enableSticky();
+          
+      });
+  </script> 
+
+</body>
+</html>

@@ -1,0 +1,1592 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>adal package &mdash; ADAL Python  documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+    <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" /> 
+
+  
+  <script src="../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> ADAL Python
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <!-- Local TOC -->
+              <div class="local-toc"><ul>
+<li><a class="reference internal" href="#">adal package</a><ul>
+<li><a class="reference internal" href="#submodules">Submodules</a></li>
+<li><a class="reference internal" href="#module-adal.adal_error">adal.adal_error module</a></li>
+<li><a class="reference internal" href="#module-adal.argument">adal.argument module</a></li>
+<li><a class="reference internal" href="#module-adal.authentication_context">adal.authentication_context module</a></li>
+<li><a class="reference internal" href="#module-adal.authentication_parameters">adal.authentication_parameters module</a></li>
+<li><a class="reference internal" href="#module-adal.authority">adal.authority module</a></li>
+<li><a class="reference internal" href="#module-adal.cache_driver">adal.cache_driver module</a></li>
+<li><a class="reference internal" href="#module-adal.code_request">adal.code_request module</a></li>
+<li><a class="reference internal" href="#module-adal.constants">adal.constants module</a></li>
+<li><a class="reference internal" href="#module-adal.log">adal.log module</a></li>
+<li><a class="reference internal" href="#module-adal.mex">adal.mex module</a></li>
+<li><a class="reference internal" href="#module-adal.oauth2_client">adal.oauth2_client module</a></li>
+<li><a class="reference internal" href="#module-adal.self_signed_jwt">adal.self_signed_jwt module</a></li>
+<li><a class="reference internal" href="#module-adal.token_cache">adal.token_cache module</a></li>
+<li><a class="reference internal" href="#module-adal.token_request">adal.token_request module</a></li>
+<li><a class="reference internal" href="#module-adal.user_realm">adal.user_realm module</a></li>
+<li><a class="reference internal" href="#module-adal.util">adal.util module</a></li>
+<li><a class="reference internal" href="#module-adal.wstrust_request">adal.wstrust_request module</a></li>
+<li><a class="reference internal" href="#module-adal.wstrust_response">adal.wstrust_response module</a></li>
+<li><a class="reference internal" href="#module-adal.xmlutil">adal.xmlutil module</a></li>
+<li><a class="reference internal" href="#module-adal">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</div>
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">ADAL Python</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+      <li>adal package</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/source/adal.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="adal-package">
+<h1>adal package<a class="headerlink" href="#adal-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="module-adal.adal_error">
+<span id="adal-adal-error-module"></span><h2>adal.adal_error module<a class="headerlink" href="#module-adal.adal_error" title="Permalink to this headline">¶</a></h2>
+<dl class="exception">
+<dt id="adal.adal_error.AdalError">
+<em class="property">exception </em><code class="descclassname">adal.adal_error.</code><code class="descname">AdalError</code><span class="sig-paren">(</span><em>error_msg</em>, <em>error_response=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/adal/adal_error.html#AdalError"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#adal.adal_error.AdalError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/exceptions.html#Exception" title="(in Python v3.6)"><code class="xref py py-class docutils literal"><span class="pre">Exception</span></code></a></p>
+</dd></dl>
+
+</div>
+<div class="section" id="module-adal.argument">
+<span id="adal-argument-module"></span><h2>adal.argument module<a class="headerlink" href="#module-adal.argument" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="adal.argument.validate_user_code_info">
+<code class="descclassname">adal.argument.</code><code class="descname">validate_user_code_info</code><span class="sig-paren">(</span><em>user_code_info</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/adal/argument.html#validate_user_code_info"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#adal.argument.validate_user_code_info" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+<div class="section" id="module-adal.authentication_context">
+<span id="adal-authentication-context-module"></span><h2>adal.authentication_context module<a class="headerlink" href="#module-adal.authentication_context" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="adal.authentication_context.AuthenticationContext">
+<em class="property">class </em><code class="descclassname">adal.authentication_context.</code><code class="descname">AuthenticationContext</code><span class="sig-paren">(</span><em>authority</em>, <em>validate_authority=None</em>, <em>cache=None</em>, <em>api_version='1.0'</em>, <em>timeout=None</em>, <em>enable_pii=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/adal/authentication_context.html#AuthenticationContext"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#adal.authentication_context.AuthenticationContext" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.6)"><code class="xref py py-class docutils literal"><span class="pre">object</span></code></a></p>
+<p>Retrieves authentication tokens from Azure Active Directory.</p>
+<dl class="docutils">
+<dt>For usages, check out the “sample” folder at:</dt>
+<dd><a class="reference external" href="https://github.com/AzureAD/azure-activedirectory-library-for-python">https://github.com/AzureAD/azure-activedirectory-library-for-python</a></dd>
+</dl>
+<dl class="method">
+<dt id="adal.authentication_context.AuthenticationContext.acquire_token">
+<code class="descname">acquire_token</code><span class="sig-paren">(</span><em>resource</em>, <em>user_id</em>, <em>client_id</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/adal/authentication_context.html#AuthenticationContext.acquire_token"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#adal.authentication_context.AuthenticationContext.acquire_token" title="Permalink to this definition">¶</a></dt>
+<dd><p>Gets a token for a given resource via cached tokens.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>resource</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.6)"><em>str</em></a>) – A URI that identifies the resource for which the
+token is valid.</li>
+<li><strong>user_id</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.6)"><em>str</em></a>) – The username of the user on behalf this application
+is authenticating.</li>
+<li><strong>client_id</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.6)"><em>str</em></a>) – The OAuth client id of the calling application.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">dic with several keys, include “accessToken” and
+“refreshToken”.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="adal.authentication_context.AuthenticationContext.acquire_token_with_authorization_code">
+<code class="descname">acquire_token_with_authorization_code</code><span class="sig-paren">(</span><em>authorization_code</em>, <em>redirect_uri</em>, <em>resource</em>, <em>client_id</em>, <em>client_secret</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/adal/authentication_context.html#AuthenticationContext.acquire_token_with_authorization_code"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#adal.authentication_context.AuthenticationContext.acquire_token_with_authorization_code" title="Permalink to this definition">¶</a></dt>
+<dd><p>Gets a token for a given resource via auhtorization code for a
+server app.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>authorization_code</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.6)"><em>str</em></a>) – An authorization code returned from a
+client.</li>
+<li><strong>redirect_uri</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.6)"><em>str</em></a>) – the redirect uri that was used in the
+authorize call.</li>
+<li><strong>resource</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.6)"><em>str</em></a>) – A URI that identifies the resource for which the
+token is valid.</li>
+<li><strong>client_id</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.6)"><em>str</em></a>) – The OAuth client id of the calling application.</li>
+<li><strong>client_secret</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.6)"><em>str</em></a>) – The OAuth client secret of the calling
+application.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">dict with several keys, include “accessToken” and
+“refreshToken”.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="adal.authentication_context.AuthenticationContext.acquire_token_with_client_certificate">
+<code class="descname">acquire_token_with_client_certificate</code><span class="sig-paren">(</span><em>resource</em>, <em>client_id</em>, <em>certificate</em>, <em>thumbprint</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/adal/authentication_context.html#AuthenticationContext.acquire_token_with_client_certificate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#adal.authentication_context.AuthenticationContext.acquire_token_with_client_certificate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Gets a token for a given resource via certificate credentials</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>resource</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.6)"><em>str</em></a>) – A URI that identifies the resource for which the
+token is valid.</li>
+<li><strong>client_id</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.6)"><em>str</em></a>) – The OAuth client id of the calling application.</li>
+<li><strong>certificate</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.6)"><em>str</em></a>) – A PEM encoded certificate private key.</li>
+<li><strong>thumbprint</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.6)"><em>str</em></a>) – hex encoded thumbprint of the certificate.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">dict with several keys, include “accessToken”.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="adal.authentication_context.AuthenticationContext.acquire_token_with_client_credentials">
+<code class="descname">acquire_token_with_client_credentials</code><span class="sig-paren">(</span><em>resource</em>, <em>client_id</em>, <em>client_secret</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/adal/authentication_context.html#AuthenticationContext.acquire_token_with_client_credentials"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#adal.authentication_context.AuthenticationContext.acquire_token_with_client_credentials" title="Permalink to this definition">¶</a></dt>
+<dd><p>Gets a token for a given resource via client credentials.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>resource</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.6)"><em>str</em></a>) – A URI that identifies the resource for which the 
+token is valid.</li>
+<li><strong>client_id</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.6)"><em>str</em></a>) – The OAuth client id of the calling application.</li>
+<li><strong>client_secret</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.6)"><em>str</em></a>) – The OAuth client secret of the calling application.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">dict with several keys, include “accessToken”.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="adal.authentication_context.AuthenticationContext.acquire_token_with_device_code">
+<code class="descname">acquire_token_with_device_code</code><span class="sig-paren">(</span><em>resource</em>, <em>user_code_info</em>, <em>client_id</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/adal/authentication_context.html#AuthenticationContext.acquire_token_with_device_code"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#adal.authentication_context.AuthenticationContext.acquire_token_with_device_code" title="Permalink to this definition">¶</a></dt>
+<dd><p>Gets a new access token using via a device code.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>resource</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.6)"><em>str</em></a>) – A URI that identifies the resource for which the
+token is valid.</li>
+<li><strong>user_code_info</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.6)"><em>dict</em></a>) – The code info from the invocation of
+“acquire_user_code”</li>
+<li><strong>client_id</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.6)"><em>str</em></a>) – The OAuth client id of the calling application.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">dict with several keys, include “accessToken” and
+“refreshToken”.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="adal.authentication_context.AuthenticationContext.acquire_token_with_refresh_token">
+<code class="descname">acquire_token_with_refresh_token</code><span class="sig-paren">(</span><em>refresh_token</em>, <em>client_id</em>, <em>resource</em>, <em>client_secret=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/adal/authentication_context.html#AuthenticationContext.acquire_token_with_refresh_token"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#adal.authentication_context.AuthenticationContext.acquire_token_with_refresh_token" title="Permalink to this definition">¶</a></dt>
+<dd><p>Gets a token for a given resource via refresh tokens</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>refresh_token</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.6)"><em>str</em></a>) – A refresh token returned in a tokne response
+from a previous invocation of acquireToken.</li>
+<li><strong>client_id</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.6)"><em>str</em></a>) – The OAuth client id of the calling application.</li>
+<li><strong>resource</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.6)"><em>str</em></a>) – A URI that identifies the resource for which the
+token is valid.</li>
+<li><strong>client_secret</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.6)"><em>str</em></a>) – (optional)The OAuth client secret of the
+calling application.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">dict with several keys, include “accessToken” and
+“refreshToken”.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="adal.authentication_context.AuthenticationContext.acquire_token_with_username_password">
+<code class="descname">acquire_token_with_username_password</code><span class="sig-paren">(</span><em>resource</em>, <em>username</em>, <em>password</em>, <em>client_id</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/adal/authentication_context.html#AuthenticationContext.acquire_token_with_username_password"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#adal.authentication_context.AuthenticationContext.acquire_token_with_username_password" title="Permalink to this definition">¶</a></dt>
+<dd><p>Gets a token for a given resource via user credentails.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>resource</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.6)"><em>str</em></a>) – A URI that identifies the resource for which the 
+token is valid.</li>
+<li><strong>username</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.6)"><em>str</em></a>) – The username of the user on behalf this
+application is authenticating.</li>
+<li><strong>password</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.6)"><em>str</em></a>) – The password of the user named in the username
+parameter.</li>
+<li><strong>client_id</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.6)"><em>str</em></a>) – The OAuth client id of the calling application.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">dict with several keys, include “accessToken” and
+“refreshToken”.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="adal.authentication_context.AuthenticationContext.acquire_user_code">
+<code class="descname">acquire_user_code</code><span class="sig-paren">(</span><em>resource</em>, <em>client_id</em>, <em>language=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/adal/authentication_context.html#AuthenticationContext.acquire_user_code"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#adal.authentication_context.AuthenticationContext.acquire_user_code" title="Permalink to this definition">¶</a></dt>
+<dd><p>Gets the user code info which contains user_code, device_code for
+authenticating user on device.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>resource</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.6)"><em>str</em></a>) – A URI that identifies the resource for which the 
+device_code and user_code is valid for.</li>
+<li><strong>client_id</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.6)"><em>str</em></a>) – The OAuth client id of the calling application.</li>
+<li><strong>language</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.6)"><em>str</em></a>) – The language code specifying how the message
+should be localized to.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">dict contains code and uri for users to login through browser.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="adal.authentication_context.AuthenticationContext.cancel_request_to_get_token_with_device_code">
+<code class="descname">cancel_request_to_get_token_with_device_code</code><span class="sig-paren">(</span><em>user_code_info</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/adal/authentication_context.html#AuthenticationContext.cancel_request_to_get_token_with_device_code"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#adal.authentication_context.AuthenticationContext.cancel_request_to_get_token_with_device_code" title="Permalink to this definition">¶</a></dt>
+<dd><p>Cancels the polling request to get token with device code.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>user_code_info</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.6)"><em>dict</em></a>) – The code info from the invocation of
+“acquire_user_code”</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">None</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="adal.authentication_context.AuthenticationContext.options">
+<code class="descname">options</code><a class="headerlink" href="#adal.authentication_context.AuthenticationContext.options" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-adal.authentication_parameters">
+<span id="adal-authentication-parameters-module"></span><h2>adal.authentication_parameters module<a class="headerlink" href="#module-adal.authentication_parameters" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="adal.authentication_parameters.AuthenticationParameters">
+<em class="property">class </em><code class="descclassname">adal.authentication_parameters.</code><code class="descname">AuthenticationParameters</code><span class="sig-paren">(</span><em>authorization_uri</em>, <em>resource</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/adal/authentication_parameters.html#AuthenticationParameters"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#adal.authentication_parameters.AuthenticationParameters" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.6)"><code class="xref py py-class docutils literal"><span class="pre">object</span></code></a></p>
+</dd></dl>
+
+<dl class="function">
+<dt id="adal.authentication_parameters.create_authentication_parameters_from_header">
+<code class="descclassname">adal.authentication_parameters.</code><code class="descname">create_authentication_parameters_from_header</code><span class="sig-paren">(</span><em>challenge</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/adal/authentication_parameters.html#create_authentication_parameters_from_header"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#adal.authentication_parameters.create_authentication_parameters_from_header" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="adal.authentication_parameters.create_authentication_parameters_from_response">
+<code class="descclassname">adal.authentication_parameters.</code><code class="descname">create_authentication_parameters_from_response</code><span class="sig-paren">(</span><em>response</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/adal/authentication_parameters.html#create_authentication_parameters_from_response"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#adal.authentication_parameters.create_authentication_parameters_from_response" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="adal.authentication_parameters.create_authentication_parameters_from_url">
+<code class="descclassname">adal.authentication_parameters.</code><code class="descname">create_authentication_parameters_from_url</code><span class="sig-paren">(</span><em>url</em>, <em>correlation_id=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/adal/authentication_parameters.html#create_authentication_parameters_from_url"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#adal.authentication_parameters.create_authentication_parameters_from_url" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="adal.authentication_parameters.parse_challenge">
+<code class="descclassname">adal.authentication_parameters.</code><code class="descname">parse_challenge</code><span class="sig-paren">(</span><em>challenge</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/adal/authentication_parameters.html#parse_challenge"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#adal.authentication_parameters.parse_challenge" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="adal.authentication_parameters.validate_url_object">
+<code class="descclassname">adal.authentication_parameters.</code><code class="descname">validate_url_object</code><span class="sig-paren">(</span><em>url</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/adal/authentication_parameters.html#validate_url_object"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#adal.authentication_parameters.validate_url_object" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+<div class="section" id="module-adal.authority">
+<span id="adal-authority-module"></span><h2>adal.authority module<a class="headerlink" href="#module-adal.authority" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="adal.authority.Authority">
+<em class="property">class </em><code class="descclassname">adal.authority.</code><code class="descname">Authority</code><span class="sig-paren">(</span><em>authority_url</em>, <em>validate_authority=True</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/adal/authority.html#Authority"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#adal.authority.Authority" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.6)"><code class="xref py py-class docutils literal"><span class="pre">object</span></code></a></p>
+<dl class="attribute">
+<dt id="adal.authority.Authority.url">
+<code class="descname">url</code><a class="headerlink" href="#adal.authority.Authority.url" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="adal.authority.Authority.validate">
+<code class="descname">validate</code><span class="sig-paren">(</span><em>call_context</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/adal/authority.html#Authority.validate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#adal.authority.Authority.validate" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-adal.cache_driver">
+<span id="adal-cache-driver-module"></span><h2>adal.cache_driver module<a class="headerlink" href="#module-adal.cache_driver" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="adal.cache_driver.CacheDriver">
+<em class="property">class </em><code class="descclassname">adal.cache_driver.</code><code class="descname">CacheDriver</code><span class="sig-paren">(</span><em>call_context</em>, <em>authority</em>, <em>resource</em>, <em>client_id</em>, <em>cache</em>, <em>refresh_function</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/adal/cache_driver.html#CacheDriver"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#adal.cache_driver.CacheDriver" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.6)"><code class="xref py py-class docutils literal"><span class="pre">object</span></code></a></p>
+<dl class="method">
+<dt id="adal.cache_driver.CacheDriver.add">
+<code class="descname">add</code><span class="sig-paren">(</span><em>entry</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/adal/cache_driver.html#CacheDriver.add"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#adal.cache_driver.CacheDriver.add" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="adal.cache_driver.CacheDriver.find">
+<code class="descname">find</code><span class="sig-paren">(</span><em>query</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/adal/cache_driver.html#CacheDriver.find"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#adal.cache_driver.CacheDriver.find" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="adal.cache_driver.CacheDriver.remove">
+<code class="descname">remove</code><span class="sig-paren">(</span><em>entry</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/adal/cache_driver.html#CacheDriver.remove"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#adal.cache_driver.CacheDriver.remove" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-adal.code_request">
+<span id="adal-code-request-module"></span><h2>adal.code_request module<a class="headerlink" href="#module-adal.code_request" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="adal.code_request.CodeRequest">
+<em class="property">class </em><code class="descclassname">adal.code_request.</code><code class="descname">CodeRequest</code><span class="sig-paren">(</span><em>call_context</em>, <em>authentication_context</em>, <em>client_id</em>, <em>resource</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/adal/code_request.html#CodeRequest"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#adal.code_request.CodeRequest" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.6)"><code class="xref py py-class docutils literal"><span class="pre">object</span></code></a></p>
+<p>description of class</p>
+<dl class="method">
+<dt id="adal.code_request.CodeRequest.get_user_code_info">
+<code class="descname">get_user_code_info</code><span class="sig-paren">(</span><em>language</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/adal/code_request.html#CodeRequest.get_user_code_info"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#adal.code_request.CodeRequest.get_user_code_info" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-adal.constants">
+<span id="adal-constants-module"></span><h2>adal.constants module<a class="headerlink" href="#module-adal.constants" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="adal.constants.AADConstants">
+<em class="property">class </em><code class="descclassname">adal.constants.</code><code class="descname">AADConstants</code><a class="reference internal" href="../_modules/adal/constants.html#AADConstants"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#adal.constants.AADConstants" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.6)"><code class="xref py py-class docutils literal"><span class="pre">object</span></code></a></p>
+<dl class="attribute">
+<dt id="adal.constants.AADConstants.AUTHORIZE_ENDPOINT_PATH">
+<code class="descname">AUTHORIZE_ENDPOINT_PATH</code><em class="property"> = '/oauth2/authorize'</em><a class="headerlink" href="#adal.constants.AADConstants.AUTHORIZE_ENDPOINT_PATH" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="adal.constants.AADConstants.DEVICE_ENDPOINT_PATH">
+<code class="descname">DEVICE_ENDPOINT_PATH</code><em class="property"> = '/oauth2/devicecode'</em><a class="headerlink" href="#adal.constants.AADConstants.DEVICE_ENDPOINT_PATH" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="adal.constants.AADConstants.INSTANCE_DISCOVERY_ENDPOINT_TEMPLATE">
+<code class="descname">INSTANCE_DISCOVERY_ENDPOINT_TEMPLATE</code><em class="property"> = 'https://{authorize_host}/common/discovery/instance?authorization_endpoint={authorize_endpoint}&amp;api-version=1.0'</em><a class="headerlink" href="#adal.constants.AADConstants.INSTANCE_DISCOVERY_ENDPOINT_TEMPLATE" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="adal.constants.AADConstants.TOKEN_ENDPOINT_PATH">
+<code class="descname">TOKEN_ENDPOINT_PATH</code><em class="property"> = '/oauth2/token'</em><a class="headerlink" href="#adal.constants.AADConstants.TOKEN_ENDPOINT_PATH" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="adal.constants.AADConstants.WELL_KNOWN_AUTHORITY_HOSTS">
+<code class="descname">WELL_KNOWN_AUTHORITY_HOSTS</code><em class="property"> = ['login.windows.net', 'login.microsoftonline.com', 'login.chinacloudapi.cn', 'login-us.microsoftonline.com', 'login.microsoftonline.us', 'login.microsoftonline.de']</em><a class="headerlink" href="#adal.constants.AADConstants.WELL_KNOWN_AUTHORITY_HOSTS" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="adal.constants.AADConstants.WORLD_WIDE_AUTHORITY">
+<code class="descname">WORLD_WIDE_AUTHORITY</code><em class="property"> = 'login.windows.net'</em><a class="headerlink" href="#adal.constants.AADConstants.WORLD_WIDE_AUTHORITY" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="adal.constants.AdalIdParameters">
+<em class="property">class </em><code class="descclassname">adal.constants.</code><code class="descname">AdalIdParameters</code><a class="reference internal" href="../_modules/adal/constants.html#AdalIdParameters"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#adal.constants.AdalIdParameters" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.6)"><code class="xref py py-class docutils literal"><span class="pre">object</span></code></a></p>
+<dl class="attribute">
+<dt id="adal.constants.AdalIdParameters.CPU">
+<code class="descname">CPU</code><em class="property"> = 'x-client-CPU'</em><a class="headerlink" href="#adal.constants.AdalIdParameters.CPU" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="adal.constants.AdalIdParameters.OS">
+<code class="descname">OS</code><em class="property"> = 'x-client-OS'</em><a class="headerlink" href="#adal.constants.AdalIdParameters.OS" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="adal.constants.AdalIdParameters.PYTHON_SKU">
+<code class="descname">PYTHON_SKU</code><em class="property"> = 'Python'</em><a class="headerlink" href="#adal.constants.AdalIdParameters.PYTHON_SKU" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="adal.constants.AdalIdParameters.SKU">
+<code class="descname">SKU</code><em class="property"> = 'x-client-SKU'</em><a class="headerlink" href="#adal.constants.AdalIdParameters.SKU" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="adal.constants.AdalIdParameters.VERSION">
+<code class="descname">VERSION</code><em class="property"> = 'x-client-Ver'</em><a class="headerlink" href="#adal.constants.AdalIdParameters.VERSION" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="adal.constants.Cache">
+<em class="property">class </em><code class="descclassname">adal.constants.</code><code class="descname">Cache</code><a class="reference internal" href="../_modules/adal/constants.html#Cache"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#adal.constants.Cache" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.6)"><code class="xref py py-class docutils literal"><span class="pre">object</span></code></a></p>
+<dl class="attribute">
+<dt id="adal.constants.Cache.HASH_ALGORITHM">
+<code class="descname">HASH_ALGORITHM</code><em class="property"> = 'sha256'</em><a class="headerlink" href="#adal.constants.Cache.HASH_ALGORITHM" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="adal.constants.Errors">
+<em class="property">class </em><code class="descclassname">adal.constants.</code><code class="descname">Errors</code><a class="reference internal" href="../_modules/adal/constants.html#Errors"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#adal.constants.Errors" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.6)"><code class="xref py py-class docutils literal"><span class="pre">object</span></code></a></p>
+<dl class="attribute">
+<dt id="adal.constants.Errors.ERROR_RESPONSE_MALFORMED_XML">
+<code class="descname">ERROR_RESPONSE_MALFORMED_XML</code><em class="property"> = 'The provided response string is not well formed XML.'</em><a class="headerlink" href="#adal.constants.Errors.ERROR_RESPONSE_MALFORMED_XML" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="adal.constants.Errors.ERROR_VALUE_EMPTY_STRING">
+<code class="descname">ERROR_VALUE_EMPTY_STRING</code><em class="property"> = '{} should not be &quot;&quot;.'</em><a class="headerlink" href="#adal.constants.Errors.ERROR_VALUE_EMPTY_STRING" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="adal.constants.Errors.ERROR_VALUE_NONE">
+<code class="descname">ERROR_VALUE_NONE</code><em class="property"> = '{} should not be None.'</em><a class="headerlink" href="#adal.constants.Errors.ERROR_VALUE_NONE" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="adal.constants.HttpError">
+<em class="property">class </em><code class="descclassname">adal.constants.</code><code class="descname">HttpError</code><a class="reference internal" href="../_modules/adal/constants.html#HttpError"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#adal.constants.HttpError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.6)"><code class="xref py py-class docutils literal"><span class="pre">object</span></code></a></p>
+<dl class="attribute">
+<dt id="adal.constants.HttpError.UNAUTHORIZED">
+<code class="descname">UNAUTHORIZED</code><em class="property"> = 401</em><a class="headerlink" href="#adal.constants.HttpError.UNAUTHORIZED" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="adal.constants.IdTokenFields">
+<em class="property">class </em><code class="descclassname">adal.constants.</code><code class="descname">IdTokenFields</code><a class="reference internal" href="../_modules/adal/constants.html#IdTokenFields"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#adal.constants.IdTokenFields" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.6)"><code class="xref py py-class docutils literal"><span class="pre">object</span></code></a></p>
+<dl class="attribute">
+<dt id="adal.constants.IdTokenFields.FAMILY_NAME">
+<code class="descname">FAMILY_NAME</code><em class="property"> = 'familyName'</em><a class="headerlink" href="#adal.constants.IdTokenFields.FAMILY_NAME" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="adal.constants.IdTokenFields.GIVE_NAME">
+<code class="descname">GIVE_NAME</code><em class="property"> = 'givenName'</em><a class="headerlink" href="#adal.constants.IdTokenFields.GIVE_NAME" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="adal.constants.IdTokenFields.IDENTITY_PROVIDER">
+<code class="descname">IDENTITY_PROVIDER</code><em class="property"> = 'identityProvider'</em><a class="headerlink" href="#adal.constants.IdTokenFields.IDENTITY_PROVIDER" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="adal.constants.IdTokenFields.IS_USER_ID_DISPLAYABLE">
+<code class="descname">IS_USER_ID_DISPLAYABLE</code><em class="property"> = 'isUserIdDisplayable'</em><a class="headerlink" href="#adal.constants.IdTokenFields.IS_USER_ID_DISPLAYABLE" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="adal.constants.IdTokenFields.TENANT_ID">
+<code class="descname">TENANT_ID</code><em class="property"> = 'tenantId'</em><a class="headerlink" href="#adal.constants.IdTokenFields.TENANT_ID" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="adal.constants.IdTokenFields.USER_ID">
+<code class="descname">USER_ID</code><em class="property"> = 'userId'</em><a class="headerlink" href="#adal.constants.IdTokenFields.USER_ID" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="adal.constants.Jwt">
+<em class="property">class </em><code class="descclassname">adal.constants.</code><code class="descname">Jwt</code><a class="reference internal" href="../_modules/adal/constants.html#Jwt"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#adal.constants.Jwt" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.6)"><code class="xref py py-class docutils literal"><span class="pre">object</span></code></a></p>
+<dl class="attribute">
+<dt id="adal.constants.Jwt.AUDIENCE">
+<code class="descname">AUDIENCE</code><em class="property"> = 'aud'</em><a class="headerlink" href="#adal.constants.Jwt.AUDIENCE" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="adal.constants.Jwt.EXPIRES_ON">
+<code class="descname">EXPIRES_ON</code><em class="property"> = 'exp'</em><a class="headerlink" href="#adal.constants.Jwt.EXPIRES_ON" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="adal.constants.Jwt.ISSUER">
+<code class="descname">ISSUER</code><em class="property"> = 'iss'</em><a class="headerlink" href="#adal.constants.Jwt.ISSUER" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="adal.constants.Jwt.JWT_ID">
+<code class="descname">JWT_ID</code><em class="property"> = 'jti'</em><a class="headerlink" href="#adal.constants.Jwt.JWT_ID" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="adal.constants.Jwt.NOT_BEFORE">
+<code class="descname">NOT_BEFORE</code><em class="property"> = 'nbf'</em><a class="headerlink" href="#adal.constants.Jwt.NOT_BEFORE" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="adal.constants.Jwt.SELF_SIGNED_JWT_LIFETIME">
+<code class="descname">SELF_SIGNED_JWT_LIFETIME</code><em class="property"> = 10</em><a class="headerlink" href="#adal.constants.Jwt.SELF_SIGNED_JWT_LIFETIME" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="adal.constants.Jwt.SUBJECT">
+<code class="descname">SUBJECT</code><em class="property"> = 'sub'</em><a class="headerlink" href="#adal.constants.Jwt.SUBJECT" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="adal.constants.Misc">
+<em class="property">class </em><code class="descclassname">adal.constants.</code><code class="descname">Misc</code><a class="reference internal" href="../_modules/adal/constants.html#Misc"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#adal.constants.Misc" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.6)"><code class="xref py py-class docutils literal"><span class="pre">object</span></code></a></p>
+<dl class="attribute">
+<dt id="adal.constants.Misc.CLOCK_BUFFER">
+<code class="descname">CLOCK_BUFFER</code><em class="property"> = 5</em><a class="headerlink" href="#adal.constants.Misc.CLOCK_BUFFER" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="adal.constants.Misc.MAX_DATE">
+<code class="descname">MAX_DATE</code><em class="property"> = 4294967295</em><a class="headerlink" href="#adal.constants.Misc.MAX_DATE" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="adal.constants.OAuth2">
+<em class="property">class </em><code class="descclassname">adal.constants.</code><code class="descname">OAuth2</code><a class="reference internal" href="../_modules/adal/constants.html#OAuth2"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#adal.constants.OAuth2" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.6)"><code class="xref py py-class docutils literal"><span class="pre">object</span></code></a></p>
+<dl class="attribute">
+<dt id="adal.constants.OAuth2.DeviceCodeResponseParameters">
+<code class="descname">DeviceCodeResponseParameters</code><em class="property"> = &lt;adal.constants.OAuth2DeviceCodeResponseParameters object&gt;</em><a class="headerlink" href="#adal.constants.OAuth2.DeviceCodeResponseParameters" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="adal.constants.OAuth2.GrantType">
+<code class="descname">GrantType</code><em class="property"> = &lt;adal.constants.OAuth2GrantType object&gt;</em><a class="headerlink" href="#adal.constants.OAuth2.GrantType" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="adal.constants.OAuth2.IdTokenMap">
+<code class="descname">IdTokenMap</code><em class="property"> = {'family_name': 'familyName', 'given_name': 'givenName', 'idp': 'identityProvider', 'oid': 'oid', 'tid': 'tenantId'}</em><a class="headerlink" href="#adal.constants.OAuth2.IdTokenMap" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="adal.constants.OAuth2.Parameters">
+<code class="descname">Parameters</code><em class="property"> = &lt;adal.constants.OAuth2Parameters object&gt;</em><a class="headerlink" href="#adal.constants.OAuth2.Parameters" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="adal.constants.OAuth2.ResponseParameters">
+<code class="descname">ResponseParameters</code><em class="property"> = &lt;adal.constants.OAuth2ResponseParameters object&gt;</em><a class="headerlink" href="#adal.constants.OAuth2.ResponseParameters" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="adal.constants.OAuth2.Scope">
+<code class="descname">Scope</code><em class="property"> = &lt;adal.constants.OAuth2Scope object&gt;</em><a class="headerlink" href="#adal.constants.OAuth2.Scope" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="adal.constants.OAuth2DeviceCodeResponseParameters">
+<em class="property">class </em><code class="descclassname">adal.constants.</code><code class="descname">OAuth2DeviceCodeResponseParameters</code><a class="reference internal" href="../_modules/adal/constants.html#OAuth2DeviceCodeResponseParameters"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#adal.constants.OAuth2DeviceCodeResponseParameters" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.6)"><code class="xref py py-class docutils literal"><span class="pre">object</span></code></a></p>
+<dl class="attribute">
+<dt id="adal.constants.OAuth2DeviceCodeResponseParameters.DEVICE_CODE">
+<code class="descname">DEVICE_CODE</code><em class="property"> = 'device_code'</em><a class="headerlink" href="#adal.constants.OAuth2DeviceCodeResponseParameters.DEVICE_CODE" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="adal.constants.OAuth2DeviceCodeResponseParameters.ERROR">
+<code class="descname">ERROR</code><em class="property"> = 'error'</em><a class="headerlink" href="#adal.constants.OAuth2DeviceCodeResponseParameters.ERROR" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="adal.constants.OAuth2DeviceCodeResponseParameters.ERROR_DESCRIPTION">
+<code class="descname">ERROR_DESCRIPTION</code><em class="property"> = 'error_description'</em><a class="headerlink" href="#adal.constants.OAuth2DeviceCodeResponseParameters.ERROR_DESCRIPTION" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="adal.constants.OAuth2DeviceCodeResponseParameters.EXPIRES_IN">
+<code class="descname">EXPIRES_IN</code><em class="property"> = 'expires_in'</em><a class="headerlink" href="#adal.constants.OAuth2DeviceCodeResponseParameters.EXPIRES_IN" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="adal.constants.OAuth2DeviceCodeResponseParameters.INTERVAL">
+<code class="descname">INTERVAL</code><em class="property"> = 'interval'</em><a class="headerlink" href="#adal.constants.OAuth2DeviceCodeResponseParameters.INTERVAL" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="adal.constants.OAuth2DeviceCodeResponseParameters.MESSAGE">
+<code class="descname">MESSAGE</code><em class="property"> = 'message'</em><a class="headerlink" href="#adal.constants.OAuth2DeviceCodeResponseParameters.MESSAGE" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="adal.constants.OAuth2DeviceCodeResponseParameters.USER_CODE">
+<code class="descname">USER_CODE</code><em class="property"> = 'user_code'</em><a class="headerlink" href="#adal.constants.OAuth2DeviceCodeResponseParameters.USER_CODE" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="adal.constants.OAuth2DeviceCodeResponseParameters.VERIFICATION_URL">
+<code class="descname">VERIFICATION_URL</code><em class="property"> = 'verification_url'</em><a class="headerlink" href="#adal.constants.OAuth2DeviceCodeResponseParameters.VERIFICATION_URL" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="adal.constants.OAuth2GrantType">
+<em class="property">class </em><code class="descclassname">adal.constants.</code><code class="descname">OAuth2GrantType</code><a class="reference internal" href="../_modules/adal/constants.html#OAuth2GrantType"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#adal.constants.OAuth2GrantType" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.6)"><code class="xref py py-class docutils literal"><span class="pre">object</span></code></a></p>
+<dl class="attribute">
+<dt id="adal.constants.OAuth2GrantType.AUTHORIZATION_CODE">
+<code class="descname">AUTHORIZATION_CODE</code><em class="property"> = 'authorization_code'</em><a class="headerlink" href="#adal.constants.OAuth2GrantType.AUTHORIZATION_CODE" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="adal.constants.OAuth2GrantType.CLIENT_CREDENTIALS">
+<code class="descname">CLIENT_CREDENTIALS</code><em class="property"> = 'client_credentials'</em><a class="headerlink" href="#adal.constants.OAuth2GrantType.CLIENT_CREDENTIALS" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="adal.constants.OAuth2GrantType.DEVICE_CODE">
+<code class="descname">DEVICE_CODE</code><em class="property"> = 'device_code'</em><a class="headerlink" href="#adal.constants.OAuth2GrantType.DEVICE_CODE" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="adal.constants.OAuth2GrantType.JWT_BEARER">
+<code class="descname">JWT_BEARER</code><em class="property"> = 'urn:ietf:params:oauth:client-assertion-type:jwt-bearer'</em><a class="headerlink" href="#adal.constants.OAuth2GrantType.JWT_BEARER" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="adal.constants.OAuth2GrantType.PASSWORD">
+<code class="descname">PASSWORD</code><em class="property"> = 'password'</em><a class="headerlink" href="#adal.constants.OAuth2GrantType.PASSWORD" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="adal.constants.OAuth2GrantType.REFRESH_TOKEN">
+<code class="descname">REFRESH_TOKEN</code><em class="property"> = 'refresh_token'</em><a class="headerlink" href="#adal.constants.OAuth2GrantType.REFRESH_TOKEN" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="adal.constants.OAuth2GrantType.SAML1">
+<code class="descname">SAML1</code><em class="property"> = 'urn:ietf:params:oauth:grant-type:saml1_1-bearer'</em><a class="headerlink" href="#adal.constants.OAuth2GrantType.SAML1" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="adal.constants.OAuth2GrantType.SAML2">
+<code class="descname">SAML2</code><em class="property"> = 'urn:ietf:params:oauth:grant-type:saml2-bearer'</em><a class="headerlink" href="#adal.constants.OAuth2GrantType.SAML2" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="adal.constants.OAuth2Parameters">
+<em class="property">class </em><code class="descclassname">adal.constants.</code><code class="descname">OAuth2Parameters</code><a class="reference internal" href="../_modules/adal/constants.html#OAuth2Parameters"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#adal.constants.OAuth2Parameters" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.6)"><code class="xref py py-class docutils literal"><span class="pre">object</span></code></a></p>
+<dl class="attribute">
+<dt id="adal.constants.OAuth2Parameters.AAD_API_VERSION">
+<code class="descname">AAD_API_VERSION</code><em class="property"> = 'api-version'</em><a class="headerlink" href="#adal.constants.OAuth2Parameters.AAD_API_VERSION" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="adal.constants.OAuth2Parameters.ASSERTION">
+<code class="descname">ASSERTION</code><em class="property"> = 'assertion'</em><a class="headerlink" href="#adal.constants.OAuth2Parameters.ASSERTION" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="adal.constants.OAuth2Parameters.CLIENT_ASSERTION">
+<code class="descname">CLIENT_ASSERTION</code><em class="property"> = 'client_assertion'</em><a class="headerlink" href="#adal.constants.OAuth2Parameters.CLIENT_ASSERTION" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="adal.constants.OAuth2Parameters.CLIENT_ASSERTION_TYPE">
+<code class="descname">CLIENT_ASSERTION_TYPE</code><em class="property"> = 'client_assertion_type'</em><a class="headerlink" href="#adal.constants.OAuth2Parameters.CLIENT_ASSERTION_TYPE" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="adal.constants.OAuth2Parameters.CLIENT_ID">
+<code class="descname">CLIENT_ID</code><em class="property"> = 'client_id'</em><a class="headerlink" href="#adal.constants.OAuth2Parameters.CLIENT_ID" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="adal.constants.OAuth2Parameters.CLIENT_SECRET">
+<code class="descname">CLIENT_SECRET</code><em class="property"> = 'client_secret'</em><a class="headerlink" href="#adal.constants.OAuth2Parameters.CLIENT_SECRET" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="adal.constants.OAuth2Parameters.CODE">
+<code class="descname">CODE</code><em class="property"> = 'code'</em><a class="headerlink" href="#adal.constants.OAuth2Parameters.CODE" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="adal.constants.OAuth2Parameters.DEVICE_CODE">
+<code class="descname">DEVICE_CODE</code><em class="property"> = 'device_code'</em><a class="headerlink" href="#adal.constants.OAuth2Parameters.DEVICE_CODE" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="adal.constants.OAuth2Parameters.GRANT_TYPE">
+<code class="descname">GRANT_TYPE</code><em class="property"> = 'grant_type'</em><a class="headerlink" href="#adal.constants.OAuth2Parameters.GRANT_TYPE" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="adal.constants.OAuth2Parameters.LANGUAGE">
+<code class="descname">LANGUAGE</code><em class="property"> = 'mkt'</em><a class="headerlink" href="#adal.constants.OAuth2Parameters.LANGUAGE" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="adal.constants.OAuth2Parameters.PASSWORD">
+<code class="descname">PASSWORD</code><em class="property"> = 'password'</em><a class="headerlink" href="#adal.constants.OAuth2Parameters.PASSWORD" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="adal.constants.OAuth2Parameters.REDIRECT_URI">
+<code class="descname">REDIRECT_URI</code><em class="property"> = 'redirect_uri'</em><a class="headerlink" href="#adal.constants.OAuth2Parameters.REDIRECT_URI" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="adal.constants.OAuth2Parameters.REFRESH_TOKEN">
+<code class="descname">REFRESH_TOKEN</code><em class="property"> = 'refresh_token'</em><a class="headerlink" href="#adal.constants.OAuth2Parameters.REFRESH_TOKEN" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="adal.constants.OAuth2Parameters.RESOURCE">
+<code class="descname">RESOURCE</code><em class="property"> = 'resource'</em><a class="headerlink" href="#adal.constants.OAuth2Parameters.RESOURCE" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="adal.constants.OAuth2Parameters.SCOPE">
+<code class="descname">SCOPE</code><em class="property"> = 'scope'</em><a class="headerlink" href="#adal.constants.OAuth2Parameters.SCOPE" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="adal.constants.OAuth2Parameters.USERNAME">
+<code class="descname">USERNAME</code><em class="property"> = 'username'</em><a class="headerlink" href="#adal.constants.OAuth2Parameters.USERNAME" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="adal.constants.OAuth2ResponseParameters">
+<em class="property">class </em><code class="descclassname">adal.constants.</code><code class="descname">OAuth2ResponseParameters</code><a class="reference internal" href="../_modules/adal/constants.html#OAuth2ResponseParameters"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#adal.constants.OAuth2ResponseParameters" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.6)"><code class="xref py py-class docutils literal"><span class="pre">object</span></code></a></p>
+<dl class="attribute">
+<dt id="adal.constants.OAuth2ResponseParameters.ACCESS_TOKEN">
+<code class="descname">ACCESS_TOKEN</code><em class="property"> = 'access_token'</em><a class="headerlink" href="#adal.constants.OAuth2ResponseParameters.ACCESS_TOKEN" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="adal.constants.OAuth2ResponseParameters.CODE">
+<code class="descname">CODE</code><em class="property"> = 'code'</em><a class="headerlink" href="#adal.constants.OAuth2ResponseParameters.CODE" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="adal.constants.OAuth2ResponseParameters.CREATED_ON">
+<code class="descname">CREATED_ON</code><em class="property"> = 'created_on'</em><a class="headerlink" href="#adal.constants.OAuth2ResponseParameters.CREATED_ON" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="adal.constants.OAuth2ResponseParameters.ERROR">
+<code class="descname">ERROR</code><em class="property"> = 'error'</em><a class="headerlink" href="#adal.constants.OAuth2ResponseParameters.ERROR" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="adal.constants.OAuth2ResponseParameters.ERROR_DESCRIPTION">
+<code class="descname">ERROR_DESCRIPTION</code><em class="property"> = 'error_description'</em><a class="headerlink" href="#adal.constants.OAuth2ResponseParameters.ERROR_DESCRIPTION" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="adal.constants.OAuth2ResponseParameters.EXPIRES_IN">
+<code class="descname">EXPIRES_IN</code><em class="property"> = 'expires_in'</em><a class="headerlink" href="#adal.constants.OAuth2ResponseParameters.EXPIRES_IN" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="adal.constants.OAuth2ResponseParameters.EXPIRES_ON">
+<code class="descname">EXPIRES_ON</code><em class="property"> = 'expires_on'</em><a class="headerlink" href="#adal.constants.OAuth2ResponseParameters.EXPIRES_ON" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="adal.constants.OAuth2ResponseParameters.ID_TOKEN">
+<code class="descname">ID_TOKEN</code><em class="property"> = 'id_token'</em><a class="headerlink" href="#adal.constants.OAuth2ResponseParameters.ID_TOKEN" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="adal.constants.OAuth2ResponseParameters.REFRESH_TOKEN">
+<code class="descname">REFRESH_TOKEN</code><em class="property"> = 'refresh_token'</em><a class="headerlink" href="#adal.constants.OAuth2ResponseParameters.REFRESH_TOKEN" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="adal.constants.OAuth2ResponseParameters.RESOURCE">
+<code class="descname">RESOURCE</code><em class="property"> = 'resource'</em><a class="headerlink" href="#adal.constants.OAuth2ResponseParameters.RESOURCE" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="adal.constants.OAuth2ResponseParameters.TOKEN_TYPE">
+<code class="descname">TOKEN_TYPE</code><em class="property"> = 'token_type'</em><a class="headerlink" href="#adal.constants.OAuth2ResponseParameters.TOKEN_TYPE" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="adal.constants.OAuth2Scope">
+<em class="property">class </em><code class="descclassname">adal.constants.</code><code class="descname">OAuth2Scope</code><a class="reference internal" href="../_modules/adal/constants.html#OAuth2Scope"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#adal.constants.OAuth2Scope" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.6)"><code class="xref py py-class docutils literal"><span class="pre">object</span></code></a></p>
+<dl class="attribute">
+<dt id="adal.constants.OAuth2Scope.OPENID">
+<code class="descname">OPENID</code><em class="property"> = 'openid'</em><a class="headerlink" href="#adal.constants.OAuth2Scope.OPENID" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="adal.constants.Saml">
+<em class="property">class </em><code class="descclassname">adal.constants.</code><code class="descname">Saml</code><a class="reference internal" href="../_modules/adal/constants.html#Saml"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#adal.constants.Saml" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.6)"><code class="xref py py-class docutils literal"><span class="pre">object</span></code></a></p>
+<dl class="attribute">
+<dt id="adal.constants.Saml.TokenTypeV1">
+<code class="descname">TokenTypeV1</code><em class="property"> = 'urn:oasis:names:tc:SAML:1.0:assertion'</em><a class="headerlink" href="#adal.constants.Saml.TokenTypeV1" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="adal.constants.Saml.TokenTypeV2">
+<code class="descname">TokenTypeV2</code><em class="property"> = 'urn:oasis:names:tc:SAML:2.0:assertion'</em><a class="headerlink" href="#adal.constants.Saml.TokenTypeV2" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="adal.constants.TokenResponseFields">
+<em class="property">class </em><code class="descclassname">adal.constants.</code><code class="descname">TokenResponseFields</code><a class="reference internal" href="../_modules/adal/constants.html#TokenResponseFields"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#adal.constants.TokenResponseFields" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.6)"><code class="xref py py-class docutils literal"><span class="pre">object</span></code></a></p>
+<dl class="attribute">
+<dt id="adal.constants.TokenResponseFields.ACCESS_TOKEN">
+<code class="descname">ACCESS_TOKEN</code><em class="property"> = 'accessToken'</em><a class="headerlink" href="#adal.constants.TokenResponseFields.ACCESS_TOKEN" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="adal.constants.TokenResponseFields.CREATED_ON">
+<code class="descname">CREATED_ON</code><em class="property"> = 'createdOn'</em><a class="headerlink" href="#adal.constants.TokenResponseFields.CREATED_ON" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="adal.constants.TokenResponseFields.ERROR">
+<code class="descname">ERROR</code><em class="property"> = 'error'</em><a class="headerlink" href="#adal.constants.TokenResponseFields.ERROR" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="adal.constants.TokenResponseFields.ERROR_DESCRIPTION">
+<code class="descname">ERROR_DESCRIPTION</code><em class="property"> = 'errorDescription'</em><a class="headerlink" href="#adal.constants.TokenResponseFields.ERROR_DESCRIPTION" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="adal.constants.TokenResponseFields.EXPIRES_IN">
+<code class="descname">EXPIRES_IN</code><em class="property"> = 'expiresIn'</em><a class="headerlink" href="#adal.constants.TokenResponseFields.EXPIRES_IN" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="adal.constants.TokenResponseFields.EXPIRES_ON">
+<code class="descname">EXPIRES_ON</code><em class="property"> = 'expiresOn'</em><a class="headerlink" href="#adal.constants.TokenResponseFields.EXPIRES_ON" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="adal.constants.TokenResponseFields.IS_MRRT">
+<code class="descname">IS_MRRT</code><em class="property"> = 'isMRRT'</em><a class="headerlink" href="#adal.constants.TokenResponseFields.IS_MRRT" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="adal.constants.TokenResponseFields.REFRESH_TOKEN">
+<code class="descname">REFRESH_TOKEN</code><em class="property"> = 'refreshToken'</em><a class="headerlink" href="#adal.constants.TokenResponseFields.REFRESH_TOKEN" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="adal.constants.TokenResponseFields.RESOURCE">
+<code class="descname">RESOURCE</code><em class="property"> = 'resource'</em><a class="headerlink" href="#adal.constants.TokenResponseFields.RESOURCE" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="adal.constants.TokenResponseFields.TOKEN_TYPE">
+<code class="descname">TOKEN_TYPE</code><em class="property"> = 'tokenType'</em><a class="headerlink" href="#adal.constants.TokenResponseFields.TOKEN_TYPE" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="adal.constants.TokenResponseFields.USER_ID">
+<code class="descname">USER_ID</code><em class="property"> = 'userId'</em><a class="headerlink" href="#adal.constants.TokenResponseFields.USER_ID" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="adal.constants.UserRealm">
+<em class="property">class </em><code class="descclassname">adal.constants.</code><code class="descname">UserRealm</code><a class="reference internal" href="../_modules/adal/constants.html#UserRealm"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#adal.constants.UserRealm" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.6)"><code class="xref py py-class docutils literal"><span class="pre">object</span></code></a></p>
+<dl class="attribute">
+<dt id="adal.constants.UserRealm.account_type">
+<code class="descname">account_type</code><em class="property"> = {'Federated': 'federated', 'Managed': 'managed', 'Unknown': 'unknown'}</em><a class="headerlink" href="#adal.constants.UserRealm.account_type" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="adal.constants.UserRealm.federation_protocol_type">
+<code class="descname">federation_protocol_type</code><em class="property"> = {'SAML2': 'saml20', 'Unknown': 'unknown', 'WSFederation': 'wstrust'}</em><a class="headerlink" href="#adal.constants.UserRealm.federation_protocol_type" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="adal.constants.WSTrustVersion">
+<em class="property">class </em><code class="descclassname">adal.constants.</code><code class="descname">WSTrustVersion</code><a class="reference internal" href="../_modules/adal/constants.html#WSTrustVersion"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#adal.constants.WSTrustVersion" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.6)"><code class="xref py py-class docutils literal"><span class="pre">object</span></code></a></p>
+<dl class="attribute">
+<dt id="adal.constants.WSTrustVersion.UNDEFINED">
+<code class="descname">UNDEFINED</code><em class="property"> = 'undefined'</em><a class="headerlink" href="#adal.constants.WSTrustVersion.UNDEFINED" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="adal.constants.WSTrustVersion.WSTRUST13">
+<code class="descname">WSTRUST13</code><em class="property"> = 'wstrust13'</em><a class="headerlink" href="#adal.constants.WSTrustVersion.WSTRUST13" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="adal.constants.WSTrustVersion.WSTRUST2005">
+<code class="descname">WSTRUST2005</code><em class="property"> = 'wstrust2005'</em><a class="headerlink" href="#adal.constants.WSTrustVersion.WSTRUST2005" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="adal.constants.XmlNamespaces">
+<em class="property">class </em><code class="descclassname">adal.constants.</code><code class="descname">XmlNamespaces</code><a class="reference internal" href="../_modules/adal/constants.html#XmlNamespaces"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#adal.constants.XmlNamespaces" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.6)"><code class="xref py py-class docutils literal"><span class="pre">object</span></code></a></p>
+<dl class="attribute">
+<dt id="adal.constants.XmlNamespaces.namespaces">
+<code class="descname">namespaces</code><em class="property"> = {'http': 'http://schemas.microsoft.com/ws/06/2004/policy/http', 's': 'http://www.w3.org/2003/05/soap-envelope', 'saml': 'urn:oasis:names:tc:SAML:1.0:assertion', 'soap12': 'http://schemas.xmlsoap.org/wsdl/soap12/', 'sp': 'http://docs.oasis-open.org/ws-sx/ws-securitypolicy/200702', 'sp2005': 'http://schemas.xmlsoap.org/ws/2005/07/securitypolicy', 't': 'http://schemas.xmlsoap.org/ws/2005/02/trust', 'trust': 'http://docs.oasis-open.org/ws-sx/ws-trust/200512', 'wsa': 'http://www.w3.org/2005/08/addressing', 'wsa10': 'http://www.w3.org/2005/08/addressing', 'wsdl': 'http://schemas.xmlsoap.org/wsdl/', 'wsp': 'http://schemas.xmlsoap.org/ws/2004/09/policy', 'wst': 'http://docs.oasis-open.org/ws-sx/ws-trust/200512', 'wsu': 'http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd'}</em><a class="headerlink" href="#adal.constants.XmlNamespaces.namespaces" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-adal.log">
+<span id="adal-log-module"></span><h2>adal.log module<a class="headerlink" href="#module-adal.log" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="adal.log.Logger">
+<em class="property">class </em><code class="descclassname">adal.log.</code><code class="descname">Logger</code><span class="sig-paren">(</span><em>component_name</em>, <em>log_context</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/adal/log.html#Logger"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#adal.log.Logger" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.6)"><code class="xref py py-class docutils literal"><span class="pre">object</span></code></a></p>
+<p>wrapper around python built-in logging to log correlation_id, and stack
+trace through keyword argument of ‘log_stack_trace’</p>
+<dl class="method">
+<dt id="adal.log.Logger.debug">
+<code class="descname">debug</code><span class="sig-paren">(</span><em>msg</em>, <em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/adal/log.html#Logger.debug"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#adal.log.Logger.debug" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="adal.log.Logger.exception">
+<code class="descname">exception</code><span class="sig-paren">(</span><em>msg</em>, <em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/adal/log.html#Logger.exception"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#adal.log.Logger.exception" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="adal.log.Logger.info">
+<code class="descname">info</code><span class="sig-paren">(</span><em>msg</em>, <em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/adal/log.html#Logger.info"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#adal.log.Logger.info" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="adal.log.Logger.warn">
+<code class="descname">warn</code><span class="sig-paren">(</span><em>msg</em>, <em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/adal/log.html#Logger.warn"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#adal.log.Logger.warn" title="Permalink to this definition">¶</a></dt>
+<dd><p>The recommended way to call this function with variable content,
+is to use the <cite>warn(“hello %(name)s”, {“name”: “John Doe”}</cite> form,
+so that this method will scrub pii value when needed.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="adal.log.create_log_context">
+<code class="descclassname">adal.log.</code><code class="descname">create_log_context</code><span class="sig-paren">(</span><em>correlation_id=None</em>, <em>enable_pii=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/adal/log.html#create_log_context"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#adal.log.create_log_context" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="adal.log.get_logging_options">
+<code class="descclassname">adal.log.</code><code class="descname">get_logging_options</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/adal/log.html#get_logging_options"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#adal.log.get_logging_options" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get logging options</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">a dict, with a key of ‘level’ for logging level.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="adal.log.scrub_pii">
+<code class="descclassname">adal.log.</code><code class="descname">scrub_pii</code><span class="sig-paren">(</span><em>arg_dict</em>, <em>padding='...'</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/adal/log.html#scrub_pii"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#adal.log.scrub_pii" title="Permalink to this definition">¶</a></dt>
+<dd><p>The input is a dict with semantic keys,
+and the output will be a dict with PII values replaced by padding.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="adal.log.set_logging_options">
+<code class="descclassname">adal.log.</code><code class="descname">set_logging_options</code><span class="sig-paren">(</span><em>options=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/adal/log.html#set_logging_options"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#adal.log.set_logging_options" title="Permalink to this definition">¶</a></dt>
+<dd><p>Configure adal logger, including level and handler spec’d by python
+logging module.</p>
+<dl class="docutils">
+<dt>Basic Usages::</dt>
+<dd>&gt;&gt;&gt;adal.set_logging_options({
+&gt;&gt;&gt;  ‘level’: ‘DEBUG’
+&gt;&gt;&gt;  ‘handler’: logging.FileHandler(‘adal.log’)
+&gt;&gt;&gt;})</dd>
+</dl>
+</dd></dl>
+
+</div>
+<div class="section" id="module-adal.mex">
+<span id="adal-mex-module"></span><h2>adal.mex module<a class="headerlink" href="#module-adal.mex" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="adal.mex.Mex">
+<em class="property">class </em><code class="descclassname">adal.mex.</code><code class="descname">Mex</code><span class="sig-paren">(</span><em>call_context</em>, <em>url</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/adal/mex.html#Mex"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#adal.mex.Mex" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.6)"><code class="xref py py-class docutils literal"><span class="pre">object</span></code></a></p>
+<dl class="method">
+<dt id="adal.mex.Mex.discover">
+<code class="descname">discover</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/adal/mex.html#Mex.discover"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#adal.mex.Mex.discover" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-adal.oauth2_client">
+<span id="adal-oauth2-client-module"></span><h2>adal.oauth2_client module<a class="headerlink" href="#module-adal.oauth2_client" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="adal.oauth2_client.OAuth2Client">
+<em class="property">class </em><code class="descclassname">adal.oauth2_client.</code><code class="descname">OAuth2Client</code><span class="sig-paren">(</span><em>call_context</em>, <em>authority</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/adal/oauth2_client.html#OAuth2Client"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#adal.oauth2_client.OAuth2Client" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.6)"><code class="xref py py-class docutils literal"><span class="pre">object</span></code></a></p>
+<dl class="method">
+<dt id="adal.oauth2_client.OAuth2Client.cancel_polling_request">
+<code class="descname">cancel_polling_request</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/adal/oauth2_client.html#OAuth2Client.cancel_polling_request"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#adal.oauth2_client.OAuth2Client.cancel_polling_request" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="adal.oauth2_client.OAuth2Client.get_token">
+<code class="descname">get_token</code><span class="sig-paren">(</span><em>oauth_parameters</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/adal/oauth2_client.html#OAuth2Client.get_token"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#adal.oauth2_client.OAuth2Client.get_token" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="adal.oauth2_client.OAuth2Client.get_token_with_polling">
+<code class="descname">get_token_with_polling</code><span class="sig-paren">(</span><em>oauth_parameters</em>, <em>refresh_internal</em>, <em>expires_in</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/adal/oauth2_client.html#OAuth2Client.get_token_with_polling"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#adal.oauth2_client.OAuth2Client.get_token_with_polling" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="adal.oauth2_client.OAuth2Client.get_user_code_info">
+<code class="descname">get_user_code_info</code><span class="sig-paren">(</span><em>oauth_parameters</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/adal/oauth2_client.html#OAuth2Client.get_user_code_info"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#adal.oauth2_client.OAuth2Client.get_user_code_info" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="adal.oauth2_client.map_fields">
+<code class="descclassname">adal.oauth2_client.</code><code class="descname">map_fields</code><span class="sig-paren">(</span><em>in_obj</em>, <em>map_to</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/adal/oauth2_client.html#map_fields"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#adal.oauth2_client.map_fields" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+<div class="section" id="module-adal.self_signed_jwt">
+<span id="adal-self-signed-jwt-module"></span><h2>adal.self_signed_jwt module<a class="headerlink" href="#module-adal.self_signed_jwt" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="adal.self_signed_jwt.SelfSignedJwt">
+<em class="property">class </em><code class="descclassname">adal.self_signed_jwt.</code><code class="descname">SelfSignedJwt</code><span class="sig-paren">(</span><em>call_context</em>, <em>authority</em>, <em>client_id</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/adal/self_signed_jwt.html#SelfSignedJwt"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#adal.self_signed_jwt.SelfSignedJwt" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.6)"><code class="xref py py-class docutils literal"><span class="pre">object</span></code></a></p>
+<dl class="attribute">
+<dt id="adal.self_signed_jwt.SelfSignedJwt.NumCharIn128BitHexString">
+<code class="descname">NumCharIn128BitHexString</code><em class="property"> = 32.0</em><a class="headerlink" href="#adal.self_signed_jwt.SelfSignedJwt.NumCharIn128BitHexString" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="adal.self_signed_jwt.SelfSignedJwt.ThumbprintRegEx">
+<code class="descname">ThumbprintRegEx</code><em class="property"> = '^[a-f\\d]*$'</em><a class="headerlink" href="#adal.self_signed_jwt.SelfSignedJwt.ThumbprintRegEx" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="adal.self_signed_jwt.SelfSignedJwt.create">
+<code class="descname">create</code><span class="sig-paren">(</span><em>certificate</em>, <em>thumbprint</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/adal/self_signed_jwt.html#SelfSignedJwt.create"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#adal.self_signed_jwt.SelfSignedJwt.create" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="adal.self_signed_jwt.SelfSignedJwt.numCharIn160BitHexString">
+<code class="descname">numCharIn160BitHexString</code><em class="property"> = 40.0</em><a class="headerlink" href="#adal.self_signed_jwt.SelfSignedJwt.numCharIn160BitHexString" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-adal.token_cache">
+<span id="adal-token-cache-module"></span><h2>adal.token_cache module<a class="headerlink" href="#module-adal.token_cache" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="adal.token_cache.TokenCache">
+<em class="property">class </em><code class="descclassname">adal.token_cache.</code><code class="descname">TokenCache</code><span class="sig-paren">(</span><em>state=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/adal/token_cache.html#TokenCache"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#adal.token_cache.TokenCache" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.6)"><code class="xref py py-class docutils literal"><span class="pre">object</span></code></a></p>
+<dl class="method">
+<dt id="adal.token_cache.TokenCache.add">
+<code class="descname">add</code><span class="sig-paren">(</span><em>entries</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/adal/token_cache.html#TokenCache.add"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#adal.token_cache.TokenCache.add" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="adal.token_cache.TokenCache.deserialize">
+<code class="descname">deserialize</code><span class="sig-paren">(</span><em>state</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/adal/token_cache.html#TokenCache.deserialize"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#adal.token_cache.TokenCache.deserialize" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="adal.token_cache.TokenCache.find">
+<code class="descname">find</code><span class="sig-paren">(</span><em>query</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/adal/token_cache.html#TokenCache.find"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#adal.token_cache.TokenCache.find" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="adal.token_cache.TokenCache.read_items">
+<code class="descname">read_items</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/adal/token_cache.html#TokenCache.read_items"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#adal.token_cache.TokenCache.read_items" title="Permalink to this definition">¶</a></dt>
+<dd><p>output list of tuples in (key, authentication-result)</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="adal.token_cache.TokenCache.remove">
+<code class="descname">remove</code><span class="sig-paren">(</span><em>entries</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/adal/token_cache.html#TokenCache.remove"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#adal.token_cache.TokenCache.remove" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="adal.token_cache.TokenCache.serialize">
+<code class="descname">serialize</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/adal/token_cache.html#TokenCache.serialize"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#adal.token_cache.TokenCache.serialize" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="adal.token_cache.TokenCacheKey">
+<em class="property">class </em><code class="descclassname">adal.token_cache.</code><code class="descname">TokenCacheKey</code><span class="sig-paren">(</span><em>authority</em>, <em>resource</em>, <em>client_id</em>, <em>user_id</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/adal/token_cache.html#TokenCacheKey"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#adal.token_cache.TokenCacheKey" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.6)"><code class="xref py py-class docutils literal"><span class="pre">object</span></code></a></p>
+</dd></dl>
+
+</div>
+<div class="section" id="module-adal.token_request">
+<span id="adal-token-request-module"></span><h2>adal.token_request module<a class="headerlink" href="#module-adal.token_request" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="adal.token_request.TokenRequest">
+<em class="property">class </em><code class="descclassname">adal.token_request.</code><code class="descname">TokenRequest</code><span class="sig-paren">(</span><em>call_context</em>, <em>authentication_context</em>, <em>client_id</em>, <em>resource</em>, <em>redirect_uri=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/adal/token_request.html#TokenRequest"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#adal.token_request.TokenRequest" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.6)"><code class="xref py py-class docutils literal"><span class="pre">object</span></code></a></p>
+<dl class="method">
+<dt id="adal.token_request.TokenRequest.cancel_token_request_with_device_code">
+<code class="descname">cancel_token_request_with_device_code</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/adal/token_request.html#TokenRequest.cancel_token_request_with_device_code"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#adal.token_request.TokenRequest.cancel_token_request_with_device_code" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="adal.token_request.TokenRequest.get_token_from_cache_with_refresh">
+<code class="descname">get_token_from_cache_with_refresh</code><span class="sig-paren">(</span><em>user_id</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/adal/token_request.html#TokenRequest.get_token_from_cache_with_refresh"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#adal.token_request.TokenRequest.get_token_from_cache_with_refresh" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="adal.token_request.TokenRequest.get_token_with_authorization_code">
+<code class="descname">get_token_with_authorization_code</code><span class="sig-paren">(</span><em>authorization_code</em>, <em>client_secret</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/adal/token_request.html#TokenRequest.get_token_with_authorization_code"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#adal.token_request.TokenRequest.get_token_with_authorization_code" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="adal.token_request.TokenRequest.get_token_with_certificate">
+<code class="descname">get_token_with_certificate</code><span class="sig-paren">(</span><em>certificate</em>, <em>thumbprint</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/adal/token_request.html#TokenRequest.get_token_with_certificate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#adal.token_request.TokenRequest.get_token_with_certificate" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="adal.token_request.TokenRequest.get_token_with_client_credentials">
+<code class="descname">get_token_with_client_credentials</code><span class="sig-paren">(</span><em>client_secret</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/adal/token_request.html#TokenRequest.get_token_with_client_credentials"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#adal.token_request.TokenRequest.get_token_with_client_credentials" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="adal.token_request.TokenRequest.get_token_with_device_code">
+<code class="descname">get_token_with_device_code</code><span class="sig-paren">(</span><em>user_code_info</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/adal/token_request.html#TokenRequest.get_token_with_device_code"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#adal.token_request.TokenRequest.get_token_with_device_code" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="adal.token_request.TokenRequest.get_token_with_refresh_token">
+<code class="descname">get_token_with_refresh_token</code><span class="sig-paren">(</span><em>refresh_token</em>, <em>client_secret</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/adal/token_request.html#TokenRequest.get_token_with_refresh_token"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#adal.token_request.TokenRequest.get_token_with_refresh_token" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="adal.token_request.TokenRequest.get_token_with_username_password">
+<code class="descname">get_token_with_username_password</code><span class="sig-paren">(</span><em>username</em>, <em>password</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/adal/token_request.html#TokenRequest.get_token_with_username_password"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#adal.token_request.TokenRequest.get_token_with_username_password" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="adal.token_request.add_parameter_if_available">
+<code class="descclassname">adal.token_request.</code><code class="descname">add_parameter_if_available</code><span class="sig-paren">(</span><em>parameters</em>, <em>key</em>, <em>value</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/adal/token_request.html#add_parameter_if_available"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#adal.token_request.add_parameter_if_available" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+<div class="section" id="module-adal.user_realm">
+<span id="adal-user-realm-module"></span><h2>adal.user_realm module<a class="headerlink" href="#module-adal.user_realm" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="adal.user_realm.UserRealm">
+<em class="property">class </em><code class="descclassname">adal.user_realm.</code><code class="descname">UserRealm</code><span class="sig-paren">(</span><em>call_context</em>, <em>user_principle</em>, <em>authority_url</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/adal/user_realm.html#UserRealm"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#adal.user_realm.UserRealm" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.6)"><code class="xref py py-class docutils literal"><span class="pre">object</span></code></a></p>
+<dl class="method">
+<dt id="adal.user_realm.UserRealm.discover">
+<code class="descname">discover</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/adal/user_realm.html#UserRealm.discover"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#adal.user_realm.UserRealm.discover" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-adal.util">
+<span id="adal-util-module"></span><h2>adal.util module<a class="headerlink" href="#module-adal.util" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="adal.util.add_default_request_headers">
+<code class="descclassname">adal.util.</code><code class="descname">add_default_request_headers</code><span class="sig-paren">(</span><em>self</em>, <em>options</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/adal/util.html#add_default_request_headers"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#adal.util.add_default_request_headers" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="adal.util.base64_urlsafe_decode">
+<code class="descclassname">adal.util.</code><code class="descname">base64_urlsafe_decode</code><span class="sig-paren">(</span><em>b64string</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/adal/util.html#base64_urlsafe_decode"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#adal.util.base64_urlsafe_decode" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="adal.util.copy_url">
+<code class="descclassname">adal.util.</code><code class="descname">copy_url</code><span class="sig-paren">(</span><em>url_source</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/adal/util.html#copy_url"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#adal.util.copy_url" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="adal.util.create_request_options">
+<code class="descclassname">adal.util.</code><code class="descname">create_request_options</code><span class="sig-paren">(</span><em>self</em>, <em>*options</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/adal/util.html#create_request_options"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#adal.util.create_request_options" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="adal.util.is_http_success">
+<code class="descclassname">adal.util.</code><code class="descname">is_http_success</code><span class="sig-paren">(</span><em>status_code</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/adal/util.html#is_http_success"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#adal.util.is_http_success" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="adal.util.log_return_correlation_id">
+<code class="descclassname">adal.util.</code><code class="descname">log_return_correlation_id</code><span class="sig-paren">(</span><em>log</em>, <em>operation_message</em>, <em>response</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/adal/util.html#log_return_correlation_id"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#adal.util.log_return_correlation_id" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+<div class="section" id="module-adal.wstrust_request">
+<span id="adal-wstrust-request-module"></span><h2>adal.wstrust_request module<a class="headerlink" href="#module-adal.wstrust_request" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="adal.wstrust_request.WSTrustRequest">
+<em class="property">class </em><code class="descclassname">adal.wstrust_request.</code><code class="descname">WSTrustRequest</code><span class="sig-paren">(</span><em>call_context</em>, <em>watrust_endpoint_url</em>, <em>applies_to</em>, <em>wstrust_endpoint_version</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/adal/wstrust_request.html#WSTrustRequest"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#adal.wstrust_request.WSTrustRequest" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.6)"><code class="xref py py-class docutils literal"><span class="pre">object</span></code></a></p>
+<dl class="method">
+<dt id="adal.wstrust_request.WSTrustRequest.acquire_token">
+<code class="descname">acquire_token</code><span class="sig-paren">(</span><em>username</em>, <em>password</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/adal/wstrust_request.html#WSTrustRequest.acquire_token"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#adal.wstrust_request.WSTrustRequest.acquire_token" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-adal.wstrust_response">
+<span id="adal-wstrust-response-module"></span><h2>adal.wstrust_response module<a class="headerlink" href="#module-adal.wstrust_response" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="adal.wstrust_response.WSTrustResponse">
+<em class="property">class </em><code class="descclassname">adal.wstrust_response.</code><code class="descname">WSTrustResponse</code><span class="sig-paren">(</span><em>call_context</em>, <em>response</em>, <em>wstrust_version</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/adal/wstrust_response.html#WSTrustResponse"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#adal.wstrust_response.WSTrustResponse" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.6)"><code class="xref py py-class docutils literal"><span class="pre">object</span></code></a></p>
+<dl class="method">
+<dt id="adal.wstrust_response.WSTrustResponse.parse">
+<code class="descname">parse</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/adal/wstrust_response.html#WSTrustResponse.parse"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#adal.wstrust_response.WSTrustResponse.parse" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="adal.wstrust_response.findall_content">
+<code class="descclassname">adal.wstrust_response.</code><code class="descname">findall_content</code><span class="sig-paren">(</span><em>xml_string</em>, <em>tag</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/adal/wstrust_response.html#findall_content"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#adal.wstrust_response.findall_content" title="Permalink to this definition">¶</a></dt>
+<dd><p>Given a tag name without any prefix,
+this function returns a list of the raw content inside this tag as-is.</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">findall_content</span><span class="p">(</span><span class="s2">&quot;&lt;ns0:foo&gt; what &lt;bar&gt; ever &lt;/bar&gt; content &lt;/ns0:foo&gt;&quot;</span><span class="p">,</span> <span class="s2">&quot;foo&quot;</span><span class="p">)</span>
+<span class="go">[&quot; what &lt;bar&gt; ever &lt;/bar&gt; content &quot;]</span>
+</pre></div>
+</div>
+<p>Motivation:</p>
+<p>Usually we would use XML parser to extract the data by xpath.
+However the ElementTree in Python will implicitly normalize the output
+by “hoisting” the inner inline namespaces into the outmost element.
+The result will be a semantically equivalent XML snippet,
+but not fully identical to the original one.
+While this effect shouldn’t become a problem in all other cases,
+it does not seem to fully comply with Exclusive XML Canonicalization spec
+(<a class="reference external" href="https://www.w3.org/TR/xml-exc-c14n/">https://www.w3.org/TR/xml-exc-c14n/</a>), and void the SAML token signature.
+SAML signature algo needs the “XML -&gt; C14N(XML) -&gt; Signed(C14N(Xml))” order.</p>
+<p>The binary extention lxml is probably the canonical way to solve this
+(<a class="reference external" href="https://stackoverflow.com/questions/22959577/python-exclusive-xml-canonicalization-xml-exc-c14n">https://stackoverflow.com/questions/22959577/python-exclusive-xml-canonicalization-xml-exc-c14n</a>)
+but here we use this workaround, based on Regex, to return raw content as-is.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="adal.wstrust_response.scrub_rstr_log_message">
+<code class="descclassname">adal.wstrust_response.</code><code class="descname">scrub_rstr_log_message</code><span class="sig-paren">(</span><em>response_str</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/adal/wstrust_response.html#scrub_rstr_log_message"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#adal.wstrust_response.scrub_rstr_log_message" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+<div class="section" id="module-adal.xmlutil">
+<span id="adal-xmlutil-module"></span><h2>adal.xmlutil module<a class="headerlink" href="#module-adal.xmlutil" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="adal.xmlutil.expand_q_names">
+<code class="descclassname">adal.xmlutil.</code><code class="descname">expand_q_names</code><span class="sig-paren">(</span><em>xpath</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/adal/xmlutil.html#expand_q_names"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#adal.xmlutil.expand_q_names" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="adal.xmlutil.find_element_text">
+<code class="descclassname">adal.xmlutil.</code><code class="descname">find_element_text</code><span class="sig-paren">(</span><em>node</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/adal/xmlutil.html#find_element_text"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#adal.xmlutil.find_element_text" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="adal.xmlutil.is_element_node">
+<code class="descclassname">adal.xmlutil.</code><code class="descname">is_element_node</code><span class="sig-paren">(</span><em>node</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/adal/xmlutil.html#is_element_node"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#adal.xmlutil.is_element_node" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="adal.xmlutil.serialize_node_children">
+<code class="descclassname">adal.xmlutil.</code><code class="descname">serialize_node_children</code><span class="sig-paren">(</span><em>node</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/adal/xmlutil.html#serialize_node_children"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#adal.xmlutil.serialize_node_children" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="adal.xmlutil.xpath_find">
+<code class="descclassname">adal.xmlutil.</code><code class="descname">xpath_find</code><span class="sig-paren">(</span><em>dom</em>, <em>xpath</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/adal/xmlutil.html#xpath_find"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#adal.xmlutil.xpath_find" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+<div class="section" id="module-adal">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-adal" title="Permalink to this headline">¶</a></h2>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018, abhidnya.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../',
+            VERSION:'',
+            LANGUAGE:'None',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="../_static/jquery.js"></script>
+      <script type="text/javascript" src="../_static/underscore.js"></script>
+      <script type="text/javascript" src="../_static/doctools.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          
+          SphinxRtdTheme.Navigation.enableSticky();
+          
+      });
+  </script> 
+
+</body>
+</html>

@@ -1,0 +1,386 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>adal.authentication_parameters &mdash; ADAL Python  documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+    <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+
+  
+  <script src="../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../../index.html" class="icon icon-home"> ADAL Python
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <!-- Local TOC -->
+              <div class="local-toc"></div>
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">ADAL Python</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../index.html">Module code</a> &raquo;</li>
+        
+      <li>adal.authentication_parameters</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for adal.authentication_parameters</h1><div class="highlight"><pre>
+<span></span><span class="c1">#------------------------------------------------------------------------------</span>
+<span class="c1">#</span>
+<span class="c1"># Copyright (c) Microsoft Corporation. </span>
+<span class="c1"># All rights reserved.</span>
+<span class="c1"># </span>
+<span class="c1"># This code is licensed under the MIT License.</span>
+<span class="c1"># </span>
+<span class="c1"># Permission is hereby granted, free of charge, to any person obtaining a copy</span>
+<span class="c1"># of this software and associated documentation files(the &quot;Software&quot;), to deal</span>
+<span class="c1"># in the Software without restriction, including without limitation the rights</span>
+<span class="c1"># to use, copy, modify, merge, publish, distribute, sublicense, and / or sell</span>
+<span class="c1"># copies of the Software, and to permit persons to whom the Software is</span>
+<span class="c1"># furnished to do so, subject to the following conditions :</span>
+<span class="c1"># </span>
+<span class="c1"># The above copyright notice and this permission notice shall be included in</span>
+<span class="c1"># all copies or substantial portions of the Software.</span>
+<span class="c1"># </span>
+<span class="c1"># THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR</span>
+<span class="c1"># IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,</span>
+<span class="c1"># FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.IN NO EVENT SHALL THE</span>
+<span class="c1"># AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER</span>
+<span class="c1"># LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,</span>
+<span class="c1"># OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN</span>
+<span class="c1"># THE SOFTWARE.</span>
+<span class="c1">#</span>
+<span class="c1">#------------------------------------------------------------------------------</span>
+
+<span class="c1">#Note, this module does not appear being used anywhere</span>
+
+<span class="kn">import</span> <span class="nn">re</span>
+
+<span class="kn">import</span> <span class="nn">requests</span>
+
+<span class="kn">from</span> <span class="nn">.</span> <span class="k">import</span> <span class="n">util</span>
+<span class="kn">from</span> <span class="nn">.</span> <span class="k">import</span> <span class="n">log</span>
+
+<span class="kn">from</span> <span class="nn">.constants</span> <span class="k">import</span> <span class="n">HttpError</span>
+
+<span class="n">AUTHORIZATION_URI</span> <span class="o">=</span> <span class="s1">&#39;authorization_uri&#39;</span>
+<span class="n">RESOURCE</span> <span class="o">=</span> <span class="s1">&#39;resource&#39;</span>
+<span class="n">WWW_AUTHENTICATE_HEADER</span> <span class="o">=</span> <span class="s1">&#39;www-authenticate&#39;</span>
+
+<span class="c1"># pylint: disable=anomalous-backslash-in-string,too-few-public-methods</span>
+
+<div class="viewcode-block" id="AuthenticationParameters"><a class="viewcode-back" href="../../source/adal.html#adal.authentication_parameters.AuthenticationParameters">[docs]</a><span class="k">class</span> <span class="nc">AuthenticationParameters</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">authorization_uri</span><span class="p">,</span> <span class="n">resource</span><span class="p">):</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">authorization_uri</span> <span class="o">=</span> <span class="n">authorization_uri</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">resource</span> <span class="o">=</span> <span class="n">resource</span></div>
+
+
+<span class="c1"># The 401 challenge is a standard defined in RFC6750, which is based in part on RFC2617.</span>
+<span class="c1"># The challenge has the following form.</span>
+<span class="c1"># WWW-Authenticate : Bearer</span>
+<span class="c1">#     authorization_uri=&quot;https://login.windows.net/mytenant.com/oauth2/authorize&quot;,</span>
+<span class="c1">#     Resource_id=&quot;00000002-0000-0000-c000-000000000000&quot;</span>
+
+<span class="c1"># This regex is used to validate the structure of the challenge header.</span>
+<span class="c1"># Match whole structure: ^\s*Bearer\s+([^,\s=&quot;]+?)=&quot;([^&quot;]*?)&quot;\s*(,\s*([^,\s=&quot;]+?)=&quot;([^&quot;]*?)&quot;\s*)*$</span>
+<span class="c1"># ^                        Start at the beginning of the string.</span>
+<span class="c1"># \s*Bearer\s+             Match &#39;Bearer&#39; surrounded by one or more amount of whitespace.</span>
+<span class="c1"># ([^,\s=&quot;]+?)             This captures the key which is composed of any characters except</span>
+<span class="c1">#                          comma, whitespace or a quotes.</span>
+<span class="c1"># =                        Match the = sign.</span>
+<span class="c1"># &quot;([^&quot;]*?)&quot;               Captures the value can be any number of non quote characters.</span>
+<span class="c1">#                          At this point only the first key value pair as been captured.</span>
+<span class="c1"># \s*                      There can be any amount of white space after the first key value pair.</span>
+<span class="c1"># (                        Start a capture group to retrieve the rest of the key value</span>
+<span class="c1">#                          pairs that are separated by commas.</span>
+<span class="c1">#    \s*                   There can be any amount of whitespace before the comma.</span>
+<span class="c1">#    ,                     There must be a comma.</span>
+<span class="c1">#    \s*                   There can be any amount of whitespace after the comma.</span>
+<span class="c1">#    (([^,\s=&quot;]+?)         This will capture the key that comes after the comma.  It&#39;s made</span>
+<span class="c1">#                          of a series of any character except comma, whitespace or quotes.</span>
+<span class="c1">#    =                     Match the equal sign between the key and value.</span>
+<span class="c1">#    &quot;                     Match the opening quote of the value.</span>
+<span class="c1">#    ([^&quot;]*?)              This will capture the value which can be any number of non</span>
+<span class="c1">#                          quote characters.</span>
+<span class="c1">#    &quot;                     Match the values closing quote.</span>
+<span class="c1">#    \s*                   There can be any amount of whitespace before the next comma.</span>
+<span class="c1"># )*                       Close the capture group for key value pairs.  There can be any</span>
+<span class="c1">#                          number of these.</span>
+<span class="c1"># $                        The rest of the string can be whitespace but nothing else up to</span>
+<span class="c1">#                          the end of the string.</span>
+<span class="c1">#</span>
+
+<span class="c1"># This regex checks the structure of the whole challenge header.  The complete</span>
+<span class="c1"># header needs to be checked for validity before we can be certain that</span>
+<span class="c1"># we will succeed in pulling out the individual parts.</span>
+<span class="n">bearer_challenge_structure_validation</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span>
+    <span class="sd">&quot;&quot;&quot;^\s*Bearer\s+([^,\s=&quot;]+?)=&quot;([^&quot;]*?)&quot;\s*(,\s*([^,\s=&quot;]+?)=&quot;([^&quot;]*?)&quot;\s*)*$&quot;&quot;&quot;</span><span class="p">)</span>
+<span class="c1"># This regex pulls out the key and value from the very first pair.</span>
+<span class="n">first_key_value_pair_regex</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="s2">&quot;&quot;&quot;^\s*Bearer\s+([^,\s=&quot;]+?)=&quot;([^&quot;]*?)&quot;\s*&quot;&quot;&quot;</span><span class="p">)</span>
+
+<span class="c1"># This regex is used to pull out all of the key value pairs after the first one.</span>
+<span class="c1"># All of these begin with a comma.</span>
+<span class="n">all_other_key_value_pair_regex</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="s2">&quot;&quot;&quot;(?:,\s*([^,\s=&quot;]+?)=&quot;([^&quot;]*?)&quot;\s*)&quot;&quot;&quot;</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="parse_challenge"><a class="viewcode-back" href="../../source/adal.html#adal.authentication_parameters.parse_challenge">[docs]</a><span class="k">def</span> <span class="nf">parse_challenge</span><span class="p">(</span><span class="n">challenge</span><span class="p">):</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">bearer_challenge_structure_validation</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">challenge</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;The challenge is not parseable as an RFC6750 OAuth2 challenge&quot;</span><span class="p">)</span>
+
+    <span class="n">challenge_parameters</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="n">match</span> <span class="o">=</span> <span class="n">first_key_value_pair_regex</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">challenge</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">match</span><span class="p">:</span>
+        <span class="n">challenge_parameters</span><span class="p">[</span><span class="n">match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)]</span> <span class="o">=</span> <span class="n">match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">match</span> <span class="ow">in</span> <span class="n">all_other_key_value_pair_regex</span><span class="o">.</span><span class="n">finditer</span><span class="p">(</span><span class="n">challenge</span><span class="p">):</span>
+        <span class="n">challenge_parameters</span><span class="p">[</span><span class="n">match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)]</span> <span class="o">=</span> <span class="n">match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">challenge_parameters</span></div>
+
+<div class="viewcode-block" id="create_authentication_parameters_from_header"><a class="viewcode-back" href="../../source/adal.html#adal.authentication_parameters.create_authentication_parameters_from_header">[docs]</a><span class="k">def</span> <span class="nf">create_authentication_parameters_from_header</span><span class="p">(</span><span class="n">challenge</span><span class="p">):</span>
+    <span class="n">challenge_parameters</span> <span class="o">=</span> <span class="n">parse_challenge</span><span class="p">(</span><span class="n">challenge</span><span class="p">)</span>
+    <span class="n">authorization_uri</span> <span class="o">=</span> <span class="n">challenge_parameters</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">AUTHORIZATION_URI</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">authorization_uri</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Could not find &#39;authorization_uri&#39; in challenge header.&quot;</span><span class="p">)</span>
+
+    <span class="n">resource</span> <span class="o">=</span> <span class="n">challenge_parameters</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">RESOURCE</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">AuthenticationParameters</span><span class="p">(</span><span class="n">authorization_uri</span><span class="p">,</span> <span class="n">resource</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="create_authentication_parameters_from_response"><a class="viewcode-back" href="../../source/adal.html#adal.authentication_parameters.create_authentication_parameters_from_response">[docs]</a><span class="k">def</span> <span class="nf">create_authentication_parameters_from_response</span><span class="p">(</span><span class="n">response</span><span class="p">):</span>
+
+    <span class="k">if</span> <span class="n">response</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">AttributeError</span><span class="p">(</span><span class="s1">&#39;Missing required parameter: response&#39;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">response</span><span class="p">,</span> <span class="s1">&#39;status_code&#39;</span><span class="p">)</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">response</span><span class="o">.</span><span class="n">status_code</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">AttributeError</span><span class="p">(</span><span class="s1">&#39;The response parameter does not have the expected HTTP status_code field&#39;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">response</span><span class="p">,</span> <span class="s1">&#39;headers&#39;</span><span class="p">)</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">response</span><span class="o">.</span><span class="n">headers</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">AttributeError</span><span class="p">(</span><span class="s1">&#39;There were no headers found in the response.&#39;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">response</span><span class="o">.</span><span class="n">status_code</span> <span class="o">!=</span> <span class="n">HttpError</span><span class="o">.</span><span class="n">UNAUTHORIZED</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;The response status code does not correspond to an OAuth challenge.  &#39;</span>
+                         <span class="s1">&#39;The statusCode is expected to be 401 but is: </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">response</span><span class="o">.</span><span class="n">status_code</span><span class="p">))</span>
+
+    <span class="n">challenge</span> <span class="o">=</span> <span class="n">response</span><span class="o">.</span><span class="n">headers</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">WWW_AUTHENTICATE_HEADER</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">challenge</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;The response does not contain a WWW-Authenticate header that can be &quot;</span>
+                         <span class="s2">&quot;used to determine the authority_uri and resource.&quot;</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">create_authentication_parameters_from_header</span><span class="p">(</span><span class="n">challenge</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="validate_url_object"><a class="viewcode-back" href="../../source/adal.html#adal.authentication_parameters.validate_url_object">[docs]</a><span class="k">def</span> <span class="nf">validate_url_object</span><span class="p">(</span><span class="n">url</span><span class="p">):</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">url</span> <span class="ow">or</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="s1">&#39;geturl&#39;</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">AttributeError</span><span class="p">(</span><span class="s1">&#39;Parameter is of wrong type: url&#39;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="create_authentication_parameters_from_url"><a class="viewcode-back" href="../../source/adal.html#adal.authentication_parameters.create_authentication_parameters_from_url">[docs]</a><span class="k">def</span> <span class="nf">create_authentication_parameters_from_url</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">correlation_id</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="n">challenge_url</span> <span class="o">=</span> <span class="n">url</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">validate_url_object</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
+        <span class="n">challenge_url</span> <span class="o">=</span> <span class="n">url</span><span class="o">.</span><span class="n">geturl</span><span class="p">()</span>
+
+    <span class="n">log_context</span> <span class="o">=</span> <span class="n">log</span><span class="o">.</span><span class="n">create_log_context</span><span class="p">(</span><span class="n">correlation_id</span><span class="p">)</span>
+    <span class="n">logger</span> <span class="o">=</span> <span class="n">log</span><span class="o">.</span><span class="n">Logger</span><span class="p">(</span><span class="s1">&#39;AuthenticationParameters&#39;</span><span class="p">,</span> <span class="n">log_context</span><span class="p">)</span>
+
+    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
+        <span class="s2">&quot;Attempting to retrieve authentication parameters from: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">challenge_url</span><span class="p">)</span>
+    <span class="p">)</span>
+
+    <span class="k">class</span> <span class="nc">_options</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+        <span class="n">_call_context</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;log_context&#39;</span><span class="p">:</span> <span class="n">log_context</span><span class="p">}</span>
+
+    <span class="n">options</span> <span class="o">=</span> <span class="n">util</span><span class="o">.</span><span class="n">create_request_options</span><span class="p">(</span><span class="n">_options</span><span class="p">())</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">response</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">challenge_url</span><span class="p">,</span> <span class="n">headers</span><span class="o">=</span><span class="n">options</span><span class="p">[</span><span class="s1">&#39;headers&#39;</span><span class="p">])</span>
+    <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Authentication parameters http get failed.&quot;</span><span class="p">)</span>
+        <span class="k">raise</span>
+
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">create_authentication_parameters_from_response</span><span class="p">(</span><span class="n">response</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Unable to parse response in to authentication parameters.&quot;</span><span class="p">)</span>
+        <span class="k">raise</span></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018, abhidnya.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../../',
+            VERSION:'',
+            LANGUAGE:'None',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="../../_static/jquery.js"></script>
+      <script type="text/javascript" src="../../_static/underscore.js"></script>
+      <script type="text/javascript" src="../../_static/doctools.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          
+          SphinxRtdTheme.Navigation.enableSticky();
+          
+      });
+  </script> 
+
+</body>
+</html>

@@ -1,0 +1,578 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>adal.oauth2_client &mdash; ADAL Python  documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+    <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+
+  
+  <script src="../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../../index.html" class="icon icon-home"> ADAL Python
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <!-- Local TOC -->
+              <div class="local-toc"></div>
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">ADAL Python</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../index.html">Module code</a> &raquo;</li>
+        
+      <li>adal.oauth2_client</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for adal.oauth2_client</h1><div class="highlight"><pre>
+<span></span><span class="c1">#------------------------------------------------------------------------------</span>
+<span class="c1">#</span>
+<span class="c1"># Copyright (c) Microsoft Corporation. </span>
+<span class="c1"># All rights reserved.</span>
+<span class="c1"># </span>
+<span class="c1"># This code is licensed under the MIT License.</span>
+<span class="c1"># </span>
+<span class="c1"># Permission is hereby granted, free of charge, to any person obtaining a copy</span>
+<span class="c1"># of this software and associated documentation files(the &quot;Software&quot;), to deal</span>
+<span class="c1"># in the Software without restriction, including without limitation the rights</span>
+<span class="c1"># to use, copy, modify, merge, publish, distribute, sublicense, and / or sell</span>
+<span class="c1"># copies of the Software, and to permit persons to whom the Software is</span>
+<span class="c1"># furnished to do so, subject to the following conditions :</span>
+<span class="c1"># </span>
+<span class="c1"># The above copyright notice and this permission notice shall be included in</span>
+<span class="c1"># all copies or substantial portions of the Software.</span>
+<span class="c1"># </span>
+<span class="c1"># THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR</span>
+<span class="c1"># IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,</span>
+<span class="c1"># FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.IN NO EVENT SHALL THE</span>
+<span class="c1"># AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER</span>
+<span class="c1"># LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,</span>
+<span class="c1"># OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN</span>
+<span class="c1"># THE SOFTWARE.</span>
+<span class="c1">#</span>
+<span class="c1">#------------------------------------------------------------------------------</span>
+
+<span class="kn">from</span> <span class="nn">datetime</span> <span class="k">import</span> <span class="n">datetime</span><span class="p">,</span> <span class="n">timedelta</span>
+<span class="kn">import</span> <span class="nn">math</span>
+<span class="kn">import</span> <span class="nn">re</span>
+<span class="kn">import</span> <span class="nn">json</span>
+<span class="kn">import</span> <span class="nn">time</span>
+<span class="kn">import</span> <span class="nn">uuid</span>
+
+<span class="k">try</span><span class="p">:</span>
+    <span class="kn">from</span> <span class="nn">urllib.parse</span> <span class="k">import</span> <span class="n">urlencode</span><span class="p">,</span> <span class="n">urlparse</span>
+<span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
+    <span class="kn">from</span> <span class="nn">urllib</span> <span class="k">import</span> <span class="n">urlencode</span> <span class="c1"># pylint: disable=no-name-in-module</span>
+    <span class="kn">from</span> <span class="nn">urlparse</span> <span class="k">import</span> <span class="n">urlparse</span> <span class="c1"># pylint: disable=import-error,ungrouped-imports</span>
+
+<span class="kn">import</span> <span class="nn">requests</span>
+
+<span class="kn">from</span> <span class="nn">.</span> <span class="k">import</span> <span class="n">log</span>
+<span class="kn">from</span> <span class="nn">.</span> <span class="k">import</span> <span class="n">util</span>
+<span class="kn">from</span> <span class="nn">.constants</span> <span class="k">import</span> <span class="n">OAuth2</span><span class="p">,</span> <span class="n">TokenResponseFields</span><span class="p">,</span> <span class="n">IdTokenFields</span>
+<span class="kn">from</span> <span class="nn">.adal_error</span> <span class="k">import</span> <span class="n">AdalError</span>
+
+<span class="n">TOKEN_RESPONSE_MAP</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="n">OAuth2</span><span class="o">.</span><span class="n">ResponseParameters</span><span class="o">.</span><span class="n">TOKEN_TYPE</span> <span class="p">:</span> <span class="n">TokenResponseFields</span><span class="o">.</span><span class="n">TOKEN_TYPE</span><span class="p">,</span>
+    <span class="n">OAuth2</span><span class="o">.</span><span class="n">ResponseParameters</span><span class="o">.</span><span class="n">ACCESS_TOKEN</span> <span class="p">:</span> <span class="n">TokenResponseFields</span><span class="o">.</span><span class="n">ACCESS_TOKEN</span><span class="p">,</span>
+    <span class="n">OAuth2</span><span class="o">.</span><span class="n">ResponseParameters</span><span class="o">.</span><span class="n">REFRESH_TOKEN</span> <span class="p">:</span> <span class="n">TokenResponseFields</span><span class="o">.</span><span class="n">REFRESH_TOKEN</span><span class="p">,</span>
+    <span class="n">OAuth2</span><span class="o">.</span><span class="n">ResponseParameters</span><span class="o">.</span><span class="n">CREATED_ON</span> <span class="p">:</span> <span class="n">TokenResponseFields</span><span class="o">.</span><span class="n">CREATED_ON</span><span class="p">,</span>
+    <span class="n">OAuth2</span><span class="o">.</span><span class="n">ResponseParameters</span><span class="o">.</span><span class="n">EXPIRES_ON</span> <span class="p">:</span> <span class="n">TokenResponseFields</span><span class="o">.</span><span class="n">EXPIRES_ON</span><span class="p">,</span>
+    <span class="n">OAuth2</span><span class="o">.</span><span class="n">ResponseParameters</span><span class="o">.</span><span class="n">EXPIRES_IN</span> <span class="p">:</span> <span class="n">TokenResponseFields</span><span class="o">.</span><span class="n">EXPIRES_IN</span><span class="p">,</span>
+    <span class="n">OAuth2</span><span class="o">.</span><span class="n">ResponseParameters</span><span class="o">.</span><span class="n">RESOURCE</span> <span class="p">:</span> <span class="n">TokenResponseFields</span><span class="o">.</span><span class="n">RESOURCE</span><span class="p">,</span>
+    <span class="n">OAuth2</span><span class="o">.</span><span class="n">ResponseParameters</span><span class="o">.</span><span class="n">ERROR</span> <span class="p">:</span> <span class="n">TokenResponseFields</span><span class="o">.</span><span class="n">ERROR</span><span class="p">,</span>
+    <span class="n">OAuth2</span><span class="o">.</span><span class="n">ResponseParameters</span><span class="o">.</span><span class="n">ERROR_DESCRIPTION</span> <span class="p">:</span> <span class="n">TokenResponseFields</span><span class="o">.</span><span class="n">ERROR_DESCRIPTION</span><span class="p">,</span>
+<span class="p">}</span>
+
+<span class="n">_REQ_OPTION</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;headers&#39;</span> <span class="p">:</span> <span class="p">{</span><span class="s1">&#39;content-type&#39;</span><span class="p">:</span> <span class="s1">&#39;application/x-www-form-urlencoded&#39;</span><span class="p">}}</span>
+<span class="n">_ERROR_TEMPLATE</span> <span class="o">=</span> <span class="sa">u</span><span class="s2">&quot;</span><span class="si">{}</span><span class="s2"> request returned http error: </span><span class="si">{}</span><span class="s2">&quot;</span>
+
+
+<div class="viewcode-block" id="map_fields"><a class="viewcode-back" href="../../source/adal.html#adal.oauth2_client.map_fields">[docs]</a><span class="k">def</span> <span class="nf">map_fields</span><span class="p">(</span><span class="n">in_obj</span><span class="p">,</span> <span class="n">map_to</span><span class="p">):</span>
+    <span class="k">return</span> <span class="nb">dict</span><span class="p">((</span><span class="n">map_to</span><span class="p">[</span><span class="n">k</span><span class="p">],</span> <span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">in_obj</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">map_to</span><span class="p">)</span></div>
+
+<span class="k">def</span> <span class="nf">_get_user_id</span><span class="p">(</span><span class="n">id_token</span><span class="p">):</span>
+    <span class="n">user_id</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">is_displayable</span> <span class="o">=</span> <span class="kc">False</span>
+
+    <span class="k">if</span> <span class="n">id_token</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;upn&#39;</span><span class="p">):</span>
+        <span class="n">user_id</span> <span class="o">=</span> <span class="n">id_token</span><span class="p">[</span><span class="s1">&#39;upn&#39;</span><span class="p">]</span>
+        <span class="n">is_displayable</span> <span class="o">=</span> <span class="kc">True</span>
+    <span class="k">elif</span> <span class="n">id_token</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;email&#39;</span><span class="p">):</span>
+        <span class="n">user_id</span> <span class="o">=</span> <span class="n">id_token</span><span class="p">[</span><span class="s1">&#39;email&#39;</span><span class="p">]</span>
+        <span class="n">is_displayable</span> <span class="o">=</span> <span class="kc">True</span>
+    <span class="k">elif</span> <span class="n">id_token</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;sub&#39;</span><span class="p">):</span>
+        <span class="n">user_id</span> <span class="o">=</span> <span class="n">id_token</span><span class="p">[</span><span class="s1">&#39;sub&#39;</span><span class="p">]</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">user_id</span><span class="p">:</span>
+        <span class="n">user_id</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">uuid</span><span class="o">.</span><span class="n">uuid4</span><span class="p">())</span>
+
+    <span class="n">user_id_vals</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="n">user_id_vals</span><span class="p">[</span><span class="n">IdTokenFields</span><span class="o">.</span><span class="n">USER_ID</span><span class="p">]</span> <span class="o">=</span> <span class="n">user_id</span>
+
+    <span class="k">if</span> <span class="n">is_displayable</span><span class="p">:</span>
+        <span class="n">user_id_vals</span><span class="p">[</span><span class="n">IdTokenFields</span><span class="o">.</span><span class="n">IS_USER_ID_DISPLAYABLE</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+
+    <span class="k">return</span> <span class="n">user_id_vals</span>
+
+<span class="k">def</span> <span class="nf">_extract_token_values</span><span class="p">(</span><span class="n">id_token</span><span class="p">):</span>
+    <span class="n">extracted_values</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="n">extracted_values</span> <span class="o">=</span> <span class="n">map_fields</span><span class="p">(</span><span class="n">id_token</span><span class="p">,</span> <span class="n">OAuth2</span><span class="o">.</span><span class="n">IdTokenMap</span><span class="p">)</span>
+    <span class="n">extracted_values</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">_get_user_id</span><span class="p">(</span><span class="n">id_token</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">extracted_values</span>
+
+<div class="viewcode-block" id="OAuth2Client"><a class="viewcode-back" href="../../source/adal.html#adal.oauth2_client.OAuth2Client">[docs]</a><span class="k">class</span> <span class="nc">OAuth2Client</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">call_context</span><span class="p">,</span> <span class="n">authority</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_token_endpoint</span> <span class="o">=</span> <span class="n">authority</span><span class="o">.</span><span class="n">token_endpoint</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_device_code_endpoint</span> <span class="o">=</span> <span class="n">authority</span><span class="o">.</span><span class="n">device_code_endpoint</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_log</span> <span class="o">=</span> <span class="n">log</span><span class="o">.</span><span class="n">Logger</span><span class="p">(</span><span class="s2">&quot;OAuth2Client&quot;</span><span class="p">,</span> <span class="n">call_context</span><span class="p">[</span><span class="s1">&#39;log_context&#39;</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_call_context</span> <span class="o">=</span> <span class="n">call_context</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_cancel_polling_request</span> <span class="o">=</span> <span class="kc">False</span>
+
+    <span class="k">def</span> <span class="nf">_create_token_url</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">parameters</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_call_context</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;api_version&#39;</span><span class="p">):</span>
+            <span class="n">parameters</span><span class="p">[</span><span class="n">OAuth2</span><span class="o">.</span><span class="n">Parameters</span><span class="o">.</span><span class="n">AAD_API_VERSION</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_call_context</span><span class="p">[</span>
+                <span class="s1">&#39;api_version&#39;</span><span class="p">]</span>
+
+        <span class="k">return</span> <span class="n">urlparse</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">{}</span><span class="s1">?</span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_token_endpoint</span><span class="p">,</span> <span class="n">urlencode</span><span class="p">(</span><span class="n">parameters</span><span class="p">)))</span>
+
+    <span class="k">def</span> <span class="nf">_create_device_code_url</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">parameters</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">parameters</span><span class="p">[</span><span class="n">OAuth2</span><span class="o">.</span><span class="n">Parameters</span><span class="o">.</span><span class="n">AAD_API_VERSION</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;1.0&#39;</span>
+        <span class="k">return</span> <span class="n">urlparse</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">{}</span><span class="s1">?</span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_device_code_endpoint</span><span class="p">,</span> <span class="n">urlencode</span><span class="p">(</span><span class="n">parameters</span><span class="p">)))</span>
+
+    <span class="k">def</span> <span class="nf">_parse_optional_ints</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">,</span> <span class="n">keys</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">keys</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">obj</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">obj</span><span class="p">[</span><span class="n">key</span><span class="p">])</span>
+            <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_log</span><span class="o">.</span><span class="n">exception</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%(key)s</span><span class="s2"> could not be parsed as an int&quot;</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;key&quot;</span><span class="p">:</span> <span class="n">key</span><span class="p">})</span>
+                <span class="k">raise</span>
+            <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+                <span class="c1"># if the key isn&#39;t present we can just continue</span>
+                <span class="k">pass</span>  
+
+    <span class="k">def</span> <span class="nf">_parse_id_token</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">encoded_token</span><span class="p">):</span>
+
+        <span class="n">cracked_token</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_open_jwt</span><span class="p">(</span><span class="n">encoded_token</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">cracked_token</span><span class="p">:</span>
+            <span class="k">return</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">b64_id_token</span> <span class="o">=</span> <span class="n">cracked_token</span><span class="p">[</span><span class="s1">&#39;JWSPayload&#39;</span><span class="p">]</span>
+            <span class="n">b64_decoded</span> <span class="o">=</span> <span class="n">util</span><span class="o">.</span><span class="n">base64_urlsafe_decode</span><span class="p">(</span><span class="n">b64_id_token</span><span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">b64_decoded</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_log</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s1">&#39;The returned id_token could not be base64 url safe decoded.&#39;</span><span class="p">)</span>
+                <span class="k">return</span>
+
+            <span class="n">id_token</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">b64_decoded</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s1">&#39;utf-8&#39;</span><span class="p">))</span>
+        <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_log</span><span class="o">.</span><span class="n">exception</span><span class="p">(</span>
+                <span class="s2">&quot;The returned id_token could not be decoded: </span><span class="si">%(id_token)s</span><span class="s2">&quot;</span><span class="p">,</span>
+                <span class="p">{</span><span class="s2">&quot;id_token&quot;</span><span class="p">:</span> <span class="n">encoded_token</span><span class="p">})</span>
+            <span class="k">raise</span>
+
+        <span class="k">return</span> <span class="n">_extract_token_values</span><span class="p">(</span><span class="n">id_token</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_open_jwt</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">jwt_token</span><span class="p">):</span>
+        <span class="n">id_token_parts_reg</span> <span class="o">=</span> <span class="sa">r</span><span class="s2">&quot;^([^\.\s]*)\.([^\.\s]+)\.([^\.\s]*)$&quot;</span>
+        <span class="n">matches</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">id_token_parts_reg</span><span class="p">,</span> <span class="n">jwt_token</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">matches</span> <span class="ow">or</span> <span class="nb">len</span><span class="p">(</span><span class="n">matches</span><span class="o">.</span><span class="n">groups</span><span class="p">())</span> <span class="o">&lt;</span> <span class="mi">3</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_log</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s1">&#39;The token was not parsable.&#39;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="p">{}</span>
+
+        <span class="k">return</span> <span class="p">{</span>
+            <span class="s1">&#39;header&#39;</span><span class="p">:</span> <span class="n">matches</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span>
+            <span class="s1">&#39;JWSPayload&#39;</span><span class="p">:</span> <span class="n">matches</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">2</span><span class="p">),</span>
+            <span class="s1">&#39;JWSSig&#39;</span><span class="p">:</span> <span class="n">matches</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+            <span class="p">}</span>
+
+    <span class="k">def</span> <span class="nf">_validate_token_response</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">body</span><span class="p">):</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">wire_response</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">body</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_log</span><span class="o">.</span><span class="n">exception</span><span class="p">(</span>
+                <span class="s1">&#39;The token response from the server is unparseable as JSON: </span><span class="si">%(token_response)s</span><span class="s1">&#39;</span><span class="p">,</span>
+                <span class="p">{</span><span class="s2">&quot;token_response&quot;</span><span class="p">:</span> <span class="n">body</span><span class="p">})</span>
+            <span class="k">raise</span>
+
+        <span class="n">int_keys</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">OAuth2</span><span class="o">.</span><span class="n">ResponseParameters</span><span class="o">.</span><span class="n">EXPIRES_ON</span><span class="p">,</span>
+            <span class="n">OAuth2</span><span class="o">.</span><span class="n">ResponseParameters</span><span class="o">.</span><span class="n">EXPIRES_IN</span><span class="p">,</span>
+            <span class="n">OAuth2</span><span class="o">.</span><span class="n">ResponseParameters</span><span class="o">.</span><span class="n">CREATED_ON</span>
+        <span class="p">]</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_parse_optional_ints</span><span class="p">(</span><span class="n">wire_response</span><span class="p">,</span> <span class="n">int_keys</span><span class="p">)</span>
+
+        <span class="n">expires_in</span> <span class="o">=</span> <span class="n">wire_response</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">OAuth2</span><span class="o">.</span><span class="n">ResponseParameters</span><span class="o">.</span><span class="n">EXPIRES_IN</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">expires_in</span><span class="p">:</span>
+            <span class="n">now</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span>
+            <span class="n">soon</span> <span class="o">=</span> <span class="n">timedelta</span><span class="p">(</span><span class="n">seconds</span><span class="o">=</span><span class="n">expires_in</span><span class="p">)</span>
+            <span class="n">wire_response</span><span class="p">[</span><span class="n">OAuth2</span><span class="o">.</span><span class="n">ResponseParameters</span><span class="o">.</span><span class="n">EXPIRES_ON</span><span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">now</span> <span class="o">+</span> <span class="n">soon</span><span class="p">)</span>
+
+        <span class="n">created_on</span> <span class="o">=</span> <span class="n">wire_response</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">OAuth2</span><span class="o">.</span><span class="n">ResponseParameters</span><span class="o">.</span><span class="n">CREATED_ON</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">created_on</span><span class="p">:</span>
+            <span class="n">temp_date</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">fromtimestamp</span><span class="p">(</span><span class="n">created_on</span><span class="p">)</span>
+            <span class="n">wire_response</span><span class="p">[</span><span class="n">OAuth2</span><span class="o">.</span><span class="n">ResponseParameters</span><span class="o">.</span><span class="n">CREATED_ON</span><span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">temp_date</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">wire_response</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">OAuth2</span><span class="o">.</span><span class="n">ResponseParameters</span><span class="o">.</span><span class="n">TOKEN_TYPE</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="n">AdalError</span><span class="p">(</span><span class="s1">&#39;wire_response is missing token_type&#39;</span><span class="p">,</span> <span class="n">wire_response</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">wire_response</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">OAuth2</span><span class="o">.</span><span class="n">ResponseParameters</span><span class="o">.</span><span class="n">ACCESS_TOKEN</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="n">AdalError</span><span class="p">(</span><span class="s1">&#39;wire_response is missing access_token&#39;</span><span class="p">,</span> <span class="n">wire_response</span><span class="p">)</span>
+
+        <span class="n">token_response</span> <span class="o">=</span> <span class="n">map_fields</span><span class="p">(</span><span class="n">wire_response</span><span class="p">,</span> <span class="n">TOKEN_RESPONSE_MAP</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">wire_response</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">OAuth2</span><span class="o">.</span><span class="n">ResponseParameters</span><span class="o">.</span><span class="n">ID_TOKEN</span><span class="p">):</span>
+            <span class="n">id_token</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parse_id_token</span><span class="p">(</span><span class="n">wire_response</span><span class="p">[</span><span class="n">OAuth2</span><span class="o">.</span><span class="n">ResponseParameters</span><span class="o">.</span><span class="n">ID_TOKEN</span><span class="p">])</span>
+            <span class="k">if</span> <span class="n">id_token</span><span class="p">:</span>
+                <span class="n">token_response</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">id_token</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">token_response</span>
+
+    <span class="k">def</span> <span class="nf">_validate_device_code_response</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">body</span><span class="p">):</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">wire_response</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">body</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;The device code response returned from the server is unparseable as JSON:&#39;</span><span class="p">)</span>
+            <span class="k">raise</span>
+
+        <span class="n">int_keys</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">OAuth2</span><span class="o">.</span><span class="n">DeviceCodeResponseParameters</span><span class="o">.</span><span class="n">EXPIRES_IN</span><span class="p">,</span>
+            <span class="n">OAuth2</span><span class="o">.</span><span class="n">DeviceCodeResponseParameters</span><span class="o">.</span><span class="n">INTERVAL</span>
+        <span class="p">]</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_parse_optional_ints</span><span class="p">(</span><span class="n">wire_response</span><span class="p">,</span> <span class="n">int_keys</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">wire_response</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">OAuth2</span><span class="o">.</span><span class="n">DeviceCodeResponseParameters</span><span class="o">.</span><span class="n">EXPIRES_IN</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="n">AdalError</span><span class="p">(</span><span class="s1">&#39;wire_response is missing expires_in&#39;</span><span class="p">,</span> <span class="n">wire_response</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">wire_response</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">OAuth2</span><span class="o">.</span><span class="n">DeviceCodeResponseParameters</span><span class="o">.</span><span class="n">DEVICE_CODE</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="n">AdalError</span><span class="p">(</span><span class="s1">&#39;wire_response is missing device_code&#39;</span><span class="p">,</span> <span class="n">wire_response</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">wire_response</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">OAuth2</span><span class="o">.</span><span class="n">DeviceCodeResponseParameters</span><span class="o">.</span><span class="n">USER_CODE</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="n">AdalError</span><span class="p">(</span><span class="s1">&#39;wire_response is missing user_code&#39;</span><span class="p">,</span> <span class="n">wire_response</span><span class="p">)</span>
+
+        <span class="c1">#skip field naming tweak, becasue names from wire are python style already</span>
+        <span class="k">return</span> <span class="n">wire_response</span>
+
+    <span class="k">def</span> <span class="nf">_handle_get_token_response</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">body</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_validate_token_response</span><span class="p">(</span><span class="n">body</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_log</span><span class="o">.</span><span class="n">exception</span><span class="p">(</span>
+                <span class="s2">&quot;Error validating get token response: </span><span class="si">%(token_response)s</span><span class="s2">&quot;</span><span class="p">,</span>
+                <span class="p">{</span><span class="s2">&quot;token_response&quot;</span><span class="p">:</span> <span class="n">body</span><span class="p">})</span>
+            <span class="k">raise</span>
+
+    <span class="k">def</span> <span class="nf">_handle_get_device_code_response</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">body</span><span class="p">):</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_validate_device_code_response</span><span class="p">(</span><span class="n">body</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_log</span><span class="o">.</span><span class="n">exception</span><span class="p">(</span>
+                <span class="s2">&quot;Error validating get user code response: </span><span class="si">%(token_response)s</span><span class="s2">&quot;</span><span class="p">,</span>
+                <span class="p">{</span><span class="s2">&quot;token_response&quot;</span><span class="p">:</span> <span class="n">body</span><span class="p">})</span>
+            <span class="k">raise</span>
+
+<div class="viewcode-block" id="OAuth2Client.get_token"><a class="viewcode-back" href="../../source/adal.html#adal.oauth2_client.OAuth2Client.get_token">[docs]</a>    <span class="k">def</span> <span class="nf">get_token</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">oauth_parameters</span><span class="p">):</span>
+        <span class="n">token_url</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_create_token_url</span><span class="p">()</span>
+        <span class="n">url_encoded_token_request</span> <span class="o">=</span> <span class="n">urlencode</span><span class="p">(</span><span class="n">oauth_parameters</span><span class="p">)</span>
+        <span class="n">post_options</span> <span class="o">=</span> <span class="n">util</span><span class="o">.</span><span class="n">create_request_options</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">_REQ_OPTION</span><span class="p">)</span>
+
+        <span class="n">operation</span> <span class="o">=</span> <span class="s2">&quot;Get Token&quot;</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">resp</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">post</span><span class="p">(</span><span class="n">token_url</span><span class="o">.</span><span class="n">geturl</span><span class="p">(),</span> 
+                                 <span class="n">data</span><span class="o">=</span><span class="n">url_encoded_token_request</span><span class="p">,</span> 
+                                 <span class="n">headers</span><span class="o">=</span><span class="n">post_options</span><span class="p">[</span><span class="s1">&#39;headers&#39;</span><span class="p">],</span>
+                                 <span class="n">verify</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_call_context</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;verify_ssl&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
+                                 <span class="n">timeout</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_call_context</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;timeout&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">))</span>
+
+            <span class="n">util</span><span class="o">.</span><span class="n">log_return_correlation_id</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_log</span><span class="p">,</span> <span class="n">operation</span><span class="p">,</span> <span class="n">resp</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_log</span><span class="o">.</span><span class="n">exception</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%(operation)s</span><span class="s2"> request failed&quot;</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;operation&quot;</span><span class="p">:</span> <span class="n">operation</span><span class="p">})</span>
+            <span class="k">raise</span>
+
+        <span class="k">if</span> <span class="n">util</span><span class="o">.</span><span class="n">is_http_success</span><span class="p">(</span><span class="n">resp</span><span class="o">.</span><span class="n">status_code</span><span class="p">):</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_handle_get_token_response</span><span class="p">(</span><span class="n">resp</span><span class="o">.</span><span class="n">text</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">resp</span><span class="o">.</span><span class="n">status_code</span> <span class="o">==</span> <span class="mi">429</span><span class="p">:</span>
+                <span class="n">resp</span><span class="o">.</span><span class="n">raise_for_status</span><span class="p">()</span>  <span class="c1"># Will raise requests.exceptions.HTTPError</span>
+            <span class="n">return_error_string</span> <span class="o">=</span> <span class="n">_ERROR_TEMPLATE</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">operation</span><span class="p">,</span> <span class="n">resp</span><span class="o">.</span><span class="n">status_code</span><span class="p">)</span>
+            <span class="n">error_response</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+            <span class="k">if</span> <span class="n">resp</span><span class="o">.</span><span class="n">text</span><span class="p">:</span>
+                <span class="n">return_error_string</span> <span class="o">=</span> <span class="sa">u</span><span class="s2">&quot;</span><span class="si">{}</span><span class="s2"> and server response: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">return_error_string</span><span class="p">,</span>
+                                                                           <span class="n">resp</span><span class="o">.</span><span class="n">text</span><span class="p">)</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">error_response</span> <span class="o">=</span> <span class="n">resp</span><span class="o">.</span><span class="n">json</span><span class="p">()</span>
+                <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+                    <span class="k">pass</span>
+            <span class="k">raise</span> <span class="n">AdalError</span><span class="p">(</span><span class="n">return_error_string</span><span class="p">,</span> <span class="n">error_response</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="OAuth2Client.get_user_code_info"><a class="viewcode-back" href="../../source/adal.html#adal.oauth2_client.OAuth2Client.get_user_code_info">[docs]</a>    <span class="k">def</span> <span class="nf">get_user_code_info</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">oauth_parameters</span><span class="p">):</span>
+        <span class="n">device_code_url</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_create_device_code_url</span><span class="p">()</span>
+        <span class="n">url_encoded_code_request</span> <span class="o">=</span> <span class="n">urlencode</span><span class="p">(</span><span class="n">oauth_parameters</span><span class="p">)</span>
+
+        <span class="n">post_options</span> <span class="o">=</span> <span class="n">util</span><span class="o">.</span><span class="n">create_request_options</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">_REQ_OPTION</span><span class="p">)</span>
+        <span class="n">operation</span> <span class="o">=</span> <span class="s2">&quot;Get Device Code&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">resp</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">post</span><span class="p">(</span><span class="n">device_code_url</span><span class="o">.</span><span class="n">geturl</span><span class="p">(),</span> 
+                                 <span class="n">data</span><span class="o">=</span><span class="n">url_encoded_code_request</span><span class="p">,</span> 
+                                 <span class="n">headers</span><span class="o">=</span><span class="n">post_options</span><span class="p">[</span><span class="s1">&#39;headers&#39;</span><span class="p">],</span>
+                                 <span class="n">verify</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_call_context</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;verify_ssl&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
+                                 <span class="n">timeout</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_call_context</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;timeout&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">))</span>
+            <span class="n">util</span><span class="o">.</span><span class="n">log_return_correlation_id</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_log</span><span class="p">,</span> <span class="n">operation</span><span class="p">,</span> <span class="n">resp</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_log</span><span class="o">.</span><span class="n">exception</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%(operation)s</span><span class="s2"> request failed&quot;</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;operation&quot;</span><span class="p">:</span> <span class="n">operation</span><span class="p">})</span>
+            <span class="k">raise</span>
+
+        <span class="k">if</span> <span class="n">util</span><span class="o">.</span><span class="n">is_http_success</span><span class="p">(</span><span class="n">resp</span><span class="o">.</span><span class="n">status_code</span><span class="p">):</span>
+            <span class="n">user_code_info</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_handle_get_device_code_response</span><span class="p">(</span><span class="n">resp</span><span class="o">.</span><span class="n">text</span><span class="p">)</span>
+            <span class="n">user_code_info</span><span class="p">[</span><span class="s1">&#39;correlation_id&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">resp</span><span class="o">.</span><span class="n">headers</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;client-request-id&#39;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">user_code_info</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">resp</span><span class="o">.</span><span class="n">status_code</span> <span class="o">==</span> <span class="mi">429</span><span class="p">:</span>
+                <span class="n">resp</span><span class="o">.</span><span class="n">raise_for_status</span><span class="p">()</span>  <span class="c1"># Will raise requests.exceptions.HTTPError</span>
+            <span class="n">return_error_string</span> <span class="o">=</span> <span class="n">_ERROR_TEMPLATE</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">operation</span><span class="p">,</span> <span class="n">resp</span><span class="o">.</span><span class="n">status_code</span><span class="p">)</span>
+            <span class="n">error_response</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+            <span class="k">if</span> <span class="n">resp</span><span class="o">.</span><span class="n">text</span><span class="p">:</span>
+                <span class="n">return_error_string</span> <span class="o">=</span> <span class="sa">u</span><span class="s2">&quot;</span><span class="si">{}</span><span class="s2"> and server response: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">return_error_string</span><span class="p">,</span>
+                                                                           <span class="n">resp</span><span class="o">.</span><span class="n">text</span><span class="p">)</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">error_response</span> <span class="o">=</span> <span class="n">resp</span><span class="o">.</span><span class="n">json</span><span class="p">()</span>
+                <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+                    <span class="k">pass</span>
+
+            <span class="k">raise</span> <span class="n">AdalError</span><span class="p">(</span><span class="n">return_error_string</span><span class="p">,</span> <span class="n">error_response</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="OAuth2Client.get_token_with_polling"><a class="viewcode-back" href="../../source/adal.html#adal.oauth2_client.OAuth2Client.get_token_with_polling">[docs]</a>    <span class="k">def</span> <span class="nf">get_token_with_polling</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">oauth_parameters</span><span class="p">,</span> <span class="n">refresh_internal</span><span class="p">,</span> <span class="n">expires_in</span><span class="p">):</span>
+        <span class="n">token_url</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_create_token_url</span><span class="p">()</span>
+        <span class="n">url_encoded_code_request</span> <span class="o">=</span> <span class="n">urlencode</span><span class="p">(</span><span class="n">oauth_parameters</span><span class="p">)</span>
+
+        <span class="n">post_options</span> <span class="o">=</span> <span class="n">util</span><span class="o">.</span><span class="n">create_request_options</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">_REQ_OPTION</span><span class="p">)</span>
+
+        <span class="n">operation</span> <span class="o">=</span> <span class="s2">&quot;Get token with device code&quot;</span>
+
+        <span class="n">max_times_for_retry</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">floor</span><span class="p">(</span><span class="n">expires_in</span><span class="o">/</span><span class="n">refresh_internal</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">max_times_for_retry</span><span class="p">)):</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cancel_polling_request</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">AdalError</span><span class="p">(</span><span class="s1">&#39;Polling_Request_Cancelled&#39;</span><span class="p">)</span>
+
+            <span class="n">resp</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">post</span><span class="p">(</span>
+                <span class="n">token_url</span><span class="o">.</span><span class="n">geturl</span><span class="p">(),</span> 
+                <span class="n">data</span><span class="o">=</span><span class="n">url_encoded_code_request</span><span class="p">,</span> <span class="n">headers</span><span class="o">=</span><span class="n">post_options</span><span class="p">[</span><span class="s1">&#39;headers&#39;</span><span class="p">],</span>
+                <span class="n">verify</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_call_context</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;verify_ssl&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">))</span>
+            <span class="k">if</span> <span class="n">resp</span><span class="o">.</span><span class="n">status_code</span> <span class="o">==</span> <span class="mi">429</span><span class="p">:</span>
+                <span class="n">resp</span><span class="o">.</span><span class="n">raise_for_status</span><span class="p">()</span>  <span class="c1"># Will raise requests.exceptions.HTTPError</span>
+
+            <span class="n">util</span><span class="o">.</span><span class="n">log_return_correlation_id</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_log</span><span class="p">,</span> <span class="n">operation</span><span class="p">,</span> <span class="n">resp</span><span class="p">)</span>
+
+            <span class="n">wire_response</span> <span class="o">=</span> <span class="p">{}</span> 
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">util</span><span class="o">.</span><span class="n">is_http_success</span><span class="p">(</span><span class="n">resp</span><span class="o">.</span><span class="n">status_code</span><span class="p">):</span>
+                <span class="c1"># on error, the body should be json already </span>
+                <span class="n">wire_response</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">resp</span><span class="o">.</span><span class="n">text</span><span class="p">)</span> 
+
+            <span class="n">error</span> <span class="o">=</span> <span class="n">wire_response</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">OAuth2</span><span class="o">.</span><span class="n">DeviceCodeResponseParameters</span><span class="o">.</span><span class="n">ERROR</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">error</span> <span class="o">==</span> <span class="s1">&#39;authorization_pending&#39;</span><span class="p">:</span>
+                <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="n">refresh_internal</span><span class="p">)</span>
+                <span class="k">continue</span>
+            <span class="k">elif</span> <span class="n">error</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">AdalError</span><span class="p">(</span><span class="s1">&#39;Unexpected polling state </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">error</span><span class="p">),</span>
+                                <span class="n">wire_response</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_validate_token_response</span><span class="p">(</span><span class="n">resp</span><span class="o">.</span><span class="n">text</span><span class="p">)</span>
+                <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_log</span><span class="o">.</span><span class="n">exception</span><span class="p">(</span>
+                        <span class="sa">u</span><span class="s2">&quot;Error validating get token response </span><span class="si">%(access_token)s</span><span class="s2">&quot;</span><span class="p">,</span>
+                        <span class="p">{</span><span class="s2">&quot;access_token&quot;</span><span class="p">:</span> <span class="n">resp</span><span class="o">.</span><span class="n">text</span><span class="p">})</span>
+                    <span class="k">raise</span>
+
+        <span class="k">raise</span> <span class="n">AdalError</span><span class="p">(</span><span class="s1">&#39;Timeout from &quot;get_token_with_polling&quot;&#39;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="OAuth2Client.cancel_polling_request"><a class="viewcode-back" href="../../source/adal.html#adal.oauth2_client.OAuth2Client.cancel_polling_request">[docs]</a>    <span class="k">def</span> <span class="nf">cancel_polling_request</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_cancel_polling_request</span> <span class="o">=</span> <span class="kc">True</span></div></div>
+
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018, abhidnya.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../../',
+            VERSION:'',
+            LANGUAGE:'None',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="../../_static/jquery.js"></script>
+      <script type="text/javascript" src="../../_static/underscore.js"></script>
+      <script type="text/javascript" src="../../_static/doctools.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          
+          SphinxRtdTheme.Navigation.enableSticky();
+          
+      });
+  </script> 
+
+</body>
+</html>

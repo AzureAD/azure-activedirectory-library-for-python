@@ -1,0 +1,719 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>tests.util &mdash; ADAL Python  documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+    <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+
+  
+  <script src="../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../../index.html" class="icon icon-home"> ADAL Python
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <!-- Local TOC -->
+              <div class="local-toc"></div>
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">ADAL Python</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../index.html">Module code</a> &raquo;</li>
+        
+      <li>tests.util</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for tests.util</h1><div class="highlight"><pre>
+<span></span><span class="c1">#------------------------------------------------------------------------------</span>
+<span class="c1">#</span>
+<span class="c1"># Copyright (c) Microsoft Corporation. </span>
+<span class="c1"># All rights reserved.</span>
+<span class="c1"># </span>
+<span class="c1"># This code is licensed under the MIT License.</span>
+<span class="c1"># </span>
+<span class="c1"># Permission is hereby granted, free of charge, to any person obtaining a copy</span>
+<span class="c1"># of this software and associated documentation files(the &quot;Software&quot;), to deal</span>
+<span class="c1"># in the Software without restriction, including without limitation the rights</span>
+<span class="c1"># to use, copy, modify, merge, publish, distribute, sublicense, and / or sell</span>
+<span class="c1"># copies of the Software, and to permit persons to whom the Software is</span>
+<span class="c1"># furnished to do so, subject to the following conditions :</span>
+<span class="c1"># </span>
+<span class="c1"># The above copyright notice and this permission notice shall be included in</span>
+<span class="c1"># all copies or substantial portions of the Software.</span>
+<span class="c1"># </span>
+<span class="c1"># THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR</span>
+<span class="c1"># IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,</span>
+<span class="c1"># FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.IN NO EVENT SHALL THE</span>
+<span class="c1"># AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER</span>
+<span class="c1"># LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,</span>
+<span class="c1"># OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN</span>
+<span class="c1"># THE SOFTWARE.</span>
+<span class="c1">#</span>
+<span class="c1">#------------------------------------------------------------------------------</span>
+
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">re</span>
+<span class="kn">import</span> <span class="nn">json</span>
+<span class="kn">import</span> <span class="nn">time</span>
+<span class="kn">import</span> <span class="nn">httpretty</span>
+<span class="kn">from</span> <span class="nn">datetime</span> <span class="k">import</span> <span class="n">datetime</span><span class="p">,</span> <span class="n">timedelta</span>
+<span class="kn">import</span> <span class="nn">dateutil.parser</span>
+
+<span class="k">try</span><span class="p">:</span>
+    <span class="kn">from</span> <span class="nn">urllib.parse</span> <span class="k">import</span> <span class="n">urlencode</span>
+    <span class="kn">from</span> <span class="nn">urllib.parse</span> <span class="k">import</span> <span class="n">urlparse</span>
+
+<span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
+    <span class="kn">from</span> <span class="nn">urllib</span> <span class="k">import</span> <span class="n">urlencode</span>
+    <span class="kn">from</span> <span class="nn">urlparse</span> <span class="k">import</span> <span class="n">urlparse</span>
+
+<span class="kn">from</span> <span class="nn">adal</span> <span class="k">import</span> <span class="n">log</span>
+
+<span class="n">_dirname</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)</span>
+
+<span class="n">success_response</span> <span class="o">=</span> <span class="p">{</span>
+  <span class="s1">&#39;access_token&#39;</span><span class="p">:</span> <span class="s1">&#39;eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsIng1dCI6Ik5HVEZ2ZEstZnl0aEV1THdqcHdBSk9NOW4tQSJ9.eyJhdWQiOiIwMDAwMDAwMi0wMDAwLTAwMDAtYzAwMC0wMDAwMDAwMDAwMDAiLCJpc3MiOiJodHRwczovL3N0cy53aW5kb3dzLm5ldC82MmYwMzQ3MS02N2MxLTRjNTAtYjlkMS0xMzQ1MDc5ZDk3NzQvIiwiaWF0IjoxMzc4NjAxMTY4LCJuYmYiOjEzNzg2MDExNjgsImV4cCI6MTM3ODYyOTk2OCwidmVyIjoiMS4wIiwidGlkIjoiNjJmMDM0NzEtNjdjMS00YzUwLWI5ZDEtMTM0NTA3OWQ5Nzc0Iiwib2lkIjoiZjEzMDkzNDEtZDcyMy00YTc1LTk2YzktNGIyMTMzMzk0Mjg3Iiwic3ViIjoiZjEzMDkzNDEtZDcyMy00YTc1LTk2YzktNGIyMTMzMzk0Mjg3IiwiYXBwaWQiOiI1YzI1ZDFiZi1iMjMyLTQwMzUtYjZiOS0yYjdlN2U4MzQ2ZDYiLCJhcHBpZGFjciI6IjEifQ.qXM7f9TTiLApxVMwaSrISQQ6UAnfKvKhoIlN9rB0Eff2VXvIWKGRsclPkMQ5x42BQz2N6pSXEsN-LsNCZlQ76Rc3rVRONzeCYh7q_NXcCJG_d6SJTtV5GBfgqFlgT8UF5rblabbMdOiOrddvJm048hWt2Nm3qD3QjQdPBlD7Ksn-lUR1jEJPIqDaBjGom8RawrZTW6X1cy1Kr8mEYFkxcbU91k_RZUumONep9FTR8gfPkboeD8zyvOy64UeysEtcuaNCfhHSBFcwC8MwjUr5r_T7au7ywAcYDOVgoa7oF_dN1JNweiDoNNZ9tyUS-RY3sa3-gXk77gRxpA4CkpittQ&#39;</span><span class="p">,</span>
+  <span class="s1">&#39;token_type&#39;</span><span class="p">:</span> <span class="s1">&#39;Bearer&#39;</span><span class="p">,</span>
+  <span class="s1">&#39;expires_in&#39;</span><span class="p">:</span> <span class="mi">28800</span><span class="p">,</span>
+  <span class="s1">&#39;resource&#39;</span><span class="p">:</span> <span class="s1">&#39;00000002-0000-0000-c000-000000000000&#39;</span><span class="p">,</span>
+<span class="p">}</span>
+
+<span class="n">refresh_token</span> <span class="o">=</span> <span class="s1">&#39;AwABAAAAvPM1KaPlrEqdFSBzjqfTGCDeE7YHWD9jkU2WWYKLjxu928QAbkoFyWpgJLFcp65DcbBqOSYVq5Ty_60YICIdFw61SG4-eT1nWHNOPdzsL2ZzloUsp2DpqlIr1s5Z3953oQBi7dOqiHk37NXQqmNEJ7MfmDp6w3EOa29EPARvjGIHFgtICW1-Y82npw1v1g8Ittb02pksNU2XzH2X0E3l3TuSZWsX5lpl-kfPOc8zppU6bwvT-VOPHZVVLQedDIQZyOiFst9HLUjbiIvBgV7tNwbB4H5yF56QQscz49Nrb3g0ibuNDo7efFawLzNoVHzoTrOTcCGSG1pt8Z-npByrEe7vg1o4nNFjspuxlyMGdnYRAnaZfvgzqROP_m7ZqSd6IAA&#39;</span>
+
+<span class="n">success_response_with_refresh</span> <span class="o">=</span> <span class="p">{</span>
+  <span class="s1">&#39;access_token&#39;</span><span class="p">:</span> <span class="s1">&#39;eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsIng1dCI6Ik5HVEZ2ZEstZnl0aEV1THdqcHdBSk9NOW4tQSJ9.eyJhdWQiOiIwMDAwMDAwMi0wMDAwLTAwMDAtYzAwMC0wMDAwMDAwMDAwMDAiLCJpc3MiOiJodHRwczovL3N0cy53aW5kb3dzLm5ldC82MmYwMzQ3MS02N2MxLTRjNTAtYjlkMS0xMzQ1MDc5ZDk3NzQvIiwiaWF0IjoxMzc4NjAxMTY4LCJuYmYiOjEzNzg2MDExNjgsImV4cCI6MTM3ODYyOTk2OCwidmVyIjoiMS4wIiwidGlkIjoiNjJmMDM0NzEtNjdjMS00YzUwLWI5ZDEtMTM0NTA3OWQ5Nzc0Iiwib2lkIjoiZjEzMDkzNDEtZDcyMy00YTc1LTk2YzktNGIyMTMzMzk0Mjg3Iiwic3ViIjoiZjEzMDkzNDEtZDcyMy00YTc1LTk2YzktNGIyMTMzMzk0Mjg3IiwiYXBwaWQiOiI1YzI1ZDFiZi1iMjMyLTQwMzUtYjZiOS0yYjdlN2U4MzQ2ZDYiLCJhcHBpZGFjciI6IjEifQ.qXM7f9TTiLApxVMwaSrISQQ6UAnfKvKhoIlN9rB0Eff2VXvIWKGRsclPkMQ5x42BQz2N6pSXEsN-LsNCZlQ76Rc3rVRONzeCYh7q_NXcCJG_d6SJTtV5GBfgqFlgT8UF5rblabbMdOiOrddvJm048hWt2Nm3qD3QjQdPBlD7Ksn-lUR1jEJPIqDaBjGom8RawrZTW6X1cy1Kr8mEYFkxcbU91k_RZUumONep9FTR8gfPkboeD8zyvOy64UeysEtcuaNCfhHSBFcwC8MwjUr5r_T7au7ywAcYDOVgoa7oF_dN1JNweiDoNNZ9tyUS-RY3sa3-gXk77gRxpA4CkpittQ&#39;</span><span class="p">,</span>
+  <span class="s1">&#39;token_type&#39;</span><span class="p">:</span> <span class="s1">&#39;Bearer&#39;</span><span class="p">,</span>
+  <span class="s1">&#39;expires_in&#39;</span><span class="p">:</span> <span class="mi">28800</span><span class="p">,</span>
+  <span class="s1">&#39;resource&#39;</span><span class="p">:</span> <span class="s1">&#39;00000002-0000-0000-c000-000000000000&#39;</span><span class="p">,</span>
+  <span class="s1">&#39;scope&#39;</span> <span class="p">:</span> <span class="s1">&#39;62e90394-69f5-4237-9190-012177145e10&#39;</span><span class="p">,</span>
+  <span class="s1">&#39;refresh_token&#39;</span> <span class="p">:</span> <span class="n">refresh_token</span>
+<span class="p">}</span>
+
+<span class="n">encoded_id_token</span> <span class="o">=</span> <span class="s1">&#39;eyJ0eXAiOiJKV1QiLCJhbGciOiJub25lIn0.eyJhdWQiOiJlOTU4YzA5YS1hYzM3LTQ5MDAtYjRkNy1mYjNlZWFmNzMzOGQiLCJpc3MiOiJodHRwczovL3N0cy53aW5kb3dzLm5ldC9jY2ViYTE0Yy02YTAwLTQ5YWMtYjgwNi04NGRlNTJiZjFkNDIvIiwiaWF0IjoxMzkxNjQ1NDU4LCJuYmYiOjEzOTE2NDU0NTgsImV4cCI6MTM5MTY0OTM1OCwidmVyIjoiMS4wIiwidGlkIjoiY2NlYmExNGMtNmEwMC00OWFjLWI4MDYtODRkZTUyYmYxZDQyIiwib2lkIjoiYTQ0MzIwNGEtYWJjOS00Y2I4LWFkYzEtYzBkZmMxMjMwMGFhIiwidXBuIjoicnJhbmRhbGxAcnJhbmRhbGxhYWQxLm9ubWljcm9zb2Z0LmNvbSIsInVuaXF1ZV9uYW1lIjoicnJhbmRhbGxAcnJhbmRhbGxhYWQxLm9ubWljcm9zb2Z0LmNvbSIsInN1YiI6IjRnVHY0RXRvWVctRFRvdzBiRG5KZDFBQTRzZkNoQmJqZXJtcXQ2UV9aYTQiLCJmYW1pbHlfbmFtZSI6IlJhbmRhbGwiLCJnaXZlbl9uYW1lIjoiUmljaCJ9.&#39;</span>
+
+<span class="n">parsed_id_token</span> <span class="o">=</span> <span class="p">{</span>
+  <span class="s1">&#39;tenantId&#39;</span> <span class="p">:</span> <span class="s1">&#39;cceba14c-6a00-49ac-b806-84de52bf1d42&#39;</span><span class="p">,</span>
+  <span class="s1">&#39;userId&#39;</span> <span class="p">:</span> <span class="s1">&#39;rrandall@rrandallaad1.onmicrosoft.com&#39;</span><span class="p">,</span>
+  <span class="s1">&#39;givenName&#39;</span> <span class="p">:</span> <span class="s1">&#39;Rich&#39;</span><span class="p">,</span>
+  <span class="s1">&#39;familyName&#39;</span> <span class="p">:</span> <span class="s1">&#39;Randall&#39;</span><span class="p">,</span>
+  <span class="s1">&#39;isUserIdDisplayable&#39;</span> <span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+  <span class="s1">&#39;oid&#39;</span><span class="p">:</span> <span class="s1">&#39;a443204a-abc9-4cb8-adc1-c0dfc12300aa&#39;</span>
+<span class="p">}</span>
+
+<span class="n">decoded_id_token</span> <span class="o">=</span> <span class="p">{</span>
+  <span class="s1">&#39;aud&#39;</span><span class="p">:</span> <span class="s1">&#39;e958c09a-ac37-4900-b4d7-fb3eeaf7338d&#39;</span><span class="p">,</span>
+  <span class="s1">&#39;iss&#39;</span><span class="p">:</span> <span class="s1">&#39;https://sts.windows.net/cceba14c-6a00-49ac-b806-84de52bf1d42/&#39;</span><span class="p">,</span>
+  <span class="s1">&#39;iat&#39;</span><span class="p">:</span> <span class="mi">1391645458</span><span class="p">,</span>
+  <span class="s1">&#39;nbf&#39;</span><span class="p">:</span> <span class="mi">1391645458</span><span class="p">,</span>
+  <span class="s1">&#39;exp&#39;</span><span class="p">:</span> <span class="mi">1391649358</span><span class="p">,</span>
+  <span class="s1">&#39;ver&#39;</span><span class="p">:</span> <span class="s1">&#39;1.0&#39;</span><span class="p">,</span>
+  <span class="s1">&#39;tid&#39;</span><span class="p">:</span> <span class="s1">&#39;cceba14c-6a00-49ac-b806-84de52bf1d42&#39;</span><span class="p">,</span>
+  <span class="s1">&#39;oid&#39;</span><span class="p">:</span> <span class="s1">&#39;a443204a-abc9-4cb8-adc1-c0dfc12300aa&#39;</span><span class="p">,</span>
+  <span class="s1">&#39;upn&#39;</span><span class="p">:</span> <span class="s1">&#39;rrandall@rrandallaad1.onmicrosoft.com&#39;</span><span class="p">,</span>
+  <span class="s1">&#39;unique_name&#39;</span><span class="p">:</span> <span class="s1">&#39;rrandall@rrandallaad1.onmicrosoft.com&#39;</span><span class="p">,</span>
+  <span class="s1">&#39;sub&#39;</span><span class="p">:</span> <span class="s1">&#39;4gTv4EtoYW-DTow0bDnJd1AA4sfChBbjermqt6Q_Za4&#39;</span><span class="p">,</span>
+  <span class="s1">&#39;family_name&#39;</span><span class="p">:</span> <span class="s1">&#39;Randall&#39;</span><span class="p">,</span>
+  <span class="s1">&#39;given_name&#39;</span><span class="p">:</span> <span class="s1">&#39;Rich&#39;</span>
+<span class="p">}</span>
+
+<span class="n">encoded_id_token_url_safe</span> <span class="o">=</span> <span class="s1">&#39;eyJ0eXAiOiJKV1QiLCJhbGciOiJub25lIn0.eyJhdWQiOiJlOTU4YzA5YS1hYzM3LTQ5MDAtYjRkNy1mYjNlZWFmNzMzOGQiLCJpc3MiOiJodHRwczovL3N0cy53aW5kb3dzLm5ldC9jY2ViYTE0Yy02YTAwLTQ5YWMtYjgwNi04NGRlNTJiZjFkNDIvIiwiaWF0IjoxMzkxNjQ1NDU4LCJuYmYiOjEzOTE2NDU0NTgsImV4cCI6MTM5MTY0OTM1OCwidmVyIjoiMS4wIiwidGlkIjoiY2NlYmExNGMtNmEwMC00OWFjLWI4MDYtODRkZTUyYmYxZDQyIiwib2lkIjoiYTQ0MzIwNGEtYWJjOS00Y2I4LWFkYzEtYzBkZmMxMjMwMGFhIiwidXBuIjoiZm9vYmFyQHNvbWVwbGFjZWVsc2UuY29tIiwidW5pcXVlX25hbWUiOiJycmFuZGFsbEBycmFuZGFsbGFhZDEub25taWNyb3NvZnQuY29tIiwic3ViIjoiNGdUdjRFdG9ZVy1EVG93MGJEbkpkMUFBNHNmQ2hCYmplcm1xdDZRX1phNCIsImZhbWlseV9uYW1lIjoiUmFuZGFsbCIsImdpdmVuX25hbWUiOiJSaTw_Y2gifQ==.&#39;</span>
+
+<span class="n">parsed_id_token_url_safe</span> <span class="o">=</span> <span class="p">{</span>
+  <span class="s1">&#39;tenantId&#39;</span> <span class="p">:</span> <span class="s1">&#39;cceba14c-6a00-49ac-b806-84de52bf1d42&#39;</span><span class="p">,</span>
+  <span class="s1">&#39;userId&#39;</span> <span class="p">:</span> <span class="s1">&#39;foobar@someplaceelse.com&#39;</span><span class="p">,</span>
+  <span class="s1">&#39;givenName&#39;</span> <span class="p">:</span> <span class="s1">&#39;Ri&lt;?ch&#39;</span><span class="p">,</span>
+  <span class="s1">&#39;familyName&#39;</span> <span class="p">:</span> <span class="s1">&#39;Randall&#39;</span><span class="p">,</span>
+  <span class="s1">&#39;isUserIdDisplayable&#39;</span> <span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+  <span class="s1">&#39;oid&#39;</span><span class="p">:</span> <span class="s1">&#39;a443204a-abc9-4cb8-adc1-c0dfc12300aa&#39;</span>
+<span class="p">}</span>
+
+<span class="n">decoded_token_url_safe_test</span> <span class="o">=</span> <span class="p">{</span>
+  <span class="s1">&#39;aud&#39;</span><span class="p">:</span> <span class="s1">&#39;e958c09a-ac37-4900-b4d7-fb3eeaf7338d&#39;</span><span class="p">,</span>
+  <span class="s1">&#39;iss&#39;</span><span class="p">:</span> <span class="s1">&#39;https://sts.windows.net/cceba14c-6a00-49ac-b806-84de52bf1d42/&#39;</span><span class="p">,</span>
+  <span class="s1">&#39;iat&#39;</span><span class="p">:</span> <span class="mi">1391645458</span><span class="p">,</span>
+  <span class="s1">&#39;nbf&#39;</span><span class="p">:</span> <span class="mi">1391645458</span><span class="p">,</span>
+  <span class="s1">&#39;exp&#39;</span><span class="p">:</span> <span class="mi">1391649358</span><span class="p">,</span>
+  <span class="s1">&#39;ver&#39;</span><span class="p">:</span> <span class="s1">&#39;1.0&#39;</span><span class="p">,</span>
+  <span class="s1">&#39;tid&#39;</span><span class="p">:</span> <span class="s1">&#39;cceba14c-6a00-49ac-b806-84de52bf1d42&#39;</span><span class="p">,</span>
+  <span class="s1">&#39;oid&#39;</span><span class="p">:</span> <span class="s1">&#39;a443204a-abc9-4cb8-adc1-c0dfc12300aa&#39;</span><span class="p">,</span>
+  <span class="s1">&#39;upn&#39;</span><span class="p">:</span> <span class="s1">&#39;foobar@someplaceelse.com&#39;</span><span class="p">,</span>
+  <span class="s1">&#39;unique_name&#39;</span><span class="p">:</span> <span class="s1">&#39;rrandall@rrandallaad1.onmicrosoft.com&#39;</span><span class="p">,</span>
+  <span class="s1">&#39;sub&#39;</span><span class="p">:</span> <span class="s1">&#39;4gTv4EtoYW-DTow0bDnJd1AA4sfChBbjermqt6Q_Za4&#39;</span><span class="p">,</span>
+  <span class="s1">&#39;family_name&#39;</span><span class="p">:</span> <span class="s1">&#39;Randall&#39;</span><span class="p">,</span>
+  <span class="s1">&#39;given_name&#39;</span><span class="p">:</span> <span class="s1">&#39;Ri&lt;?ch&#39;</span>
+<span class="p">}</span>
+
+<span class="n">parameters</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s1">&#39;tenant&#39;</span><span class="p">:</span> <span class="s1">&#39;rrandallaad1.onmicrosoft.com&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;clientId&#39;</span><span class="p">:</span> <span class="s1">&#39;clien&amp;&amp;???tId&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;clientSecret&#39;</span><span class="p">:</span> <span class="s1">&#39;clientSecret*&amp;^(?&amp;&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;resource&#39;</span><span class="p">:</span> <span class="s1">&#39;00000002-0000-0000-c000-000000000000&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;evoEndpoint&#39;</span><span class="p">:</span> <span class="s1">&#39;https://login.windows.net/&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;username&#39;</span><span class="p">:</span> <span class="s1">&#39;rrandall@rrandallaad1.onmicrosoft.com&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;password&#39;</span><span class="p">:</span> <span class="s1">&#39;&lt;password&gt;&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;authorityHosts&#39;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s1">&#39;global&#39;</span><span class="p">:</span> <span class="s1">&#39;login.windows.net&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;china&#39;</span><span class="p">:</span> <span class="s1">&#39;login.chinacloudapi.cn&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;gov&#39;</span><span class="p">:</span> <span class="s1">&#39;login-us.microsoftonline.com&#39;</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="n">parameters</span><span class="p">[</span><span class="s1">&#39;refreshToken&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">refresh_token</span>
+
+<span class="c1"># This is a default authority to be used in tests that don&#39;t care that there are multiple.</span>
+<span class="n">parameters</span><span class="p">[</span><span class="s1">&#39;authority&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">parameters</span><span class="p">[</span><span class="s1">&#39;evoEndpoint&#39;</span><span class="p">]</span>
+<span class="n">parameters</span><span class="p">[</span><span class="s1">&#39;authorityTenant&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">parameters</span><span class="p">[</span><span class="s1">&#39;authority&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="n">parameters</span><span class="p">[</span><span class="s1">&#39;tenant&#39;</span><span class="p">]</span>
+<span class="n">parameters</span><span class="p">[</span><span class="s1">&#39;adfsUrlNoPath&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;https://adfs.federatedtenant.com&#39;</span>
+<span class="n">parameters</span><span class="p">[</span><span class="s1">&#39;adfsMexPath&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;/adfs/services/trust/mex&#39;</span>
+<span class="n">parameters</span><span class="p">[</span><span class="s1">&#39;adfsWsTrustPath&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;/adfs/services/trust/13/usernamemixed&#39;</span>
+<span class="n">parameters</span><span class="p">[</span><span class="s1">&#39;adfsWsTrustPath2005&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;/adfs/services/trust/2005/usernamemixed&#39;</span>
+<span class="n">parameters</span><span class="p">[</span><span class="s1">&#39;adfsMex&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">parameters</span><span class="p">[</span><span class="s1">&#39;adfsUrlNoPath&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="n">parameters</span><span class="p">[</span><span class="s1">&#39;adfsMexPath&#39;</span><span class="p">]</span>
+<span class="n">parameters</span><span class="p">[</span><span class="s1">&#39;adfsWsTrust&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">parameters</span><span class="p">[</span><span class="s1">&#39;adfsUrlNoPath&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="n">parameters</span><span class="p">[</span><span class="s1">&#39;adfsWsTrustPath&#39;</span><span class="p">]</span>
+<span class="n">parameters</span><span class="p">[</span><span class="s1">&#39;adfsWsTrust2005&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">parameters</span><span class="p">[</span><span class="s1">&#39;adfsUrlNoPath&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="n">parameters</span><span class="p">[</span><span class="s1">&#39;adfsWsTrustPath2005&#39;</span><span class="p">]</span>
+
+<span class="n">parameters</span><span class="p">[</span><span class="s1">&#39;successResponse&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">success_response</span>
+<span class="n">parameters</span><span class="p">[</span><span class="s1">&#39;successResponseWithRefresh&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">success_response_with_refresh</span>
+<span class="n">parameters</span><span class="p">[</span><span class="s1">&#39;authUrlResult&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">urlparse</span><span class="p">(</span><span class="n">parameters</span><span class="p">[</span><span class="s1">&#39;evoEndpoint&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="n">parameters</span><span class="p">[</span><span class="s1">&#39;tenant&#39;</span><span class="p">])</span>
+<span class="n">parameters</span><span class="p">[</span><span class="s1">&#39;authUrl&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">parameters</span><span class="p">[</span><span class="s1">&#39;authUrlResult&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">geturl</span><span class="p">()</span>
+
+<span class="n">parameters</span><span class="p">[</span><span class="s1">&#39;tokenPath&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;/oauth2/token&#39;</span>
+<span class="n">parameters</span><span class="p">[</span><span class="s1">&#39;extraQP&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;?api-version=1.0&#39;</span>
+<span class="n">parameters</span><span class="p">[</span><span class="s1">&#39;tokenUrlPath&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">parameters</span><span class="p">[</span><span class="s1">&#39;authUrlResult&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">path</span> <span class="o">+</span> <span class="n">parameters</span><span class="p">[</span><span class="s1">&#39;tokenPath&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="n">parameters</span><span class="p">[</span><span class="s1">&#39;extraQP&#39;</span><span class="p">]</span>
+<span class="n">parameters</span><span class="p">[</span><span class="s1">&#39;deviceCodePath&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;/oauth2/devicecode&#39;</span>
+<span class="n">parameters</span><span class="p">[</span><span class="s1">&#39;deviceCodeUrlPath&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">parameters</span><span class="p">[</span><span class="s1">&#39;authUrlResult&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">path</span> <span class="o">+</span> <span class="n">parameters</span><span class="p">[</span><span class="s1">&#39;deviceCodePath&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="n">parameters</span><span class="p">[</span><span class="s1">&#39;extraQP&#39;</span><span class="p">]</span>
+<span class="n">parameters</span><span class="p">[</span><span class="s1">&#39;authorizePath&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;/oauth/authorize&#39;</span>
+<span class="n">parameters</span><span class="p">[</span><span class="s1">&#39;authorizeUrlPath&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">parameters</span><span class="p">[</span><span class="s1">&#39;authUrlResult&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">path</span> <span class="o">+</span> <span class="n">parameters</span><span class="p">[</span><span class="s1">&#39;authorizePath&#39;</span><span class="p">]</span>
+<span class="n">parameters</span><span class="p">[</span><span class="s1">&#39;authorizeUrl&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">parameters</span><span class="p">[</span><span class="s1">&#39;authUrlResult&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">geturl</span><span class="p">()</span>
+<span class="n">parameters</span><span class="p">[</span><span class="s1">&#39;instanceDiscoverySuccessResponse&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+  <span class="s1">&#39;tenant_discovery_endpoint&#39;</span> <span class="p">:</span> <span class="n">parameters</span><span class="p">[</span><span class="s1">&#39;authority&#39;</span><span class="p">]</span>
+<span class="p">}</span>
+
+<span class="n">parameters</span><span class="p">[</span><span class="s1">&#39;userRealmPathTemplate&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;/common/UserRealm/&lt;user&gt;&#39;</span>
+
+<span class="n">parameters</span><span class="p">[</span><span class="s1">&#39;userRealmResponseFederated&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;{</span><span class="se">\&quot;</span><span class="s1">account_type</span><span class="se">\&quot;</span><span class="s1">:</span><span class="se">\&quot;</span><span class="s1">federated</span><span class="se">\&quot;</span><span class="s1">,</span><span class="se">\&quot;</span><span class="s1">federation_protocol</span><span class="se">\&quot;</span><span class="s1">:</span><span class="se">\&quot;</span><span class="s1">wstrust</span><span class="se">\&quot;</span><span class="s1">,</span><span class="se">\&quot;</span><span class="s1">federation_metadata_url</span><span class="se">\&quot;</span><span class="s1">:</span><span class="se">\&quot;</span><span class="s1">&#39;</span><span class="o">+</span><span class="n">parameters</span><span class="p">[</span><span class="s1">&#39;adfsMex&#39;</span><span class="p">]</span><span class="o">+</span><span class="s1">&#39;</span><span class="se">\&quot;</span><span class="s1">,</span><span class="se">\&quot;</span><span class="s1">federation_active_auth_url</span><span class="se">\&quot;</span><span class="s1">:</span><span class="se">\&quot;</span><span class="s1">&#39;</span><span class="o">+</span><span class="n">parameters</span><span class="p">[</span><span class="s1">&#39;adfsWsTrust&#39;</span><span class="p">]</span><span class="o">+</span><span class="s1">&#39;</span><span class="se">\&quot;</span><span class="s1">,</span><span class="se">\&quot;</span><span class="s1">ver</span><span class="se">\&quot;</span><span class="s1">:</span><span class="se">\&quot;</span><span class="s1">0.8</span><span class="se">\&quot;</span><span class="s1">}&#39;</span>
+<span class="n">parameters</span><span class="p">[</span><span class="s1">&#39;userRealmResponseManaged&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;{</span><span class="se">\&quot;</span><span class="s1">account_type</span><span class="se">\&quot;</span><span class="s1">:</span><span class="se">\&quot;</span><span class="s1">managed</span><span class="se">\&quot;</span><span class="s1">,</span><span class="se">\&quot;</span><span class="s1">federation_protocol</span><span class="se">\&quot;</span><span class="s1">:</span><span class="se">\&quot;</span><span class="s1">wstrust</span><span class="se">\&quot;</span><span class="s1">,</span><span class="se">\&quot;</span><span class="s1">federation_metadata_url</span><span class="se">\&quot;</span><span class="s1">:</span><span class="se">\&quot;</span><span class="s1">&#39;</span><span class="o">+</span><span class="n">parameters</span><span class="p">[</span><span class="s1">&#39;adfsMex&#39;</span><span class="p">]</span><span class="o">+</span><span class="s1">&#39;</span><span class="se">\&quot;</span><span class="s1">,</span><span class="se">\&quot;</span><span class="s1">federation_active_auth_url</span><span class="se">\&quot;</span><span class="s1">:</span><span class="se">\&quot;</span><span class="s1">&#39;</span><span class="o">+</span><span class="n">parameters</span><span class="p">[</span><span class="s1">&#39;adfsWsTrust&#39;</span><span class="p">]</span><span class="o">+</span><span class="s1">&#39;</span><span class="se">\&quot;</span><span class="s1">,</span><span class="se">\&quot;</span><span class="s1">ver</span><span class="se">\&quot;</span><span class="s1">:</span><span class="se">\&quot;</span><span class="s1">0.8</span><span class="se">\&quot;</span><span class="s1">}&#39;</span>
+<span class="n">parameters</span><span class="p">[</span><span class="s1">&#39;MexFile&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">_dirname</span><span class="p">,</span> <span class="s1">&#39;mex/common.mex.xml&#39;</span><span class="p">)</span>
+
+<span class="n">parameters</span><span class="p">[</span><span class="s1">&#39;RSTRFile&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">_dirname</span><span class="p">,</span> <span class="s1">&#39;wstrust/common.rstr.xml&#39;</span><span class="p">)</span>
+<span class="n">parameters</span><span class="p">[</span><span class="s1">&#39;AssertionFile&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">_dirname</span><span class="p">,</span> <span class="s1">&#39;wstrust/common.base64.encoded.assertion.txt&#39;</span><span class="p">)</span>
+<span class="n">parameters</span><span class="p">[</span><span class="s1">&#39;logContext&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span> <span class="s1">&#39;correlation_id&#39;</span> <span class="p">:</span> <span class="s1">&#39;test-correlation-id-123456789&#39;</span> <span class="p">}</span>
+<span class="n">parameters</span><span class="p">[</span><span class="s1">&#39;callContext&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span> <span class="s1">&#39;log_context&#39;</span> <span class="p">:</span> <span class="n">parameters</span><span class="p">[</span><span class="s1">&#39;logContext&#39;</span><span class="p">]</span> <span class="p">}</span>
+
+<span class="c1"># This is a dummy RSA private cert used for testing purpose.It does not represent valid credential.</span>
+<span class="c1"># privatePem variable is a fake certificate in the form of a string.</span>
+<div class="viewcode-block" id="get_self_signed_cert"><a class="viewcode-back" href="../../source/tests.html#tests.util.get_self_signed_cert">[docs]</a><span class="k">def</span> <span class="nf">get_self_signed_cert</span><span class="p">():</span>
+    <span class="n">private_pem</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;-----BEGIN RSA PRIVATE KEY-----&quot;</span>
+                  <span class="s2">&quot;MIIEpAIBAAKCAQEAoMGZTZi0vU/ICYVgV4vcTwzvZCNXdJ9EgGBBFu1E0/j4FF0Y&quot;</span>
+                  <span class="s2">&quot;Fd2sP7IwmWVZLlWJ5VbwAtdMiRdrogX/QnWPfsNfsPzDdRRJD+Erh9tmBzJm08h7&quot;</span>
+                  <span class="s2">&quot;1RggS1/VehZ9WNdTDlQM3P+zNg0IG274VIr+ZSBzIbYxV6ecPdRU/EsZ5Wa5SCwG&quot;</span>
+                  <span class="s2">&quot;Fu1qPJW8KY8yvse9PHdFiHjrmcZSKTbBCp/2grdBrk/N1jwtH6Yj100l7G69HPE/&quot;</span>
+                  <span class="s2">&quot;4kXYRX9f/LjpzF77VMCj7UJtmb1yR3fRHpppbm7GkqvJFM2Kg3UG5fsp8nQBDRc+&quot;</span>
+                  <span class="s2">&quot;R3kjm+DU05MoFdsfo3DkzpNJjDcLUPdANe+mWwIDAQABAoIBACdb/1r+XpJTbFjY&quot;</span>
+                  <span class="s2">&quot;bSRCPCimtB5CgPEu5ajA6G7inQ2BUcw6luETq07VJA0KwXEUxHSAerdXW4fdUh8T&quot;</span>
+                  <span class="s2">&quot;dNIi0oVo9I7y9DBATTs0GGJlF2//qSmFVrxv8chCqJQB2aLc5ZsGfTfG62v6eNeu&quot;</span>
+                  <span class="s2">&quot;reKVPYApF8dTQnWBtkF1MXGsOaTuxEecrM6KbES97kElC0QsJ89sDnTUjKuihfc9&quot;</span>
+                  <span class="s2">&quot;Q9IfWDbX/5WY6JL7XMbQtKRIzd+y/E9dpU3Hu+UErKWyb5pQiud81/Q/xQThSrVt&quot;</span>
+                  <span class="s2">&quot;zpmXwlsEFCrSzDML+aOTDqrsRwypRc5sTNAMadkeRrrlo+5OzoUG1aTxco8tZ1MD&quot;</span>
+                  <span class="s2">&quot;ch7RTJECgYEA1fqn93X6S1sA8R4lYOJUDd5JmEskKwLl5Vg2VSinSD1YyMdtPnQa&quot;</span>
+                  <span class="s2">&quot;ZWCEbJGXN60tEd7ZjOM4wA0mIrwEkkApFWEiGpMe4aGTD11455rA5IfrZUGPXlcw&quot;</span>
+                  <span class="s2">&quot;lkmt4wPytKx/xDLBfa8oAu33dFDe/nhRqQqAMTi7DAnttqjUxPg/N8UCgYEAwFNG&quot;</span>
+                  <span class="s2">&quot;qLG+5+J4sq5xoXgDj0Zggi5hx2IEfN68BmyYHvfL8VSDkQMsiYXNAhTWByCkjW9D&quot;</span>
+                  <span class="s2">&quot;j/hdouGlDwMCLWq0XPgO/XsSlU7jJExsrRch63kf72PTZP/qapSkOonCe9TViNTQ&quot;</span>
+                  <span class="s2">&quot;KiRXu/v9OfJYSRPnpKz0/5goFSq7E12mBWZJJ58CgYEAvmmKNLSAobP+t5H68ycU&quot;</span>
+                  <span class="s2">&quot;Yy7u0J31Nm0ixR7lYoyFp8wniKumdA//OT1VOgOoy/vIAoILl8rPQl+xEvG7I6YC&quot;</span>
+                  <span class="s2">&quot;qSrBnWJT9bbBVcf5Aih9BCBLgdSATxRJgUNZgI2P2eUy4RXFhyFp+olmTdR1S38o&quot;</span>
+                  <span class="s2">&quot;M8PLZYG1OTZQmd3NUOYT430CgYBzU7yEPgnPPTPJWefTvobL7JTEm5GQoQs14c54&quot;</span>
+                  <span class="s2">&quot;P7g8obUO4vH+DBwx3yUfAWWSYpWqJjUqaPGlUY/L3673kwvS0AEVKS7sj6CPTLDC&quot;</span>
+                  <span class="s2">&quot;XqO9cyWeRIsn/noQLVAJtkAER41AfvTQwHhHxoSDsfoU4DXAvuIvPouSncwOgdKj&quot;</span>
+                  <span class="s2">&quot;XEGz2wKBgQDQmB/u4oGaPRf5DdasiAcqofYDEoo/OcpdRPeW2t5z7WDZcjeN4ajR&quot;</span>
+                  <span class="s2">&quot;GDoQssBpy1fpsPnghksMhYZL2l9xiSInkFw87ax5EYBS43Mt5HfJPgwpEnA5yV3W&quot;</span>
+                  <span class="s2">&quot;WGt3TBp7BgYOKhIID6803lBYfDmtQzdD+xMjlJKSQ9wfZYCuXrYwSg==&quot;</span>
+                  <span class="s2">&quot;-----END RSA PRIVATE KEY-----&quot;</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">private_pem</span></div>
+
+<span class="n">parameters</span><span class="p">[</span><span class="s1">&#39;certHash&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;C1:5D:EA:86:56:AD:DF:67:BE:80:31:D8:5E:BD:DC:5A:D6:C4:36:E1&#39;</span>
+<span class="n">parameters</span><span class="p">[</span><span class="s1">&#39;nowDate&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">fromtimestamp</span><span class="p">(</span><span class="mf">1418433646.179</span><span class="p">)</span>
+<span class="n">parameters</span><span class="p">[</span><span class="s1">&#39;jwtId&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;09841beb-a2c2-4777-a347-34ef055238a8&#39;</span>
+<span class="n">parameters</span><span class="p">[</span><span class="s1">&#39;expectedJwt&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsIng1dCI6IndWM3FobGF0MzJlLWdESFlYcjNjV3RiRU51RSJ9.eyJhdWQiOiJodHRwczovL2xvZ2luLndpbmRvd3MubmV0L3JyYW5kYWxsYWFkMS5vbm1pY3Jvc29mdC5jb20vb2F1dGgyL3Rva2VuIiwiaXNzIjoiY2xpZW4mJj8_P3RJZCIsInN1YiI6ImNsaWVuJiY_Pz90SWQiLCJuYmYiOjE0MTg0MzM2NDYsImV4cCI6MTQxODQzNDI0NiwianRpIjoiMDk4NDFiZWItYTJjMi00Nzc3LWEzNDctMzRlZjA1NTIzOGE4In0.dgF0TRlcASgTMp_1dlm8vd7tudr6n40VeuOQGFnz566s3n76WR_jJDBBBKlYeqc9gwCPFOzrLVAJehVYZ3N7YPzVdulf47rLoQdAp8R_p4Q4hdBZuIzfgDWwXjnP9x_NlfzezEYE4r8KTS2g5BBzPmx538AfIdNM93hWIxQySZGWY5UAhTkT1qE1ce1Yjo1M2HqzEJhTg5TTyfrnDtNxFxmzYhSyA9B41lB5kBuJTXUWXPrr-6eG8cEUOS-iiH7YB1Tf4J7_9JQloevTiOrfv4pSp6xLLXm2ntNBg3gaKsGKdYd-3tsCG0mHn7BzL0b-QCLalkUr8KtgtLqkxuAiLQ&#39;</span>
+<span class="n">parameters</span><span class="p">[</span><span class="s1">&#39;cert&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">get_self_signed_cert</span><span class="p">()</span>
+
+<span class="n">correlation_id_regex</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="s2">&quot;[^\s]+&quot;</span><span class="p">)</span>
+
+<div class="viewcode-block" id="set_correlation_id"><a class="viewcode-back" href="../../source/tests.html#tests.util.set_correlation_id">[docs]</a><span class="k">def</span> <span class="nf">set_correlation_id</span><span class="p">(</span><span class="n">correlation_id</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">global</span> <span class="n">correlation_id_regex</span>
+    <span class="n">correlation_id_regex</span> <span class="o">=</span> <span class="n">correlation_id</span> <span class="k">if</span> <span class="n">correlation_id</span> <span class="k">else</span> <span class="n">correlation_id_regex</span></div>
+
+<div class="viewcode-block" id="turn_on_logging"><a class="viewcode-back" href="../../source/tests.html#tests.util.turn_on_logging">[docs]</a><span class="k">def</span> <span class="nf">turn_on_logging</span><span class="p">(</span><span class="n">level</span><span class="o">=</span><span class="s1">&#39;DEBUG&#39;</span><span class="p">,</span> <span class="n">handler</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+    <span class="n">log</span><span class="o">.</span><span class="n">set_logging_options</span><span class="p">({</span>
+        <span class="s1">&#39;level&#39;</span> <span class="p">:</span> <span class="n">level</span><span class="p">,</span>
+        <span class="s1">&#39;handler&#39;</span> <span class="p">:</span> <span class="n">handler</span>
+        <span class="p">})</span></div>
+
+<div class="viewcode-block" id="reset_logging"><a class="viewcode-back" href="../../source/tests.html#tests.util.reset_logging">[docs]</a><span class="k">def</span> <span class="nf">reset_logging</span><span class="p">():</span>
+    <span class="k">pass</span></div>
+
+<div class="viewcode-block" id="clear_static_cache"><a class="viewcode-back" href="../../source/tests.html#tests.util.clear_static_cache">[docs]</a><span class="k">def</span> <span class="nf">clear_static_cache</span><span class="p">():</span>
+    <span class="k">pass</span></div>
+
+<span class="n">TOKEN_RESPONSE_MAP</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s1">&#39;token_type&#39;</span> <span class="p">:</span> <span class="s1">&#39;tokenType&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;access_token&#39;</span> <span class="p">:</span> <span class="s1">&#39;accessToken&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;refresh_token&#39;</span> <span class="p">:</span> <span class="s1">&#39;refreshToken&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;created_on&#39;</span> <span class="p">:</span> <span class="s1">&#39;createdOn&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;expires_on&#39;</span> <span class="p">:</span> <span class="s1">&#39;expiresOn&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;expires_in&#39;</span> <span class="p">:</span> <span class="s1">&#39;expiresIn&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;error&#39;</span> <span class="p">:</span> <span class="s1">&#39;error&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;error_description&#39;</span> <span class="p">:</span> <span class="s1">&#39;errorDescription&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;resource&#39;</span> <span class="p">:</span> <span class="s1">&#39;resource&#39;</span><span class="p">,</span>
+<span class="p">}</span>
+
+<span class="n">DEVICE_CODE_RESPONSE_MAP</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s1">&#39;device_code&#39;</span> <span class="p">:</span> <span class="s1">&#39;deviceCode&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;user_code&#39;</span> <span class="p">:</span> <span class="s1">&#39;userCode&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;verification_url&#39;</span> <span class="p">:</span> <span class="s1">&#39;verificationUrl&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;interval&#39;</span> <span class="p">:</span> <span class="s1">&#39;interval&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;expires_in&#39;</span> <span class="p">:</span> <span class="s1">&#39;expiresIn&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;error&#39;</span> <span class="p">:</span> <span class="s1">&#39;error&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;error_description&#39;</span> <span class="p">:</span> <span class="s1">&#39;errorDescription&#39;</span>
+    <span class="p">}</span>
+
+<div class="viewcode-block" id="dicts_equal"><a class="viewcode-back" href="../../source/tests.html#tests.util.dicts_equal">[docs]</a><span class="k">def</span> <span class="nf">dicts_equal</span><span class="p">(</span><span class="n">expected</span><span class="p">,</span> <span class="n">actual</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Compares two dictionaries and returns an error message if something is wrong.</span>
+<span class="sd">    None otherwise</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">len</span><span class="p">(</span><span class="n">expected</span><span class="p">)</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">actual</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s1">&#39;dicts are not the same length&#39;</span>
+
+    <span class="n">shared_items</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">expected</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span> <span class="o">&amp;</span> <span class="nb">set</span><span class="p">(</span><span class="n">actual</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">len</span><span class="p">(</span><span class="n">shared_items</span><span class="p">)</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">expected</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s1">&#39;The provided dicts do not have the same keys&#39;</span>
+
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">expected</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+        <span class="n">expected_value</span> <span class="o">=</span> <span class="n">expected</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+        <span class="n">actual_value</span> <span class="o">=</span> <span class="n">actual</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">expected_value</span> <span class="o">==</span> <span class="n">actual_value</span><span class="p">:</span>
+            <span class="k">return</span> <span class="s1">&#39;Not Equal: expected:</span><span class="si">{}</span><span class="s1"> actual:</span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">expected_value</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">actual_value</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+
+    <span class="k">return</span> <span class="kc">None</span></div>
+
+<div class="viewcode-block" id="map_fields"><a class="viewcode-back" href="../../source/tests.html#tests.util.map_fields">[docs]</a><span class="k">def</span> <span class="nf">map_fields</span><span class="p">(</span><span class="n">in_obj</span><span class="p">,</span> <span class="n">out_obj</span><span class="p">,</span> <span class="nb">map</span><span class="p">):</span>
+    <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">in_obj</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+        <span class="k">if</span> <span class="nb">map</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">key</span><span class="p">):</span>
+            <span class="n">mapped</span> <span class="o">=</span> <span class="nb">map</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
+            <span class="n">out_obj</span><span class="p">[</span><span class="n">mapped</span><span class="p">]</span> <span class="o">=</span> <span class="n">in_obj</span><span class="p">[</span><span class="n">key</span><span class="p">]</span></div>
+
+<div class="viewcode-block" id="create_response"><a class="viewcode-back" href="../../source/tests.html#tests.util.create_response">[docs]</a><span class="k">def</span> <span class="nf">create_response</span><span class="p">(</span><span class="n">options</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">iteration</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+    <span class="n">options</span> <span class="o">=</span> <span class="n">options</span> <span class="k">if</span> <span class="n">options</span> <span class="k">else</span> <span class="p">{}</span>
+
+    <span class="n">authority</span> <span class="o">=</span> <span class="n">options</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;authority&#39;</span><span class="p">,</span> <span class="n">parameters</span><span class="p">[</span><span class="s1">&#39;authorityTenant&#39;</span><span class="p">])</span>
+    <span class="n">base_response</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s1">&#39;token_type&#39;</span> <span class="p">:</span> <span class="s1">&#39;Bearer&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;expires_in&#39;</span><span class="p">:</span> <span class="mi">28800</span>
+    <span class="p">}</span>
+
+    <span class="n">resource</span> <span class="o">=</span> <span class="n">options</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;resource&#39;</span><span class="p">,</span> <span class="n">parameters</span><span class="p">[</span><span class="s1">&#39;resource&#39;</span><span class="p">])</span>
+    <span class="n">iterated</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s1">&#39;access_token&#39;</span><span class="p">:</span> <span class="s1">&#39;eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsIng1dCI6Ik5HVEZ2ZEstZnl0aEV1THdqcHdBSk9NOW4tQSJ9.eyJhdWQiOiIwMDAwMDAwMi0wMDAwLTAwMDAtYzAwMC0wMDAwMDAwMDAwMDAiLCJpc3MiOiJodHRwczovL3N0cy53aW5kb3dzLm5ldC82MmYwMzQ3MS02N2MxLTRjNTAtYjlkMS0xMzQ1MDc5ZDk3NzQvIiwiaWF0IjoxMzc4NjAxMTY4LCJuYmYiOjEzNzg2MDExNjgsImV4cCI6MTM3ODYyOTk2OCwidmVyIjoiMS4wIiwidGlkIjoiNjJmMDM0NzEtNjdjMS00YzUwLWI5ZDEtMTM0NTA3OWQ5Nzc0Iiwib2lkIjoiZjEzMDkzNDEtZDcyMy00YTc1LTk2YzktNGIyMTMzMzk0Mjg3Iiwic3ViIjoiZjEzMDkzNDEtZDcyMy00YTc1LTk2YzktNGIyMTMzMzk0Mjg3IiwiYXBwaWQiOiI1YzI1ZDFiZi1iMjMyLTQwMzUtYjZiOS0yYjdlN2U4MzQ2ZDYiLCJhcHBpZGFjciI6IjEifQ.qXM7f9TTiLApxVMwaSrISQQ6UAnfKvKhoIlN9rB0Eff2VXvIWKGRsclPkMQ5x42BQz2N6pSXEsN-LsNCZlQ76Rc3rVRONzeCYh7q_NXcCJG_d6SJTtV5GBfgqFlgT8UF5rblabbMdOiOrddvJm048hWt2Nm3qD3QjQdPBlD7Ksn-lUR1jEJPIqDaBjGom8RawrZTW6X1cy1Kr8mEYFkxcbU91k_RZUumONep9FTR8gfPkboeD8zyvOy64UeysEtcuaNCfhHSBFcwC8MwjUr5r_T7au7ywAcYDOVgoa7oF_dN1JNweiDoNNZ9tyUS-RY3sa3-gXk77gRxpA4CkpittQ&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;resource&#39;</span> <span class="p">:</span> <span class="n">resource</span>
+    <span class="p">}</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">options</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;noRefresh&#39;</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">options</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;refreshedRefresh&#39;</span><span class="p">):</span>
+            <span class="n">iterated</span><span class="p">[</span><span class="s1">&#39;refresh_token&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;AwABAAAAvPM1KaPlrEqdFSBzjqfTGCDeE7YHWD9jkU2WWYKLjxu928QAbkoFyWp&amp;yfPNft8DcbBqOSYVq5Ty_60YICIdFw61SG4-eT1nWHNOPdzsL2ZzloUsp2DpqlIr1s5Z3953oQBi7dOqiHk37NXQqmNEJ7MfmDp6w3EOa29EPARvjGIHFgtICW1-Y82npw1v1g8Ittb02pksNU2XzH2X0E3l3TuSZWsX5lpl-kfPOc8zppU6bwvT-VOPHZVVLQedDIQZyOiFst9HLUjbiIvBgV7tNwbB4H5yF56QQscz49Nrb3g0ibuNDo7efFawLzNoVHzoTrOTcCGSG1pt8Z-npByrEe7vg1o4nNFjspuxlyMGdnYRAnaZfvgzqROP_m7ZqSd6IAA&#39;</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">iterated</span><span class="p">[</span><span class="s1">&#39;refresh_token&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">parameters</span><span class="p">[</span><span class="s1">&#39;refreshToken&#39;</span><span class="p">]</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">iterated</span><span class="p">[</span><span class="s1">&#39;refresh_token&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="k">if</span> <span class="n">iteration</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">iterated</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+            <span class="n">iterated</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">iterated</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">+</span> <span class="n">iteration</span>
+
+    <span class="n">base_response</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">iterated</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">options</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;mrrt&#39;</span><span class="p">,</span> <span class="kc">False</span><span class="p">):</span>
+        <span class="k">del</span> <span class="n">base_response</span><span class="p">[</span><span class="s1">&#39;resource&#39;</span><span class="p">]</span>
+
+    <span class="n">date_now</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span>
+    <span class="n">wire_response</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">base_response</span><span class="p">)</span>
+    <span class="n">wire_response</span><span class="p">[</span><span class="s1">&#39;created_on&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">mktime</span><span class="p">(</span><span class="n">date_now</span><span class="o">.</span><span class="n">timetuple</span><span class="p">())</span>
+
+    <span class="n">decoded_response</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="n">map_fields</span><span class="p">(</span><span class="n">wire_response</span><span class="p">,</span> <span class="n">decoded_response</span><span class="p">,</span> <span class="n">TOKEN_RESPONSE_MAP</span><span class="p">)</span>
+    <span class="n">decoded_response</span><span class="p">[</span><span class="s1">&#39;createdOn&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">date_now</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">options</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;noIdToken&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">options</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;urlSafeUserId&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">):</span>
+            <span class="n">wire_response</span><span class="p">[</span><span class="s1">&#39;id_token&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">encoded_id_token_url_safe</span>
+            <span class="n">parsed_user_info</span> <span class="o">=</span> <span class="n">parsed_id_token_url_safe</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">wire_response</span><span class="p">[</span><span class="s1">&#39;id_token&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">encoded_id_token</span>
+            <span class="n">parsed_user_info</span> <span class="o">=</span> <span class="n">parsed_id_token</span>
+
+        <span class="n">decoded_response</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">parsed_user_info</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">options</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;expired&#39;</span><span class="p">):</span>
+        <span class="n">expires_on_date</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span> <span class="o">-</span> <span class="n">timedelta</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">expires_on_date</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span> <span class="o">+</span> <span class="n">timedelta</span><span class="p">(</span><span class="n">seconds</span><span class="o">=</span><span class="n">decoded_response</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;expiresIn&#39;</span><span class="p">,</span><span class="mi">0</span><span class="p">))</span>
+
+    <span class="n">decoded_response</span><span class="p">[</span><span class="s1">&#39;expiresOn&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">expires_on_date</span><span class="p">)</span>
+
+    <span class="n">cached_response</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">decoded_response</span><span class="p">)</span>
+
+    <span class="n">cached_response</span><span class="p">[</span><span class="s1">&#39;_clientId&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">parameters</span><span class="p">[</span><span class="s1">&#39;clientId&#39;</span><span class="p">]</span>
+    <span class="n">cached_response</span><span class="p">[</span><span class="s1">&#39;_authority&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">authority</span>
+    <span class="n">cached_response</span><span class="p">[</span><span class="s1">&#39;resource&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">iterated</span><span class="p">[</span><span class="s1">&#39;resource&#39;</span><span class="p">]</span>
+
+    <span class="k">if</span> <span class="n">options</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;mrrt&#39;</span><span class="p">,</span> <span class="kc">False</span><span class="p">):</span>
+        <span class="n">cached_response</span><span class="p">[</span><span class="s1">&#39;isMRRT&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+
+    <span class="k">return</span> <span class="p">{</span>
+    <span class="s1">&#39;wireResponse&#39;</span> <span class="p">:</span> <span class="n">wire_response</span><span class="p">,</span>
+    <span class="s1">&#39;decodedResponse&#39;</span> <span class="p">:</span> <span class="n">decoded_response</span><span class="p">,</span>
+    <span class="s1">&#39;cachedResponse&#39;</span> <span class="p">:</span> <span class="n">cached_response</span><span class="p">,</span>
+    <span class="s1">&#39;decodedIdToken&#39;</span> <span class="p">:</span> <span class="n">decoded_id_token</span><span class="p">,</span>
+    <span class="s1">&#39;resource&#39;</span> <span class="p">:</span> <span class="n">iterated</span><span class="p">[</span><span class="s1">&#39;resource&#39;</span><span class="p">],</span>
+    <span class="s1">&#39;refreshToken&#39;</span> <span class="p">:</span> <span class="n">iterated</span><span class="p">[</span><span class="s1">&#39;refresh_token&#39;</span><span class="p">],</span>
+    <span class="s1">&#39;clientId&#39;</span> <span class="p">:</span> <span class="n">cached_response</span><span class="p">[</span><span class="s1">&#39;_clientId&#39;</span><span class="p">],</span>
+    <span class="s1">&#39;authority&#39;</span> <span class="p">:</span> <span class="n">authority</span><span class="p">,</span>
+  <span class="p">}</span></div>
+
+<div class="viewcode-block" id="compare_query_strings"><a class="viewcode-back" href="../../source/tests.html#tests.util.compare_query_strings">[docs]</a><span class="k">def</span> <span class="nf">compare_query_strings</span><span class="p">(</span><span class="n">left</span><span class="p">,</span> <span class="n">right</span><span class="p">):</span>
+    <span class="n">left_params</span> <span class="o">=</span> <span class="n">urlencode</span><span class="p">(</span><span class="n">left</span><span class="p">)</span>
+    <span class="n">right_params</span> <span class="o">=</span> <span class="n">urlencode</span><span class="p">(</span><span class="n">right</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">left_params</span> <span class="o">==</span> <span class="n">right_params</span></div>
+
+<div class="viewcode-block" id="filter_query_strings"><a class="viewcode-back" href="../../source/tests.html#tests.util.filter_query_strings">[docs]</a><span class="k">def</span> <span class="nf">filter_query_strings</span><span class="p">(</span><span class="n">expected</span><span class="p">,</span> <span class="n">received</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">expected</span> <span class="k">if</span> <span class="n">compare_query_strings</span><span class="p">(</span><span class="n">expected</span><span class="p">,</span> <span class="n">received</span><span class="p">)</span> <span class="k">else</span> <span class="n">received</span></div>
+
+<div class="viewcode-block" id="remove_query_string_if_matching"><a class="viewcode-back" href="../../source/tests.html#tests.util.remove_query_string_if_matching">[docs]</a><span class="k">def</span> <span class="nf">remove_query_string_if_matching</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">query</span><span class="p">):</span>
+    <span class="n">path_url</span> <span class="o">=</span> <span class="n">urlparse</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">path_url</span><span class="o">.</span><span class="n">path</span> <span class="k">if</span> <span class="n">compare_query_strings</span><span class="p">(</span><span class="n">path_url</span><span class="o">.</span><span class="n">query</span><span class="p">,</span> <span class="n">query</span><span class="p">)</span> <span class="k">else</span> <span class="n">path</span></div>
+
+<div class="viewcode-block" id="val_exists"><a class="viewcode-back" href="../../source/tests.html#tests.util.val_exists">[docs]</a><span class="k">def</span> <span class="nf">val_exists</span><span class="p">(</span><span class="n">val</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">val</span> <span class="k">if</span> <span class="n">val</span> <span class="k">else</span> <span class="kc">False</span></div>
+
+<div class="viewcode-block" id="match_standard_request_headers"><a class="viewcode-back" href="../../source/tests.html#tests.util.match_standard_request_headers">[docs]</a><span class="k">def</span> <span class="nf">match_standard_request_headers</span><span class="p">(</span><span class="n">mock_request</span><span class="p">):</span>
+    <span class="n">matches</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">matches</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">mock_request</span><span class="o">.</span><span class="n">headers</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;x-client-SKU&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span> <span class="o">==</span> <span class="s1">&#39;Python&#39;</span><span class="p">)</span>
+    <span class="n">matches</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">mock_request</span><span class="o">.</span><span class="n">headers</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;x-client-Ver&#39;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;0.&#39;</span><span class="p">))</span>
+    <span class="n">matches</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">mock_request</span><span class="o">.</span><span class="n">headers</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;x-client-OS&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span> <span class="o">!=</span> <span class="kc">None</span><span class="p">)</span>
+    <span class="n">matches</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">mock_request</span><span class="o">.</span><span class="n">headers</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;x-client-CPU&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span> <span class="o">!=</span> <span class="kc">None</span><span class="p">)</span>
+    <span class="n">request_id</span> <span class="o">=</span> <span class="n">correlation_id_regex</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">mock_request</span><span class="o">.</span><span class="n">headers</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;client-request-id&#39;</span><span class="p">))</span>
+    <span class="n">matches</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">request_id</span> <span class="o">!=</span> <span class="kc">None</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">all</span><span class="p">(</span><span class="n">matches</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">AssertionError</span><span class="p">(</span><span class="s2">&quot;Not all the standard request headers matched.&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="setup_expected_oauth_response"><a class="viewcode-back" href="../../source/tests.html#tests.util.setup_expected_oauth_response">[docs]</a><span class="k">def</span> <span class="nf">setup_expected_oauth_response</span><span class="p">(</span><span class="n">queryParameters</span><span class="p">,</span> <span class="n">tokenPath</span><span class="p">,</span> <span class="n">httpCode</span><span class="p">,</span> <span class="n">returnDoc</span><span class="p">,</span> <span class="n">authorityEndpoint</span><span class="p">):</span>
+    <span class="n">query</span> <span class="o">=</span> <span class="n">urlencode</span><span class="p">(</span><span class="n">queryParameters</span><span class="p">)</span>
+    <span class="n">url</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">{}</span><span class="s2">/</span><span class="si">{}</span><span class="s2">?</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">authorityEndpoint</span><span class="o">.</span><span class="n">rstrip</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">),</span> <span class="n">tokenPath</span><span class="o">.</span><span class="n">lstrip</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">),</span> <span class="n">query</span><span class="p">)</span>
+    <span class="n">httpretty</span><span class="o">.</span><span class="n">register_uri</span><span class="p">(</span><span class="n">httpretty</span><span class="o">.</span><span class="n">POST</span><span class="p">,</span> <span class="n">url</span><span class="p">,</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">returnDoc</span><span class="p">),</span> <span class="n">status</span> <span class="o">=</span> <span class="n">httpCode</span><span class="p">,</span> <span class="n">content_type</span> <span class="o">=</span> <span class="s1">&#39;text/json&#39;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="setup_expected_client_cred_token_request_response"><a class="viewcode-back" href="../../source/tests.html#tests.util.setup_expected_client_cred_token_request_response">[docs]</a><span class="k">def</span> <span class="nf">setup_expected_client_cred_token_request_response</span><span class="p">(</span><span class="n">http_code</span><span class="p">,</span> <span class="n">return_doc</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">authority_endpoint</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+    <span class="n">auth_endpoint</span> <span class="o">=</span> <span class="n">authority_endpoint</span> <span class="ow">or</span> <span class="n">parameters</span><span class="p">[</span><span class="s1">&#39;authUrl&#39;</span><span class="p">]</span>
+    <span class="n">query</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s1">&#39;grant_type&#39;</span> <span class="p">:</span> <span class="s1">&#39;client_credentials&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;client_id&#39;</span> <span class="p">:</span> <span class="n">parameters</span><span class="p">[</span><span class="s1">&#39;clientId&#39;</span><span class="p">],</span>
+        <span class="s1">&#39;client_secret&#39;</span> <span class="p">:</span> <span class="n">parameters</span><span class="p">[</span><span class="s1">&#39;clientSecret&#39;</span><span class="p">],</span>
+        <span class="s1">&#39;resource&#39;</span> <span class="p">:</span> <span class="n">parameters</span><span class="p">[</span><span class="s1">&#39;resource&#39;</span><span class="p">]</span>
+    <span class="p">}</span>
+    <span class="n">setup_expected_oauth_response</span><span class="p">(</span><span class="n">query</span><span class="p">,</span> <span class="n">parameters</span><span class="p">[</span><span class="s1">&#39;tokenPath&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="n">parameters</span><span class="p">[</span><span class="s1">&#39;extraQP&#39;</span><span class="p">],</span> <span class="n">http_code</span><span class="p">,</span> <span class="n">return_doc</span><span class="p">,</span> <span class="n">auth_endpoint</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="setup_expected_instance_discovery_request"><a class="viewcode-back" href="../../source/tests.html#tests.util.setup_expected_instance_discovery_request">[docs]</a><span class="k">def</span> <span class="nf">setup_expected_instance_discovery_request</span><span class="p">(</span><span class="n">http_code</span><span class="p">,</span> <span class="n">discovery_host</span><span class="p">,</span> <span class="n">return_doc</span><span class="p">,</span> <span class="n">authority</span><span class="p">):</span>
+    <span class="n">protocol</span> <span class="o">=</span> <span class="s1">&#39;https://&#39;</span>
+    <span class="n">host</span> <span class="o">=</span> <span class="n">discovery_host</span>
+    <span class="n">pathname</span> <span class="o">=</span> <span class="s1">&#39;/common/discovery/instance&#39;</span>
+    <span class="n">query</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="n">query</span><span class="p">[</span><span class="s1">&#39;authorization_endpoint&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">authority</span>
+    <span class="n">query</span><span class="p">[</span><span class="s1">&#39;api-version&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;1.0&#39;</span>
+    <span class="n">query_string</span> <span class="o">=</span> <span class="n">urlencode</span><span class="p">(</span><span class="n">query</span><span class="p">)</span>
+
+    <span class="n">url</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">{}{}{}</span><span class="s2">?</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">protocol</span><span class="p">,</span> <span class="n">host</span><span class="p">,</span> <span class="n">pathname</span><span class="p">,</span> <span class="n">query_string</span><span class="p">)</span>
+
+    <span class="n">httpretty</span><span class="o">.</span><span class="n">register_uri</span><span class="p">(</span><span class="n">httpretty</span><span class="o">.</span><span class="n">GET</span><span class="p">,</span> <span class="n">url</span><span class="p">,</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">return_doc</span><span class="p">),</span> <span class="n">status</span> <span class="o">=</span> <span class="n">http_code</span><span class="p">,</span> <span class="n">content_type</span> <span class="o">=</span> <span class="s1">&#39;text/json&#39;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="setup_expected_user_realm_response"><a class="viewcode-back" href="../../source/tests.html#tests.util.setup_expected_user_realm_response">[docs]</a><span class="k">def</span> <span class="nf">setup_expected_user_realm_response</span><span class="p">(</span><span class="n">http_code</span><span class="p">,</span> <span class="n">return_doc</span><span class="p">,</span> <span class="n">authority</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="n">user_realm_authority</span> <span class="o">=</span> <span class="n">authority</span> <span class="ow">or</span> <span class="n">parameters</span><span class="p">[</span><span class="s1">&#39;authority&#39;</span><span class="p">]</span>
+    <span class="n">user_realm_authority</span> <span class="o">=</span> <span class="n">urlparse</span><span class="p">(</span><span class="n">user_realm_authority</span><span class="p">)</span>
+
+    <span class="c1"># Get Base URL</span>
+    <span class="n">user_realm_authority</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">{}</span><span class="s1">://</span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">user_realm_authority</span><span class="o">.</span><span class="n">scheme</span><span class="p">,</span> <span class="n">user_realm_authority</span><span class="o">.</span><span class="n">netloc</span><span class="p">)</span>
+
+    <span class="n">user_realm_path</span> <span class="o">=</span> <span class="n">parameters</span><span class="p">[</span><span class="s1">&#39;userRealmPathTemplate&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;&lt;user&gt;&#39;</span><span class="p">,</span> <span class="n">parameters</span><span class="p">[</span><span class="s1">&#39;username&#39;</span><span class="p">])</span>
+    <span class="n">query</span> <span class="o">=</span> <span class="s1">&#39;api-version=1.0&#39;</span>
+    <span class="n">url</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">{}</span><span class="s1">/</span><span class="si">{}</span><span class="s1">?</span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">user_realm_authority</span><span class="o">.</span><span class="n">rstrip</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">),</span> <span class="n">user_realm_path</span><span class="o">.</span><span class="n">lstrip</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">),</span> <span class="n">query</span><span class="p">)</span>
+
+    <span class="n">httpretty</span><span class="o">.</span><span class="n">register_uri</span><span class="p">(</span><span class="n">httpretty</span><span class="o">.</span><span class="n">GET</span><span class="p">,</span> <span class="n">url</span><span class="p">,</span> <span class="n">return_doc</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="setup_expected_user_realm_response_common"><a class="viewcode-back" href="../../source/tests.html#tests.util.setup_expected_user_realm_response_common">[docs]</a><span class="k">def</span> <span class="nf">setup_expected_user_realm_response_common</span><span class="p">(</span><span class="n">federated</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">federated</span><span class="p">:</span>
+        <span class="n">response_doc</span> <span class="o">=</span> <span class="n">parameters</span><span class="p">[</span><span class="s1">&#39;userRealmResponseFederated&#39;</span><span class="p">]</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">response_doc</span> <span class="o">=</span> <span class="n">parameters</span><span class="p">[</span><span class="s1">&#39;userRealmResponseManaged&#39;</span><span class="p">]</span>
+
+    <span class="k">return</span> <span class="n">setup_expected_user_realm_response</span><span class="p">(</span><span class="mi">200</span><span class="p">,</span> <span class="n">response_doc</span><span class="p">,</span> <span class="n">parameters</span><span class="p">[</span><span class="s1">&#39;authority&#39;</span><span class="p">])</span></div>
+
+<div class="viewcode-block" id="setup_expected_refresh_token_request_response"><a class="viewcode-back" href="../../source/tests.html#tests.util.setup_expected_refresh_token_request_response">[docs]</a><span class="k">def</span> <span class="nf">setup_expected_refresh_token_request_response</span><span class="p">(</span><span class="n">http_code</span><span class="p">,</span> <span class="n">return_doc</span><span class="p">,</span> <span class="n">authority_endpoint</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">resource</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">client_secret</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="n">auth_endpoint</span> <span class="o">=</span> <span class="n">authority_endpoint</span> <span class="ow">or</span> <span class="n">parameters</span><span class="p">[</span><span class="s1">&#39;authority&#39;</span><span class="p">]</span>
+
+    <span class="n">query_parameters</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="n">query_parameters</span><span class="p">[</span><span class="s1">&#39;grant_type&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;refresh_token&#39;</span>
+    <span class="n">query_parameters</span><span class="p">[</span><span class="s1">&#39;client_id&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">parameters</span><span class="p">[</span><span class="s1">&#39;clientId&#39;</span><span class="p">]</span>
+    <span class="k">if</span> <span class="n">client_secret</span><span class="p">:</span>
+        <span class="n">query_parameters</span><span class="p">[</span><span class="s1">&#39;client_secret&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">client_secret</span>
+
+    <span class="k">if</span> <span class="n">resource</span><span class="p">:</span>
+        <span class="n">query_parameters</span><span class="p">[</span><span class="s1">&#39;resource&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">resource</span>
+
+    <span class="n">query_parameters</span><span class="p">[</span><span class="s1">&#39;refresh_token&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">parameters</span><span class="p">[</span><span class="s1">&#39;refreshToken&#39;</span><span class="p">]</span>
+
+    <span class="k">return</span> <span class="n">setup_expected_oauth_response</span><span class="p">(</span><span class="n">query_parameters</span><span class="p">,</span> <span class="n">parameters</span><span class="p">[</span><span class="s1">&#39;tokenUrlPath&#39;</span><span class="p">],</span> <span class="n">http_code</span><span class="p">,</span> <span class="n">return_doc</span><span class="p">,</span> <span class="n">auth_endpoint</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="setup_expected_mex_wstrust_request_common"><a class="viewcode-back" href="../../source/tests.html#tests.util.setup_expected_mex_wstrust_request_common">[docs]</a><span class="k">def</span> <span class="nf">setup_expected_mex_wstrust_request_common</span><span class="p">():</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">parameters</span><span class="p">[</span><span class="s1">&#39;MexFile&#39;</span><span class="p">])</span> <span class="k">as</span> <span class="n">mex</span><span class="p">:</span>
+        <span class="n">mex_doc</span> <span class="o">=</span> <span class="n">mex</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+    <span class="n">httpretty</span><span class="o">.</span><span class="n">register_uri</span><span class="p">(</span><span class="n">httpretty</span><span class="o">.</span><span class="n">GET</span><span class="p">,</span> <span class="n">parameters</span><span class="p">[</span><span class="s1">&#39;adfsUrlNoPath&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="n">parameters</span><span class="p">[</span><span class="s1">&#39;adfsMexPath&#39;</span><span class="p">],</span> <span class="n">mex_doc</span><span class="p">)</span>
+    
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">parameters</span><span class="p">[</span><span class="s1">&#39;RSTRFile&#39;</span><span class="p">])</span> <span class="k">as</span> <span class="n">resr</span><span class="p">:</span>
+        <span class="n">rest_doc</span> <span class="o">=</span> <span class="n">resr</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+    <span class="n">httpretty</span><span class="o">.</span><span class="n">register_uri</span><span class="p">(</span><span class="n">httpretty</span><span class="o">.</span><span class="n">POST</span><span class="p">,</span> <span class="n">parameters</span><span class="p">[</span><span class="s1">&#39;adfsUrlNoPath&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="n">parameters</span><span class="p">[</span><span class="s1">&#39;adfsWsTrustPath&#39;</span><span class="p">],</span> <span class="n">rest_doc</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="create_empty_adal_object"><a class="viewcode-back" href="../../source/tests.html#tests.util.create_empty_adal_object">[docs]</a><span class="k">def</span> <span class="nf">create_empty_adal_object</span><span class="p">():</span>
+    <span class="n">context</span> <span class="o">=</span> <span class="n">log</span><span class="o">.</span><span class="n">create_log_context</span><span class="p">()</span>
+    <span class="n">component</span> <span class="o">=</span> <span class="s1">&#39;TEST&#39;</span>
+    <span class="n">logger</span> <span class="o">=</span> <span class="n">log</span><span class="o">.</span><span class="n">Logger</span><span class="p">(</span><span class="n">component</span><span class="p">,</span> <span class="n">context</span><span class="p">)</span>
+    <span class="n">call_context</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;log_context&#39;</span> <span class="p">:</span> <span class="n">context</span> <span class="p">}</span>
+    <span class="n">adal_object</span> <span class="o">=</span> <span class="p">{</span> <span class="s1">&#39;log&#39;</span> <span class="p">:</span> <span class="n">logger</span><span class="p">,</span> <span class="s1">&#39;call_context&#39;</span> <span class="p">:</span> <span class="n">call_context</span> <span class="p">}</span>
+    <span class="k">return</span> <span class="n">adal_object</span></div>
+
+<div class="viewcode-block" id="is_date_within_tolerance"><a class="viewcode-back" href="../../source/tests.html#tests.util.is_date_within_tolerance">[docs]</a><span class="k">def</span> <span class="nf">is_date_within_tolerance</span><span class="p">(</span><span class="n">date</span><span class="p">,</span> <span class="n">expected_date</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+    <span class="n">expected</span> <span class="o">=</span> <span class="n">expected_date</span> <span class="ow">or</span> <span class="n">datetime</span><span class="o">.</span><span class="n">today</span><span class="p">()</span>
+    <span class="n">min_range</span> <span class="o">=</span> <span class="n">expected</span> <span class="o">-</span> <span class="n">timedelta</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">5000</span><span class="p">)</span>
+    <span class="n">max_range</span> <span class="o">=</span> <span class="n">expected</span> <span class="o">+</span> <span class="n">timedelta</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">5000</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">date</span> <span class="o">&gt;=</span> <span class="n">min_range</span> <span class="ow">and</span> <span class="n">date</span> <span class="o">&lt;=</span> <span class="n">max_range</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">True</span>
+
+    <span class="k">return</span> <span class="kc">False</span></div>
+
+<div class="viewcode-block" id="is_expires_within_tolerance"><a class="viewcode-back" href="../../source/tests.html#tests.util.is_expires_within_tolerance">[docs]</a><span class="k">def</span> <span class="nf">is_expires_within_tolerance</span><span class="p">(</span><span class="n">expires_on</span><span class="p">):</span>
+    <span class="c1"># Add the expected expires_in latency.</span>
+    <span class="n">expectedExpires</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span> <span class="o">+</span> <span class="n">timedelta</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">28800</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">is_date_within_tolerance</span><span class="p">(</span><span class="n">expires_on</span><span class="p">,</span> <span class="n">expectedExpires</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="is_match_token_response"><a class="viewcode-back" href="../../source/tests.html#tests.util.is_match_token_response">[docs]</a><span class="k">def</span> <span class="nf">is_match_token_response</span><span class="p">(</span><span class="n">expected</span><span class="p">,</span> <span class="n">received</span><span class="p">):</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">received</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Token Response received is None&quot;</span><span class="p">)</span>
+
+    <span class="n">expiresOn</span> <span class="o">=</span> <span class="n">received</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;expiresOn&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+    <span class="n">createdOn</span> <span class="o">=</span> <span class="n">received</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;createdOn&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">expiresOn</span><span class="p">:</span>
+        <span class="n">expiresOnTime</span> <span class="o">=</span> <span class="n">dateutil</span><span class="o">.</span><span class="n">parser</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">expiresOn</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">is_expires_within_tolerance</span><span class="p">(</span><span class="n">expiresOnTime</span><span class="p">):</span>
+            <span class="k">return</span> <span class="kc">False</span>
+
+    <span class="k">if</span> <span class="n">createdOn</span><span class="p">:</span>
+        <span class="n">createdOnTime</span> <span class="o">=</span> <span class="n">dateutil</span><span class="o">.</span><span class="n">parser</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">createdOn</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">is_date_within_tolerance</span><span class="p">(</span><span class="n">createdOnTime</span><span class="p">):</span>
+            <span class="k">return</span> <span class="kc">False</span>
+
+    <span class="c1"># Compare the expected and responses without the expires_on field as that was validated above.</span>
+    <span class="kn">import</span> <span class="nn">copy</span>
+    <span class="n">received_copy</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">received</span><span class="p">)</span>
+    <span class="n">received_copy</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">&#39;expiresOn&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+    <span class="n">received_copy</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">&#39;createdOn&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+
+    <span class="n">expected_copy</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">expected</span><span class="p">)</span>
+    <span class="n">expected_copy</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">&#39;expiresOn&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+    <span class="n">expected_copy</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">&#39;createdOn&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">received_copy</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;clientId&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">expected_copy</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;clientId&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">):</span>
+        <span class="n">received_copy</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">&#39;clientId&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+
+    <span class="n">expect_empty</span> <span class="o">=</span> <span class="n">dicts_equal</span><span class="p">(</span><span class="n">expected_copy</span><span class="p">,</span> <span class="n">received_copy</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">expect_empty</span> <span class="ow">is</span> <span class="kc">None</span></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018, abhidnya.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../../',
+            VERSION:'',
+            LANGUAGE:'None',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="../../_static/jquery.js"></script>
+      <script type="text/javascript" src="../../_static/underscore.js"></script>
+      <script type="text/javascript" src="../../_static/doctools.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          
+          SphinxRtdTheme.Navigation.enableSticky();
+          
+      });
+  </script> 
+
+</body>
+</html>

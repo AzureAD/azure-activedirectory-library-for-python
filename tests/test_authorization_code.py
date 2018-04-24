@@ -92,7 +92,7 @@ class TestAuthorizationCode(unittest.TestCase):
 
         # the caching layer adds a few extra fields, let us pop them out for easier verification
         for k in ['_clientId', '_authority', 'resource']:
-            token_response.pop(k)
+            token_response.pop(k, None)
         self.assertTrue(util.is_match_token_response(response['decodedResponse'], token_response), 'The response did not match what was expected')
 
         # verify a request on the wire was made

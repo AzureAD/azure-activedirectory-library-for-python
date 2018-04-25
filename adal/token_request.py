@@ -319,12 +319,19 @@ class TokenRequest(object):
     def get_token_with_authorization_code(self, authorization_code, client_secret):
 
         self._log.info("Getting token with auth code.")
-
+        try:
+            token = self._find_token_from_cache()
+            if token:
+                return token
+        except AdalError:
+            self._log.exception('Attempt to look for token in cache resulted in Error')
         oauth_parameters = self._create_oauth_parameters(OAUTH2_GRANT_TYPE.AUTHORIZATION_CODE)
         oauth_parameters[OAUTH2_PARAMETERS.CODE] = authorization_code
         oauth_parameters[OAUTH2_PARAMETERS.CLIENT_SECRET] = client_secret
 
-        return self._oauth_get_token(oauth_parameters)
+        token = self._oauth_get_token(oauth_parameters)
+        self._cache_driver.add(token)
+        return token
 
     def _get_token_with_refresh_token(self, refresh_token, resource, client_secret):
 

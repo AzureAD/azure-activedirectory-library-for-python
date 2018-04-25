@@ -200,6 +200,41 @@
 <dt>For usages, check out the “sample” folder at:</dt>
 <dd><a class="reference external" href="https://github.com/AzureAD/azure-activedirectory-library-for-python">https://github.com/AzureAD/azure-activedirectory-library-for-python</a></dd>
 </dl>
+<p>Creates a new AuthenticationContext object.</p>
+<p>By default the authority will be checked against a list of known Azure
+Active Directory authorities. If the authority is not recognized as
+one of these well known authorities then token acquisition will fail.
+This behavior can be turned off via the validate_authority parameter
+below.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>authority</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.6)"><em>str</em></a>) – A URL that identifies a token authority.</li>
+<li><strong>validate_authority</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.6)"><em>bool</em></a>) – (optional) Turns authority validation
+on or off. This parameter default to true.</li>
+<li><strong>cache</strong> (<a class="reference internal" href="#adal.token_cache.TokenCache" title="adal.token_cache.TokenCache"><em>TokenCache</em></a>) – (optional) Sets the token cache used by this
+AuthenticationContext instance. If this parameter is not set, then
+a default is used. Cache instances is only used by that instance of
+the AuthenticationContext and are not shared unless it has been
+manually passed during the construction of other
+AuthenticationContexts.</li>
+<li><strong>api_version</strong> – (optional) Specifies API version using on the wire.
+Historically it has a hardcoded default value as “1.0”.
+Developers are now encouraged to set it as None explicitly,
+which means the underlying API version will be automatically chosen.
+In next major release, this default value will be changed to None.</li>
+<li><strong>timeout</strong> – (optional) requests timeout. How long to wait for the server to send
+data before giving up, as a float, or a <cite>(connect timeout,
+read timeout) &lt;timeouts&gt;</cite> tuple.</li>
+<li><strong>enable_pii</strong> – (optional) Unless this is set to True,
+there will be no Personally Identifiable Information (PII) written in log.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
 <dl class="method">
 <dt id="adal.authentication_context.AuthenticationContext.acquire_token">
 <code class="descname">acquire_token</code><span class="sig-paren">(</span><em>resource</em>, <em>user_id</em>, <em>client_id</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/adal/authentication_context.html#AuthenticationContext.acquire_token"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#adal.authentication_context.AuthenticationContext.acquire_token" title="Permalink to this definition">¶</a></dt>

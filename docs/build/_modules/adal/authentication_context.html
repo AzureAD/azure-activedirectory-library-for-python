@@ -181,27 +181,27 @@
 <span class="n">GLOBAL_ADAL_OPTIONS</span> <span class="o">=</span> <span class="p">{}</span>
 
 <div class="viewcode-block" id="AuthenticationContext"><a class="viewcode-back" href="../../source/adal.html#adal.authentication_context.AuthenticationContext">[docs]</a><span class="k">class</span> <span class="nc">AuthenticationContext</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
-    <span class="sd">&#39;&#39;&#39;Retrieves authentication tokens from Azure Active Directory.</span>
+    <span class="sd">&quot;&quot;&quot;Retrieves authentication tokens from Azure Active Directory.</span>
 
 <span class="sd">    For usages, check out the &quot;sample&quot; folder at:</span>
 <span class="sd">        https://github.com/AzureAD/azure-activedirectory-library-for-python</span>
-<span class="sd">    &#39;&#39;&#39;</span>
+<span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span>
             <span class="bp">self</span><span class="p">,</span> <span class="n">authority</span><span class="p">,</span> <span class="n">validate_authority</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">cache</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
             <span class="n">api_version</span><span class="o">=</span><span class="s1">&#39;1.0&#39;</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">enable_pii</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
-        <span class="sd">&#39;&#39;&#39;Creates a new AuthenticationContext object.</span>
+        <span class="sd">&quot;&quot;&quot;Creates a new AuthenticationContext object.</span>
 
 <span class="sd">        By default the authority will be checked against a list of known Azure</span>
-<span class="sd">        Active Directory authorities. If the authority is not recognized as </span>
+<span class="sd">        Active Directory authorities. If the authority is not recognized as</span>
 <span class="sd">        one of these well known authorities then token acquisition will fail.</span>
 <span class="sd">        This behavior can be turned off via the validate_authority parameter</span>
 <span class="sd">        below.</span>
 
 <span class="sd">        :param str authority: A URL that identifies a token authority.</span>
-<span class="sd">        :param bool validate_authority: (optional) Turns authority validation </span>
+<span class="sd">        :param bool validate_authority: (optional) Turns authority validation</span>
 <span class="sd">            on or off. This parameter default to true.</span>
-<span class="sd">        :param TokenCache cache: (optional) Sets the token cache used by this </span>
+<span class="sd">        :param TokenCache cache: (optional) Sets the token cache used by this</span>
 <span class="sd">            AuthenticationContext instance. If this parameter is not set, then</span>
 <span class="sd">            a default is used. Cache instances is only used by that instance of</span>
 <span class="sd">            the AuthenticationContext and are not shared unless it has been</span>
@@ -217,7 +217,7 @@
 <span class="sd">            read timeout) &lt;timeouts&gt;` tuple.</span>
 <span class="sd">        :param enable_pii: (optional) Unless this is set to True,</span>
 <span class="sd">            there will be no Personally Identifiable Information (PII) written in log.</span>
-<span class="sd">        &#39;&#39;&#39;</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">authority</span> <span class="o">=</span> <span class="n">Authority</span><span class="p">(</span><span class="n">authority</span><span class="p">,</span> <span class="n">validate_authority</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">validate_authority</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_oauth2client</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">correlation_id</span> <span class="o">=</span> <span class="kc">None</span>

@@ -41,6 +41,7 @@ One of the parameter accepted by `AuthenticationContext` is the `TokenCache`.
 
 .. autoclass:: adal.TokenCache
    :members:
+   :undoc-members:
 
 If you need to subclass it, you need to refer to its source code for the detail.
 

@@ -5,5 +5,4 @@ azure-activedirectory-library-for-python
    :maxdepth: 4
 
    adal
-   setup
-   tests
+

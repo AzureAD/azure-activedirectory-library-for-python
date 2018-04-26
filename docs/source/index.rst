@@ -12,9 +12,6 @@ Welcome to ADAL Python's documentation!
 
 
 
-Indices and tables
-==================
 
-* :ref:`genindex`
 * :ref:`modindex`
-* :ref:`search`
+

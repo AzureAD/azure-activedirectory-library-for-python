@@ -55,7 +55,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = 'ADAL Python'
-copyright = '2018, abhidnya'
+copyright = '2018, Microsoft'
 author = 'abhidnya'
 
 # The version info for the project you're documenting, acts as replacement for

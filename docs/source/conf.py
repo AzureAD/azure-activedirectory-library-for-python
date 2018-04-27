@@ -56,7 +56,7 @@ master_doc = 'index'
 # General information about the project.
 project = 'ADAL Python'
 copyright = '2018, Microsoft'
-author = 'abhidnya'
+author = 'Microsoft'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
@@ -145,7 +145,7 @@ latex_elements = {
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [
     (master_doc, 'ADALPython.tex', 'ADAL Python Documentation',
-     'abhidnya', 'manual'),
+     'Microsoft', 'manual'),
 ]
 
 # -- Options for manual page output ---------------------------------------

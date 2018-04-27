@@ -39,27 +39,27 @@ from .constants import OAuth2DeviceCodeResponseParameters
 GLOBAL_ADAL_OPTIONS = {}
 
 class AuthenticationContext(object):
-    """Retrieves authentication tokens from Azure Active Directory.
+    '''Retrieves authentication tokens from Azure Active Directory.
 
     For usages, check out the "sample" folder at:
         https://github.com/AzureAD/azure-activedirectory-library-for-python
-    """
+    '''
 
     def __init__(
             self, authority, validate_authority=None, cache=None,
             api_version='1.0', timeout=None, enable_pii=False):
-        """Creates a new AuthenticationContext object.
+        '''Creates a new AuthenticationContext object.
 
         By default the authority will be checked against a list of known Azure
-        Active Directory authorities. If the authority is not recognized as
+        Active Directory authorities. If the authority is not recognized as 
         one of these well known authorities then token acquisition will fail.
         This behavior can be turned off via the validate_authority parameter
         below.
 
         :param str authority: A URL that identifies a token authority.
-        :param bool validate_authority: (optional) Turns authority validation
+        :param bool validate_authority: (optional) Turns authority validation 
             on or off. This parameter default to true.
-        :param TokenCache cache: (optional) Sets the token cache used by this
+        :param TokenCache cache: (optional) Sets the token cache used by this 
             AuthenticationContext instance. If this parameter is not set, then
             a default is used. Cache instances is only used by that instance of
             the AuthenticationContext and are not shared unless it has been
@@ -75,7 +75,7 @@ class AuthenticationContext(object):
             read timeout) <timeouts>` tuple.
         :param enable_pii: (optional) Unless this is set to True,
             there will be no Personally Identifiable Information (PII) written in log.
-        """
+        '''
         self.authority = Authority(authority, validate_authority is None or validate_authority)
         self._oauth2client = None
         self.correlation_id = None

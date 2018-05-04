@@ -32,7 +32,6 @@ from . import oauth2_client
 OAUTH2_PARAMETERS = constants.OAuth2.Parameters
 
 class CodeRequest(object):
-    """description of class"""
     def __init__(self, call_context, authentication_context, client_id, 
                  resource):
         self._log = log.Logger("CodeRequest", call_context['log_context'])

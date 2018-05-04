@@ -1,4 +1,5 @@
 .. ADAL Python documentation master file, created by
+
    sphinx-quickstart on Wed Apr 25 15:50:25 2018.
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
@@ -13,6 +14,7 @@ Welcome to ADAL Python's documentation!
    :maxdepth: 2
    :caption: Contents:
 
+<<<<<<< HEAD
 You can find high level conceptual documentations in the project
 `wiki <https://github.com/AzureAD/azure-activedirectory-library-for-python/wiki>`_
 and
@@ -53,4 +55,3 @@ When errors are detected by ADAL Python, it will raise this exception.
 
 .. autoclass:: adal.AdalError
    :members:
-

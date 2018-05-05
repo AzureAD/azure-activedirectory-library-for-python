@@ -14,7 +14,6 @@ Welcome to ADAL Python's documentation!
    :maxdepth: 2
    :caption: Contents:
 
-<<<<<<< HEAD
 You can find high level conceptual documentations in the project
 `wiki <https://github.com/AzureAD/azure-activedirectory-library-for-python/wiki>`_
 and

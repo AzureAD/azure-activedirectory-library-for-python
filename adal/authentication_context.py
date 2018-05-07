@@ -47,7 +47,7 @@ class AuthenticationContext(object):
 
     def __init__(
             self, authority, validate_authority=None, cache=None,
-            api_version='1.0', timeout=None, enable_pii=False):
+            api_version='1.0', timeout=None, enable_pii=False, verify_ssl=None, proxies=None):
         '''Creates a new AuthenticationContext object.
 
         By default the authority will be checked against a list of known Azure
@@ -75,11 +75,17 @@ class AuthenticationContext(object):
             read timeout) <timeouts>` tuple.
         :param enable_pii: (optional) Unless this is set to True,
             there will be no Personally Identifiable Information (PII) written in log.
+        :param verify_ssl: (optional) requests verify. Either a boolean, in which case it 
+            controls whether we verify the server's TLS certificate, or a string, in which 
+            case it must be a path to a CA bundle to use. This value is ignored if env 
+            variable ADAL_PYTHON_SSL_NO_VERIFY is used.
+        :param proxies: (optional) requests proxies. Dictionary mapping protocol to the URL 
+            of the proxy.
         '''
         self.authority = Authority(authority, validate_authority is None or validate_authority)
         self._oauth2client = None
         self.correlation_id = None
-        env_value = os.environ.get('ADAL_PYTHON_SSL_NO_VERIFY')
+        env_value = os.environ.get('ADAL_PYTHON_SSL_NO_VERIFY', verify_ssl)
         if api_version is not None:
             warnings.warn(
                 """The default behavior of including api-version=1.0 on the wire
@@ -95,6 +101,7 @@ class AuthenticationContext(object):
             'options': GLOBAL_ADAL_OPTIONS,
             'api_version': api_version,
             'verify_ssl': None if env_value is None else not env_value, # mainly for tracing through proxy
+            'proxies':proxies,
             'timeout':timeout,
             "enable_pii": enable_pii,
             }

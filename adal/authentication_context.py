@@ -77,15 +77,17 @@ class AuthenticationContext(object):
             there will be no Personally Identifiable Information (PII) written in log.
         :param verify_ssl: (optional) requests verify. Either a boolean, in which case it 
             controls whether we verify the server's TLS certificate, or a string, in which 
-            case it must be a path to a CA bundle to use. This value is ignored if env 
-            variable ADAL_PYTHON_SSL_NO_VERIFY is used.
+            case it must be a path to a CA bundle to use. This value overrides env 
+            variable ADAL_PYTHON_SSL_NO_VERIFY.
         :param proxies: (optional) requests proxies. Dictionary mapping protocol to the URL 
-            of the proxy.
+            of the proxy. See http://docs.python-requests.org/en/master/user/advanced/#proxies
+            for details.
         '''
         self.authority = Authority(authority, validate_authority is None or validate_authority)
         self._oauth2client = None
         self.correlation_id = None
-        env_value = os.environ.get('ADAL_PYTHON_SSL_NO_VERIFY', verify_ssl)
+        env_verify = False if 'ADAL_PYTHON_SSL_NO_VERIFY' in os.environ else None
+        verify = verify_ssl if verify_ssl is not None else env_verify
         if api_version is not None:
             warnings.warn(
                 """The default behavior of including api-version=1.0 on the wire
@@ -100,7 +102,7 @@ class AuthenticationContext(object):
         self._call_context = {
             'options': GLOBAL_ADAL_OPTIONS,
             'api_version': api_version,
-            'verify_ssl': None if env_value is None else not env_value, # mainly for tracing through proxy
+            'verify_ssl': verify,
             'proxies':proxies,
             'timeout':timeout,
             "enable_pii": enable_pii,

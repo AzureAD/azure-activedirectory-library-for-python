@@ -77,8 +77,9 @@ class AuthenticationContext(object):
             there will be no Personally Identifiable Information (PII) written in log.
         :param verify_ssl: (optional) requests verify. Either a boolean, in which case it 
             controls whether we verify the server's TLS certificate, or a string, in which 
-            case it must be a path to a CA bundle to use. This value overrides env 
-            variable ADAL_PYTHON_SSL_NO_VERIFY.
+            case it must be a path to a CA bundle to use. If this value is not provided, and 
+            ADAL_PYTHON_SSL_NO_VERIFY env varaible is set, behavior is equivalent to 
+            verify_ssl=False.
         :param proxies: (optional) requests proxies. Dictionary mapping protocol to the URL 
             of the proxy. See http://docs.python-requests.org/en/master/user/advanced/#proxies
             for details.
@@ -86,7 +87,7 @@ class AuthenticationContext(object):
         self.authority = Authority(authority, validate_authority is None or validate_authority)
         self._oauth2client = None
         self.correlation_id = None
-        env_verify = False if 'ADAL_PYTHON_SSL_NO_VERIFY' in os.environ else None
+        env_verify = 'ADAL_PYTHON_SSL_NO_VERIFY' not in os.environ
         verify = verify_ssl if verify_ssl is not None else env_verify
         if api_version is not None:
             warnings.warn(

@@ -264,6 +264,7 @@ class OAuth2Client(object):
                                  data=url_encoded_token_request, 
                                  headers=post_options['headers'],
                                  verify=self._call_context.get('verify_ssl', None),
+                                 proxies=self._call_context.get('proxies', None),
                                  timeout=self._call_context.get('timeout', None))
 
             util.log_return_correlation_id(self._log, operation, resp)
@@ -298,6 +299,7 @@ class OAuth2Client(object):
                                  data=url_encoded_code_request, 
                                  headers=post_options['headers'],
                                  verify=self._call_context.get('verify_ssl', None),
+                                 proxies=self._call_context.get('proxies', None),
                                  timeout=self._call_context.get('timeout', None))
             util.log_return_correlation_id(self._log, operation, resp)
         except Exception:
@@ -339,6 +341,7 @@ class OAuth2Client(object):
             resp = requests.post(
                 token_url.geturl(), 
                 data=url_encoded_code_request, headers=post_options['headers'],
+                proxies=self._call_context.get('proxies', None),
                 verify=self._call_context.get('verify_ssl', None))
             if resp.status_code == 429:
                 resp.raise_for_status()  # Will raise requests.exceptions.HTTPError

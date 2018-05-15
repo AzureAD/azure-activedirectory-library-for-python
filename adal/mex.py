@@ -79,7 +79,8 @@ class Mex(object):
         try:
             operation = "Mex Get"
             resp = requests.get(self._url, headers=options['headers'],
-                                verify=self._call_context.get('verify_ssl', None))
+                                verify=self._call_context.get('verify_ssl', None),
+                                proxies=self._call_context.get('proxies', None))
             util.log_return_correlation_id(self._log, operation, resp)
         except Exception:
             self._log.exception(

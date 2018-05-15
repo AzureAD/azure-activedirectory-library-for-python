@@ -81,16 +81,29 @@ class TestAuthorizationCode(unittest.TestCase):
     @httpretty.activate
     def test_happy_path(self):
         response = util.create_response()
-
         self.setup_expected_auth_code_token_request_response(200, response['wireResponse'])
 
         context = adal.AuthenticationContext(cp['authUrl'])
+
+        # action
         token_response = context.acquire_token_with_authorization_code(self.authorization_code, self.redirect_uri, response['resource'], cp['clientId'], cp['clientSecret'])
 
+        # assert
+
+        # the caching layer adds a few extra fields, let us pop them out for easier verification
+        for k in ['_clientId', '_authority', 'resource']:
+            token_response.pop(k, None)
         self.assertTrue(util.is_match_token_response(response['decodedResponse'], token_response), 'The response did not match what was expected')
 
+        # verify a request on the wire was made
         req = httpretty.last_request()
         util.match_standard_request_headers(req)
+
+        # verify the same token entry was cached
+        cached_items = list(context.cache.read_items())
+        self.assertTrue(len(cached_items) == 1)
+        _, cached_entry = cached_items[0]
+        self.assertEqual(cached_entry, token_response)
 
     def test_failed_http_request(self):
         with self.assertRaises(Exception):

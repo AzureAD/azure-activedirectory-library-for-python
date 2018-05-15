@@ -264,6 +264,7 @@ class OAuth2Client(object):
                                  data=url_encoded_token_request, 
                                  headers=post_options['headers'],
                                  verify=self._call_context.get('verify_ssl', None),
+                                 proxies=self._call_context.get('proxies', None),
                                  timeout=self._call_context.get('timeout', None))
 
             util.log_return_correlation_id(self._log, operation, resp)
@@ -298,6 +299,7 @@ class OAuth2Client(object):
                                  data=url_encoded_code_request, 
                                  headers=post_options['headers'],
                                  verify=self._call_context.get('verify_ssl', None),
+                                 proxies=self._call_context.get('proxies', None),
                                  timeout=self._call_context.get('timeout', None))
             util.log_return_correlation_id(self._log, operation, resp)
         except Exception:
@@ -305,7 +307,9 @@ class OAuth2Client(object):
             raise
 
         if util.is_http_success(resp.status_code):
-            return self._handle_get_device_code_response(resp.text)
+            user_code_info = self._handle_get_device_code_response(resp.text)
+            user_code_info['correlation_id'] = resp.headers.get('client-request-id')
+            return user_code_info
         else:
             if resp.status_code == 429:
                 resp.raise_for_status()  # Will raise requests.exceptions.HTTPError
@@ -337,6 +341,7 @@ class OAuth2Client(object):
             resp = requests.post(
                 token_url.geturl(), 
                 data=url_encoded_code_request, headers=post_options['headers'],
+                proxies=self._call_context.get('proxies', None),
                 verify=self._call_context.get('verify_ssl', None))
             if resp.status_code == 429:
                 resp.raise_for_status()  # Will raise requests.exceptions.HTTPError

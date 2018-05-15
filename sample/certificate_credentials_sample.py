@@ -25,6 +25,10 @@ def get_private_key(filename):
 # specifying in an environment variable of ADAL_SAMPLE_PARAMETERS_FILE.
 # privateKeyFile must contain a PEM encoded cert with private key.
 # thumbprint must be the thumbprint of the privateKeyFile.
+#
+# The information inside such file can be obtained via app registration.
+# See https://github.com/AzureAD/azure-activedirectory-library-for-python/wiki/Register-your-application-with-Azure-Active-Directory
+#
 # {
 #   "resource": "your_resource",
 #   "tenant" : "naturalcauses.onmicrosoft.com",

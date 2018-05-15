@@ -147,6 +147,7 @@ class WSTrustRequest(object):
         resp = requests.post(self._wstrust_endpoint_url, headers=options['headers'], data=rst,
                              allow_redirects=True,
                              verify=self._call_context.get('verify_ssl', None),
+                             proxies=self._call_context.get('proxies', None),
                              timeout=self._call_context.get('timeout', None))
 
         util.log_return_correlation_id(self._log, operation, resp)

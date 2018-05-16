@@ -42,6 +42,7 @@ class OAuth2Parameters(object):
     REDIRECT_URI = 'redirect_uri'
     RESOURCE = 'resource'
     CODE = 'code'
+    CODE_VERIFIER = 'code_verifier'
     SCOPE = 'scope'
     ASSERTION = 'assertion'
     AAD_API_VERSION = 'api-version'

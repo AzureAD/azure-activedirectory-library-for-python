@@ -316,13 +316,16 @@ class TokenRequest(object):
         self._cache_driver.add(token)
         return token
 
-    def get_token_with_authorization_code(self, authorization_code, client_secret):
+    def get_token_with_authorization_code(self, authorization_code, client_secret, code_verifier):
 
         self._log.info("Getting token with auth code.")
 
         oauth_parameters = self._create_oauth_parameters(OAUTH2_GRANT_TYPE.AUTHORIZATION_CODE)
         oauth_parameters[OAUTH2_PARAMETERS.CODE] = authorization_code
-        oauth_parameters[OAUTH2_PARAMETERS.CLIENT_SECRET] = client_secret
+        if client_secret is not None:
+            oauth_parameters[OAUTH2_PARAMETERS.CLIENT_SECRET] = client_secret
+        if code_verifier is not None:
+            oauth_parameters[OAUTH2_PARAMETERS.CODE_VERIFIER] = code_verifier
 
         return self._oauth_get_token(oauth_parameters)
 

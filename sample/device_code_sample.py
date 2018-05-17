@@ -18,11 +18,15 @@ def turn_on_logging():
 # with the same parameters as the sampleParameters variable below.  Either
 # through a command line argument, 'python sample.py parameters.json', or
 # specifying in an environment variable of ADAL_SAMPLE_PARAMETERS_FILE.
+#
+# The information inside such file can be obtained via app registration.
+# See https://github.com/AzureAD/azure-activedirectory-library-for-python/wiki/Register-your-application-with-Azure-Active-Directory
+#
 # {
 #    "resource": "your_resource",
 #    "tenant" : "rrandallaad1.onmicrosoft.com",
 #    "authorityHostUrl" : "https://login.microsoftonline.com",
-#    "clientid" : "",
+#    "clientId" : "624ac9bd-4c1c-4687-aec8-b56a8991cfb3",
 #    "anothertenant" : "bar.onmicrosoft.com"
 # }
 
@@ -39,7 +43,7 @@ else:
 
 authority_host_url = sample_parameters['authorityHostUrl']
 authority_url = authority_host_url + '/' + sample_parameters['tenant']
-clientid = sample_parameters['clientid']
+clientid = sample_parameters['clientId']
 GRAPH_RESOURCE = '00000002-0000-0000-c000-000000000000'
 RESOURCE = sample_parameters.get('resource', GRAPH_RESOURCE)
 

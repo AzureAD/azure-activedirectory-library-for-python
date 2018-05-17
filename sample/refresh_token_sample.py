@@ -17,11 +17,15 @@ def turn_on_logging():
 # You can override the account information by using a JSON file. Either
 # through a command line argument, 'python sample.py parameters.json', or
 # specifying in an environment variable of ADAL_SAMPLE_PARAMETERS_FILE.
+#
+# The information inside such file can be obtained via app registration.
+# See https://github.com/AzureAD/azure-activedirectory-library-for-python/wiki/Register-your-application-with-Azure-Active-Directory
+#
 # {
 #   "resource": "your_resource",
 #   "tenant" : "rrandallaad1.onmicrosoft.com",
 #   "authorityHostUrl" : "https://login.microsoftonline.com",
-#   "clientid" : "624ac9bd-4c1c-4687-aec8-b56a8991cfb3",
+#   "clientId" : "624ac9bd-4c1c-4687-aec8-b56a8991cfb3",
 #   "username" : "user1",
 #   "password" : "verySecurePassword"
 # }
@@ -53,7 +57,7 @@ token = context.acquire_token_with_username_password(
     RESOURCE,
     sample_parameters['username'],
     sample_parameters['password'],
-    sample_parameters['clientid'])
+    sample_parameters['clientId'])
 
 print('Here is the token')
 print(json.dumps(token, indent=2))
@@ -61,7 +65,7 @@ print(json.dumps(token, indent=2))
 refresh_token = token['refreshToken']
 token = context.acquire_token_with_refresh_token(
     refresh_token,
-    sample_parameters['clientid'],
+    sample_parameters['clientId'],
     RESOURCE,
     # client_secret="your_secret"  # This is needed when using Confidential Client,
                                    # otherwise you will encounter an invalid_client error.

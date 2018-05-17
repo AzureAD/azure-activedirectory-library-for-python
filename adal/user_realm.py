@@ -143,6 +143,7 @@ class UserRealm(object):
 
         operation = 'User Realm Discovery'
         resp = requests.get(user_realm_url.geturl(), headers=options['headers'],
+                            proxies=self._call_context.get('proxies', None),
                             verify=self._call_context.get('verify_ssl', None))
         util.log_return_correlation_id(self._log, operation, resp)
 

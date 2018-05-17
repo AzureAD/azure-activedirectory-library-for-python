@@ -26,6 +26,10 @@ from adal import AuthenticationContext
 # You can provide account information by using a JSON file. Either
 # through a command line argument, 'python sample.py parameters.json', or
 # specifying in an environment variable of ADAL_SAMPLE_PARAMETERS_FILE.
+#
+# The information inside such file can be obtained via app registration.
+# See https://github.com/AzureAD/azure-activedirectory-library-for-python/wiki/Register-your-application-with-Azure-Active-Directory
+#
 # {
 #    "resource": "your_resource",
 #    "tenant" : "rrandallaad1.onmicrosoft.com",

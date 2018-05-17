@@ -316,7 +316,7 @@ class TokenRequest(object):
         self._cache_driver.add(token)
         return token
 
-    def get_token_with_authorization_code(self, authorization_code, client_secret, code_verifier):
+    def get_token_with_authorization_code(self, authorization_code, client_secret):
 
         self._log.info("Getting token with auth code.")
 
@@ -324,9 +324,6 @@ class TokenRequest(object):
         oauth_parameters[OAUTH2_PARAMETERS.CODE] = authorization_code
         if client_secret is not None:
             oauth_parameters[OAUTH2_PARAMETERS.CLIENT_SECRET] = client_secret
-        if code_verifier is not None:
-            oauth_parameters[OAUTH2_PARAMETERS.CODE_VERIFIER] = code_verifier
-
         return self._oauth_get_token(oauth_parameters)
 
     def _get_token_with_refresh_token(self, refresh_token, resource, client_secret):

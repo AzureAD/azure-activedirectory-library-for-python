@@ -169,7 +169,7 @@ class AuthenticationContext(object):
 
     def acquire_token_with_authorization_code(self, authorization_code, 
                                               redirect_uri, resource, 
-                                              client_id, client_secret=None, code_verifier=None):
+                                              client_id, client_secret=None):
         '''Gets a token for a given resource via auhtorization code for a
         server app.
         
@@ -197,7 +197,7 @@ class AuthenticationContext(object):
                 redirect_uri)
             return token_request.get_token_with_authorization_code(
                 authorization_code, 
-                client_secret, code_verifier)
+                client_secret)
 
         return self._acquire_token(token_func)
 

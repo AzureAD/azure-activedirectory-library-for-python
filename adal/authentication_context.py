@@ -179,7 +179,7 @@ class AuthenticationContext(object):
 
     def acquire_token_with_authorization_code(self, authorization_code, 
                                               redirect_uri, resource, 
-                                              client_id, client_secret):
+                                              client_id, client_secret=None):
         '''Gets a token for a given resource via auhtorization code for a
         server app.
         
@@ -190,8 +190,9 @@ class AuthenticationContext(object):
         :param str resource: A URI that identifies the resource for which the
             token is valid.
         :param str client_id: The OAuth client id of the calling application.
-        :param str client_secret: The OAuth client secret of the calling
-            application.
+        :param str client_secret: (only for confidential clients)The OAuth
+            client secret of the calling application. This parameter if not set,
+            defaults to None
         :returns: dict with several keys, include "accessToken" and
             "refreshToken".
         '''

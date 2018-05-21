@@ -194,8 +194,8 @@ class AuthenticationContext(object):
             client secret of the calling application. This parameter if not set,
             defaults to None
         :param str code_verifier: (optional)The code verifier that was used to
-           obtain authorization code if PKCE was used in the authorization
-           code grant request.(usually used by public clients) This parameter if not set,
+            obtain authorization code if PKCE was used in the authorization
+            code grant request.(usually used by public clients) This parameter if not set,
             defaults to None
         :returns: dict with several keys, include "accessToken" and
             "refreshToken".

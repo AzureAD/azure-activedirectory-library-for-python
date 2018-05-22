@@ -61,7 +61,7 @@ class Authority(object):
     @property
     def url(self):
         return "https://{}/{}".format(self._host,
-                                 self._tenant)
+                                      self._tenant)
 
     def _validate_authority_url(self):
 
@@ -156,11 +156,11 @@ class Authority(object):
 
         if (not self.token_endpoint) or (not self.device_code_endpoint):
             self.token_endpoint = "https://{}/{}{}".format(self._host,
-                                        self._tenant,
-                                        AADConstants.TOKEN_ENDPOINT_PATH)
+                                                           self._tenant,
+                                                           AADConstants.TOKEN_ENDPOINT_PATH)
             self.device_code_endpoint = "https://{}/{}{}".format(self._host,
-                                        self._tenant,
-                                        AADConstants.DEVICE_ENDPOINT_PATH)
+                                                                 self._tenant,
+                                                                 AADConstants.DEVICE_ENDPOINT_PATH)
 
     def validate(self, call_context):
 

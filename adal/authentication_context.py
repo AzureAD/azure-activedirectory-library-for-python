@@ -56,7 +56,8 @@ class AuthenticationContext(object):
         This behavior can be turned off via the validate_authority parameter
         below.
 
-        :param str authority: A URL that identifies a token authority.
+        :param str authority: A URL that identifies a token authority. It should be of the
+            format https://login.microsoftonline.com/your_tenant
         :param bool validate_authority: (optional) Turns authority validation 
             on or off. This parameter default to true.
         :param TokenCache cache: (optional) Sets the token cache used by this 

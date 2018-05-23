@@ -60,8 +60,7 @@ class Authority(object):
 
     @property
     def url(self):
-        return "https://{}/{}".format(self._host,
-                                      self._tenant)
+        return self._url.geturl()
 
     def _validate_authority_url(self):
 
@@ -70,6 +69,9 @@ class Authority(object):
 
         if self._url.query:
             raise ValueError("The authority url must not have a query string.")
+
+        if self._url.path.count('/') > 1:
+            raise ValueError("The authority url must be of the format https://login.microsoftonline.com/your_tenant")
 
     def _parse_authority(self):
         self._host = self._url.hostname
@@ -155,12 +157,8 @@ class Authority(object):
     def _get_oauth_endpoints(self):
 
         if (not self.token_endpoint) or (not self.device_code_endpoint):
-            self.token_endpoint = "https://{}/{}{}".format(self._host,
-                                                           self._tenant,
-                                                           AADConstants.TOKEN_ENDPOINT_PATH)
-            self.device_code_endpoint = "https://{}/{}{}".format(self._host,
-                                                                 self._tenant,
-                                                                 AADConstants.DEVICE_ENDPOINT_PATH)
+            self.token_endpoint = self._url.geturl() + AADConstants.TOKEN_ENDPOINT_PATH
+            self.device_code_endpoint = self._url.geturl() + AADConstants.DEVICE_ENDPOINT_PATH
 
     def validate(self, call_context):
 

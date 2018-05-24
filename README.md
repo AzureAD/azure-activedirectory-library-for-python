@@ -1,6 +1,9 @@
 # Microsoft Azure Active Directory Authentication Library (ADAL) for Python
 =====================================
 
+[![Build Status](https://travis-ci.org/AzureAD/azure-activedirectory-library-for-python.svg?branch=dev)](https://travis-ci.org/AzureAD/azure-activedirectory-library-for-python)
+[![Documentation Status](https://readthedocs.org/projects/adal-python/badge/?version=latest)](https://adal-python.readthedocs.io/en/latest/?badge=latest)
+
 |[Getting Started](https://github.com/AzureAD/azure-activedirectory-library-for-python/wiki)| [Docs](https://aka.ms/aaddev)| [Samples](https://github.com/azure-samples?query=active-directory)| [Support](README.md#community-help-and-support)
 | --- | --- | --- | --- |
 

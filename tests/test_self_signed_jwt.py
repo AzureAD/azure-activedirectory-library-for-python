@@ -54,7 +54,7 @@ class TestSelfSignedJwt(unittest.TestCase):
     testJwtId = cp['jwtId']
     expectedJwt = cp['expectedJwt']
     unexpectedJwt = 'unexpectedJwt'
-    testAuthority = Authority('https://login.windows.net/naturalcauses.com/oauth2/token', False)
+    testAuthority = Authority('https://login.windows.net/naturalcauses.com', False)
     testClientId = 'd6835713-b745-48d1-bb62-7a8248477d35'
     testCert = cp['cert']
 

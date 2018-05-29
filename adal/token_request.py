@@ -335,7 +335,6 @@ class TokenRequest(object):
         self._cache_driver.add(token)
         return token
 
-
     def _get_token_with_refresh_token(self, refresh_token, resource, client_secret):
 
         self._log.info("Getting a new token from a refresh token")

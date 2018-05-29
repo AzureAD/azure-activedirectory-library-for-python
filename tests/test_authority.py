@@ -182,20 +182,10 @@ class TestAuthority(unittest.TestCase):
 
     @httpretty.activate
     def test_url_extra_path_elements(self):
-        util.setup_expected_instance_discovery_request(200,
-            cp['authorityHosts']['global'],
-            {
-                'tenant_discovery_endpoint' : 'http://foobar'
-            },
-            self.nonHardCodedAuthorizeEndpoint)
+        with six.assertRaisesRegex(self, ValueError, "The authority url must be of the format "+
+                                                     "https://login.microsoftonline.com/your_tenant"):
+            context = AuthenticationContext(self.nonHardCodedAuthority + '/extra/path')
 
-        authority_url = self.nonHardCodedAuthority + '/extra/path'
-        authority = Authority(authority_url, True)
-        obj = util.create_empty_adal_object()
-
-        authority.validate(obj['call_context'])
-        req = httpretty.last_request()
-        util.match_standard_request_headers(req)
 
 if __name__ == '__main__':
     unittest.main()

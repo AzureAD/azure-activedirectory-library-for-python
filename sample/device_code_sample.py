@@ -51,7 +51,7 @@ RESOURCE = sample_parameters.get('resource', GRAPH_RESOURCE)
 #turn_on_logging()
 
 ### Main logic begins
-context = adal.AuthenticationContext(authority_url, api_version=None)
+context = adal.AuthenticationContext(authority_url)
 code = context.acquire_user_code(RESOURCE, clientid)
 print(code['message'])
 token = context.acquire_token_with_device_code(RESOURCE, code, clientid)

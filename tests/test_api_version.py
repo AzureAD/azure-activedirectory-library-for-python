@@ -45,7 +45,8 @@ class TestAuthenticationContextApiVersionBehavior(unittest.TestCase):
             warnings.simplefilter("always")
             context = adal.AuthenticationContext(
                 "https://login.windows.net/tenant")
-            self.assertEqual(context._call_context['api_version'], '1.0')
+            self.assertEqual(context._call_context['api_version'], None)
+            self.assertEqual(len(caught_warnings), 0)
             if len(caught_warnings) == 1:
                 # It should be len(caught_warnings)==1, but somehow it works on
                 # all my local test environment but not on Travis-CI.

@@ -57,7 +57,7 @@ RESOURCE = sample_parameters.get('resource', GRAPH_RESOURCE)
 turn_on_logging()
 
 ### Main logic begins
-context = adal.AuthenticationContext(authority_url, api_version=None)
+context = adal.AuthenticationContext(authority_url)
 key = get_private_key(sample_parameters['privateKeyFile'])
 
 token = context.acquire_token_with_client_certificate(

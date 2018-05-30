@@ -47,7 +47,7 @@ class AuthenticationContext(object):
 
     def __init__(
             self, authority, validate_authority=None, cache=None,
-            api_version='1.0', timeout=None, enable_pii=False, verify_ssl=None, proxies=None):
+            api_version=None, timeout=None, enable_pii=False, verify_ssl=None, proxies=None):
         '''Creates a new AuthenticationContext object.
 
         By default the authority will be checked against a list of known Azure
@@ -68,9 +68,9 @@ class AuthenticationContext(object):
             AuthenticationContexts.
         :param api_version: (optional) Specifies API version using on the wire.
             Historically it has a hardcoded default value as "1.0".
-            Developers are now encouraged to set it as None explicitly,
+            Developers have been encouraged to set it as None explicitly,
             which means the underlying API version will be automatically chosen.
-            In next major release, this default value will be changed to None.
+            Starting from ADAL Python 1.0, this default value becomes None.
         :param timeout: (optional) requests timeout. How long to wait for the server to send
             data before giving up, as a float, or a `(connect timeout,
             read timeout) <timeouts>` tuple.

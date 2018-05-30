@@ -51,7 +51,7 @@ RESOURCE = sample_parameters.get('resource', GRAPH_RESOURCE)
 ### Main logic begins
 context = adal.AuthenticationContext(
     authority_url, validate_authority=sample_parameters['tenant'] != 'adfs',
-    api_version=None)
+    )
 
 token = context.acquire_token_with_username_password(
     RESOURCE,

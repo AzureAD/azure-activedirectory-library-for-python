@@ -374,7 +374,7 @@ def val_exists(val):
 def match_standard_request_headers(mock_request):
     matches = []
     matches.append(mock_request.headers.get('x-client-SKU', None) == 'Python')
-    matches.append(mock_request.headers.get('x-client-Ver', "").startswith('0.'))
+    assert mock_request.headers.get('x-client-Ver') is not None
     matches.append(mock_request.headers.get('x-client-OS', None) != None)
     matches.append(mock_request.headers.get('x-client-CPU', None) != None)
     request_id = correlation_id_regex.match(mock_request.headers.get('client-request-id'))

@@ -25,18 +25,9 @@ The documents on [Auth Scenarios](https://docs.microsoft.com/en-us/azure/active-
 
 ## Versions
 
-This library follows Semantic Versioning.
-You can find the changes for each version under [Releases](https://github.com/AzureAD/azure-activedirectory-library-for-python/releases).
+This library follows [Semantic Versioning](http://semver.org/).
 
-> Note: Changes on 'client_id' and 'resource' arguments after 0.1.0
->
->The convenient methods in 0.1.0 have been removed, and now your application should provide parameter values to `client_id` and `resource`.
->
->2 Reasons:
->
->* Each adal client should have an Application ID representing a valid application registered in a tenant. The old methods borrowed the client-id of [azure-cli](https://github.com/Azure/azure-xplat-cli), which is never right. It is simple to register your application and get a client id. You can follow [this article](https://docs.microsoft.com/en-us/azure/active-directory/develop/active-directory-integrating-applications).
->
->* The old method defaults the `resource` argument to 'https://management.core.windows.net/', now you can just supply this value explictly. Please note, there are lots of different azure resources you can acquire tokens through adal though, for example, the samples in the repository acquire for the 'graph' resource. Because it is not an appropriate assumption to be made at the library level, we removed the old defaults.
+You can find the changes for each version under [Releases](https://github.com/AzureAD/azure-activedirectory-library-for-python/releases).
 
 ## Community Help and Support
 

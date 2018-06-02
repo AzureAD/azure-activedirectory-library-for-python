@@ -32,7 +32,6 @@ except ImportError:
     from urlparse import urlparse # pylint: disable=import-error,ungrouped-imports
 
 import requests
-import re
 from .constants import AADConstants
 from .adal_error import AdalError
 from . import log

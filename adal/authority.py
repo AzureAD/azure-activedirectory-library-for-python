@@ -32,7 +32,7 @@ except ImportError:
     from urlparse import urlparse # pylint: disable=import-error,ungrouped-imports
 
 import requests
-
+import re
 from .constants import AADConstants
 from .adal_error import AdalError
 from . import log
@@ -70,8 +70,11 @@ class Authority(object):
         if self._url.query:
             raise ValueError("The authority url must not have a query string.")
 
-        if self._url.path.count('/') > 1:
+        path_parts = list(filter(None, self._url.path.split('/')))
+        if len(path_parts)>1:
             raise ValueError("The authority url must be of the format https://login.microsoftonline.com/your_tenant")
+        elif len(path_parts)==1:
+            self._url = urlparse(self._url.geturl().rstrip('/'))
 
     def _parse_authority(self):
         self._host = self._url.hostname

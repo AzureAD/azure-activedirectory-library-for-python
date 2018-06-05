@@ -32,6 +32,7 @@ except ImportError:
     from urlparse import urlparse # pylint: disable=import-error,ungrouped-imports
 
 import requests
+
 from .constants import AADConstants
 from .adal_error import AdalError
 from . import log
@@ -97,16 +98,16 @@ class Authority(object):
         return True
 
     def _create_authority_url(self):
-        return "https://{}/{}{}".format(self._url.hostname,
-                                        self._tenant,
+        return "https://{}/{}{}".format(self._url.hostname, 
+                                        self._tenant, 
                                         AADConstants.AUTHORIZE_ENDPOINT_PATH)
 
     def _create_instance_discovery_endpoint_from_template(self, authority_host):
 
         discovery_endpoint = AADConstants.INSTANCE_DISCOVERY_ENDPOINT_TEMPLATE
         discovery_endpoint = discovery_endpoint.replace('{authorize_host}', authority_host)
-        discovery_endpoint = discovery_endpoint.replace('{authorize_endpoint}',
-                                                        quote(self._create_authority_url(),
+        discovery_endpoint = discovery_endpoint.replace('{authorize_endpoint}', 
+                                                        quote(self._create_authority_url(), 
                                                               safe='~()*!.\''))
         return urlparse(discovery_endpoint)
 

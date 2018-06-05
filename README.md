@@ -1,5 +1,4 @@
 # Microsoft Azure Active Directory Authentication Library (ADAL) for Python
-=====================================
 
  `master` branch    | `dev` branch    | Reference Docs
 --------------------|-----------------|---------------
@@ -13,30 +12,22 @@ The ADAL for Python library enables python applications to authenticate with Azu
 
 You can learn in detail about ADAL Python functionality and usage documented in the [Wiki](https://github.com/AzureAD/azure-activedirectory-library-for-python/wiki).
 
-## Versions
-Current version - 0.6.0
+## Installation and Usage
 
-Minimum recommended version - 0.6.0
-
-You can find the changes for each version under [Releases](https://github.com/AzureAD/azure-activedirectory-library-for-python/releases).
-
-> Note: Changes on 'client_id' and 'resource' arguments after 0.1.0
->
->The convenient methods in 0.1.0 have been removed, and now your application should provide parameter values to `client_id` and `resource`.
->
->2 Reasons:
->
->* Each adal client should have an Application ID representing a valid application registered in a tenant. The old methods borrowed the client-id of [azure-cli](https://github.com/Azure/azure-xplat-cli), which is never right. It is simple to register your application and get a client id. You can follow [this article](https://docs.microsoft.com/en-us/azure/active-directory/develop/active-directory-integrating-applications).
->
->* The old method defaults the `resource` argument to 'https://management.core.windows.net/', now you can just supply this value explictly. Please note, there are lots of different azure resources you can acquire tokens through adal though, for example, the samples in the repository acquire for the 'graph' resource. Because it is not an appropriate assumption to be made at the library level, we removed the old defaults.
-
+You can find the steps to install and basic usage of the library under [ADAL Basics](https://github.com/AzureAD/azure-activedirectory-library-for-python/wiki/ADAL-basics) page in the Wiki.
 
 ## Samples and Documentation
 We provide a full suite of [sample applications on GitHub](https://github.com/azure-samples?utf8=%E2%9C%93&q=active-directory&type=&language=) to help you get started with learning the Azure Identity system. This includes tutorials for native clients and web applications. We also provide full walkthroughs for authentication flows such as OAuth2, OpenID Connect and for calling APIs such as the Graph API.
 
-You can find the relevant samples by scenarios listed in this [document](https://docs.microsoft.com/en-us/azure/active-directory/develop/active-directory-code-samples) as well as [inside this library repo](https://github.com/AzureAD/azure-activedirectory-library-for-python/tree/dev/sample).
+You can find the relevant samples by scenarios listed in this [wiki page for acquiring tokens using ADAL Python](https://github.com/AzureAD/azure-activedirectory-library-for-python/wiki/Acquire-tokens#adal-python-apis-for-corresponding-flows).
 
 The documents on [Auth Scenarios](https://docs.microsoft.com/en-us/azure/active-directory/develop/active-directory-authentication-scenarios#application-types-and-scenarios) and [Auth protocols](https://docs.microsoft.com/en-us/azure/active-directory/develop/active-directory-protocols-openid-connect-code) are recommended reading.
+
+## Versions
+
+This library follows [Semantic Versioning](http://semver.org/).
+
+You can find the changes for each version under [Releases](https://github.com/AzureAD/azure-activedirectory-library-for-python/releases).
 
 ## Community Help and Support
 

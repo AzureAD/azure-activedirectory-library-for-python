@@ -1,4 +1,4 @@
-﻿# ------------------------------------------------------------------------------
+﻿#------------------------------------------------------------------------------
 #
 # Copyright (c) Microsoft Corporation. 
 # All rights reserved.
@@ -23,20 +23,19 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 #
-# ------------------------------------------------------------------------------
+#------------------------------------------------------------------------------
 
 try:
     from urllib.parse import quote, urlparse
 except ImportError:
-    from urllib import quote  # pylint: disable=no-name-in-module
-    from urlparse import urlparse  # pylint: disable=import-error,ungrouped-imports
+    from urllib import quote # pylint: disable=no-name-in-module
+    from urlparse import urlparse # pylint: disable=import-error,ungrouped-imports
 
 import requests
 from .constants import AADConstants
 from .adal_error import AdalError
 from . import log
 from . import util
-
 
 class Authority(object):
 
@@ -71,7 +70,6 @@ class Authority(object):
             raise ValueError("The authority url must not have a query string.")
 
         path_parts = [part for part in self._url.path.split('/') if part]
-
         if len(path_parts) > 1:
             raise ValueError("The authority url must be of the format https://login.microsoftonline.com/your_tenant")
         elif len(path_parts) == 1:
@@ -133,7 +131,7 @@ class Authority(object):
         if resp.status_code == 429:
             resp.raise_for_status()  # Will raise requests.exceptions.HTTPError
         if not util.is_http_success(resp.status_code):
-            return_error_string = u"{} request returned http error: {}".format(operation,
+            return_error_string = u"{} request returned http error: {}".format(operation, 
                                                                                resp.status_code)
             error_response = ""
             if resp.text:

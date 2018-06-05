@@ -186,6 +186,28 @@ class TestAuthority(unittest.TestCase):
                                                      "https://login.microsoftonline.com/your_tenant"):
             context = AuthenticationContext(self.nonHardCodedAuthority + '/extra/path')
 
+    @httpretty.activate
+    def test_url_extra_slashes(self):
+        util.setup_expected_instance_discovery_request(200,
+                                                       cp['authorityHosts']['global'],
+                                                       {
+                                                           'tenant_discovery_endpoint': 'http://foobar'
+                                                       },
+                                                       self.nonHardCodedAuthorizeEndpoint)
+
+        authority_url = self.nonHardCodedAuthority + '//'
+        authority = Authority(authority_url, True)
+        obj = util.create_empty_adal_object()
+        authority.validate(obj['call_context'])
+        req = httpretty.last_request()
+        util.match_standard_request_headers(req)
+
+    @httpretty.activate
+    def test_url_extra_slashes_change_authority_url(self):
+        authority_url = self.nonHardCodedAuthority + '//'
+        authority = Authority(authority_url, True)
+        self.assertTrue(authority._url.geturl(), self.nonHardCodedAuthority)
+
 
 if __name__ == '__main__':
     unittest.main()

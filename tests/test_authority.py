@@ -195,7 +195,7 @@ class TestAuthority(unittest.TestCase):
                                                        },
                                                        self.nonHardCodedAuthorizeEndpoint)
 
-        authority_url = self.nonHardCodedAuthority + '/'
+        authority_url = self.nonHardCodedAuthority + '/'  # This should pass for one or more than one slashes
         authority = Authority(authority_url, True)
         obj = util.create_empty_adal_object()
         authority.validate(obj['call_context'])
@@ -204,7 +204,7 @@ class TestAuthority(unittest.TestCase):
 
     @httpretty.activate
     def test_url_extra_slashes_change_authority_url(self):
-        authority_url = self.nonHardCodedAuthority + '/'
+        authority_url = self.nonHardCodedAuthority + '/'  # This should pass for one or more than one slashes
         authority = Authority(authority_url, True)
         self.assertTrue(authority._url.geturl(), self.nonHardCodedAuthority)
 

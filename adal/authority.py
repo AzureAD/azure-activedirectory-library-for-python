@@ -70,8 +70,11 @@ class Authority(object):
         if self._url.query:
             raise ValueError("The authority url must not have a query string.")
 
-        if self._url.path.count('/') > 1:
+        path_parts = [part for part in self._url.path.split('/') if part]
+        if len(path_parts) > 1:
             raise ValueError("The authority url must be of the format https://login.microsoftonline.com/your_tenant")
+        elif len(path_parts) == 1:
+            self._url = urlparse(self._url.geturl().rstrip('/'))
 
     def _parse_authority(self):
         self._host = self._url.hostname

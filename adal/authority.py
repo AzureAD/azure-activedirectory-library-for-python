@@ -71,7 +71,7 @@ class Authority(object):
             raise ValueError("The authority url must not have a query string.")
 
         path_parts = [part for part in self._url.path.split('/') if part]
-        if len(path_parts) > 1:
+        if len(path_parts) > 2:
             raise ValueError("The authority url must be of the format https://login.microsoftonline.com/your_tenant")
         elif len(path_parts) == 1:
             self._url = urlparse(self._url.geturl().rstrip('/'))
@@ -88,7 +88,10 @@ class Authority(object):
     def _perform_static_instance_discovery(self):
 
         self._log.debug("Performing static instance discovery")
-
+        for domains in AADConstants.WHITELISTED_DOMAINS :
+            if self._url.hostname.endswith(domains) :
+                self._log.debug("Authority validated via static instance discovery")
+                return True
         try:
             AADConstants.WELL_KNOWN_AUTHORITY_HOSTS.index(self._url.hostname)
         except ValueError:
@@ -113,12 +116,11 @@ class Authority(object):
 
     def _perform_dynamic_instance_discovery(self):
         discovery_endpoint = self._create_instance_discovery_endpoint_from_template(
-            AADConstants.WORLD_WIDE_AUTHORITY)
+            self.authority_url)
         get_options = util.create_request_options(self)
         operation = "Instance Discovery"
         self._log.debug("Attempting instance discover at: %(discovery_endpoint)s",
                         {"discovery_endpoint": discovery_endpoint.geturl()})
-
         try:
             resp = requests.get(discovery_endpoint.geturl(), headers=get_options['headers'],
                                 verify=self._call_context.get('verify_ssl', None),

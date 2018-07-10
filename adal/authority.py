@@ -117,7 +117,7 @@ class Authority(object):
 
     def _perform_dynamic_instance_discovery(self):
         discovery_endpoint = self._create_instance_discovery_endpoint_from_template(
-            self.authority_url)
+            AADConstants.WORLD_WIDE_AUTHORITY)
         get_options = util.create_request_options(self)
         operation = "Instance Discovery"
         self._log.debug("Attempting instance discover at: %(discovery_endpoint)s",

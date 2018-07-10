@@ -88,6 +88,7 @@ class Authority(object):
     def _perform_static_instance_discovery(self):
 
         self._log.debug("Performing static instance discovery")
+        
         for domains in AADConstants.WHITELISTED_DOMAINS :
             if self._url.hostname.endswith(domains) :
                 self._log.debug("Authority validated via static instance discovery")
@@ -121,6 +122,7 @@ class Authority(object):
         operation = "Instance Discovery"
         self._log.debug("Attempting instance discover at: %(discovery_endpoint)s",
                         {"discovery_endpoint": discovery_endpoint.geturl()})
+                        	
         try:
             resp = requests.get(discovery_endpoint.geturl(), headers=get_options['headers'],
                                 verify=self._call_context.get('verify_ssl', None),

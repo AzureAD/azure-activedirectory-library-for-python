@@ -216,6 +216,7 @@ class AADConstants(object):
         'login.microsoftonline.de',
         ]
     WHITELISTED_DOMAINS = [
+    		#add dsts domains to whitelist
         'dsts.core.windows.net',
         'dsts.core.chinacloudapi.cn',  
         'dsts.core.cloudapi.de', 

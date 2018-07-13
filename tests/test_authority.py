@@ -60,6 +60,7 @@ class TestAuthority(unittest.TestCase):
     # discovery.
     nonHardCodedAuthority = 'https://login.doesntexist.com/' + cp['tenant']
     nonHardCodedAuthorizeEndpoint = nonHardCodedAuthority + '/oauth2/authorize'
+    dstsTestEndpoint = 'https://test-dsts.core.azure-test.net/dstsv2/common'
 
 
     def setUp(self):
@@ -125,6 +126,11 @@ class TestAuthority(unittest.TestCase):
         self.performStaticInstanceDiscovery('login.windows.net')
         self.performStaticInstanceDiscovery('login.chinacloudapi.cn')
         self.performStaticInstanceDiscovery('login-us.microsoftonline.com')
+        self.performStaticInstanceDiscovery('test-dsts.dsts.core.windows.net')
+        self.performStaticInstanceDiscovery('test-dsts.dsts.core.chinacloudapi.cn')
+        self.performStaticInstanceDiscovery('test-dsts.dsts.core.cloudapi.de'
+        self.performStaticInstanceDiscovery('test-dsts.dsts.core.usgovcloudapi.net')
+        self.performStaticInstanceDiscovery('test-dsts.core.azure-test.net')
 
 
     @httpretty.activate
@@ -186,6 +192,10 @@ class TestAuthority(unittest.TestCase):
                                                      "https://login.microsoftonline.com/your_tenant"):
             context = AuthenticationContext(self.nonHardCodedAuthority + '/extra/path')
 
+		@httpretty.activate
+    def test_dsts_authority(self):
+				context = AuthenticationContext(self.dstsTestEndpoint)
+				
     @httpretty.activate
     def test_url_extra_slashes(self):
         util.setup_expected_instance_discovery_request(200,

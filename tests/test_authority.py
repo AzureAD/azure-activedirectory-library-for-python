@@ -194,7 +194,7 @@ class TestAuthority(unittest.TestCase):
 
     @httpretty.activate
     def test_dsts_authority(self):
-	    context = AuthenticationContext(self.dstsTestEndpoint)
+            context = AuthenticationContext(self.dstsTestEndpoint)
 				
     @httpretty.activate
     def test_url_extra_slashes(self):

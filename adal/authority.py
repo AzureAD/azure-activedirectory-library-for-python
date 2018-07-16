@@ -1,4 +1,4 @@
-﻿#------------------------------------------------------------------------------
+#------------------------------------------------------------------------------
 #
 # Copyright (c) Microsoft Corporation. 
 # All rights reserved.
@@ -96,8 +96,8 @@ class Authority(object):
         self._log.debug("Performing static instance discovery")
         
         if self._whitelisted(): # testing if self._url.hostname is a dsts whitelisted domain
-        		self._log.debug("Authority validated via static instance discovery")
-        		return True
+            self._log.debug("Authority validated via static instance discovery")
+            return True
         try:
             AADConstants.WELL_KNOWN_AUTHORITY_HOSTS.index(self._url.hostname)
         except ValueError:

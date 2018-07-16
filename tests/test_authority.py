@@ -1,4 +1,4 @@
-﻿#------------------------------------------------------------------------------
+#------------------------------------------------------------------------------
 #
 # Copyright (c) Microsoft Corporation. 
 # All rights reserved.
@@ -192,9 +192,9 @@ class TestAuthority(unittest.TestCase):
                                                      "https://login.microsoftonline.com/your_tenant"):
             context = AuthenticationContext(self.nonHardCodedAuthority + '/extra/path')
 
-		@httpretty.activate
+    @httpretty.activate
     def test_dsts_authority(self):
-				context = AuthenticationContext(self.dstsTestEndpoint)
+	    context = AuthenticationContext(self.dstsTestEndpoint)
 				
     @httpretty.activate
     def test_url_extra_slashes(self):

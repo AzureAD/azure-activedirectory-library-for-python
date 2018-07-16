@@ -63,8 +63,8 @@ class Authority(object):
         return self._url.geturl()
         
     def _whitelisted(self): # testing if self._url.hostname is a dsts whitelisted domain
-        for domain in AADConstants.WHITELISTED_DOMAINS :
-            if self._url.hostname.endswith(domain) :
+        for domain in AADConstants.WHITELISTED_DOMAINS:
+            if self._url.hostname.endswith(domain):
                 return True
         return False
 
@@ -77,7 +77,7 @@ class Authority(object):
             raise ValueError("The authority url must not have a query string.")
 
         path_parts = [part for part in self._url.path.split('/') if part]
-        if (len(path_parts) > 1) and (not self._whitelisted()) : #if dsts host, path_parts will be 2
+        if (len(path_parts) > 1) and (not self._whitelisted()): #if dsts host, path_parts will be 2
             raise ValueError("The authority url must be of the format https://login.microsoftonline.com/your_tenant")
         elif len(path_parts) == 1:
             self._url = urlparse(self._url.geturl().rstrip('/'))

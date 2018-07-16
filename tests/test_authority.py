@@ -128,7 +128,7 @@ class TestAuthority(unittest.TestCase):
         self.performStaticInstanceDiscovery('login-us.microsoftonline.com')
         self.performStaticInstanceDiscovery('test-dsts.dsts.core.windows.net')
         self.performStaticInstanceDiscovery('test-dsts.dsts.core.chinacloudapi.cn')
-        self.performStaticInstanceDiscovery('test-dsts.dsts.core.cloudapi.de'
+        self.performStaticInstanceDiscovery('test-dsts.dsts.core.cloudapi.de')
         self.performStaticInstanceDiscovery('test-dsts.dsts.core.usgovcloudapi.net')
         self.performStaticInstanceDiscovery('test-dsts.core.azure-test.net')
 

@@ -53,24 +53,33 @@ context = adal.AuthenticationContext(
     authority_url, validate_authority=sample_parameters['tenant'] != 'adfs',
     )
 
-token = context.acquire_token_with_username_password(
-    RESOURCE,
-    sample_parameters['username'],
-    sample_parameters['password'],
-    sample_parameters['clientId'])
 
-print('Here is the token')
-print(json.dumps(token, indent=2))
+def action1():
+    print("\nbasic_action – This indicates a simple action is required by the end user, like MFA. ")
 
-refresh_token = token['refreshToken']
-token = context.acquire_token_with_refresh_token(
-    refresh_token,
-    sample_parameters['clientId'],
-    RESOURCE,
-    # client_secret="your_secret"  # This is needed when using Confidential Client,
-                                   # otherwise you will encounter an invalid_client error.
-    )
-### Main logic ends
 
-print('Here is the token acquired from the refreshing token')
-print(json.dumps(token, indent=2))
+def action2():
+    print(
+        "\nThis indicates additional action is required that is in the user control, but is outside of the sign in session. For example, enroll in MDM or register install an app that uses Intune app protection.")
+
+
+def action3():
+    print(
+        "message_only – User will be shown an informational message with no immediate remediation steps. For example, access was blocked due to location or the device is not domain joined.")
+
+
+try:
+    token = context.acquire_token_with_username_password(
+        RESOURCE,
+        sample_parameters['username'],
+        sample_parameters['password'],
+        sample_parameters['clientId'])
+except Exception as e:
+    print("\nAction to be taken  : " + e.sub_error)
+
+    options = {"basic_action": action1,
+               "additional_action": action2,
+               "message_only": action3}
+    options[e.sub_error]()
+
+    print("\nLink to information about this action: " + e.remote_url)

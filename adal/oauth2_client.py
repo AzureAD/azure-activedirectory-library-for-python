@@ -43,7 +43,7 @@ import requests
 from . import log
 from . import util
 from .constants import OAuth2, TokenResponseFields, IdTokenFields
-from .adal_error import AdalError
+from .adal_error import AdalError,ServiceError
 
 TOKEN_RESPONSE_MAP = {
     OAuth2.ResponseParameters.TOKEN_TYPE : TokenResponseFields.TOKEN_TYPE,
@@ -286,6 +286,8 @@ class OAuth2Client(object):
                     error_response = resp.json()
                 except ValueError:
                     pass
+            if error_response.get('error') == 'interaction_required':
+                    raise ServiceError("https://aka.ms/CAinfo", error_response.get("suberror"))
             raise AdalError(return_error_string, error_response)
 
     def get_user_code_info(self, oauth_parameters):

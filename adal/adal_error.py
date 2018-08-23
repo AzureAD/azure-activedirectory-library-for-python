@@ -29,3 +29,9 @@ class AdalError(Exception):
     def __init__(self, error_msg, error_response=None):
         super(AdalError, self).__init__(error_msg)
         self.error_response = error_response
+
+
+class ServiceError(AdalError):
+    def __init__(self, remote_url, sub_error):
+        self.remote_url = remote_url
+        self.sub_error = sub_error

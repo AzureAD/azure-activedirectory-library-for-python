@@ -36,7 +36,7 @@ from .token_cache import TokenCache
 from .log import (set_logging_options, 
                   get_logging_options,
                   ADAL_LOGGER_NAME)
-from .adal_error import AdalError
+from .adal_error import AdalError, ServiceError
 
 # to avoid "No handler found" warnings.
 logging.getLogger(ADAL_LOGGER_NAME).addHandler(logging.NullHandler())

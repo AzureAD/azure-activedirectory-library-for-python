@@ -216,7 +216,8 @@ class AADConstants(object):
         'login.microsoftonline.de',
         ]
     WHITELISTED_DOMAINS = [
-        #add dsts domains to whitelist
+        # Define dSTS domains whitelist based on its Supported Environments & National Clouds list here
+        # https://microsoft.sharepoint.com/teams/AzureSecurityCompliance/Security/SitePages/dSTS%20Fundamentals.aspx
         'dsts.core.windows.net',
         'dsts.core.chinacloudapi.cn',  
         'dsts.core.cloudapi.de', 

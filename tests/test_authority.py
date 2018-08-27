@@ -194,7 +194,10 @@ class TestAuthority(unittest.TestCase):
 
     @httpretty.activate
     def test_dsts_authority(self):
+        try:
             context = AuthenticationContext(self.dstsTestEndpoint)
+        except:
+            self.fail("AuthenticationContext() rased an exception on dstsTestEndpoint")
 				
     @httpretty.activate
     def test_url_extra_slashes(self):

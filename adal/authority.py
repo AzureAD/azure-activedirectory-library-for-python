@@ -90,7 +90,7 @@ class Authority(object):
             self._tenant = path_parts[1]
         except IndexError:
             raise ValueError("Could not determine tenant.")
- 
+
     def _perform_static_instance_discovery(self):
 
         self._log.debug("Performing static instance discovery")
@@ -127,7 +127,7 @@ class Authority(object):
         operation = "Instance Discovery"
         self._log.debug("Attempting instance discover at: %(discovery_endpoint)s",
                         {"discovery_endpoint": discovery_endpoint.geturl()})
-                        	
+
         try:
             resp = requests.get(discovery_endpoint.geturl(), headers=get_options['headers'],
                                 verify=self._call_context.get('verify_ssl', None),

@@ -125,7 +125,7 @@ class SelfSignedJwt(object):
         if send_x5c:
             # to avoid pulling in OpenSSL dependency, we do low-tech but safe parsing based on markers 
             # defined in "<github>/libressl-portable/openbsd/blob/master/src/lib/libcrypto/pem/pem.h"
-            match = re.search('\-+BEGIN CERTIFICATE.+\-+(?P<public>[^-]+)\-+END CERTIFICATE.+\-+',
+            match = re.search(r'\-+BEGIN CERTIFICATE.+\-+(?P<public>[^-]+)\-+END CERTIFICATE.+\-+',
                               certificate, re.I)
             if not match:
                 raise AdalError("Error:Invalid Certificate: Marker of '-----BEGIN CERTIFICATE-----' was not found")

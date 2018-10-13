@@ -144,7 +144,7 @@ class Mex(object):
             policy_id = self._check_policy(policy_node)
             if policy_id:
                 id_ref = '#' + policy_id
-                policies[id_ref] = {id:id_ref}
+                policies[id_ref] = {policy_id:id_ref}
 
         return policies if policies else None
 

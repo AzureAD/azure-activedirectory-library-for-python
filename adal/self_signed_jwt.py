@@ -118,18 +118,8 @@ class SelfSignedJwt(object):
         self._raise_on_invalid_thumbprint(canonical)
         return canonical
 
-    def create(self, certificate, thumbprint, send_x5c):
+    def create(self, certificate, thumbprint, public_certificate):
         thumbprint = self._reduce_thumbprint(thumbprint)
-
-        public_certificate = None
-        if send_x5c:
-            # to avoid pulling in OpenSSL dependency, we do low-tech but safe parsing based on markers 
-            # defined in "<github>/libressl-portable/openbsd/blob/master/src/lib/libcrypto/pem/pem.h"
-            match = re.search(r'\-+BEGIN CERTIFICATE.+\-+(?P<public>[^-]+)\-+END CERTIFICATE.+\-+',
-                              certificate, re.I)
-            if not match:
-                raise AdalError("Error:Invalid Certificate: Marker of '-----BEGIN CERTIFICATE-----' was not found")
-            public_certificate = match.group('public').strip()
 
         header = self._create_header(thumbprint, public_certificate)
         payload = self._create_payload()

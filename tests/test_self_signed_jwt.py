@@ -69,7 +69,7 @@ class TestSelfSignedJwt(unittest.TestCase):
         else:
             self_signed_jwt._encode_jwt = mock.MagicMock(return_value = self.expectedJwt)
 
-        jwt = ssjwt.create(cert, thumbprint, False)
+        jwt = ssjwt.create(cert, thumbprint, public_certificate=None)
         return jwt
 
     def _create_jwt_and_match_expected_err(self, testCert, thumbprint, encodeError = None):

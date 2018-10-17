@@ -235,7 +235,7 @@ class AuthenticationContext(object):
         return self._acquire_token(token_func)
 
     def acquire_token_with_client_certificate(self, resource, client_id, 
-                                              certificate, thumbprint, send_x5c=False):
+                                              certificate, thumbprint, public_certificate=None):
         '''Gets a token for a given resource via certificate credentials
 
         :param str resource: A URI that identifies the resource for which the
@@ -243,13 +243,14 @@ class AuthenticationContext(object):
         :param str client_id: The OAuth client id of the calling application.
         :param str certificate: A PEM encoded certificate private key.
         :param str thumbprint: hex encoded thumbprint of the certificate.
-        :param send_x5c(optional): if True, send the public certificate through 'x5c' JWT header
-            for subject name and issuer based authentication, which is to support cert auto rolls 
+        :param public_certificate(optional): if not None, it will be sent to the service for subject name
+            and issuer based authentication, which is to support cert auto rolls. The value must match the
+            certificate private key parameter.
         :returns: dict with several keys, include "accessToken".
         '''
         def token_func(self):
             token_request = TokenRequest(self._call_context, self, client_id, resource)
-            return token_request.get_token_with_certificate(certificate, thumbprint, send_x5c)
+            return token_request.get_token_with_certificate(certificate, thumbprint, public_certificate)
 
         return self._acquire_token(token_func)
 

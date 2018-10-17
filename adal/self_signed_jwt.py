@@ -78,12 +78,13 @@ class SelfSignedJwt(object):
         self._token_endpoint = authority.token_endpoint
         self._client_id = client_id
 
-    def _create_header(self, thumbprint):
+    def _create_header(self, thumbprint, public_certificate):
         x5t = _create_x5t_value(thumbprint)
         header = {'typ':'JWT', 'alg':'RS256', 'x5t':x5t}
-
-        self._log.debug("Creating self signed JWT header. x5t: %(x5t)s",
-                        {"x5t": x5t})
+        if public_certificate:
+            header['x5c'] = public_certificate
+        self._log.debug("Creating self signed JWT header. x5t: %(x5t)s, x5c: %(x5c)s",
+                        {"x5t": x5t, "x5c": public_certificate})
 
         return header
 
@@ -117,8 +118,9 @@ class SelfSignedJwt(object):
         self._raise_on_invalid_thumbprint(canonical)
         return canonical
 
-    def create(self, certificate, thumbprint):
+    def create(self, certificate, thumbprint, public_certificate):
         thumbprint = self._reduce_thumbprint(thumbprint)
-        header = self._create_header(thumbprint)
+
+        header = self._create_header(thumbprint, public_certificate)
         payload = self._create_payload()
         return _sign_jwt(header, payload, certificate)

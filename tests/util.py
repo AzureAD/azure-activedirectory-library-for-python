@@ -176,41 +176,58 @@ parameters['callContext'] = { 'log_context' : parameters['logContext'] }
 # This is a dummy RSA private cert used for testing purpose.It does not represent valid credential.
 # privatePem variable is a fake certificate in the form of a string.
 def get_self_signed_cert():
-    private_pem = ("-----BEGIN RSA PRIVATE KEY-----"
-                  "MIIEpAIBAAKCAQEAoMGZTZi0vU/ICYVgV4vcTwzvZCNXdJ9EgGBBFu1E0/j4FF0Y"
-                  "Fd2sP7IwmWVZLlWJ5VbwAtdMiRdrogX/QnWPfsNfsPzDdRRJD+Erh9tmBzJm08h7"
-                  "1RggS1/VehZ9WNdTDlQM3P+zNg0IG274VIr+ZSBzIbYxV6ecPdRU/EsZ5Wa5SCwG"
-                  "Fu1qPJW8KY8yvse9PHdFiHjrmcZSKTbBCp/2grdBrk/N1jwtH6Yj100l7G69HPE/"
-                  "4kXYRX9f/LjpzF77VMCj7UJtmb1yR3fRHpppbm7GkqvJFM2Kg3UG5fsp8nQBDRc+"
-                  "R3kjm+DU05MoFdsfo3DkzpNJjDcLUPdANe+mWwIDAQABAoIBACdb/1r+XpJTbFjY"
-                  "bSRCPCimtB5CgPEu5ajA6G7inQ2BUcw6luETq07VJA0KwXEUxHSAerdXW4fdUh8T"
-                  "dNIi0oVo9I7y9DBATTs0GGJlF2//qSmFVrxv8chCqJQB2aLc5ZsGfTfG62v6eNeu"
-                  "reKVPYApF8dTQnWBtkF1MXGsOaTuxEecrM6KbES97kElC0QsJ89sDnTUjKuihfc9"
-                  "Q9IfWDbX/5WY6JL7XMbQtKRIzd+y/E9dpU3Hu+UErKWyb5pQiud81/Q/xQThSrVt"
-                  "zpmXwlsEFCrSzDML+aOTDqrsRwypRc5sTNAMadkeRrrlo+5OzoUG1aTxco8tZ1MD"
-                  "ch7RTJECgYEA1fqn93X6S1sA8R4lYOJUDd5JmEskKwLl5Vg2VSinSD1YyMdtPnQa"
-                  "ZWCEbJGXN60tEd7ZjOM4wA0mIrwEkkApFWEiGpMe4aGTD11455rA5IfrZUGPXlcw"
-                  "lkmt4wPytKx/xDLBfa8oAu33dFDe/nhRqQqAMTi7DAnttqjUxPg/N8UCgYEAwFNG"
-                  "qLG+5+J4sq5xoXgDj0Zggi5hx2IEfN68BmyYHvfL8VSDkQMsiYXNAhTWByCkjW9D"
-                  "j/hdouGlDwMCLWq0XPgO/XsSlU7jJExsrRch63kf72PTZP/qapSkOonCe9TViNTQ"
-                  "KiRXu/v9OfJYSRPnpKz0/5goFSq7E12mBWZJJ58CgYEAvmmKNLSAobP+t5H68ycU"
-                  "Yy7u0J31Nm0ixR7lYoyFp8wniKumdA//OT1VOgOoy/vIAoILl8rPQl+xEvG7I6YC"
-                  "qSrBnWJT9bbBVcf5Aih9BCBLgdSATxRJgUNZgI2P2eUy4RXFhyFp+olmTdR1S38o"
-                  "M8PLZYG1OTZQmd3NUOYT430CgYBzU7yEPgnPPTPJWefTvobL7JTEm5GQoQs14c54"
-                  "P7g8obUO4vH+DBwx3yUfAWWSYpWqJjUqaPGlUY/L3673kwvS0AEVKS7sj6CPTLDC"
-                  "XqO9cyWeRIsn/noQLVAJtkAER41AfvTQwHhHxoSDsfoU4DXAvuIvPouSncwOgdKj"
-                  "XEGz2wKBgQDQmB/u4oGaPRf5DdasiAcqofYDEoo/OcpdRPeW2t5z7WDZcjeN4ajR"
-                  "GDoQssBpy1fpsPnghksMhYZL2l9xiSInkFw87ax5EYBS43Mt5HfJPgwpEnA5yV3W"
-                  "WGt3TBp7BgYOKhIID6803lBYfDmtQzdD+xMjlJKSQ9wfZYCuXrYwSg=="
-                  "-----END RSA PRIVATE KEY-----")
+    private_pem = ("-----BEGIN PRIVATE KEY-----\n"
+                   "MIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQDLTKKMn3WJiDnc"
+                   "8VuJPDr1kj9VYr9zdobMUSJ9YgRb6Rz05YiUOlSeNiMA6Y7yrpVbSxewIAkVC/gI"
+                   "W/Ywp4FtR9j/SzQ91HIHvmKBrOAorpPDS0ZQ6nfeaBtZ14UIF16H/OvgyMkweBBd"
+                   "7pIbF4i7ty3gdhFzpN2xd+qXTeDVMtxaQOM8RTAVp1RUpuNpPSIQxo9dLyOotcAe"
+                   "Fj8uc0mMa0o6DbdxD26RiBIOgzcsYr5WUCMihmE3h1EIbXtQC5YwFnU9Q8OgupWz"
+                   "i31QE1fbFgWzpjx1/KU9Yb8doWs1jwXSo4UGYecxiOKBrFuj0I6Kyelv9dfiayZF"
+                   "GpwR+FmXAgMBAAECggEABmSxk/SL0LhtAWrBsy4muIRR45CIbswibxh6GjFT68QH"
+                   "+heh1O+Eq7kOHsA5k54z6jwRUaOgRX4r3a9urZcG9fXVeCnYSb19nIq7NFLIdd8P"
+                   "nIuoeXD2NhNWENw7PcbmXSZyEI6f7RtJgHq5M4ro7OZU1gNAhz9/DU61HO8BDBNP"
+                   "9TT9h2Kf5cAHC79lrRs7Cj9yLK/JFFPFSyTEqxo9O6xHQfRv6X25rZeYo9JzGaqP"
+                   "mwTvmheEqW7a75apBEpbzqD0f0jT4anaOSab0D10LyD9qEiCpzgDKG8Q31c0y9zS"
+                   "Utk0suVR35abo22LdtvXMSyQMDfOOx3hqbUZ9c34uQKBgQD+oJUtfUYT9DBg/+jR"
+                   "t/u+Tq/VnpolciQiIpIvUArhIFmOzLkt/hjH8ozOJlRrFADUWAE+pSWuAMdPjAsi"
+                   "NGRYueAPQ29bqRF+5i0cJHXlxVNsqhF1SD5z/qaKU/MVL358v++g5shazQm45gUg"
+                   "BeXyeRc++aFBTUAjUyoDOCh+bQKBgQDMZTacfAcGORL8TVvjq+0IJ6IppICmwRVU"
+                   "FlZ/7HSJ+F1itggp0Kn9xzEk7SPgU8w0koysN+2189wn77PhQAAp1oGH2xvubXIz"
+                   "nnAFpS9XbmzrG3JhHEVJqMe2qZ/pFOSqZxnNAekyWcE3BLamBBrMIx4wJBpmxVkf"
+                   "EWUGSvolkwKBgDqQ8P8Pi2jXh7En64MhUFQLgUIfQtFOGaWIUhtzy6zQZgkEaat8"
+                   "gHKtBVn9Uvl2FmLBAzhHgA0vvKg9S+pIJrSJvFGGbzyj/JQ1mTaZ5Ew/QNsDmxRg"
+                   "04yWi/PRL142GF/VPebCbl8EPjI7Jf6hnKxS0df4TvDYNeJqJIWtCxNZAoGBAI04"
+                   "rUfnhe7txklepcujgW1t/OQqzdzpcXQczv0qAcdGPDe0r+U8UAeQ9kqeMniPTXtR"
+                   "ejKPngVmjUlmm/FZCAPgOrUEVcMiCZLSuHGeFRyipky3NQsVvmXLYNm7T0p67hcy"
+                   "jygPVvE8BHygHBaOpXlAFl6Kw1cYqaAGo7d6XGVTAoGBAL0FucFmEAZOH7Bcnl30"
+                   "JMXMcoedCAMMZG235cL2xBz6z+MzWVMkiZxblOVqAHRExGDoT01fymVte1OoKx7Q"
+                   "SKiGNXCVBatkk7PlRUVnL0ziSwgYVxNX9eGNXZRBXUH3BuoYPlfdUMH36vgmukbT"
+                   "Ui28YpkjQ5RY1UwUY6tk+Bka\n"
+                    "-----END PRIVATE KEY-----")
+    public_pem = ("MIICoTCCAYkCAgPoMA0GCSqGSIb3DQEBBQUAMBQxEjAQBgNVBAMMCUNMSS1Mb2dp"
+                  "bjAiGA8yMDE4MTAxNzE2MTAxN1oYDzIwMTkxMDE3MTYxMDE5WjAUMRIwEAYDVQQD"
+                  "DAlDTEktTG9naW4wggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAwggEKAoIBAQDLTKKM"
+                  "n3WJiDnc8VuJPDr1kj9VYr9zdobMUSJ9YgRb6Rz05YiUOlSeNiMA6Y7yrpVbSxew"
+                  "IAkVC/gIW/Ywp4FtR9j/SzQ91HIHvmKBrOAorpPDS0ZQ6nfeaBtZ14UIF16H/Ovg"
+                  "yMkweBBd7pIbF4i7ty3gdhFzpN2xd+qXTeDVMtxaQOM8RTAVp1RUpuNpPSIQxo9d"
+                  "LyOotcAeFj8uc0mMa0o6DbdxD26RiBIOgzcsYr5WUCMihmE3h1EIbXtQC5YwFnU9"
+                  "Q8OgupWzi31QE1fbFgWzpjx1/KU9Yb8doWs1jwXSo4UGYecxiOKBrFuj0I6Kyelv"
+                  "9dfiayZFGpwR+FmXAgMBAAEwDQYJKoZIhvcNAQEFBQADggEBADfEqXzcI/fs82T0"
+                  "9B3H3lGWQL1JlcxOxD2TeMPtubDNllhZBT5GaYiw1LWAq+xJZZh+QPNxvZVw5Q/p"
+                  "wgXo32maLNwjuhlDl/5bNNOMsxszRz60C2QQXzIaBxd6T2EUcnMQozu5y/33HT8k"
+                  "k/ipBKbfmLP7Hgvs2xdhjHQcG61a2QP6qxD0UjVpXlgsL8wwc28ZSk1RqhxnHG0s"
+                  "HRrRuwNhqWRe7JCGNkOwUghlemrqSuL3i6iAaeqipBqS0vVFGN8KS12jKYirEV5T"
+                  "YkJ2HRrzSWEWbGhk+LnVis47nYRFzQB/sec/m+rpCpX6Spmiez6Yge2u874Oks/A"
+                  "OGQyeYk=")
 
-    return private_pem
+    return private_pem, public_pem
 
-parameters['certHash'] = 'C1:5D:EA:86:56:AD:DF:67:BE:80:31:D8:5E:BD:DC:5A:D6:C4:36:E1'
+parameters['certHash'] = 'B8:D3:FC:F1:51:50:63:7F:B0:ED:EE:32:C5:A2:4B:A2:28:D8:93:91'
 parameters['nowDate'] = datetime.fromtimestamp(1418433646.179)
 parameters['jwtId'] = '09841beb-a2c2-4777-a347-34ef055238a8'
-parameters['expectedJwt'] = 'eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsIng1dCI6IndWM3FobGF0MzJlLWdESFlYcjNjV3RiRU51RSJ9.eyJhdWQiOiJodHRwczovL2xvZ2luLndpbmRvd3MubmV0L3JyYW5kYWxsYWFkMS5vbm1pY3Jvc29mdC5jb20vb2F1dGgyL3Rva2VuIiwiaXNzIjoiY2xpZW4mJj8_P3RJZCIsInN1YiI6ImNsaWVuJiY_Pz90SWQiLCJuYmYiOjE0MTg0MzM2NDYsImV4cCI6MTQxODQzNDI0NiwianRpIjoiMDk4NDFiZWItYTJjMi00Nzc3LWEzNDctMzRlZjA1NTIzOGE4In0.dgF0TRlcASgTMp_1dlm8vd7tudr6n40VeuOQGFnz566s3n76WR_jJDBBBKlYeqc9gwCPFOzrLVAJehVYZ3N7YPzVdulf47rLoQdAp8R_p4Q4hdBZuIzfgDWwXjnP9x_NlfzezEYE4r8KTS2g5BBzPmx538AfIdNM93hWIxQySZGWY5UAhTkT1qE1ce1Yjo1M2HqzEJhTg5TTyfrnDtNxFxmzYhSyA9B41lB5kBuJTXUWXPrr-6eG8cEUOS-iiH7YB1Tf4J7_9JQloevTiOrfv4pSp6xLLXm2ntNBg3gaKsGKdYd-3tsCG0mHn7BzL0b-QCLalkUr8KtgtLqkxuAiLQ'
-parameters['cert'] = get_self_signed_cert()
+parameters['expectedJwtWithThumbprint'] = 'eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsIng1dCI6InVOUDg4VkZRWTMtdzdlNHl4YUpMb2lqWWs1RT0ifQ.eyJleHAiOjE0MTg0MzQyNDYsImF1ZCI6bnVsbCwiaXNzIjoiZDY4MzU3MTMtYjc0NS00OGQxLWJiNjItN2E4MjQ4NDc3ZDM1IiwianRpIjoiMDk4NDFiZWItYTJjMi00Nzc3LWEzNDctMzRlZjA1NTIzOGE4IiwibmJmIjoxNDE4NDMzNjQ2LCJzdWIiOiJkNjgzNTcxMy1iNzQ1LTQ4ZDEtYmI2Mi03YTgyNDg0NzdkMzUifQ.sV5CPEQjYqlnGXhv2f8ozCpAD281is1aOjOHZRKQlPe8zuRhEC4DnAv66QcrxA9HkPs3OAR1GWHnlgVL88uCcAbdEgFo7cAVaQQeRr90zlDMOMoZqULXnorbO90q91BrnJdbcygzsba4Z_FPzKAsJ7J8NXWfWcbkFGrisjuyi97Nm-nCCpjH1zM6gi3paGg_53GFb2S7xMv1lvB7LfPQMI8QvOC64kmVia-cr2NQoT9XLz2U_1ahCKidN2ozyCv09shRjfBu2QSeIctbv0BKVfQQCUnLuMQ-O4_NKY3THZn5hl5PvFDPjlI3X_Om58gPhwISkgtndGTMJ9W-H5z71Q'
+parameters['expectedJwtWithPublicCert'] = 'eyJ4NWMiOiJNSUlDb1RDQ0FZa0NBZ1BvTUEwR0NTcUdTSWIzRFFFQkJRVUFNQlF4RWpBUUJnTlZCQU1NQ1VOTVNTMU1iMmRwYmpBaUdBOHlNREU0TVRBeE56RTJNVEF4TjFvWUR6SXdNVGt4TURFM01UWXhNREU1V2pBVU1SSXdFQVlEVlFRRERBbERURWt0VEc5bmFXNHdnZ0VpTUEwR0NTcUdTSWIzRFFFQkFRVUFBNElCRHdBd2dnRUtBb0lCQVFETFRLS01uM1dKaURuYzhWdUpQRHIxa2o5VllyOXpkb2JNVVNKOVlnUmI2UnowNVlpVU9sU2VOaU1BNlk3eXJwVmJTeGV3SUFrVkMvZ0lXL1l3cDRGdFI5ai9TelE5MUhJSHZtS0JyT0FvcnBQRFMwWlE2bmZlYUJ0WjE0VUlGMTZIL092Z3lNa3dlQkJkN3BJYkY0aTd0eTNnZGhGenBOMnhkK3FYVGVEVk10eGFRT004UlRBVnAxUlVwdU5wUFNJUXhvOWRMeU9vdGNBZUZqOHVjMG1NYTBvNkRiZHhEMjZSaUJJT2d6Y3NZcjVXVUNNaWhtRTNoMUVJYlh0UUM1WXdGblU5UThPZ3VwV3ppMzFRRTFmYkZnV3pwangxL0tVOVliOGRvV3MxandYU280VUdZZWN4aU9LQnJGdWowSTZLeWVsdjlkZmlheVpGR3B3UitGbVhBZ01CQUFFd0RRWUpLb1pJaHZjTkFRRUZCUUFEZ2dFQkFEZkVxWHpjSS9mczgyVDA5QjNIM2xHV1FMMUpsY3hPeEQyVGVNUHR1YkRObGxoWkJUNUdhWWl3MUxXQXEreEpaWmgrUVBOeHZaVnc1US9wd2dYbzMybWFMTndqdWhsRGwvNWJOTk9Nc3hzelJ6NjBDMlFRWHpJYUJ4ZDZUMkVVY25NUW96dTV5LzMzSFQ4a2svaXBCS2JmbUxQN0hndnMyeGRoakhRY0c2MWEyUVA2cXhEMFVqVnBYbGdzTDh3d2MyOFpTazFScWh4bkhHMHNIUnJSdXdOaHFXUmU3SkNHTmtPd1VnaGxlbXJxU3VMM2k2aUFhZXFpcEJxUzB2VkZHTjhLUzEyaktZaXJFVjVUWWtKMkhScnpTV0VXYkdoaytMblZpczQ3bllSRnpRQi9zZWMvbStycENwWDZTcG1pZXo2WWdlMnU4NzRPa3MvQU9HUXllWWs9IiwieDV0IjoidU5QODhWRlFZMy13N2U0eXhhSkxvaWpZazVFPSIsImFsZyI6IlJTMjU2IiwidHlwIjoiSldUIn0.eyJqdGkiOiIwOTg0MWJlYi1hMmMyLTQ3NzctYTM0Ny0zNGVmMDU1MjM4YTgiLCJleHAiOjE0MTg0MzQyNDYsImF1ZCI6bnVsbCwic3ViIjoiZDY4MzU3MTMtYjc0NS00OGQxLWJiNjItN2E4MjQ4NDc3ZDM1IiwibmJmIjoxNDE4NDMzNjQ2LCJpc3MiOiJkNjgzNTcxMy1iNzQ1LTQ4ZDEtYmI2Mi03YTgyNDg0NzdkMzUifQ.ROcEKjjuKN0-iK4seRCYftvEh8F5Esj1Y3NJF0MbUGWZQYTRnjibJAnVkvmCqFSGT_mDFhasTM67pwAWtfYNP875UM87HG4aUyZG48pFojnWxnMMf9gBardPmpaDNi3U_iIGoTGVLR60JV30WjsOCkEJY79l68EMc5i6XqYtOSyJDlI0rn8ZTqoyVHQYqCwkTLDF0cqTrqK6HV9iWuiT0rq3LMP2lShwAhKaTYIeAAek5Bw5LwRR2mo9ybreq_02vCDxIQg0C3kBDGMU8GxQ2tAWMYSqnxNfrjgUhARDQYdZTjCyuq1kOb8QrHly29mPT7xdS7Xnc0IF6JZb1PXj0Q'
+parameters['cert'], parameters['publicCert'] = get_self_signed_cert()
 
 correlation_id_regex = re.compile("[^\s]+")
 

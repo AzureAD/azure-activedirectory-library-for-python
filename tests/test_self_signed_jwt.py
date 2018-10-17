@@ -52,13 +52,16 @@ from tests.util import parameters as cp
 class TestSelfSignedJwt(unittest.TestCase):
     testNowDate = cp['nowDate']
     testJwtId = cp['jwtId']
-    expectedJwt = cp['expectedJwt']
+    expectedJwtWithThumbprint = cp['expectedJwtWithThumbprint']
+    expectedJwtWithPublicCert = cp['expectedJwtWithPublicCert']
+
     unexpectedJwt = 'unexpectedJwt'
     testAuthority = Authority('https://login.windows.net/naturalcauses.com', False)
     testClientId = 'd6835713-b745-48d1-bb62-7a8248477d35'
     testCert = cp['cert']
+    testPublicCert=cp['publicCert']
 
-    def _create_jwt(self, cert, thumbprint, encodeError = None):
+    def _create_jwt(self, cert, thumbprint, public_certificate = None, encodeError = None):
         ssjwt = SelfSignedJwt(cp['callContext'], self.testAuthority, self.testClientId)
 
         self_signed_jwt._get_date_now = mock.MagicMock(return_value = self.testNowDate)
@@ -67,19 +70,24 @@ class TestSelfSignedJwt(unittest.TestCase):
         if encodeError:
             self_signed_jwt._encode_jwt = mock.MagicMock(return_value = self.unexpectedJwt)
         else:
-            self_signed_jwt._encode_jwt = mock.MagicMock(return_value = self.expectedJwt)
+            expected = self.expectedJwtWithPublicCert if public_certificate else self.expectedJwtWithThumbprint
+            self_signed_jwt._encode_jwt = mock.MagicMock(return_value = expected)
 
-        jwt = ssjwt.create(cert, thumbprint, public_certificate=None)
+        jwt = ssjwt.create(cert, thumbprint, public_certificate=public_certificate)
         return jwt
 
     def _create_jwt_and_match_expected_err(self, testCert, thumbprint, encodeError = None):
         with self.assertRaises(Exception):
-            self._create_jwt(testCert, thumbprint, encodeError)
+            self._create_jwt(testCert, thumbprint, encodeError = encodeError)
 
     def _create_jwt_and_match_expected_jwt(self, cert, thumbprint):
         jwt = self._create_jwt(cert, thumbprint)
         self.assertTrue(jwt, 'No JWT generated')
-        self.assertTrue(jwt == self.expectedJwt, 'Generated JWT does not match expected:{}'.format(jwt))
+        self.assertTrue(jwt == self.expectedJwtWithThumbprint, 'Generated JWT does not match expected:{}'.format(jwt))
+
+    def test_jwt_hash_with_public_cert(self):
+        jwt = self._create_jwt(self.testCert, cp['certHash'], public_certificate = self.testPublicCert)
+        self.assertTrue(jwt == self.expectedJwtWithPublicCert, 'Generated JWT does not match expected:{}'.format(jwt))
 
     def test_create_jwt_hash_colons(self):
         self._create_jwt_and_match_expected_jwt(self.testCert, cp['certHash'])
@@ -93,7 +101,7 @@ class TestSelfSignedJwt(unittest.TestCase):
         self._create_jwt_and_match_expected_jwt(self.testCert, thumbprint)
 
     def test_create_jwt_invalid_cert(self):
-        self._create_jwt_and_match_expected_err('foobar', cp['certHash'], True)
+        self._create_jwt_and_match_expected_err('foobar', cp['certHash'], encodeError = True)
 
     def test_create_jwt_invalid_thumbprint_1(self):
         self._create_jwt_and_match_expected_err(self.testCert, 'zzzz')

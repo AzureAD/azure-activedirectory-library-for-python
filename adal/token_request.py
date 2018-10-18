@@ -351,20 +351,20 @@ class TokenRequest(object):
         self._user_id = user_id
         return self._find_token_from_cache()
 
-    def _create_jwt(self, certificate, thumbprint):
+    def _create_jwt(self, certificate, thumbprint, public_certificate):
 
         ssj = self._create_self_signed_jwt()
-        jwt = ssj.create(certificate, thumbprint)
+        jwt = ssj.create(certificate, thumbprint, public_certificate)
 
         if not jwt:
             raise AdalError("Failed to create JWT.")
         return jwt
 
-    def get_token_with_certificate(self, certificate, thumbprint):
+    def get_token_with_certificate(self, certificate, thumbprint, public_certificate):
 
         self._log.info("Getting a token via certificate.")
 
-        jwt = self._create_jwt(certificate, thumbprint)
+        jwt = self._create_jwt(certificate, thumbprint, public_certificate)
 
         oauth_parameters = self._create_oauth_parameters(OAUTH2_GRANT_TYPE.CLIENT_CREDENTIALS)
         oauth_parameters[OAUTH2_PARAMETERS.CLIENT_ASSERTION_TYPE] = OAUTH2_GRANT_TYPE.JWT_BEARER

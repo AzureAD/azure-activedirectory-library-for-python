@@ -52,7 +52,7 @@ class Test_Mex(unittest.TestCase):
             mex.discover()
             self.fail('No exception was thrown caused by failed request')
         except Exception as exp:
-            self.assertEqual(exp.args[0], 'Mex Get request returned http error: 500 and server response: HTTPretty :)')
+            self.assertEqual(exp.args[0], 'Mex Get request returned http error: 500 and server response: {"message": "HTTPretty :)"}')
 
     @httpretty.activate
     def _happyPathTest(self, file_name, expectedUrl):

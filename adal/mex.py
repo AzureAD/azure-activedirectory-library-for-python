@@ -137,7 +137,7 @@ class Mex(object):
         username_token_nodes = xmlutil.xpath_find(self._dom, xpath)
         if not username_token_nodes:
             self._log.warn("No username token policy nodes found.")
-            return
+            return None
 
         for node in username_token_nodes:
             policy_node = self._parents[self._parents[self._parents[self._parents[self._parents[self._parents[self._parents[node]]]]]]]

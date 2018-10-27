@@ -131,14 +131,14 @@ class OAuth2Client(object):
 
         cracked_token = self._open_jwt(encoded_token)
         if not cracked_token:
-            return
+            return None
 
         try:
             b64_id_token = cracked_token['JWSPayload']
             b64_decoded = util.base64_urlsafe_decode(b64_id_token)
             if not b64_decoded:
                 self._log.warn('The returned id_token could not be base64 url safe decoded.')
-                return
+                return None
 
             id_token = json.loads(b64_decoded.decode('utf-8'))
         except ValueError:
@@ -373,4 +373,3 @@ class OAuth2Client(object):
 
     def cancel_polling_request(self):
         self._cancel_polling_request = True
-

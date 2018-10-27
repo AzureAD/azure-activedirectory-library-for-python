@@ -40,5 +40,3 @@ from .adal_error import AdalError
 
 # to avoid "No handler found" warnings.
 logging.getLogger(ADAL_LOGGER_NAME).addHandler(logging.NullHandler())
-
-

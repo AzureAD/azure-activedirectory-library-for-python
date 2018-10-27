@@ -154,4 +154,3 @@ def scrub_pii(arg_dict, padding="..."):
         "user_realm_url",  # e.g. https://login.windows.net/common/UserRealm/{username}
         ])
     return {k: padding if k.lower() in pii else arg_dict[k] for k in arg_dict}
-

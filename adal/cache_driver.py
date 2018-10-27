@@ -175,18 +175,15 @@ class CacheDriver(object):
                 self._log.info('Cached token is expired at %(date)s.  Refreshing',
                                {"date": expiry_date})
                 return self._refresh_expired_entry(entry)
-            else:
-                self.remove(entry)
-                return None
+            self.remove(entry)
+            return None
         elif not is_resource_specific and entry.get(TokenResponseFields.IS_MRRT):
             if TokenResponseFields.REFRESH_TOKEN in entry:
                 self._log.info('Acquiring new access token from MRRT token.')
                 return self._acquire_new_token_from_mrrt(entry)
-            else:
-                self.remove(entry)
-                return None
-        else:
-            return entry
+            self.remove(entry)
+            return None
+        return entry
 
     def find(self, query):
         if query is None:
@@ -197,8 +194,7 @@ class CacheDriver(object):
         if entry:
             return self._refresh_entry_if_necessary(entry, 
                                                     is_resource_tenant_specific)
-        else:
-            return None
+        return None
 
     def remove(self, entry):
         self._log.debug('Removing entry.')

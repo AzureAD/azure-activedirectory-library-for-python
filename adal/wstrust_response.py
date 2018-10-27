@@ -215,6 +215,7 @@ class WSTrustResponse(object):
             tokens = findall_content(rstr, "RequestedSecurityToken")
             if token_types and tokens:
                 return tokens[0].encode('us-ascii'), token_types[0]
+        return None
 
 
     def parse(self):
@@ -243,4 +244,3 @@ class WSTrustResponse(object):
         finally:
             self._dom = None
             self._parents = None
-

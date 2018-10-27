@@ -71,3 +71,4 @@ def find_element_text(node):
     for child in node.iter():
         if child.text:
             return child.text
+    return None

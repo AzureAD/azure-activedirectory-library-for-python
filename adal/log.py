@@ -42,7 +42,7 @@ def set_logging_options(options=None):
 
     Basic Usages::
         >>>adal.set_logging_options({
-        >>>  'level': 'DEBUG'
+        >>>  'level': 'DEBUG',
         >>>  'handler': logging.FileHandler('adal.log')
         >>>})
     '''

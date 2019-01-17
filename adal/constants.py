@@ -173,6 +173,8 @@ class Saml(object):
 
     TokenTypeV1 = 'urn:oasis:names:tc:SAML:1.0:assertion'
     TokenTypeV2 = 'urn:oasis:names:tc:SAML:2.0:assertion'
+    OasisWssSaml11TokenProfile11 = "http://docs.oasis-open.org/wss/oasis-wss-saml-token-profile-1.1#SAMLV1.1"
+    OasisWssSaml2TokenProfile2 = "http://docs.oasis-open.org/wss/oasis-wss-saml-token-profile-1.1#SAMLV2.0"
 
 
 class XmlNamespaces(object):

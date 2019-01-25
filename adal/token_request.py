@@ -55,10 +55,10 @@ def add_parameter_if_available(parameters, key, value):
 
 def _get_saml_grant_type(wstrust_response):
     token_type = wstrust_response.token_type
-    if token_type == SAML.TokenTypeV1:
+    if token_type == SAML.TokenTypeV1 or token_type == SAML.OasisWssSaml11TokenProfile11:
         return OAUTH2_GRANT_TYPE.SAML1
 
-    elif token_type == SAML.TokenTypeV2:
+    elif token_type == SAML.TokenTypeV2 or token_type == SAML.OasisWssSaml2TokenProfile2:
         return OAUTH2_GRANT_TYPE.SAML2
 
     else:

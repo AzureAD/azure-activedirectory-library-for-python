@@ -1,4 +1,4 @@
-requests==2.0.0
+requests==2.20.0
 PyJWT==1.0.0
 #need 2.x for Python3 support
 python-dateutil==2.1.0

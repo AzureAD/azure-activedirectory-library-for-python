@@ -52,6 +52,9 @@ class TokenCacheKey(object): # pylint: disable=too-few-public-methods
                _string_cmp(self.client_id, other.client_id) and \
                _string_cmp(self.user_id, other.user_id)
 
+    def __ne__(self, other):
+        return not self == other
+
 # pylint: disable=protected-access
 
 def _get_cache_key(entry):

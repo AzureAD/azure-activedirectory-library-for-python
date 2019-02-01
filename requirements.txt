@@ -1,5 +1,5 @@
 requests==2.20.0
-PyJWT==1.0.0
+PyJWT==1.7.0
 #need 2.x for Python3 support
 python-dateutil==2.1.0
 #1.1.0 is the first that can be installed on windows

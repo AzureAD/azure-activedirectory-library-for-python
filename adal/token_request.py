@@ -26,7 +26,6 @@
 #------------------------------------------------------------------------------
 
 from base64 import b64encode
-import re
 
 from . import constants
 from . import log

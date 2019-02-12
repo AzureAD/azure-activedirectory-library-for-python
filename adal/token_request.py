@@ -26,7 +26,6 @@
 #------------------------------------------------------------------------------
 
 from base64 import b64encode
-import re
 
 from . import constants
 from . import log
@@ -257,14 +256,10 @@ class TokenRequest(object):
                                                                              username, password)
     @staticmethod
     def _parse_wstrust_version_from_federation_active_authurl(federation_active_authurl):
-        wstrust2005_regex = r'[/trust]?[2005][/usernamemixed]?'
-        wstrust13_regex = r'[/trust]?[13][/usernamemixed]?'
-
-        if re.search(wstrust2005_regex, federation_active_authurl):
+        if '/trust/2005/usernamemixed' in federation_active_authurl:
             return WSTrustVersion.WSTRUST2005
-        elif re.search(wstrust13_regex, federation_active_authurl):
+        if '/trust/13/usernamemixed' in federation_active_authurl:
             return WSTrustVersion.WSTRUST13
-
         return WSTrustVersion.UNDEFINED
 
     def get_token_with_username_password(self, username, password):

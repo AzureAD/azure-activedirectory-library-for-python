@@ -296,7 +296,7 @@ class TokenRequest(object):
         return token
 
     def get_token_with_client_credentials(self, client_secret):
-        self._log.info("Getting token with client credentials.")
+        self._log.debug("Getting token with client credentials.")
         try:
             token = self._find_token_from_cache()
             if token:

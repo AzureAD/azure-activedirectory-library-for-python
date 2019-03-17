@@ -88,6 +88,8 @@ try:
         @unittest.skip('https://github.com/AzureAD/azure-activedirectory-library-for-python-priv/issues/47')
         def test_acquire_token_with_client_certificate(self):
             self.fail("Not Yet Implemented")
+        def test_acquire_token_with_jwt(self):
+            self.fail("Not Yet Implemented")
 
 
         # Validation Methods

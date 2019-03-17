@@ -254,6 +254,21 @@ class AuthenticationContext(object):
 
         return self._acquire_token(token_func)
 
+    def acquire_token_with_jwt(self, resource, client_id, jwt):
+        '''Gets a token for a given resource via user supplier, pre-signed JWT
+
+        :param str resource: A URI that identifies the resource for which the
+            token is valid.
+        :param str client_id: The OAuth client id of the calling application.
+        :param str jwt: A Base64 encoded, signed JWT
+        :returns: dict with several keys, include "accessToken".
+        '''
+        def token_func(self):
+            token_request = TokenRequest(self._call_context, self, client_id, resource)
+            return token_request.get_token_with_jwt(jwt)
+
+        return self._acquire_token(token_func)
+
     def acquire_user_code(self, resource, client_id, language=None):
         '''Gets the user code info which contains user_code, device_code for
         authenticating user on device.

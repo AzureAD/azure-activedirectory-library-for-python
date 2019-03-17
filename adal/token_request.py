@@ -311,6 +311,23 @@ class TokenRequest(object):
         self._cache_driver.add(token)
         return token
 
+    def get_token_with_jwt(self, jwt):
+
+        self._log.info("Getting a token via pre-signed jwt.")
+
+        oauth_parameters = self._create_oauth_parameters(OAUTH2_GRANT_TYPE.CLIENT_CREDENTIALS)
+        oauth_parameters[OAUTH2_PARAMETERS.CLIENT_ASSERTION_TYPE] = OAUTH2_GRANT_TYPE.JWT_BEARER
+        oauth_parameters[OAUTH2_PARAMETERS.CLIENT_ASSERTION] = jwt
+
+        try:
+            token = self._find_token_from_cache()
+            if token:
+                return token
+        except AdalError:
+            self._log.exception('Attempt to look for token in cache resulted in Error')
+
+        return self._oauth_get_token(oauth_parameters)
+
     def get_token_with_authorization_code(self, authorization_code, client_secret, code_verifier):
 
         self._log.info("Getting token with auth code.")

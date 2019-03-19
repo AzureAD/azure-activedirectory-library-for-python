@@ -4,7 +4,7 @@
 --------------------|-----------------|---------------
 [![Build Status](https://travis-ci.org/AzureAD/azure-activedirectory-library-for-python.svg?branch=master)](https://travis-ci.org/AzureAD/azure-activedirectory-library-for-python) | [![Build Status](https://travis-ci.org/AzureAD/azure-activedirectory-library-for-python.svg?branch=dev)](https://travis-ci.org/AzureAD/azure-activedirectory-library-for-python) | [![Documentation Status](https://readthedocs.org/projects/adal-python/badge/?version=latest)](https://adal-python.readthedocs.io/en/latest/?badge=latest)
 
-|[Getting Started](https://github.com/AzureAD/azure-activedirectory-library-for-python/wiki)| [Docs](https://aka.ms/aaddev)| [Samples](https://github.com/azure-samples?query=active-directory)| [Support](README.md#community-help-and-support)
+|[Getting Started](https://github.com/AzureAD/azure-activedirectory-library-for-python/wiki)| [Docs](https://aka.ms/aaddev)| [Python Samples](https://github.com/Azure-Samples?q=active-directory&language=python)| [Support](README.md#community-help-and-support)
 | --- | --- | --- | --- |
 
 
@@ -17,7 +17,9 @@ You can learn in detail about ADAL Python functionality and usage documented in 
 You can find the steps to install and basic usage of the library under [ADAL Basics](https://github.com/AzureAD/azure-activedirectory-library-for-python/wiki/ADAL-basics) page in the Wiki.
 
 ## Samples and Documentation
-We provide a full suite of [sample applications on GitHub](https://github.com/azure-samples?utf8=%E2%9C%93&q=active-directory&type=&language=) to help you get started with learning the Azure Identity system. This includes tutorials for native clients and web applications. We also provide full walkthroughs for authentication flows such as OAuth2, OpenID Connect and for calling APIs such as the Graph API.
+We provide a full suite of [Python sample applications on GitHub](https://github.com/Azure-Samples?q=active-directory&language=python) to help you get started with learning the Azure Identity system. This will include tutorials for native clients and web applications. We also provide full walkthroughs for authentication flows such as OAuth2, OpenID Connect and for calling APIs such as the Graph API.
+
+There are also some [lightweight samples existing inside this repo](https://github.com/AzureAD/azure-activedirectory-library-for-python/tree/dev/sample).
 
 You can find the relevant samples by scenarios listed in this [wiki page for acquiring tokens using ADAL Python](https://github.com/AzureAD/azure-activedirectory-library-for-python/wiki/Acquire-tokens#adal-python-apis-for-corresponding-flows).
 

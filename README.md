@@ -27,19 +27,19 @@ The documents on [Auth Scenarios](https://docs.microsoft.com/en-us/azure/active-
 
 ## Versions
 
-This library follows [Semantic Versioning](http://semver.org/).
+This library follows [Semantic Versioning](https://semver.org/).
 
 You can find the changes for each version under [Releases](https://github.com/AzureAD/azure-activedirectory-library-for-python/releases).
 
 ## Community Help and Support
 
-We leverage [Stack Overflow](http://stackoverflow.com/) to work with the community on supporting Azure Active Directory and its SDKs, including this one! We highly recommend you ask your questions on Stack Overflow (we're all on there!) Also browser existing issues to see if someone has had your question before.
+We leverage [Stack Overflow](https://stackoverflow.com/) to work with the community on supporting Azure Active Directory and its SDKs, including this one! We highly recommend you ask your questions on Stack Overflow (we're all on there!) Also browser existing issues to see if someone has had your question before.
 
-We recommend you use the "adal" tag so we can see it! Here is the latest Q&A on Stack Overflow for ADAL: [http://stackoverflow.com/questions/tagged/adal](http://stackoverflow.com/questions/tagged/adal)
+We recommend you use the "adal" tag so we can see it! Here is the latest Q&A on Stack Overflow for ADAL: [https://stackoverflow.com/questions/tagged/adal](https://stackoverflow.com/questions/tagged/adal)
 
 ## Security Reporting
 
-If you find a security issue with our libraries or services please report it to [secure@microsoft.com](mailto:secure@microsoft.com) with as much detail as possible. Your submission may be eligible for a bounty through the [Microsoft Bounty](http://aka.ms/bugbounty) program. Please do not post security issues to GitHub Issues or any other public site. We will contact you shortly upon receiving the information. We encourage you to get notifications of when security incidents occur by visiting [this page](https://technet.microsoft.com/en-us/security/dd252948) and subscribing to Security Advisory Alerts.
+If you find a security issue with our libraries or services please report it to [secure@microsoft.com](mailto:secure@microsoft.com) with as much detail as possible. Your submission may be eligible for a bounty through the [Microsoft Bounty](https://aka.ms/bugbounty) program. Please do not post security issues to GitHub Issues or any other public site. We will contact you shortly upon receiving the information. We encourage you to get notifications of when security incidents occur by visiting [this page](https://technet.microsoft.com/en-us/security/dd252948) and subscribing to Security Advisory Alerts.
 
 ## Contributing
 

@@ -342,7 +342,7 @@ class TokenRequest(object):
         return self._get_token_with_refresh_token(refresh_token, None, client_secret)
 
     def get_token_from_cache_with_refresh(self, user_id):
-        self._log.info("Getting token from cache with refresh if necessary.")
+        self._log.debug("Getting token from cache with refresh if necessary.")
         self._user_id = user_id
         return self._find_token_from_cache()
 

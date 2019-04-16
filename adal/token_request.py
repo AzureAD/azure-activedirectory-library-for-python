@@ -263,7 +263,7 @@ class TokenRequest(object):
         return WSTrustVersion.UNDEFINED
 
     def get_token_with_username_password(self, username, password):
-        self._log.info("Acquiring token with username password.")
+        self._log.debug("Acquiring token with username password.")
         self._user_id = username
         try:
             token = self._find_token_from_cache()
@@ -296,7 +296,7 @@ class TokenRequest(object):
         return token
 
     def get_token_with_client_credentials(self, client_secret):
-        self._log.info("Getting token with client credentials.")
+        self._log.debug("Getting token with client credentials.")
         try:
             token = self._find_token_from_cache()
             if token:

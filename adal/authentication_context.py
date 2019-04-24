@@ -181,7 +181,7 @@ class AuthenticationContext(object):
     def acquire_token_with_authorization_code(self, authorization_code, 
                                               redirect_uri, resource, 
                                               client_id, client_secret=None, code_verifier=None):
-        '''Gets a token for a given resource via auhtorization code for a
+        '''Gets a token for a given resource via authorization code for a
         server app.
         
         :param str authorization_code: An authorization code returned from a

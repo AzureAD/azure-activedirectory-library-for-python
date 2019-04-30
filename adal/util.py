@@ -74,7 +74,7 @@ def create_request_options(self, *options):
 
 def log_return_correlation_id(log, operation_message, response):
     if response and response.headers and response.headers.get('client-request-id'):
-        log.info("{} Server returned this correlation_id: {}".format(
+        log.debug("{} Server returned this correlation_id: {}".format(
             operation_message, 
             response.headers['client-request-id']))
 

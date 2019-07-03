@@ -64,6 +64,21 @@ def _raise_on_invalid_jwt_signature(encoded_jwt):
     if len(segments) < 3 or not segments[2]:    
         raise AdalError('Failed to sign JWT. This is most likely due to an invalid certificate.')
 
+def _extract_certs(public_cert_content):
+    # Parses raw public certificate file contents and returns a list of strings
+    # Usage: headers = {"x5c": extract_certs(open("my_cert.pem").read())}
+    public_certificates = re.findall(
+        r'-----BEGIN CERTIFICATE-----(?P<cert_value>[^-]+)-----END CERTIFICATE-----',
+        public_cert_content, re.I)
+    if public_certificates:
+        return [cert.strip() for cert in public_certificates]
+    # The public cert tags are not found in the input,
+    # let's make best effort to exclude a private key pem file.
+    if "PRIVATE KEY" in public_cert_content:
+        raise ValueError(
+            "We expect your public key but detect a private key instead")
+    return [public_cert_content.strip()]
+
 class SelfSignedJwt(object):
 
     NumCharIn128BitHexString = 128/8*2
@@ -82,7 +97,7 @@ class SelfSignedJwt(object):
         x5t = _create_x5t_value(thumbprint)
         header = {'typ':'JWT', 'alg':'RS256', 'x5t':x5t}
         if public_certificate:
-            header['x5c'] = public_certificate
+            header['x5c'] = _extract_certs(public_certificate)
         self._log.debug("Creating self signed JWT header. x5t: %(x5t)s, x5c: %(x5c)s",
                         {"x5t": x5t, "x5c": public_certificate})
 

@@ -26,7 +26,6 @@
 #------------------------------------------------------------------------------
 
 from base64 import b64encode
-import re
 
 from . import constants
 from . import log
@@ -257,18 +256,14 @@ class TokenRequest(object):
                                                                              username, password)
     @staticmethod
     def _parse_wstrust_version_from_federation_active_authurl(federation_active_authurl):
-        wstrust2005_regex = r'[/trust]?[2005][/usernamemixed]?'
-        wstrust13_regex = r'[/trust]?[13][/usernamemixed]?'
-
-        if re.search(wstrust2005_regex, federation_active_authurl):
+        if '/trust/2005/usernamemixed' in federation_active_authurl:
             return WSTrustVersion.WSTRUST2005
-        elif re.search(wstrust13_regex, federation_active_authurl):
+        if '/trust/13/usernamemixed' in federation_active_authurl:
             return WSTrustVersion.WSTRUST13
-
         return WSTrustVersion.UNDEFINED
 
     def get_token_with_username_password(self, username, password):
-        self._log.info("Acquiring token with username password.")
+        self._log.debug("Acquiring token with username password.")
         self._user_id = username
         try:
             token = self._find_token_from_cache()
@@ -301,7 +296,7 @@ class TokenRequest(object):
         return token
 
     def get_token_with_client_credentials(self, client_secret):
-        self._log.info("Getting token with client credentials.")
+        self._log.debug("Getting token with client credentials.")
         try:
             token = self._find_token_from_cache()
             if token:
@@ -347,7 +342,7 @@ class TokenRequest(object):
         return self._get_token_with_refresh_token(refresh_token, None, client_secret)
 
     def get_token_from_cache_with_refresh(self, user_id):
-        self._log.info("Getting token from cache with refresh if necessary.")
+        self._log.debug("Getting token from cache with refresh if necessary.")
         self._user_id = user_id
         return self._find_token_from_cache()
 

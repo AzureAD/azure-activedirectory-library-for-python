@@ -188,8 +188,7 @@ class TestAuthority(unittest.TestCase):
 
     @httpretty.activate
     def test_url_extra_path_elements(self):
-        with six.assertRaisesRegex(self, ValueError, "The authority url must be of the format "+
-                                                     "https://login.microsoftonline.com/your_tenant"):
+        with six.assertRaisesRegex(self, ValueError, "tenant"):  # Some tenant specific error message
             context = AuthenticationContext(self.nonHardCodedAuthority + '/extra/path')
 
     @httpretty.activate

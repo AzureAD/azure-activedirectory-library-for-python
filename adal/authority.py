@@ -1,20 +1,20 @@
 #------------------------------------------------------------------------------
 #
-# Copyright (c) Microsoft Corporation. 
+# Copyright (c) Microsoft Corporation.
 # All rights reserved.
-# 
+#
 # This code is licensed under the MIT License.
-# 
+#
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files(the "Software"), to deal
 # in the Software without restriction, including without limitation the rights
 # to use, copy, modify, merge, publish, distribute, sublicense, and / or sell
 # copies of the Software, and to permit persons to whom the Software is
 # furnished to do so, subject to the following conditions :
-# 
+#
 # The above copyright notice and this permission notice shall be included in
 # all copies or substantial portions of the Software.
-# 
+#
 # THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 # IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 # FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.IN NO EVENT SHALL THE
@@ -68,6 +68,12 @@ class Authority(object):
                 return True
         return False
 
+    def _whitelisted(self): # testing if self._url.hostname is a dsts whitelisted domain
+        for domain in AADConstants.WHITELISTED_DOMAINS:
+            if self._url.hostname.endswith(domain):
+                return True
+        return False
+
     def _validate_authority_url(self):
 
         if self._url.scheme != 'https':
@@ -78,7 +84,12 @@ class Authority(object):
 
         path_parts = [part for part in self._url.path.split('/') if part]
         if (len(path_parts) > 1) and (not self._whitelisted()): #if dsts host, path_parts will be 2
-            raise ValueError("The authority url must be of the format https://login.microsoftonline.com/your_tenant")
+            raise ValueError(
+                "The path of authority_url (also known as tenant) is invalid, "
+                "it should either be a domain name (e.g. mycompany.onmicrosoft.com) "
+                "or a tenant GUID id. "
+                'Your tenant input was "%s" and your entire authority_url was "%s".'
+                % ('/'.join(path_parts), self._url.geturl()))
         elif len(path_parts) == 1:
             self._url = urlparse(self._url.geturl().rstrip('/'))
 
@@ -107,16 +118,16 @@ class Authority(object):
         return True
 
     def _create_authority_url(self):
-        return "https://{}/{}{}".format(self._url.hostname, 
-                                        self._tenant, 
+        return "https://{}/{}{}".format(self._url.hostname,
+                                        self._tenant,
                                         AADConstants.AUTHORIZE_ENDPOINT_PATH)
 
     def _create_instance_discovery_endpoint_from_template(self, authority_host):
 
         discovery_endpoint = AADConstants.INSTANCE_DISCOVERY_ENDPOINT_TEMPLATE
         discovery_endpoint = discovery_endpoint.replace('{authorize_host}', authority_host)
-        discovery_endpoint = discovery_endpoint.replace('{authorize_endpoint}', 
-                                                        quote(self._create_authority_url(), 
+        discovery_endpoint = discovery_endpoint.replace('{authorize_endpoint}',
+                                                        quote(self._create_authority_url(),
                                                               safe='~()*!.\''))
         return urlparse(discovery_endpoint)
 
@@ -141,7 +152,7 @@ class Authority(object):
         if resp.status_code == 429:
             resp.raise_for_status()  # Will raise requests.exceptions.HTTPError
         if not util.is_http_success(resp.status_code):
-            return_error_string = u"{} request returned http error: {}".format(operation, 
+            return_error_string = u"{} request returned http error: {}".format(operation,
                                                                                resp.status_code)
             error_response = ""
             if resp.text:

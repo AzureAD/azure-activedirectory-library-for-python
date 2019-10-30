@@ -26,7 +26,6 @@
 #------------------------------------------------------------------------------
 
 from base64 import b64encode
-import re
 
 from . import constants
 from . import log
@@ -55,10 +54,10 @@ def add_parameter_if_available(parameters, key, value):
 
 def _get_saml_grant_type(wstrust_response):
     token_type = wstrust_response.token_type
-    if token_type == SAML.TokenTypeV1:
+    if token_type == SAML.TokenTypeV1 or token_type == SAML.OasisWssSaml11TokenProfile11:
         return OAUTH2_GRANT_TYPE.SAML1
 
-    elif token_type == SAML.TokenTypeV2:
+    elif token_type == SAML.TokenTypeV2 or token_type == SAML.OasisWssSaml2TokenProfile2:
         return OAUTH2_GRANT_TYPE.SAML2
 
     else:
@@ -257,18 +256,14 @@ class TokenRequest(object):
                                                                              username, password)
     @staticmethod
     def _parse_wstrust_version_from_federation_active_authurl(federation_active_authurl):
-        wstrust2005_regex = r'[/trust]?[2005][/usernamemixed]?'
-        wstrust13_regex = r'[/trust]?[13][/usernamemixed]?'
-
-        if re.search(wstrust2005_regex, federation_active_authurl):
+        if '/trust/2005/usernamemixed' in federation_active_authurl:
             return WSTrustVersion.WSTRUST2005
-        elif re.search(wstrust13_regex, federation_active_authurl):
+        if '/trust/13/usernamemixed' in federation_active_authurl:
             return WSTrustVersion.WSTRUST13
-
         return WSTrustVersion.UNDEFINED
 
     def get_token_with_username_password(self, username, password):
-        self._log.info("Acquiring token with username password.")
+        self._log.debug("Acquiring token with username password.")
         self._user_id = username
         try:
             token = self._find_token_from_cache()
@@ -301,7 +296,7 @@ class TokenRequest(object):
         return token
 
     def get_token_with_client_credentials(self, client_secret):
-        self._log.info("Getting token with client credentials.")
+        self._log.debug("Getting token with client credentials.")
         try:
             token = self._find_token_from_cache()
             if token:
@@ -347,24 +342,24 @@ class TokenRequest(object):
         return self._get_token_with_refresh_token(refresh_token, None, client_secret)
 
     def get_token_from_cache_with_refresh(self, user_id):
-        self._log.info("Getting token from cache with refresh if necessary.")
+        self._log.debug("Getting token from cache with refresh if necessary.")
         self._user_id = user_id
         return self._find_token_from_cache()
 
-    def _create_jwt(self, certificate, thumbprint):
+    def _create_jwt(self, certificate, thumbprint, public_certificate):
 
         ssj = self._create_self_signed_jwt()
-        jwt = ssj.create(certificate, thumbprint)
+        jwt = ssj.create(certificate, thumbprint, public_certificate)
 
         if not jwt:
             raise AdalError("Failed to create JWT.")
         return jwt
 
-    def get_token_with_certificate(self, certificate, thumbprint):
+    def get_token_with_certificate(self, certificate, thumbprint, public_certificate):
 
         self._log.info("Getting a token via certificate.")
 
-        jwt = self._create_jwt(certificate, thumbprint)
+        jwt = self._create_jwt(certificate, thumbprint, public_certificate)
 
         oauth_parameters = self._create_oauth_parameters(OAUTH2_GRANT_TYPE.CLIENT_CREDENTIALS)
         oauth_parameters[OAUTH2_PARAMETERS.CLIENT_ASSERTION_TYPE] = OAUTH2_GRANT_TYPE.JWT_BEARER

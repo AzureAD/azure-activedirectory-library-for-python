@@ -217,15 +217,6 @@ class AADConstants(object):
         'login.microsoftonline.us',
         'login.microsoftonline.de',
         ]
-    WHITELISTED_DOMAINS = [
-        # Define dSTS domains whitelist based on its Supported Environments & National Clouds list here
-        # https://microsoft.sharepoint.com/teams/AzureSecurityCompliance/Security/SitePages/dSTS%20Fundamentals.aspx
-        'dsts.core.windows.net',
-        'dsts.core.chinacloudapi.cn',  
-        'dsts.core.cloudapi.de', 
-        'dsts.core.usgovcloudapi.net',  
-        'dsts.core.azure-test.net',
-        ]
     INSTANCE_DISCOVERY_ENDPOINT_TEMPLATE = 'https://{authorize_host}/common/discovery/instance?authorization_endpoint={authorize_endpoint}&api-version=1.0' # pylint: disable=invalid-name
     AUTHORIZE_ENDPOINT_PATH = '/oauth2/authorize'
     TOKEN_ENDPOINT_PATH = '/oauth2/token'

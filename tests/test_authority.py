@@ -60,7 +60,7 @@ class TestAuthority(unittest.TestCase):
     # discovery.
     nonHardCodedAuthority = 'https://login.doesntexist.com/' + cp['tenant']
     nonHardCodedAuthorizeEndpoint = nonHardCodedAuthority + '/oauth2/authorize'
-    dstsTestEndpoint = 'https://test-dsts.core.azure-test.net/dstsv2/common'
+    dstsTestEndpoint = 'https://test-dsts.dsts.core.azure-test.net/dstsv2/common'
 
 
     def setUp(self):

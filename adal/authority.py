@@ -62,7 +62,7 @@ class Authority(object):
     @property
     def url(self):
         return self._url.geturl()
-        
+
     def _whitelisted(self): # testing if self._url.hostname is a dsts whitelisted domain
         for domain in self._whitelisted_domains:
             if self._url.hostname.endswith(domain):
@@ -106,7 +106,7 @@ class Authority(object):
     def _perform_static_instance_discovery(self):
 
         self._log.debug("Performing static instance discovery")
-        
+
         if self._whitelisted(): # testing if self._url.hostname is a dsts whitelisted domain
             self._log.debug("Authority validated via static instance discovery")
             return True

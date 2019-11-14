@@ -60,7 +60,7 @@ class TestAuthority(unittest.TestCase):
     # discovery.
     nonHardCodedAuthority = 'https://login.doesntexist.com/' + cp['tenant']
     nonHardCodedAuthorizeEndpoint = nonHardCodedAuthority + '/oauth2/authorize'
-    dstsTestEndpoint = 'https://test-dsts.core.azure-test.net/dstsv2/common'
+    dstsTestEndpoint = 'https://test-dsts.dsts.core.azure-test.net/dstsv2/common'
 
 
     def setUp(self):
@@ -130,7 +130,7 @@ class TestAuthority(unittest.TestCase):
         self.performStaticInstanceDiscovery('test-dsts.dsts.core.chinacloudapi.cn')
         self.performStaticInstanceDiscovery('test-dsts.dsts.core.cloudapi.de')
         self.performStaticInstanceDiscovery('test-dsts.dsts.core.usgovcloudapi.net')
-        self.performStaticInstanceDiscovery('test-dsts.core.azure-test.net')
+        self.performStaticInstanceDiscovery('test-dsts.dsts.core.azure-test.net')
 
 
     @httpretty.activate

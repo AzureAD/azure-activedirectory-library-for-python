@@ -22,12 +22,13 @@ def turn_on_logging():
 # See https://github.com/AzureAD/azure-activedirectory-library-for-python/wiki/Register-your-application-with-Azure-Active-Directory
 #
 # {
-#    "resource": "your_resource",
-#    "tenant" : "rrandallaad1.onmicrosoft.com",
+#    "resource": "YOUR_RESOURCE",
+#    "tenant" : "YOUR_SUB_DOMAIN.onmicrosoft.com",
 #    "authorityHostUrl" : "https://login.microsoftonline.com",
-#    "clientId" : "624ac9bd-4c1c-4687-aec8-b56a8991cfb3",
-#    "clientSecret" : "verySecret=""
+#    "clientId" : "YOUR_CLIENTID",
+#    "clientSecret" : "YOUR_CLIENTSECRET"
 # }
+
 
 parameters_file = (sys.argv[1] if len(sys.argv) == 2 else
                    os.environ.get('ADAL_SAMPLE_PARAMETERS_FILE'))

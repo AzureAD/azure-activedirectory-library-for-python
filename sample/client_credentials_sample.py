@@ -1,8 +1,8 @@
-﻿import json
+import adal
+import json
 import logging
 import os
 import sys
-import adal
 
 def turn_on_logging():
     logging.basicConfig(level=logging.DEBUG)

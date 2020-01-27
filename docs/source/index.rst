@@ -8,14 +8,14 @@
 
 .. note::
    This library, ADAL for Python, will no longer receive new feature improvement. Its successor,
-   [MSAL for Python](https://github.com/AzureAD/microsoft-authentication-library-for-python),
+   `MSAL for Python<https://github.com/AzureAD/microsoft-authentication-library-for-python>`_,
    are now generally available.
 
    * If you are starting a new project, you can get started with the
-     [MSAL Python docs](https://github.com/AzureAD/microsoft-authentication-library-for-python/wiki)
+     `MSAL Python docs<https://github.com/AzureAD/microsoft-authentication-library-for-python/wiki>`_
      for details about the scenarios, usage, and relevant concepts.
    * If your application is using the previous ADAL Python library, you can follow this
-     [migration guide](https://docs.microsoft.com/en-us/azure/active-directory/develop/migrate-python-adal-msal)
+     `migration guide<https://docs.microsoft.com/en-us/azure/active-directory/develop/migrate-python-adal-msal>`_
      to update to MSAL Python.
    * Existing applications relying on ADAL Python will continue to work.
 

@@ -44,7 +44,7 @@ class TestAuthenticationContextApiVersionBehavior(unittest.TestCase):
         with warnings.catch_warnings(record=True) as caught_warnings:
             warnings.simplefilter("always")
             context = adal.AuthenticationContext(
-                "https://login.windows.net/tenant")
+                "https://login.microsoftonline.com/tenant")
             self.assertEqual(context._call_context['api_version'], None)
             self.assertEqual(len(caught_warnings), 0)
             if len(caught_warnings) == 1:
@@ -57,7 +57,7 @@ class TestAuthenticationContextApiVersionBehavior(unittest.TestCase):
         with warnings.catch_warnings(record=True) as caught_warnings:
             warnings.simplefilter("always")
             context = adal.AuthenticationContext(
-                "https://login.windows.net/tenant", api_version=None)
+                "https://login.microsoftonline.com/tenant", api_version=None)
             self.assertEqual(context._call_context['api_version'], None)
             self.assertEqual(len(caught_warnings), 0)
 

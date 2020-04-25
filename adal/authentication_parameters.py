@@ -53,7 +53,7 @@ class AuthenticationParameters(object):
 # The 401 challenge is a standard defined in RFC6750, which is based in part on RFC2617.
 # The challenge has the following form.
 # WWW-Authenticate : Bearer
-#     authorization_uri="https://login.windows.net/mytenant.com/oauth2/authorize",
+#     authorization_uri="https://login.microsoftonline.com/mytenant.com/oauth2/authorize",
 #     Resource_id="00000002-0000-0000-c000-000000000000"
 
 # This regex is used to validate the structure of the challenge header.

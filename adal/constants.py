@@ -210,6 +210,7 @@ class AADConstants(object):
 
     WORLD_WIDE_AUTHORITY = 'login.microsoftonline.com'
     WELL_KNOWN_AUTHORITY_HOSTS = [
+        'login.windows.net',
         'login.microsoftonline.com',
         'login.chinacloudapi.cn',
         'login.microsoftonline.us',

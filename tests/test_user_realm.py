@@ -52,7 +52,7 @@ from tests.util import parameters as cp
 class TestUserRealm(unittest.TestCase):
 
     def setUp(self):
-        self.authority = 'https://login.windows.net'
+        self.authority = 'https://login.microsoftonline.com'
         self.user = 'test@federatedtenant-com'
 
         user_realm_path = cp['userRealmPathTemplate'].replace('<user>', quote(self.user, safe='~()*!.\''))

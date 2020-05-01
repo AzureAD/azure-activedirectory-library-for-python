@@ -49,7 +49,7 @@ else:
     raise ValueError('Please provide parameter file with account information.')
 
 PORT = 8088
-TEMPLATE_AUTHZ_URL = ('https://login.windows.net/{}/oauth2/authorize?'+
+TEMPLATE_AUTHZ_URL = ('https://login.microsoftonline.com/{}/oauth2/authorize?'+
                       'response_type=code&client_id={}&redirect_uri={}&'+
                       'state={}&resource={}')
 GRAPH_RESOURCE = '00000002-0000-0000-c000-000000000000'

@@ -122,13 +122,13 @@ parameters = {
     'clientId': 'clien&&???tId',
     'clientSecret': 'clientSecret*&^(?&',
     'resource': '00000002-0000-0000-c000-000000000000',
-    'evoEndpoint': 'https://login.windows.net/',
+    'evoEndpoint': 'https://login.microsoftonline.com/',
     'username': 'rrandall@rrandallaad1.onmicrosoft.com',
     'password': '<password>',
     'authorityHosts': {
-        'global': 'login.windows.net',
+        'global': 'login.microsoftonline.com',
         'china': 'login.chinacloudapi.cn',
-        'gov': 'login-us.microsoftonline.com'
+        'gov': 'login.microsoftonline.us'
     }
 }
 

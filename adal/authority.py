@@ -63,10 +63,9 @@ class Authority(object):
         return self._url.geturl()
 
     def _whitelisted(self): # testing if self._url.hostname is a dsts whitelisted domain
-        for domain in AADConstants.WHITELISTED_DOMAINS:
-            if self._url.hostname.endswith(domain):
-                return True
-        return False
+        # Add dSTS domains to whitelist based on based on domain
+        # https://microsoft.sharepoint.com/teams/AzureSecurityCompliance/Security/SitePages/dSTS%20Fundamentals.aspx
+        return ".dsts." in self._url.hostname
 
     def _validate_authority_url(self):
 

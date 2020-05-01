@@ -42,7 +42,7 @@ ACQUIRE_TOKEN_WITH_USERNAME_PASSWORD = {
     "password" : "None",
     "tenant" : "XXXXXXXX.onmicrosoft.com",
 
-    "authorityHostUrl" : "https://login.windows.net",
+    "authorityHostUrl" : "https://login.microsoftonline.com",
 }
 
 ACQUIRE_TOKEN_WITH_CLIENT_CREDENTIALS = {

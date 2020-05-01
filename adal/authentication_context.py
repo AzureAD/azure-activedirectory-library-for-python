@@ -243,9 +243,21 @@ class AuthenticationContext(object):
         :param str client_id: The OAuth client id of the calling application.
         :param str certificate: A PEM encoded certificate private key.
         :param str thumbprint: hex encoded thumbprint of the certificate.
-        :param public_certificate(optional): if not None, it will be sent to the service for subject name
+        :param str public_certificate(optional): if not None, it will be sent to the service for subject name
             and issuer based authentication, which is to support cert auto rolls. The value must match the
             certificate private key parameter.
+
+            Per `specs <https://tools.ietf.org/html/rfc7515#section-4.1.6>`_,
+            "the certificate containing
+            the public key corresponding to the key used to digitally sign the
+            JWS MUST be the first certificate.  This MAY be followed by
+            additional certificates, with each subsequent certificate being the
+            one used to certify the previous one."
+            However, your certificate's issuer may use a different order.
+            So, if your attempt ends up with an error AADSTS700027 -
+            "The provided signature value did not match the expected signature value",
+            you may try use only the leaf cert (in PEM/str format) instead.
+
         :returns: dict with several keys, include "accessToken".
         '''
         def token_func(self):

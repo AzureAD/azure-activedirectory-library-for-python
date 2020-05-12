@@ -35,6 +35,11 @@ __version__ = re.search(
     io.open('adal/__init__.py', encoding='utf_8_sig').read()
     ).group(1)
 
+try:
+    long_description = open('README.md').read()
+except OSError:
+    long_description = "README.md is not accessible on TRAVIS CI's Python 3.5"
+
 # To build:
 # python setup.py sdist
 # python setup.py bdist_wheel
@@ -54,13 +59,16 @@ setup(
     version=__version__,
     description=('The ADAL for Python library makes it easy for python ' +
                  'application to authenticate to Azure Active Directory ' +
-                 '(AAD) in order to access AAD protected web resources.'),
+                 '(AAD) in order to access AAD protected web resources. ' +
+                 '(It is now SUPERSEDED by MSAL Python.)'),
     license='MIT',
     author='Microsoft Corporation',
     author_email='nugetaad@microsoft.com',
     url='https://github.com/AzureAD/azure-activedirectory-library-for-python',
+    long_description=long_description,
+    long_description_content_type="text/markdown",
     classifiers=[
-        'Development Status :: 3 - Alpha',
+        'Development Status :: 5 - Production/Stable',
         'Programming Language :: Python',
         'Programming Language :: Python :: 2',
         'Programming Language :: Python :: 2.7',

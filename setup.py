@@ -57,10 +57,12 @@ except OSError:
 setup(
     name='adal',
     version=__version__,
-    description=('The ADAL for Python library makes it easy for python ' +
+    description=('Note: This library is already replaced by MSAL Python, ' +
+                 'available here: https://pypi.org/project/msal/ .' +
+                 'ADAL Python remains available here as a legacy. ' +
+                 'The ADAL for Python library makes it easy for python ' +
                  'application to authenticate to Azure Active Directory ' +
-                 '(AAD) in order to access AAD protected web resources. ' +
-                 '(It is now SUPERSEDED by MSAL Python.)'),
+                 '(AAD) in order to access AAD protected web resources.'),
     license='MIT',
     author='Microsoft Corporation',
     author_email='nugetaad@microsoft.com',

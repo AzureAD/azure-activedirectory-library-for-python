@@ -52,7 +52,10 @@ __version__ = re.search(
 setup(
     name='adal',
     version=__version__,
-    description=('The ADAL for Python library makes it easy for python ' +
+    description=('Note: This library is already replaced by MSAL Python, ' +
+                 'available here: https://pypi.org/project/msal/ .' +
+                 'ADAL Python remains available here as a legacy. ' +
+                 'The ADAL for Python library makes it easy for python ' +
                  'application to authenticate to Azure Active Directory ' +
                  '(AAD) in order to access AAD protected web resources.'),
     license='MIT',
@@ -60,7 +63,7 @@ setup(
     author_email='nugetaad@microsoft.com',
     url='https://github.com/AzureAD/azure-activedirectory-library-for-python',
     classifiers=[
-        'Development Status :: 3 - Alpha',
+        'Development Status :: 6 - Mature',
         'Programming Language :: Python',
         'Programming Language :: Python :: 2',
         'Programming Language :: Python :: 2.7',

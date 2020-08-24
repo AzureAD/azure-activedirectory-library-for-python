@@ -77,6 +77,7 @@ class OAuth2ResponseParameters(object):
     RESOURCE = 'resource'
     ERROR = 'error'
     ERROR_DESCRIPTION = 'error_description'
+    SCOPE = 'scope'
 
 class OAuth2DeviceCodeResponseParameters:
     USER_CODE = 'user_code'
@@ -121,6 +122,7 @@ class TokenResponseFields(object):
     USER_ID = 'userId'
     ERROR = 'error'
     ERROR_DESCRIPTION = 'errorDescription'
+    SCOPE = 'scope'
     
     # not from the wire, but amends for token cache
     _AUTHORITY = '_authority'

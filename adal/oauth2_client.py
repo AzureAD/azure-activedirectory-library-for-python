@@ -55,6 +55,7 @@ TOKEN_RESPONSE_MAP = {
     OAuth2.ResponseParameters.RESOURCE : TokenResponseFields.RESOURCE,
     OAuth2.ResponseParameters.ERROR : TokenResponseFields.ERROR,
     OAuth2.ResponseParameters.ERROR_DESCRIPTION : TokenResponseFields.ERROR_DESCRIPTION,
+    OAuth2.ResponseParameters.SCOPE : TokenResponseFields.SCOPE
 }
 
 _REQ_OPTION = {'headers' : {'content-type': 'application/x-www-form-urlencoded'}}

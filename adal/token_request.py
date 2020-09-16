@@ -190,9 +190,9 @@ class TokenRequest(object):
 
         return self._oauth_get_token(oauth_parameters)
 
-    def _perform_wstrust_exchange(self, wstrust_endpoint, wstrust_endpoint_version, username, password):
+    def _perform_wstrust_exchange(self, wstrust_endpoint, wstrust_endpoint_version, cloud_audience_urn, username, password):
 
-        wstrust = self._create_wstrust_request(wstrust_endpoint, "urn:federation:MicrosoftOnline",
+        wstrust = self._create_wstrust_request(wstrust_endpoint, cloud_audience_urn,
                                                wstrust_endpoint_version)
         result = wstrust.acquire_token(username, password)
 
@@ -204,9 +204,9 @@ class TokenRequest(object):
 
         return result
 
-    def _perform_username_password_for_access_token_exchange(self, wstrust_endpoint, wstrust_endpoint_version,
+    def _perform_username_password_for_access_token_exchange(self, wstrust_endpoint, wstrust_endpoint_version, cloud_audience_urn,
                                                              username, password):
-        wstrust_response = self._perform_wstrust_exchange(wstrust_endpoint, wstrust_endpoint_version,
+        wstrust_response = self._perform_wstrust_exchange(wstrust_endpoint, wstrust_endpoint_version, cloud_audience_urn,
                                                           username, password)
         return self._perform_wstrust_assertion_oauth_exchange(wstrust_response)
 
@@ -222,15 +222,17 @@ class TokenRequest(object):
 
             wstrust_version = TokenRequest._parse_wstrust_version_from_federation_active_authurl(
                 self._user_realm.federation_active_auth_url)
+            cloud_audience_urn = self._user_realm.cloud_audience_urn
             self._log.debug(
                 'wstrust endpoint version is: %(wstrust_version)s',
                 {"wstrust_version": wstrust_version})
 
             return self._perform_username_password_for_access_token_exchange(
                 self._user_realm.federation_active_auth_url,
-                wstrust_version, username, password)
+                wstrust_version, cloud_audience_urn, username, password)
         else:
             mex_endpoint = self._user_realm.federation_metadata_url
+            cloud_audience_urn = self._user_realm.cloud_audience_urn
             self._log.debug(
                 "Attempting mex at: %(mex_endpoint)s",
                 {"mex_endpoint": mex_endpoint})
@@ -253,6 +255,7 @@ class TokenRequest(object):
                     raise AdalError('AAD did not return a WSTrust endpoint. Unable to proceed.')
 
             return self._perform_username_password_for_access_token_exchange(wstrust_endpoint, wstrust_version,
+                                                                             cloud_audience_urn,
                                                                              username, password)
     @staticmethod
     def _parse_wstrust_version_from_federation_active_authurl(federation_active_authurl):

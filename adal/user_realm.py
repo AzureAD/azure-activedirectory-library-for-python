@@ -132,7 +132,7 @@ class UserRealm(object):
             self.federation_protocol = protocol
             self.federation_metadata_url = response['federation_metadata_url']
             self.federation_active_auth_url = response['federation_active_auth_url']
-            self.cloud_audience_urn = response['cloud_audience_urn']
+            self.cloud_audience_urn = response.get('cloud_audience_urn', "urn:federation:MicrosoftOnline")
 
         self._log_parsed_response()
 

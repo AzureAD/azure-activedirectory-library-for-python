@@ -223,7 +223,6 @@ class TokenRequest(object):
 
             wstrust_version = TokenRequest._parse_wstrust_version_from_federation_active_authurl(
                 self._user_realm.federation_active_auth_url)
-
             self._log.debug(
                 'wstrust endpoint version is: %(wstrust_version)s',
                 {"wstrust_version": wstrust_version})

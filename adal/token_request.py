@@ -213,6 +213,7 @@ class TokenRequest(object):
     def _get_token_username_password_federated(self, username, password):
         self._log.debug("Acquiring token with username password for federated user")
 
+        cloud_audience_urn = self._user_realm.cloud_audience_urn
         if not self._user_realm.federation_metadata_url:
             self._log.warn("Unable to retrieve federationMetadataUrl from AAD. "
                            "Attempting fallback to AAD supplied endpoint.")
@@ -222,7 +223,7 @@ class TokenRequest(object):
 
             wstrust_version = TokenRequest._parse_wstrust_version_from_federation_active_authurl(
                 self._user_realm.federation_active_auth_url)
-            cloud_audience_urn = self._user_realm.cloud_audience_urn
+
             self._log.debug(
                 'wstrust endpoint version is: %(wstrust_version)s',
                 {"wstrust_version": wstrust_version})
@@ -232,7 +233,6 @@ class TokenRequest(object):
                 wstrust_version, cloud_audience_urn, username, password)
         else:
             mex_endpoint = self._user_realm.federation_metadata_url
-            cloud_audience_urn = self._user_realm.cloud_audience_urn
             self._log.debug(
                 "Attempting mex at: %(mex_endpoint)s",
                 {"mex_endpoint": mex_endpoint})

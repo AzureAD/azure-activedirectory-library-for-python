@@ -41,10 +41,10 @@ _PASSWORD_PLACEHOLDER = '{PasswordPlaceHolder}'
 
 class WSTrustRequest(object):
 
-    def __init__(self, call_context, watrust_endpoint_url, applies_to, wstrust_endpoint_version):
+    def __init__(self, call_context, wstrust_endpoint_url, applies_to, wstrust_endpoint_version):
         self._log = log.Logger('WSTrustRequest', call_context['log_context'])
         self._call_context = call_context
-        self._wstrust_endpoint_url = watrust_endpoint_url
+        self._wstrust_endpoint_url = wstrust_endpoint_url
         self._applies_to = applies_to
         self._wstrust_endpoint_version = wstrust_endpoint_version
         

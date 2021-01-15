@@ -57,7 +57,11 @@ def _sign_jwt(header, payload, certificate):
     return encoded_jwt
 
 def _encode_jwt(payload, certificate, header):
-    return jwt.encode(payload, certificate, algorithm='RS256', headers=header).decode()
+    encoded = jwt.encode(payload, certificate, algorithm='RS256', headers=header)
+    try:
+        return encoded.decode()  # PyJWT 1.x returns bytes; historically we convert it to string
+    except AttributeError:
+        return encoded  # PyJWT 2 will return string
 
 def _raise_on_invalid_jwt_signature(encoded_jwt):
     segments = encoded_jwt.split('.')

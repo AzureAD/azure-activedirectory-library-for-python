@@ -20,8 +20,8 @@ This library, ADAL for Python, will no longer receive new feature improvements. 
 --------------------|-----------------|---------------
 [![Build Status](https://travis-ci.org/AzureAD/azure-activedirectory-library-for-python.svg?branch=master)](https://travis-ci.org/AzureAD/azure-activedirectory-library-for-python) | [![Build Status](https://travis-ci.org/AzureAD/azure-activedirectory-library-for-python.svg?branch=dev)](https://travis-ci.org/AzureAD/azure-activedirectory-library-for-python) | [![Documentation Status](https://readthedocs.org/projects/adal-python/badge/?version=latest)](https://adal-python.readthedocs.io/en/latest/?badge=latest)
 
-|[Getting Started](https://github.com/AzureAD/azure-activedirectory-library-for-python/wiki)| [Docs](https://aka.ms/aaddev)| [Python Samples](https://github.com/Azure-Samples?q=active-directory&language=python)| [Support](README.md#community-help-and-support)
-| --- | --- | --- | --- |
+|[Getting Started](https://github.com/AzureAD/azure-activedirectory-library-for-python/wiki)| [Docs](https://aka.ms/aaddev)| [Python Samples](https://github.com/Azure-Samples?q=active-directory&language=python)| [Support](README.md#community-help-and-support) | [Feedback](https://forms.office.com/r/wX0UuEF8kX)
+| --- | --- | --- | --- | --- |
 
 
 The ADAL for Python library enables python applications to authenticate with Azure AD and get tokens to access Azure AD protected web resources.
@@ -52,6 +52,9 @@ You can find the changes for each version under [Releases](https://github.com/Az
 We leverage [Stack Overflow](https://stackoverflow.com/) to work with the community on supporting Azure Active Directory and its SDKs, including this one! We highly recommend you ask your questions on Stack Overflow (we're all on there!) Also browser existing issues to see if someone has had your question before.
 
 We recommend you use the "adal" tag so we can see it! Here is the latest Q&A on Stack Overflow for ADAL: [https://stackoverflow.com/questions/tagged/adal](https://stackoverflow.com/questions/tagged/adal)
+
+## Submit Feedback
+We'd like your thoughts on this library. Please complete [this short survey.](https://forms.office.com/r/wX0UuEF8kX)
 
 ## Security Reporting
 

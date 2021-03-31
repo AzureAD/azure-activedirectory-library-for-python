@@ -214,7 +214,9 @@ class WSTrustResponse(object):
             token_types = findall_content(rstr, "TokenType")
             tokens = findall_content(rstr, "RequestedSecurityToken")
             if token_types and tokens:
-                return tokens[0].encode('us-ascii'), token_types[0]
+                # Historically, we use "us-ascii" encoding, but it should be "utf-8"
+                # https://stackoverflow.com/questions/36658000/what-is-encoding-used-for-saml-conversations
+                return tokens[0].encode('utf-8'), token_types[0]
 
 
     def parse(self):

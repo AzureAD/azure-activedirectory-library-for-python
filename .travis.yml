@@ -24,7 +24,8 @@ deploy:
     on:
       branch: master
       tags: false
-      condition: $TRAVIS_PYTHON_VERSION = "2.7"
+      # At Apr 2021, the get-pip.py used by Travis CI requires Python 3.6+
+      condition: $TRAVIS_PYTHON_VERSION = "3.6"
 
   - # production pypi
     provider: pypi
@@ -35,5 +36,6 @@ deploy:
     on:
       branch: master
       tags: true
-      condition: $TRAVIS_PYTHON_VERSION = "2.7"
+      # At Apr 2021, the get-pip.py used by Travis CI requires Python 3.6+
+      condition: $TRAVIS_PYTHON_VERSION = "3.6"
 

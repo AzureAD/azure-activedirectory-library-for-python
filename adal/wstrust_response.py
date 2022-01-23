@@ -75,7 +75,7 @@ def findall_content(xml_string, tag):
     (https://www.w3.org/TR/xml-exc-c14n/), and void the SAML token signature.
     SAML signature algo needs the "XML -> C14N(XML) -> Signed(C14N(Xml))" order.
 
-    The binary extention lxml is probably the canonical way to solve this
+    The binary extension lxml is probably the canonical way to solve this
     (https://stackoverflow.com/questions/22959577/python-exclusive-xml-canonicalization-xml-exc-c14n)
     but here we use this workaround, based on Regex, to return raw content as-is.
     """
@@ -140,7 +140,7 @@ class WSTrustResponse(object):
                 error_found = True
 
         # Subcode has minoccurs=0 and maxoccurs=1(default) according to the http://www.w3.org/2003/05/soap-envelope
-        # Subcode may have another subcode as well. This is only targetting at top level subcode.
+        # Subcode may have another subcode as well. This is only targeting at top level subcode.
         # Subcode value may have different messages not always uses http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd.
         # text inside the value is not possible to select without prefix, so substring is necessary
         subnode = xmlutil.xpath_find(self._dom, 's:Body/s:Fault/s:Code/s:Subcode/s:Value')

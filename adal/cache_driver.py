@@ -35,7 +35,7 @@ from .adal_error import AdalError
 from .constants import TokenResponseFields, Misc
 from . import log
 
-#surppress warnings: like accces to a protected member of "_AUTHORITY", etc
+#surppress warnings: like access to a protected member of "_AUTHORITY", etc
 # pylint: disable=W0212
 
 def _create_token_hash(token):

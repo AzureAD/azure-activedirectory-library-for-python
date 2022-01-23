@@ -85,7 +85,7 @@ class TestClientCredentials(unittest.TestCase):
 
     @httpretty.activate
     def test_error_with_junk_return(self):
-        junkResponse = 'This is not properly formated return value.'
+        junkResponse = 'This is not properly formatted return value.'
 
         tokenRequest = util.setup_expected_client_cred_token_request_response(400, junkResponse)
 
@@ -96,7 +96,7 @@ class TestClientCredentials(unittest.TestCase):
 
     @httpretty.activate
     def test_success_with_junk_return(self):
-        junkResponse = 'This is not properly formated return value.'
+        junkResponse = 'This is not properly formatted return value.'
 
         tokenRequest = util.setup_expected_client_cred_token_request_response(200, junkResponse)
 
@@ -111,7 +111,7 @@ class TestClientCredentials(unittest.TestCase):
         try:
             context.acquire_token(cp['resource'], 'unknownUser', cp['clientId'])
         except Exception as err:
-            self.assertTrue(err, 'Expected an error and non was recieved.')
+            self.assertTrue(err, 'Expected an error and non was received.')
             self.assertIn('not found', err.args[0], 'Returned error did not contain expected message: ' + err.args[0])
 
 
@@ -143,7 +143,7 @@ class TestClientCredentials(unittest.TestCase):
     @httpretty.activate
     def test_cert_happy_path(self):
         ''' TODO: Test Failing as of 2015/06/03 and needs to be completed. '''
-        self.fail("Not Yet Impelemented.  Add Helper Functions and setup method")
+        self.fail("Not Yet Implemented.  Add Helper Functions and setup method")
         saveProto = updateSelfSignedJwtStubs()
 
         responseOptions = { noRefresh : true }

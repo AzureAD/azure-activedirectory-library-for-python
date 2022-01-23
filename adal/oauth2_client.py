@@ -230,7 +230,7 @@ class OAuth2Client(object):
         if not wire_response.get(OAuth2.DeviceCodeResponseParameters.USER_CODE):
             raise AdalError('wire_response is missing user_code', wire_response)
 
-        #skip field naming tweak, becasue names from wire are python style already
+        #skip field naming tweak, because names from wire are python style already
         return wire_response
 
     def _handle_get_token_response(self, body):

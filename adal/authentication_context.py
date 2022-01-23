@@ -79,7 +79,7 @@ class AuthenticationContext(object):
         :param verify_ssl: (optional) requests verify. Either a boolean, in which case it 
             controls whether we verify the server's TLS certificate, or a string, in which 
             case it must be a path to a CA bundle to use. If this value is not provided, and 
-            ADAL_PYTHON_SSL_NO_VERIFY env varaible is set, behavior is equivalent to 
+            ADAL_PYTHON_SSL_NO_VERIFY env variable is set, behavior is equivalent to 
             verify_ssl=False.
         :param proxies: (optional) requests proxies. Dictionary mapping protocol to the URL 
             of the proxy. See http://docs.python-requests.org/en/master/user/advanced/#proxies

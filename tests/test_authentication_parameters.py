@@ -167,7 +167,7 @@ class TestAuthenticationParameters(unittest.TestCase):
             'Bearer  authorization_uri=foobar,lkfj,;l,", resource="clark, &^()- q32,shark",fruitcake="f" a, f="foo"',
             None
           ],
-          # Mispell Bearer
+          # Misspell Bearer
           [
             'Berer authorization_uri=foobar,lkfj,;l,", resource="clark, &^()- q32,shark",fruitcake="f" , f="foo"',
             None

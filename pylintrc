@@ -36,7 +36,7 @@ reports=yes
 
 # Python expression which should return a note less than 10 (10 is the highest
 # note).You have access to the variables errors warning, statement which
-# respectivly contain the number of errors / warnings messages and the total
+# respectively contain the number of errors / warnings messages and the total
 # number of statements analyzed. This is used by the global evaluation report
 # (R0004).
 evaluation=10.0 - ((float(5 * error + warning + refactor + convention) / statement) * 10)

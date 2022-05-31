@@ -76,7 +76,7 @@ setup(
     ],
     packages=['adal'],
     install_requires=[
-        'PyJWT>=1.0.0,<3',
+        'PyJWT>=1.0.0,<3',  # ADAL does not use jwt.decode(), therefore is insusceptible to CVE-2022-29217 so no need to bump to PyJWT 2.4+
         'requests>=2.0.0,<3',
         'python-dateutil>=2.1.0,<3',
         'cryptography>=1.1.0'

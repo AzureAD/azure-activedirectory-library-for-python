@@ -63,7 +63,7 @@ setup(
     author_email='nugetaad@microsoft.com',
     url='https://github.com/AzureAD/azure-activedirectory-library-for-python',
     classifiers=[
-        'Development Status :: 6 - Mature',
+        'Development Status :: 7 - Inactive',
         'Programming Language :: Python',
         'Programming Language :: Python :: 2',
         'Programming Language :: Python :: 2.7',

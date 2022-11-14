@@ -36,6 +36,9 @@ from .token_cache import TokenCache
 from . import log
 from .constants import OAuth2DeviceCodeResponseParameters
 
+
+warnings.simplefilter('default', DeprecationWarning)  # Makes sure ADAL warnings are shown
+
 GLOBAL_ADAL_OPTIONS = {}
 
 class AuthenticationContext(object):
@@ -85,6 +88,14 @@ class AuthenticationContext(object):
             of the proxy. See http://docs.python-requests.org/en/master/user/advanced/#proxies
             for details.
         '''
+        warnings.warn(
+            """ADAL Python library no longer receives any feature update or bugfix.
+Please use the new library, MSAL Python, available here: https://pypi.org/project/msal/
+
+MSAL Python is easier to use, and more secure.
+Start using MSAL Python by choosing one of the samples that suit your need.
+https://msal-python.readthedocs.io/en/latest/#scenarios
+""", DeprecationWarning)
         self.authority = Authority(authority, validate_authority is None or validate_authority)
         self._oauth2client = None
         self.correlation_id = None

@@ -1,4 +1,6 @@
-requests==2.20.0
+# This file is used by https://github.com/AzureAD/azure-activedirectory-library-for-python/blob/1.2.7/.travis.yml#L8
+
+requests>=2.25,<3  # request 2.25+ is the first version to allow urllib3 1.26.5+ thus bypass CVE-2021-33503
 PyJWT==2.4.0
 #need 2.x for Python3 support
 python-dateutil==2.1.0
